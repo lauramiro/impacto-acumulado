@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass
 from datetime import date
 
 import psycopg
+
+from impacto.text import normalize
 
 
 @dataclass(frozen=True)
@@ -72,3 +75,66 @@ def upsert_raw_document(conn: psycopg.Connection, doc: RawDocument) -> bool:
             )
     conn.commit()
     return True
+
+
+def pending_for_extraction(conn: psycopg.Connection, limit: int) -> list[dict]:
+    """Documents with no extraction yet, or a failed one that has not used up its attempts."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT d.id, d.title, d.text
+            FROM raw_documents d
+            LEFT JOIN extractions e ON e.document_id = d.id
+            WHERE e.document_id IS NULL OR (e.status = 'failed' AND e.attempts < 3)
+            ORDER BY d.published_at, d.id
+            LIMIT %s
+            """,
+            (limit,),
+        )
+        return list(cur.fetchall())
+
+
+def save_extraction(
+    conn: psycopg.Connection,
+    document_id: int,
+    model: str,
+    prompt_version: str,
+    payload: dict | None,
+    confidence: float | None,
+    error: str | None,
+) -> None:
+    """Record an extraction attempt. A conflict (retry) increments attempts."""
+    status = "ok" if payload is not None else "failed"
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO extractions (document_id, model, prompt_version, status, attempts, error, confidence, payload)
+            VALUES (%s, %s, %s, %s, 1, %s, %s, %s)
+            ON CONFLICT (document_id) DO UPDATE SET
+              model = EXCLUDED.model,
+              prompt_version = EXCLUDED.prompt_version,
+              status = EXCLUDED.status,
+              attempts = extractions.attempts + 1,
+              error = EXCLUDED.error,
+              confidence = EXCLUDED.confidence,
+              payload = EXCLUDED.payload,
+              extracted_at = now()
+            """,
+            (
+                document_id,
+                model,
+                prompt_version,
+                status,
+                error,
+                confidence,
+                json.dumps(payload) if payload is not None else None,
+            ),
+        )
+    conn.commit()
+
+
+def municipality_name_map(conn: psycopg.Connection) -> dict[str, str]:
+    """Normalised name -> canonical name, for fuzzy-matching extracted municipality names."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT name FROM municipalities")
+        return {normalize(r["name"]): r["name"] for r in cur.fetchall()}

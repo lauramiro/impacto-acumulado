@@ -1,0 +1,177 @@
+from datetime import date
+
+from impacto.db.documents import RawDocument, pending_for_extraction, upsert_raw_document
+from impacto.extract.run import extract_document, run_extract
+from impacto.providers.stub import StubProvider
+
+HEADER_RESPONSE = {
+    "doc_type": "dia", "verdict": "favorable_condicionada", "project_name": "Parque Ronda I",
+    "developer": "CEPSA", "municipalities": [{"name": "Ronda", "province": "Málaga"}], "confidence": 0.9,
+}
+DESC_RESPONSE = {"doc_type": "otro", "verdict": "no_aplica", "technology": "solar_fv", "mw_nominal": 93, "hectares": 140.1}
+EMPTY = {"doc_type": "otro", "verdict": "no_aplica"}
+
+
+def test_extract_document_merges_sections():
+    # Headings mirror the real markers in impacto.extract.sections (digit-prefixed
+    # "descripcion"/"analisis tecnico", so all four sections actually split apart).
+    provider = StubProvider([HEADER_RESPONSE, DESC_RESPONSE, EMPTY, EMPTY])
+    text = (
+        "Promotor CEPSA\n"
+        "1. Descripción del proyecto\nRonda I 93 MW\n"
+        "3. Análisis técnico del expediente\nx\n"
+        "Condiciones al proyecto\ny"
+    )
+    e = extract_document(provider, "Resolución", text, {"ronda": "Ronda"})
+    assert e.doc_type == "dia"
+    assert e.verdict == "favorable_condicionada"
+    assert e.mw_nominal == 93
+    assert e.municipalities[0].name == "Ronda"
+    assert len(provider.calls) == 4
+
+
+def test_extract_document_handles_null_fields_and_promotes_late_verdict():
+    # Observed live against Groq/openai-gpt-oss-120b: a section chunk that
+    # genuinely doesn't state doc_type/verdict returns JSON null for them
+    # (the prompt tells it to use null when the text doesn't say), and null
+    # for list fields it has nothing to report. Pydantic treats an explicit
+    # null differently from an omitted key, so the raw response must be
+    # sanitised before validation - and because verdict is usually only
+    # stated in the resolving section, a later section's real value must
+    # win over an earlier section's "not stated here" placeholder.
+    header = {"doc_type": None, "verdict": None, "project_name": "Parque X", "related_projects": None}
+    conditions = {
+        "doc_type": "dia", "verdict": "desfavorable",
+        "conditions": [{"category": "general", "text": "denegado"}],
+    }
+    provider = StubProvider([header, conditions])
+    text = "Promotor Y\nCondiciones al proyecto\nz"
+    e = extract_document(provider, "Resolución", text, {})
+    assert e.doc_type == "dia"
+    assert e.verdict == "desfavorable"
+    assert e.project_name == "Parque X"
+    assert e.related_projects == []
+
+
+def test_extract_document_coerces_list_valued_technology_field():
+    # Observed live against Groq/openai-gpt-oss-120b on a mixed-technology
+    # project (three solar plants plus a shared evacuation line): the model
+    # returned technology as a list of two values instead of the single
+    # Literal the schema requires. Take the first rather than fail the
+    # document.
+    raw = {"doc_type": "dia", "verdict": "favorable", "technology": ["solar_fv", "linea_evacuacion"]}
+    provider = StubProvider([raw])
+    e = extract_document(provider, "Resolución", "texto sin encabezados", {})
+    assert e.technology == "solar_fv"
+
+
+def test_extract_document_coerces_list_valued_evidence_entries():
+    # Observed live: the model sometimes cites more than one short excerpt
+    # for a key (species_mentioned, conditions, ...) as a JSON list instead
+    # of the single string the schema's evidence: dict[str, str] expects.
+    raw = {
+        "doc_type": "dia", "verdict": "favorable",
+        "evidence": {
+            "species_mentioned": ["Aquila adalberti", "Neophron percnopterus"],
+            "project_name": "Parque X",
+        },
+    }
+    provider = StubProvider([raw])
+    e = extract_document(provider, "Resolución", "texto sin encabezados", {})
+    assert e.evidence["species_mentioned"] == "Aquila adalberti; Neophron percnopterus"
+    assert e.evidence["project_name"] == "Parque X"
+
+
+def test_extract_document_defaults_unknown_condition_category_to_general():
+    # Observed live: the model used "poblacion" as a condition category,
+    # which is not one of the schema's allowed values. Fall back to
+    # "general" (the schema's own catch-all default) rather than fail.
+    raw = {
+        "doc_type": "dia", "verdict": "favorable_condicionada",
+        "conditions": [
+            {"category": "fauna", "text": "a"},
+            {"category": "poblacion", "text": "b"},
+        ],
+    }
+    provider = StubProvider([raw])
+    e = extract_document(provider, "Resolución", "texto sin encabezados", {})
+    assert e.conditions[0].category == "fauna"
+    assert e.conditions[1].category == "general"
+
+
+def test_extract_document_drops_null_evidence_values():
+    # Observed live: the model sometimes echoes every schema key in
+    # `evidence` and sets the ones it has no citation for to null, instead
+    # of omitting them. evidence: dict[str, str] has no room for a null
+    # value, and a key with nothing to cite is not useful evidence anyway.
+    raw = {
+        "doc_type": "dia", "verdict": "favorable",
+        "evidence": {"project_name": "Parque X", "developer": None},
+    }
+    provider = StubProvider([raw])
+    e = extract_document(provider, "Resolución", "texto sin encabezados", {})
+    assert e.evidence == {"project_name": "Parque X"}
+
+
+def test_extract_document_falls_back_on_unrecognized_enum_values():
+    # Observed live: the model used "declaracion_impacto" instead of the
+    # schema's "dia" for doc_type on the same document. A value outside the
+    # schema's allowed set is treated the same as "not stated" (the
+    # placeholder) instead of failing the whole document.
+    raw = {"doc_type": "declaracion_impacto", "verdict": "aprobado", "technology": "eolico"}
+    provider = StubProvider([raw])
+    e = extract_document(provider, "Resolución", "texto sin encabezados", {})
+    assert e.doc_type == "otro"
+    assert e.verdict == "no_aplica"
+    assert e.technology is None
+
+
+def test_run_extract_saves_rows_and_skips_done(db):
+    upsert_raw_document(db, RawDocument("boe", "A", date(2023, 1, 1), "t", "u", "III", "o", "Promotor X"))
+    provider = StubProvider([HEADER_RESPONSE])
+    assert run_extract(db, provider, limit=10) == 1
+    assert pending_for_extraction(db, 10) == []
+    with db.cursor() as cur:
+        cur.execute("SELECT status, prompt_version, payload->>'project_name' AS name FROM extractions")
+        row = cur.fetchone()
+    assert row["status"] == "ok"
+    assert row["prompt_version"] == "v1"
+    assert row["name"] == "Parque Ronda I"
+
+
+def test_run_extract_records_failures_and_retries_up_to_three(db):
+    upsert_raw_document(db, RawDocument("boe", "B", date(2023, 1, 1), "t", "u", "III", "o", "texto"))
+
+    class Broken:
+        name = "broken"
+
+        def complete_json(self, system, user):
+            raise RuntimeError("boom")
+
+    for _ in range(3):
+        assert run_extract(db, Broken(), limit=10) == 0
+    assert pending_for_extraction(db, 10) == []
+    with db.cursor() as cur:
+        cur.execute("SELECT status, attempts, error FROM extractions")
+        row = cur.fetchone()
+    assert row["status"] == "failed"
+    assert row["attempts"] == 3
+    assert "boom" in row["error"]
+
+
+def test_pending_for_extraction_excludes_ok_and_exhausted_failures(db):
+    upsert_raw_document(db, RawDocument("boe", "C", date(2023, 1, 1), "t", "u", "III", "o", "ok text"))
+    upsert_raw_document(db, RawDocument("boe", "D", date(2023, 1, 1), "t", "u", "III", "o", "failed text"))
+    provider = StubProvider([HEADER_RESPONSE])
+    assert run_extract(db, provider, limit=1) == 1  # only "C" processed, "D" still pending
+
+    class Broken:
+        name = "broken"
+
+        def complete_json(self, system, user):
+            raise RuntimeError("boom")
+
+    for _ in range(3):
+        run_extract(db, Broken(), limit=10)
+
+    assert pending_for_extraction(db, 10) == []
