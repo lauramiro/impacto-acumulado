@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import date
 
 import httpx
@@ -125,6 +126,24 @@ def test_fetch_boja_stores_selected_records(db, fixtures_dir, tmp_path):
     with db.cursor() as cur:
         cur.execute("SELECT count(*) AS n FROM raw_documents WHERE source = 'boja'")
         assert cur.fetchone()["n"] == n
+
+
+def test_fetch_boja_warns_when_first_page_returns_400(db, tmp_path, caplog):
+    # A 400 on page 1 is indistinguishable from "zero matches" unless it is
+    # logged: a broken query or an API change would otherwise silently
+    # read as zero matches forever (observed live: 3 of 4 BOJA_QUERIES got
+    # a 400 on page 1 for the September 2023 window).
+    def handler(request):
+        return httpx.Response(400)
+
+    client = CachedClient(tmp_path, rate_per_second=1000, transport=httpx.MockTransport(handler))
+    with caplog.at_level(logging.WARNING, logger="impacto.fetch.run"):
+        n = fetch_boja(client, db, date(2024, 1, 1), date(2024, 12, 31))
+    assert n == 0
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert warnings
+    for query in ["autorizacion ambiental unificada", "informe de impacto ambiental"]:
+        assert any(query in r.getMessage() and "first page" in r.getMessage() for r in warnings)
 
 
 def test_fetch_boja_stops_paging_on_400_out_of_range(db, fixtures_dir, tmp_path):
