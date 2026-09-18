@@ -1,6 +1,11 @@
 from datetime import date
 
-from impacto.db.documents import RawDocument, pending_for_extraction, upsert_raw_document
+from impacto.db.documents import (
+    RawDocument,
+    pending_for_extraction,
+    save_extraction,
+    upsert_raw_document,
+)
 from impacto.extract.run import extract_document, run_extract
 from impacto.providers.stub import StubProvider
 
@@ -221,6 +226,21 @@ def test_run_extract_records_failures_and_retries_up_to_three(db):
     assert row["status"] == "failed"
     assert row["attempts"] == 3
     assert "boom" in row["error"]
+
+
+def test_pending_for_extraction_redo_prompt_version_reselects_ok_rows(db):
+    # An ok row extracted under an older prompt is only reselected when the
+    # caller asks for that prompt version to be redone; a plain call still
+    # treats it as done.
+    upsert_raw_document(db, RawDocument("boe", "E", date(2023, 1, 1), "t", "u", "III", "o", "old prompt"))
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = 'E'")
+        doc_id = cur.fetchone()["id"]
+    save_extraction(db, doc_id, "stub", "v1", {"doc_type": "dia", "verdict": "no_aplica"}, 0.5, None)
+    assert pending_for_extraction(db, 10) == []
+    assert pending_for_extraction(db, 10, redo_prompt_version="v2") == []
+    redo = pending_for_extraction(db, 10, redo_prompt_version="v1")
+    assert [r["id"] for r in redo] == [doc_id]
 
 
 def test_pending_for_extraction_excludes_ok_and_exhausted_failures(db):

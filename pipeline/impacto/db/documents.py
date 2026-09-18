@@ -77,19 +77,28 @@ def upsert_raw_document(conn: psycopg.Connection, doc: RawDocument) -> bool:
     return True
 
 
-def pending_for_extraction(conn: psycopg.Connection, limit: int) -> list[dict]:
-    """Documents with no extraction yet, or a failed one that has not used up its attempts."""
+def pending_for_extraction(
+    conn: psycopg.Connection, limit: int, redo_prompt_version: str | None = None
+) -> list[dict]:
+    """Documents with no extraction yet, or a failed one that has not used up its attempts.
+
+    With `redo_prompt_version`, ok rows extracted under that prompt version are
+    selected too, so a prompt change can be re-applied to already-extracted
+    documents without deleting their rows.
+    """
+    redo = "OR (e.status = 'ok' AND e.prompt_version = %s)" if redo_prompt_version else ""
+    params: tuple = (redo_prompt_version, limit) if redo_prompt_version else (limit,)
     with conn.cursor() as cur:
         cur.execute(
-            """
+            f"""
             SELECT d.id, d.title, d.text
             FROM raw_documents d
             LEFT JOIN extractions e ON e.document_id = d.id
-            WHERE e.document_id IS NULL OR (e.status = 'failed' AND e.attempts < 3)
+            WHERE e.document_id IS NULL OR (e.status = 'failed' AND e.attempts < 3) {redo}
             ORDER BY d.published_at, d.id
             LIMIT %s
             """,
-            (limit,),
+            params,
         )
         return list(cur.fetchall())
 

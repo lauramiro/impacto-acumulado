@@ -182,10 +182,12 @@ def extract_document(provider: Provider, title: str, text: str, municipality_nam
     return validate_and_score(merged, municipality_names)
 
 
-def run_extract(conn: psycopg.Connection, provider: Provider, limit: int) -> int:
+def run_extract(
+    conn: psycopg.Connection, provider: Provider, limit: int, redo_prompt_version: str | None = None
+) -> int:
     names = municipality_name_map(conn)
     done = 0
-    for row in pending_for_extraction(conn, limit):
+    for row in pending_for_extraction(conn, limit, redo_prompt_version):
         try:
             extraction = extract_document(provider, row["title"], row["text"], names)
         except Exception as exc:  # noqa: BLE001 - any failure is recorded, never fatal
@@ -203,6 +205,11 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="impacto extract")
     parser.add_argument("--limit", type=int, default=50)
     parser.add_argument("--provider", choices=["groq", "stub"], default="groq")
+    parser.add_argument(
+        "--redo-prompt-version",
+        default=None,
+        help="also re-extract documents whose ok extraction used this prompt version",
+    )
     args = parser.parse_args(argv)
     settings = load_settings()
     if args.provider == "groq":
@@ -216,6 +223,6 @@ def main(argv: list[str]) -> int:
 
         provider = StubProvider([])
     with connect(settings.db_dsn) as conn:
-        n = run_extract(conn, provider, args.limit)
+        n = run_extract(conn, provider, args.limit, args.redo_prompt_version)
     print(f"extracted {n} document(s)")
     return 0
