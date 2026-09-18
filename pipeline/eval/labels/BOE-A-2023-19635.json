@@ -1,0 +1,19 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-19635",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "CEPSA Gas y Electricidad, SAU",
+    "technology": "solar_fv",
+    "mw_nominal": 279,
+    "municipalities": [
+      {"name": "Torre Alháquime", "province": "Cádiz"},
+      {"name": "Setenil de las Bodegas", "province": "Cádiz"},
+      {"name": "Ronda", "province": "Málaga"},
+      {"name": "Montecorto", "province": "Málaga"},
+      {"name": "Alcalá del Valle", "province": "Cádiz"}
+    ]
+  },
+  "note": "Verdict: the single operative sentence formulates the DIA 'desfavorable a la realizacion de la linea de evacuacion' and, in the same sentence, 'establece las condiciones ambientales ... para las PSFV Ronda I, Ronda II y Ronda III junto con sus subestaciones. De acuerdo con estas medidas ... se debe desarrollar el proyecto'; the Valoracion says the organo ambiental 'considera compatible la realizacion de las PSFV ... siempre y cuando se cumpla ... el condicionado'. Setting the conditions under which the plants must be built is the ministry's favourable-DIA form (compare BOE-A-2023-2907), so the plants are favourable with conditions and only the accessory line is refused. Municipalities: the selected alternative for every plant is number 3 ('la alternativa seleccionada para cada una de ellas ha sido la 3'): Ronda I in Torre Alhaquime and Setenil de las Bodegas, Ronda II in Ronda and Montecorto, Ronda III in Alcala del Valle. Cortes de la Frontera (the brief's guess) does not appear in the document. mw_nominal: three plants of '93 MWn cada una' (title; 92,9 MW each in the description), total 279."
+}

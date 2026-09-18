@@ -1,0 +1,20 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-2907",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Green Capital Power, SL",
+    "technology": "hibrida",
+    "mw_nominal": 326,
+    "municipalities": [
+      {"name": "Tabernas", "province": "Almería"},
+      {"name": "Tahal", "province": "Almería"},
+      {"name": "Senés", "province": "Almería"},
+      {"name": "Lucainena de las Torres", "province": "Almería"},
+      {"name": "Níjar", "province": "Almería"},
+      {"name": "Sorbas", "province": "Almería"}
+    ]
+  },
+  "note": "Verdict: 'formula declaracion de impacto ambiental a la realizacion del proyecto ... en la que se establecen las condiciones ambientales' with no 'desfavorable', followed by the condicionado. Technology: two wind farms (Filabres 153 MW, Peregiles 93 MW) and one PV plant (La Rambla) evacuating through the shared SET La Rambla, hence hibrida; an extractor answering eolica for the dominant technology is scored wrong. mw_nominal: no printed total; sum of the final design description, 153 + 93 + 80 = 326 (the title gives La Rambla as 89,125 MW, the final description as 'nominal de 80 MW'). Municipalities are the generation sites only: Filabres in Tabernas, Tahal, Senes, Lucainena de las Torres; Peregiles in Nijar and Lucainena de las Torres; La Rambla in Lucainena de las Torres and Sorbas. Bedar, Lubrin and Antas are crossed only by the 220 kV line and are excluded."
+}

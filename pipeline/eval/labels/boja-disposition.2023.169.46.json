@@ -1,0 +1,15 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2023.169.46",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "desfavorable",
+    "developer": "Energía, Innovación y Desarrollo Fotovoltaico, S.A.",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "municipalities": [
+      {"name": "Los Barrios", "province": "Cádiz"}
+    ]
+  },
+  "note": "Resolution giving publicity to the binding report 'con el que se deniega la autorizacion ambiental unificada a Energia, Innovacion y Desarrollo Fotovoltaico, S.A., para el proyecto PSFV Pinar del Rey II, en el termino municipal de Los Barrios (Cadiz) (Expediente: AAU/CA/097/21)'. The operative part ('HA RESUELTO Primero') publishes a refusal of the AAU for the project itself, hence desfavorable. Technology from the project name (PSFV, planta solar fotovoltaica). The document states no capacity, so mw_nominal is labelled null: an extractor that invents a number is scored wrong."
+}

@@ -1,0 +1,17 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-2580",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "desfavorable",
+    "technology": "solar_fv",
+    "mw_nominal": 801,
+    "municipalities": [
+      {"name": "Jimena de la Frontera", "province": "Cádiz"},
+      {"name": "San Martín del Tesorillo", "province": "Cádiz"},
+      {"name": "Casares", "province": "Málaga"},
+      {"name": "Gaucín", "province": "Málaga"}
+    ]
+  },
+  "note": "Verdict: 'formula declaracion de impacto ambiental desfavorable a la realizacion del proyecto Plantas Solares Fotovoltaicas y sus infraestructuras de evacuacion en el Nudo Jordana ... debido a que ... no puede descartarse que se produzcan impactos negativos significativos'; no condicionado follows. mw_nominal: printed total, '13 plantas solares ... con una potencia total nominal de 801 MWn y una potencia pico de 841,5 MWp'. developer is omitted: the document names thirteen special-purpose promoters (Nuza Solar II, SLU; Lanuza Solar I, SLU; Winche Solar, SLU; ...) and no single developer. Municipalities: 'Las anteriores infraestructuras afectan a dos terminos municipales de la provincia de Cadiz (Jimena de la Frontera y San Martin del Tesorillo) y a dos terminos municipales de la provincia de Malaga (Casares y Gaucin)'; the document does not separate plant from line municipalities beyond San Martin del Tesorillo (Nuza Solar II, Lanuza Solar I) and Casares (Amura Solar, Trofeo Solar II), and all lines are internal to the same four municipalities, so all four are labelled."
+}
