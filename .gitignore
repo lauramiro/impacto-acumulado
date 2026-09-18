@@ -17,3 +17,7 @@ Thumbs.db
 
 # Local scratch
 tmp/
+
+# Worktrees and SDD scratch
+.worktrees/
+.superpowers/
