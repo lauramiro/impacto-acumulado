@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-09-18T18:47:52.260637+00:00",
+  "counts": {
+    "raw_documents": 3,
+    "extractions": 3,
+    "projects": 1,
+    "municipalities": 785,
+    "protected_areas": 197
+  }
+}
