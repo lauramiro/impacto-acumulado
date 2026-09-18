@@ -21,3 +21,7 @@ tmp/
 # Worktrees and SDD scratch
 .worktrees/
 .superpowers/
+.claude/worktrees/
+
+# Local secrets (loaded explicitly by pipeline/impacto/settings.py)
+pipeline/env.local
