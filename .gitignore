@@ -25,3 +25,6 @@ tmp/
 
 # Local secrets (loaded explicitly by pipeline/impacto/settings.py)
 pipeline/env.local
+
+# HTTP response cache written by impacto.http.CachedClient
+pipeline/.cache/
