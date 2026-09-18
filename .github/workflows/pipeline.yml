@@ -1,0 +1,83 @@
+name: weekly-pipeline
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "Fetch from date (YYYY-MM-DD); default last 14 days"
+        required: false
+      extract_limit:
+        description: "Max documents to extract this run"
+        required: false
+        default: "200"
+      model:
+        description: "LLM model id; when set, exported as IMPACTO_LLM_MODEL (default openai/gpt-oss-120b)"
+        required: false
+        default: ""
+
+concurrency:
+  group: weekly-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    defaults:
+      run:
+        working-directory: pipeline
+    env:
+      IMPACTO_DB_DSN: ${{ secrets.NEON_DSN }}
+      IMPACTO_LLM_KEY: ${{ secrets.GROQ_KEY }}
+      IMPACTO_HTTP_CACHE: ${{ github.workspace }}/pipeline/.cache
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - uses: actions/cache@v6
+        with:
+          path: pipeline/.cache
+          key: http-cache-${{ github.run_id }}
+          restore-keys: http-cache-
+      - run: uv sync
+      - name: select model
+        if: ${{ inputs.model != '' }}
+        env:
+          MODEL: ${{ inputs.model }}
+        run: echo "IMPACTO_LLM_MODEL=$MODEL" >> "$GITHUB_ENV"
+      - run: uv run python -m impacto migrate
+      - name: fetch
+        env:
+          FROM: ${{ inputs.from }}
+        run: |
+          if [ -n "$FROM" ]; then
+            uv run python -m impacto fetch --from "$FROM"
+          else
+            uv run python -m impacto fetch
+          fi
+      - name: extract
+        # run_extract records each failed document (including Groq quota
+        # errors) and exits 0, so an exhausted daily quota never fails the run.
+        continue-on-error: false
+        env:
+          EXTRACT_LIMIT: ${{ inputs.extract_limit || '200' }}
+        run: uv run python -m impacto extract --limit "$EXTRACT_LIMIT"
+      - run: uv run python -m impacto resolve
+      - run: uv run python -m impacto aggregate
+      - run: uv run python -m impacto export
+      - name: commit exports
+        working-directory: ${{ github.workspace }}
+        run: |
+          git config user.name "impacto-bot"
+          git config user.email "impacto-bot@users.noreply.github.com"
+          git add web/public/data
+          if git diff --cached --quiet; then
+            echo "no data changes"
+          else
+            git commit -m "data: weekly export $(date -u +%F)"
+            git push
+          fi

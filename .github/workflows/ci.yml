@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: impacto
+          POSTGRES_PASSWORD: impacto
+          POSTGRES_DB: impacto_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U impacto"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run pytest -v
+        env:
+          IMPACTO_DB_DSN: postgresql://impacto:impacto@localhost:5432/impacto_test
+          IMPACTO_TEST_DB_DSN: postgresql://impacto:impacto@localhost:5432/impacto_test
