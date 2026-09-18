@@ -17,6 +17,11 @@ Devuelve SOLO un objeto JSON con estas claves. Usa null cuando el texto no lo di
   evacuación) pero autoriza el proyecto principal, el veredicto es "favorable_condicionada", no
   "desfavorable".
   Usa "no_aplica" para anuncios de información pública y documentos sin veredicto.
+  "otro" (en doc_type) y "no_aplica" (en verdict) son respuestas válidas cuando de verdad aplican,
+  no solo un valor por defecto: si esta sección determina explícitamente el doc_type o el veredicto
+  (incluido cuando concluye que es "otro" o "no_aplica"), añade también una cita en evidence para esa
+  clave (evidence["doc_type"] o evidence["verdict"]). Si la sección no lo determina, no incluyas esa
+  clave en evidence aunque hayas puesto un valor en doc_type o verdict.
 - project_name: nombre del proyecto tal como aparece.
 - developer: promotor (empresa).
 - expediente: número de expediente si aparece.

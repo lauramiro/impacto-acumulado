@@ -53,6 +53,48 @@ def test_extract_document_handles_null_fields_and_promotes_late_verdict():
     assert e.related_projects == []
 
 
+def test_extract_document_keeps_evidenced_placeholder_over_later_unevidenced_guess():
+    # "otro" and "no_aplica" are legitimate values in their own right, not
+    # just "not stated" sentinels. Reproduced live: a header section
+    # genuinely (and correctly) decides doc_type="otro"/verdict="no_aplica"
+    # and cites evidence for that decision; a later section slips and
+    # guesses "dia"/"favorable" with no evidence backing it. The evidenced
+    # decision must win.
+    header = {
+        "doc_type": "otro", "verdict": "no_aplica",
+        "evidence": {
+            "doc_type": "el escrito es un anuncio de informacion publica, no una resolucion",
+            "verdict": "no se emite resolucion en este anuncio",
+        },
+    }
+    later = {"doc_type": "dia", "verdict": "favorable"}
+    provider = StubProvider([header, later])
+    text = "Promotor Y\nCondiciones al proyecto\nz"
+    e = extract_document(provider, "Resolución", text, {})
+    assert e.doc_type == "otro"
+    assert e.verdict == "no_aplica"
+
+
+def test_extract_document_lets_later_evidenced_value_override_unevidenced_placeholder():
+    # The other side of the same rule: when the header section never cites
+    # evidence for doc_type/verdict (i.e. it didn't actually decide, it just
+    # defaulted to the placeholder), a later section that does cite evidence
+    # for its differing value must still win.
+    header = {"doc_type": "otro", "verdict": "no_aplica"}
+    later = {
+        "doc_type": "dia", "verdict": "favorable",
+        "evidence": {
+            "doc_type": "declaracion de impacto ambiental",
+            "verdict": "se resuelve favorablemente",
+        },
+    }
+    provider = StubProvider([header, later])
+    text = "Promotor Y\nCondiciones al proyecto\nz"
+    e = extract_document(provider, "Resolución", text, {})
+    assert e.doc_type == "dia"
+    assert e.verdict == "favorable"
+
+
 def test_extract_document_coerces_list_valued_technology_field():
     # Observed live against Groq/openai-gpt-oss-120b on a mixed-technology
     # project (three solar plants plus a shared evacuation line): the model

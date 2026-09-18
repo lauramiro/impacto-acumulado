@@ -115,35 +115,48 @@ def _sanitize(raw: dict) -> dict:
     return raw
 
 
-def _merge_into(merged: Extraction, part: Extraction) -> Extraction:
-    """merged.merge(part), then let part's doc_type/verdict win if merged's
-    is still just the "not stated" placeholder. doc_type/verdict are usually
-    only stated clearly in one section (often the resolving "conditions"
-    section for verdict), and schema.Extraction.merge() otherwise always
-    keeps the first section's value for these two fields.
+def _decide_enum_field(parts: list[Extraction], field: str, placeholder: str) -> str:
+    """Pick the document-level doc_type/verdict out of all the per-section parts.
+
+    PLACEHOLDER_DOC_TYPE ("otro") and PLACEHOLDER_VERDICT ("no_aplica") are
+    legitimate values in their own right, not just "not stated" sentinels,
+    so a section's mere use of one can't be told apart from a real decision
+    by value alone. Trust a section's value for this field only when that
+    section cited evidence for it (the prompt asks for an evidence span per
+    filled key, and explicitly for doc_type/verdict when a section decides
+    them) - the first such evidenced value wins. If no section evidenced
+    this field, fall back to the last non-placeholder value seen, else the
+    placeholder itself.
     """
-    combined = merged.merge(part)
-    data = combined.model_dump()
-    if merged.doc_type == PLACEHOLDER_DOC_TYPE and part.doc_type != PLACEHOLDER_DOC_TYPE:
-        data["doc_type"] = part.doc_type
-    if merged.verdict == PLACEHOLDER_VERDICT and part.verdict != PLACEHOLDER_VERDICT:
-        data["verdict"] = part.verdict
-    return Extraction.model_validate(data)
+    fallback = placeholder
+    for part in parts:
+        value = getattr(part, field)
+        if part.evidence.get(field):
+            return value
+        if value != placeholder:
+            fallback = value
+    return fallback
 
 
 def extract_document(provider: Provider, title: str, text: str, municipality_names: dict[str, str]) -> Extraction:
     sections = split_sections(text)
-    merged: Extraction | None = None
+    parts: list[Extraction] = []
     for key in ORDER:
         body = sections.get(key, "")
         if not body.strip():
             continue
         for chunk in _chunks(body, MAX_SECTION_CHARS):
             raw = provider.complete_json(SYSTEM_PROMPT, build_user_prompt(key, chunk, title))
-            part = Extraction.model_validate(_sanitize(raw))
-            merged = part if merged is None else _merge_into(merged, part)
-    if merged is None:
+            parts.append(Extraction.model_validate(_sanitize(raw)))
+    if not parts:
         raise ValueError("document has no text")
+    merged = parts[0]
+    for part in parts[1:]:
+        merged = merged.merge(part)
+    data = merged.model_dump()
+    data["doc_type"] = _decide_enum_field(parts, "doc_type", PLACEHOLDER_DOC_TYPE)
+    data["verdict"] = _decide_enum_field(parts, "verdict", PLACEHOLDER_VERDICT)
+    merged = Extraction.model_validate(data)
     return validate_and_score(merged, municipality_names)
 
 
