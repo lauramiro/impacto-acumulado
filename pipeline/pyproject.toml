@@ -12,6 +12,12 @@ dependencies = [
   "geopandas",
   "shapely",
   "python-dotenv",
+  "rasterio",
+  "pyogrio",
+  "pyshp",
+  "tifffile",
+  "imagecodecs",
+  "pyproj",
 ]
 
 [dependency-groups]
