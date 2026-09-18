@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import math
 import re
 import time
@@ -20,6 +21,8 @@ from shapely.geometry.base import BaseGeometry
 from impacto.db.connect import connect
 from impacto.settings import load_settings
 
+log = logging.getLogger(__name__)
+
 # This machine's Windows Application Control policy blocks the GDAL DLLs that
 # pyogrio/fiona/rasterio load on import (confirmed: geopandas.read_file and
 # `import rasterio` both fail with "DLL load failed ... directiva de Control
@@ -27,8 +30,11 @@ from impacto.settings import load_settings
 # docs/sources.md). geopandas, shapely, pyproj and numpy import fine; pyshp
 # and tifffile+imagecodecs (pure-Python/no-GDAL) also import fine, so vector
 # and raster reading below is built on those instead of geopandas.read_file
-# and rasterio, even though rasterio/pyogrio stay in pyproject.toml per the
-# task's own dependency instruction.
+# and rasterio/pyogrio - which is why rasterio/pyogrio/geopandas are no
+# longer in pyproject.toml at all (dead, unimportable dependencies).
+# imagecodecs stays: tifffile delegates LZW tile decoding to it at runtime
+# (verified - the real EOL/FTV rasters are LZW-compressed and fail to
+# decode without it), even though load.py never imports it by name.
 
 RASTER_KLASS = {0: "maxima", 1: "muy_alta", 2: "alta"}
 RASTER_NODATA = 65535
@@ -103,11 +109,29 @@ def _reproject(geom: BaseGeometry, apply) -> BaseGeometry:
 
 
 def _to_multipolygon(geom: BaseGeometry) -> MultiPolygon:
-    if geom.geom_type == "Polygon":
-        return MultiPolygon([geom])
-    if geom.geom_type == "MultiPolygon":
-        return geom
-    raise ValueError(f"expected polygonal geometry, got {geom.geom_type}")
+    """Repair self-intersections and similar invalidities with make_valid
+    before wrapping into a MultiPolygon. make_valid can return a
+    GeometryCollection (e.g. mixing the repaired polygon with a stray point
+    or line where a ring collapsed); only the polygonal parts of that are
+    kept, since geom columns here are always polygonal."""
+    valid = shapely.make_valid(geom)
+    if valid.geom_type == "Polygon":
+        return MultiPolygon([valid])
+    if valid.geom_type == "MultiPolygon":
+        return valid
+    if valid.geom_type == "GeometryCollection":
+        polygons: list[BaseGeometry] = []
+        for part in valid.geoms:
+            if part.geom_type == "Polygon":
+                polygons.append(part)
+            elif part.geom_type == "MultiPolygon":
+                polygons.extend(part.geoms)
+        if not polygons:
+            raise ValueError(
+                f"make_valid produced no polygonal parts from a {geom.geom_type}"
+            )
+        return MultiPolygon(polygons)
+    raise ValueError(f"expected polygonal geometry, got {valid.geom_type} (from {geom.geom_type})")
 
 
 def _area_ha(geom: BaseGeometry, src_epsg: int) -> float:
@@ -168,8 +192,17 @@ def load_protected_areas(
                 "ON CONFLICT (site_code) DO NOTHING",
                 row,
             )
+        cur.execute("SELECT count(*) AS n FROM protected_areas")
+        stored = cur.fetchone()["n"]
     conn.commit()
-    return len(rows)
+    skipped = len(rows) - stored
+    if skipped:
+        log.warning(
+            "load_protected_areas: skipped %d duplicate site_code row(s) out of %d read",
+            skipped,
+            len(rows),
+        )
+    return stored
 
 
 def _municipalities_bbox_25830(conn: psycopg.Connection) -> tuple[float, float, float, float]:

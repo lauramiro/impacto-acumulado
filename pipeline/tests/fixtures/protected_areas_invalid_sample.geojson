@@ -1,0 +1,7 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"CODIGOEURO": "ES6140004", "NOMBRE": "Sierra Nevada", "FIGURA": "ZEC"},
+     "geometry": {"type": "Polygon", "coordinates": [[[-3.4, 37.0], [-3.0, 37.4], [-3.0, 37.0], [-3.4, 37.4], [-3.4, 37.0]]]}}
+  ]
+}

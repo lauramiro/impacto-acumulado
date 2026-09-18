@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import tifffile
 
@@ -36,6 +38,36 @@ def test_load_protected_areas_replaces_table(db, fixtures_dir):
     assert rows[0]["type"] == "ZEC"
     assert rows[0]["t"] == "ST_MultiPolygon"
     assert rows[0]["srid"] == 4326
+
+
+def test_load_protected_areas_repairs_invalid_geometry(db, fixtures_dir):
+    # ES6140004 mirrors the real Sierra Nevada ZEPA site that failed ST_IsValid
+    # in production: a bow-tie ring (self-intersecting). make_valid must repair
+    # it before it reaches the database.
+    path = fixtures_dir / "protected_areas_invalid_sample.geojson"
+    count = load_protected_areas(db, path, "CODIGOEURO", "NOMBRE", "FIGURA")
+    assert count == 1
+    with db.cursor() as cur:
+        cur.execute("SELECT bool_and(ST_IsValid(geom)) AS all_valid FROM protected_areas")
+        assert cur.fetchone()["all_valid"] is True
+        cur.execute("SELECT count(*) AS n FROM protected_areas WHERE site_code = 'ES6140004'")
+        assert cur.fetchone()["n"] == 1
+
+
+def test_load_protected_areas_returns_stored_count_with_duplicate_site_codes(
+    db, fixtures_dir, caplog
+):
+    # 3 features read, 2 distinct site codes (ES6170003 repeats) -> ON CONFLICT
+    # DO NOTHING drops 1 row; the return value must reflect what is actually
+    # stored (2), not what was read (3), and a warning must record the skip.
+    path = fixtures_dir / "protected_areas_duplicate_sample.geojson"
+    with caplog.at_level(logging.WARNING):
+        count = load_protected_areas(db, path, "CODIGOEURO", "NOMBRE", "FIGURA")
+    assert count == 2
+    with db.cursor() as cur:
+        cur.execute("SELECT count(*) AS n FROM protected_areas")
+        assert cur.fetchone()["n"] == count
+    assert any("skipped 1 duplicate site_code" in r.message for r in caplog.records)
 
 
 def _write_sensitivity_fixture(tmp_path):

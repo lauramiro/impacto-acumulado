@@ -9,15 +9,13 @@ dependencies = [
   "pydantic>=2",
   "rapidfuzz",
   "groq",
-  "geopandas",
   "shapely",
   "python-dotenv",
-  "rasterio",
-  "pyogrio",
   "pyshp",
   "tifffile",
   "imagecodecs",
   "pyproj",
+  "numpy",
 ]
 
 [dependency-groups]

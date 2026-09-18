@@ -1,0 +1,11 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"CODIGOEURO": "ES6170003", "NOMBRE": "Sierra de las Nieves (ZEC)", "FIGURA": "ZEC"},
+     "geometry": {"type": "Polygon", "coordinates": [[[-5.0, 36.6], [-4.9, 36.6], [-4.9, 36.7], [-5.0, 36.7], [-5.0, 36.6]]]}},
+    {"type": "Feature", "properties": {"CODIGOEURO": "ES6170003", "NOMBRE": "Sierra de las Nieves (ZEPA overlay)", "FIGURA": "ZEPA"},
+     "geometry": {"type": "Polygon", "coordinates": [[[-5.0, 36.6], [-4.9, 36.6], [-4.9, 36.7], [-5.0, 36.7], [-5.0, 36.6]]]}},
+    {"type": "Feature", "properties": {"CODIGOEURO": "ES6170004", "NOMBRE": "Otra Zona", "FIGURA": "LIC"},
+     "geometry": {"type": "Polygon", "coordinates": [[[-4.8, 36.6], [-4.7, 36.6], [-4.7, 36.7], [-4.8, 36.7], [-4.8, 36.6]]]}}
+  ]
+}
