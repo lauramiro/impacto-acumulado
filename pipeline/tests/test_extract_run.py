@@ -95,6 +95,28 @@ def test_extract_document_lets_later_evidenced_value_override_unevidenced_placeh
     assert e.verdict == "favorable"
 
 
+def test_extract_document_prefers_evidenced_operative_verdict_over_evidenced_placeholder():
+    # Observed live on BOJA disposition.2023.169.46 (doc 5): the header
+    # section cited "no se menciona" as evidence for no_aplica (the v1
+    # prompt asked for a citation even when a section merely lacked the
+    # verdict), and the first evidenced value won, so the wholesale AAU
+    # denial in the operative sentence at the end was lost. An evidenced
+    # non-placeholder must beat an evidenced placeholder, and among
+    # evidenced non-placeholders the last one (the operative sentence)
+    # wins. doc_type has no evidence in either section, so it falls back
+    # to the last non-placeholder value.
+    header = {"doc_type": "otro", "verdict": "no_aplica", "evidence": {"verdict": "no se menciona"}}
+    conditions = {
+        "doc_type": "dia", "verdict": "desfavorable",
+        "evidence": {"verdict": "formula declaracion de impacto ambiental desfavorable"},
+    }
+    provider = StubProvider([header, conditions])
+    text = "Promotor Y\nCondiciones al proyecto\nz"
+    e = extract_document(provider, "Resolución", text, {})
+    assert e.verdict == "desfavorable"
+    assert e.doc_type == "dia"
+
+
 def test_extract_document_coerces_list_valued_technology_field():
     # Observed live against Groq/openai-gpt-oss-120b on a mixed-technology
     # project (three solar plants plus a shared evacuation line): the model
@@ -177,7 +199,7 @@ def test_run_extract_saves_rows_and_skips_done(db):
         cur.execute("SELECT status, prompt_version, payload->>'project_name' AS name FROM extractions")
         row = cur.fetchone()
     assert row["status"] == "ok"
-    assert row["prompt_version"] == "v1"
+    assert row["prompt_version"] == "v2"
     assert row["name"] == "Parque Ronda I"
 
 

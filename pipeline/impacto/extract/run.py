@@ -122,19 +122,32 @@ def _decide_enum_field(parts: list[Extraction], field: str, placeholder: str) ->
     legitimate values in their own right, not just "not stated" sentinels,
     so a section's mere use of one can't be told apart from a real decision
     by value alone. Trust a section's value for this field only when that
-    section cited evidence for it (the prompt asks for an evidence span per
-    filled key, and explicitly for doc_type/verdict when a section decides
-    them) - the first such evidenced value wins. If no section evidenced
-    this field, fall back to the last non-placeholder value seen, else the
-    placeholder itself.
+    section cited evidence for it. Among evidenced values:
+    - an evidenced non-placeholder beats an evidenced placeholder (observed
+      live: a header section citing "no se menciona" for no_aplica must not
+      lock out the operative sentence that follows);
+    - among evidenced non-placeholders the LAST wins, because the operative
+      sentence sits at the end of a resolution;
+    - if only placeholders were evidenced, the placeholder is a real answer.
+    If no section evidenced this field, fall back to the last non-placeholder
+    unevidenced value seen, else the placeholder itself.
     """
+    evidenced_value: str | None = None
+    evidenced_placeholder = False
     fallback = placeholder
     for part in parts:
         value = getattr(part, field)
         if part.evidence.get(field):
-            return value
-        if value != placeholder:
+            if value == placeholder:
+                evidenced_placeholder = True
+            else:
+                evidenced_value = value
+        elif value != placeholder:
             fallback = value
+    if evidenced_value is not None:
+        return evidenced_value
+    if evidenced_placeholder:
+        return placeholder
     return fallback
 
 
@@ -145,9 +158,18 @@ def extract_document(provider: Provider, title: str, text: str, municipality_nam
         body = sections.get(key, "")
         if not body.strip():
             continue
-        for chunk in _chunks(body, MAX_SECTION_CHARS):
+        for index, chunk in enumerate(_chunks(body, MAX_SECTION_CHARS)):
             raw = provider.complete_json(SYSTEM_PROMPT, build_user_prompt(key, chunk, title))
-            parts.append(Extraction.model_validate(_sanitize(raw)))
+            part = Extraction.model_validate(_sanitize(raw))
+            log.info(
+                "section %s chunk %d: doc_type=%s verdict=%s evidence=%s",
+                key,
+                index,
+                part.doc_type,
+                part.verdict,
+                sorted(part.evidence),
+            )
+            parts.append(part)
     if not parts:
         raise ValueError("document has no text")
     merged = parts[0]

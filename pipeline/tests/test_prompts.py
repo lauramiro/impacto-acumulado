@@ -2,7 +2,20 @@ from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_pr
 
 
 def test_prompt_version_is_set():
-    assert PROMPT_VERSION == "v1"
+    assert PROMPT_VERSION == "v2"
+
+
+def test_system_prompt_ties_verdict_evidence_to_the_operative_sentence():
+    # v2: evidence["verdict"] is required only for the section holding the
+    # operative sentence; a section that merely lacks the verdict must not
+    # cite evidence for its "otro"/"no_aplica" placeholder (v1 asked for
+    # that and the decision rule then locked onto the placeholder).
+    normalized = SYSTEM_PROMPT.lower()
+    assert "resolutiva" in normalized
+    assert "en la que se establecen las condiciones" in normalized
+    assert "se deniega" in normalized and "se otorga" in normalized
+    assert "da publicidad" in normalized
+    assert "alternativa" in normalized
 
 
 def test_system_prompt_lists_every_enum_value():

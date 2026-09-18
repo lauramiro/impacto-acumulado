@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"
 
 SYSTEM_PROMPT = """Eres un asistente que extrae datos estructurados de resoluciones ambientales
 publicadas en boletines oficiales españoles sobre proyectos de energía renovable.
@@ -10,24 +10,33 @@ Devuelve SOLO un objeto JSON con estas claves. Usa null cuando el texto no lo di
 - doc_type: uno de "dia" (declaración de impacto ambiental), "informe_impacto" (informe de impacto ambiental),
   "aau" (autorización ambiental unificada), "informacion_publica" (anuncio de información pública),
   "modificacion", "caducidad", "otro".
+  Una resolución que "da publicidad" a un informe o acuerdo por el que se otorga o se deniega la
+  autorización ambiental unificada es "aau" (con el veredicto de esa decisión), no
+  "informacion_publica".
 - verdict: uno de "favorable", "favorable_condicionada", "desfavorable", "no_aplica".
+  El veredicto lo fija la frase resolutiva, que normalmente está al final del documento. Formas
+  habituales: "formula declaración de impacto ambiental ... en la que se establecen las condiciones"
+  es "favorable_condicionada"; "desfavorable" después de "impacto ambiental" es "desfavorable";
+  "se otorga la autorización ambiental unificada" es doc_type "aau" con "favorable_condicionada";
+  "se deniega la autorización ambiental unificada" es doc_type "aau" con "desfavorable".
   Usa "favorable_condicionada" cuando la resolución es favorable pero impone condiciones.
   Usa "desfavorable" únicamente cuando la parte resolutiva deniega el proyecto en sí mismo. Si la
   resolución solo deniega o excluye una parte accesoria del proyecto (por ejemplo una línea de
   evacuación) pero autoriza el proyecto principal, el veredicto es "favorable_condicionada", no
   "desfavorable".
   Usa "no_aplica" para anuncios de información pública y documentos sin veredicto.
-  "otro" (en doc_type) y "no_aplica" (en verdict) son respuestas válidas cuando de verdad aplican,
-  no solo un valor por defecto: si esta sección determina explícitamente el doc_type o el veredicto
-  (incluido cuando concluye que es "otro" o "no_aplica"), añade también una cita en evidence para esa
-  clave (evidence["doc_type"] o evidence["verdict"]). Si la sección no lo determina, no incluyas esa
-  clave en evidence aunque hayas puesto un valor en doc_type o verdict.
+  Incluye evidence["verdict"] (y evidence["doc_type"]) SOLO cuando esta sección contiene la frase
+  resolutiva, citándola. Si esta sección no contiene la frase resolutiva, deja doc_type en "otro" y
+  verdict en "no_aplica" (o null) y NO añadas esas claves en evidence: que una sección no mencione
+  el veredicto no es evidencia de nada.
 - project_name: nombre del proyecto tal como aparece.
 - developer: promotor (empresa).
 - expediente: número de expediente si aparece.
 - technology: uno de "solar_fv", "eolica", "hibrida", "almacenamiento", "linea_evacuacion", "otra".
 - mw_peak, mw_nominal: potencia en MW (número). hectares: superficie en hectáreas. turbines: número de aerogeneradores.
-- municipalities: lista de {"name": ..., "province": ...} con los términos municipales afectados.
+- municipalities: lista de {"name": ..., "province": ...} con los términos municipales del
+  emplazamiento de la alternativa seleccionada únicamente: no incluyas los de alternativas descartadas
+  ni los que solo atraviesa la línea de evacuación.
 - utm_coordinates: lista de {"x": ..., "y": ..., "zone": ...} si aparecen coordenadas UTM.
 - protected_areas_mentioned: lista de nombres de espacios protegidos (Red Natura 2000, ZEPA, LIC, parques).
 - species_mentioned: lista de especies citadas.
