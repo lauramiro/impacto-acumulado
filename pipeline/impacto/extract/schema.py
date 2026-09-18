@@ -53,11 +53,16 @@ class Extraction(BaseModel):
     def merge(self, other: Extraction) -> Extraction:
         data = self.model_dump()
         for key, value in other.model_dump().items():
-            if key in ("doc_type", "verdict"):
+            if key in ("doc_type", "verdict", "confidence"):
                 continue
             current = data.get(key)
-            if current in (None, [], {}, 0.0) and value not in (None, [], {}):
+            # Only a genuinely empty value (None, [], {}) counts as "not yet
+            # filled". A real 0 / 0.0 is a legitimate answer (e.g. turbines=0
+            # for a solar-only project) and must not be overwritten by a
+            # later section's non-zero value for a different field.
+            if current in (None, [], {}) and value not in (None, [], {}):
                 data[key] = value
             elif key == "evidence":
                 data[key] = {**value, **current}
+        data["confidence"] = max(self.confidence, other.confidence)
         return Extraction.model_validate(data)
