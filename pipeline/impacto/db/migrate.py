@@ -21,8 +21,12 @@ def apply_migrations(conn: psycopg.Connection, migrations_dir: Path = DEFAULT_DI
         for path in sorted(migrations_dir.glob("*.sql")):
             if path.name in done:
                 continue
-            cur.execute(path.read_text(encoding="utf-8"))
-            cur.execute("INSERT INTO schema_migrations (name) VALUES (%s)", (path.name,))
+            try:
+                cur.execute(path.read_text(encoding="utf-8"))
+                cur.execute("INSERT INTO schema_migrations (name) VALUES (%s)", (path.name,))
+            except Exception as exc:
+                conn.rollback()
+                raise RuntimeError(f"migration {path.name} failed: {exc}") from exc
             applied.append(path.name)
     conn.commit()
     return applied
