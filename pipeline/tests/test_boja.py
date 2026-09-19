@@ -67,7 +67,18 @@ def test_select_records_filters_by_department_and_title():
     not_renewable = BojaRecord(
         "3", "autorización ambiental unificada para una cantera", keep.organisation, keep.published_at, "u", "t"
     )
-    assert select_records([keep, wrong_org, not_renewable]) == [keep]
+    # v1 covers the environment authority only: the energy department's
+    # grid-connection (AAP) notices are out of scope even when the title
+    # carries an instrument phrase and a renewables word.
+    energy_dept = BojaRecord(
+        "4",
+        "Anuncio de información pública de la autorización administrativa del parque eólico Sierra Alta",
+        "Consejería de Industria, Energía y Minas",
+        keep.published_at,
+        "u",
+        "t",
+    )
+    assert select_records([keep, wrong_org, not_renewable, energy_dept]) == [keep]
 
 
 def test_select_records_keeps_renewable_authorisations_from_fixture(fixtures_dir):

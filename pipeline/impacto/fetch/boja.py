@@ -39,11 +39,13 @@ INSTRUMENT_PHRASES = [
     "informacion publica",
 ]
 
-# The environment authority ("Sostenibilidad"/"Medio Ambiente") and the
-# industry/energy authority ("Industria"/"Energia"); see docs/sources.md
-# BOJA selection section - organisation names churn across legislatures so
-# this matches on keyword, not exact name.
-ENV_DEPARTMENT_WORDS = ["sostenibilidad", "medio ambiente", "industria", "energia"]
+# The environment authority ("Sostenibilidad"/"Medio Ambiente") only; see
+# docs/sources.md BOJA selection section. Organisation names churn across
+# legislatures so this matches on keyword, not exact name. v1 deliberately
+# excludes the industry/energy authority ("Industria"/"Energia"): its
+# grid-connection (AAP) notices are a different instrument from the AAU and
+# DIA decisions this pipeline tracks.
+ENV_DEPARTMENT_WORDS = ["sostenibilidad", "medio ambiente"]
 
 _HTML_TAG = re.compile(r"<[^>]+>")
 
