@@ -82,6 +82,22 @@ def export_province_monthly(conn, out_dir: Path) -> Path:
     return _write_csv(out_dir / "province_monthly.csv", rows)
 
 
+def _write_json(path: Path, payload: object) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+def _write_feature_collection(path: Path, features: list[dict]) -> Path:
+    return _write_json(path, {"type": "FeatureCollection", "features": features})
+
+
+# The GeoJSON layers carry geometry plus identifying properties only. The
+# per-status figures go to a sidecar JSON keyed by the same code, so the
+# large geometry files only change when the reference layers do and the
+# web app can join the small, weekly-changing stats client-side.
+
+
 def export_municipalities_geojson(conn, out_dir: Path) -> Path:
     munis = _query(
         conn,
@@ -89,7 +105,19 @@ def export_municipalities_geojson(conn, out_dir: Path) -> Path:
         f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, {SIMPLIFY_TOLERANCE})) AS geom "
         "FROM municipalities ORDER BY ine_code",
     )
-    stats = _query(conn, "SELECT * FROM municipality_stats")
+    features = [
+        {
+            "type": "Feature",
+            "properties": {k: m[k] for k in ("ine_code", "name", "province", "area_ha", "sensitivity_high_share")},
+            "geometry": json.loads(m["geom"]),
+        }
+        for m in munis
+    ]
+    return _write_feature_collection(out_dir / "municipalities.geojson", features)
+
+
+def export_municipality_stats_json(conn, out_dir: Path) -> Path:
+    stats = _query(conn, "SELECT * FROM municipality_stats ORDER BY ine_code, status, technology")
     by_ine: dict[str, dict] = {}
     for s in stats:
         entry = by_ine.setdefault(
@@ -103,18 +131,7 @@ def export_municipalities_geojson(conn, out_dir: Path) -> Path:
         entry["mw_total"] += s["mw_nominal"]
         entry["ha_total"] += s["hectares"]
         entry["count_total"] += s["project_count"]
-    features = []
-    for m in munis:
-        props = {k: m[k] for k in ("ine_code", "name", "province", "area_ha", "sensitivity_high_share")}
-        props.update(by_ine.get(m["ine_code"], {"by_status": {}, "mw_total": 0.0, "ha_total": 0.0, "count_total": 0}))
-        features.append({"type": "Feature", "properties": props, "geometry": json.loads(m["geom"])})
-    path = out_dir / "municipalities.geojson"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    return path
+    return _write_json(out_dir / "municipality_stats.json", by_ine)
 
 
 def export_protected_areas_geojson(conn, out_dir: Path) -> Path:
@@ -124,32 +141,25 @@ def export_protected_areas_geojson(conn, out_dir: Path) -> Path:
         f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, {SIMPLIFY_TOLERANCE})) AS geom "
         "FROM protected_areas ORDER BY site_code",
     )
-    stats = _query(conn, "SELECT * FROM protected_area_stats")
+    features = [
+        {
+            "type": "Feature",
+            "properties": {"site_code": a["site_code"], "name": a["name"], "type": a["type"]},
+            "geometry": json.loads(a["geom"]),
+        }
+        for a in areas
+    ]
+    return _write_feature_collection(out_dir / "protected_areas.geojson", features)
+
+
+def export_protected_area_stats_json(conn, out_dir: Path) -> Path:
+    stats = _query(conn, "SELECT * FROM protected_area_stats ORDER BY site_code, status")
     by_site: dict[str, dict] = {}
     for s in stats:
         by_site.setdefault(s["site_code"], {})[s["status"]] = {
             k: s[k] for k in ("project_count", "mw_nominal", "hectares")
         }
-    features = [
-        {
-            "type": "Feature",
-            "properties": {
-                "site_code": a["site_code"],
-                "name": a["name"],
-                "type": a["type"],
-                "by_status": by_site.get(a["site_code"], {}),
-            },
-            "geometry": json.loads(a["geom"]),
-        }
-        for a in areas
-    ]
-    path = out_dir / "protected_areas.geojson"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    return path
+    return _write_json(out_dir / "protected_area_stats.json", by_site)
 
 
 def export_meta(conn, out_dir: Path) -> Path:
@@ -173,7 +183,9 @@ def export_all(conn: psycopg.Connection, out_dir: Path) -> list[Path]:
         export_municipality_stats(conn, out_dir),
         export_province_monthly(conn, out_dir),
         export_municipalities_geojson(conn, out_dir),
+        export_municipality_stats_json(conn, out_dir),
         export_protected_areas_geojson(conn, out_dir),
+        export_protected_area_stats_json(conn, out_dir),
         export_meta(conn, out_dir),
     ]
 
