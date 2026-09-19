@@ -11,6 +11,7 @@ from impacto.db.connect import connect
 from impacto.db.documents import municipality_name_map
 from impacto.extract.run import extract_document
 from impacto.providers import Provider
+from impacto.providers.factory import PROVIDER_NAMES, build_provider
 from impacto.settings import load_settings
 from impacto.text import normalize
 
@@ -104,19 +105,10 @@ def run_eval(
 def main(argv: list[str]) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(prog="impacto eval")
-    parser.add_argument("--provider", choices=["groq", "stub"], default="groq")
+    parser.add_argument("--provider", choices=PROVIDER_NAMES, default="groq")
     args = parser.parse_args(argv)
     settings = load_settings()
-    if args.provider == "groq":
-        if not settings.llm_key:
-            raise SystemExit("IMPACTO_LLM_KEY is not set")
-        from impacto.providers.groq import GroqProvider
-
-        provider: Provider = GroqProvider(settings.llm_key, settings.llm_model)
-    else:
-        from impacto.providers.stub import StubProvider
-
-        provider = StubProvider([])
+    provider = build_provider(settings, args.provider)
     with connect(settings.db_dsn) as conn:
         run_eval(conn, provider)
     return 0

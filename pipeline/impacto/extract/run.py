@@ -13,6 +13,7 @@ from impacto.extract.schema import ConditionCategory, DocType, Extraction, Techn
 from impacto.extract.sections import ORDER, split_sections
 from impacto.extract.validate import validate_and_score
 from impacto.providers import Provider, QuotaExhausted
+from impacto.providers.factory import PROVIDER_NAMES, build_provider
 from impacto.settings import load_settings
 
 log = logging.getLogger(__name__)
@@ -215,7 +216,7 @@ def main(argv: list[str]) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(prog="impacto extract")
     parser.add_argument("--limit", type=int, default=50)
-    parser.add_argument("--provider", choices=["groq", "stub"], default="groq")
+    parser.add_argument("--provider", choices=PROVIDER_NAMES, default="groq")
     parser.add_argument(
         "--redo-prompt-version",
         default=None,
@@ -223,16 +224,7 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv)
     settings = load_settings()
-    if args.provider == "groq":
-        if not settings.llm_key:
-            raise SystemExit("IMPACTO_LLM_KEY is not set")
-        from impacto.providers.groq import GroqProvider
-
-        provider: Provider = GroqProvider(settings.llm_key, settings.llm_model)
-    else:
-        from impacto.providers.stub import StubProvider
-
-        provider = StubProvider([])
+    provider = build_provider(settings, args.provider)
     with connect(settings.db_dsn) as conn:
         n = run_extract(conn, provider, args.limit, args.redo_prompt_version)
     print(f"extracted {n} document(s)")

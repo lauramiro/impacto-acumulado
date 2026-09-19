@@ -7,6 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 DEFAULT_MODEL = "openai/gpt-oss-120b"
+DEFAULT_MISTRAL_MODEL = "mistral-large-latest"
 
 
 @dataclass(frozen=True)
@@ -14,6 +15,8 @@ class Settings:
     db_dsn: str
     llm_key: str | None
     llm_model: str
+    mistral_key: str | None
+    mistral_model: str
     http_cache: Path
 
 
@@ -30,5 +33,7 @@ def load_settings() -> Settings:
         db_dsn=dsn,
         llm_key=os.environ.get("IMPACTO_LLM_KEY") or None,
         llm_model=os.environ.get("IMPACTO_LLM_MODEL") or DEFAULT_MODEL,
+        mistral_key=os.environ.get("IMPACTO_MISTRAL_KEY") or None,
+        mistral_model=os.environ.get("IMPACTO_MISTRAL_MODEL") or DEFAULT_MISTRAL_MODEL,
         http_cache=Path(os.environ.get("IMPACTO_HTTP_CACHE") or PIPELINE_DIR / ".cache"),
     )
