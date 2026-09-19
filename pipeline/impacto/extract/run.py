@@ -12,7 +12,7 @@ from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_pr
 from impacto.extract.schema import ConditionCategory, DocType, Extraction, Technology, Verdict
 from impacto.extract.sections import ORDER, split_sections
 from impacto.extract.validate import validate_and_score
-from impacto.providers import Provider
+from impacto.providers import Provider, QuotaExhausted
 from impacto.settings import load_settings
 
 log = logging.getLogger(__name__)
@@ -190,6 +190,12 @@ def run_extract(
     for row in pending_for_extraction(conn, limit, redo_prompt_version):
         try:
             extraction = extract_document(provider, row["title"], row["text"], names)
+        except QuotaExhausted as exc:
+            # Not the document's fault: record nothing against it (no attempt
+            # consumed) and stop, since every remaining document would hit
+            # the same wall until the quota resets.
+            log.warning("provider quota exhausted, stopping after %d document(s): %s", done, exc)
+            break
         except Exception as exc:  # noqa: BLE001 - any failure is recorded, never fatal
             log.warning("document %s failed: %s", row["id"], exc)
             save_extraction(conn, row["id"], provider.name, PROMPT_VERSION, None, None, str(exc)[:2000])

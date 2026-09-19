@@ -60,9 +60,15 @@ jobs:
             uv run python -m impacto fetch
           fi
       - name: extract
-        # run_extract records each failed document (including Groq quota
-        # errors) and exits 0, so an exhausted daily quota never fails the run.
-        continue-on-error: false
+        # run_extract records each failed document and exits 0, and stops
+        # early on an exhausted Groq daily quota without recording an
+        # attempt. The per-minute backoff (up to 6 attempts per chunk, ~5
+        # minutes) makes a 200-document run slow, so the step gets its own
+        # generous timeout, and continue-on-error keeps resolve, aggregate
+        # and export running on whatever was extracted if the step still
+        # times out or crashes: a partial week is better than no export.
+        timeout-minutes: 240
+        continue-on-error: true
         env:
           EXTRACT_LIMIT: ${{ inputs.extract_limit || '200' }}
         run: uv run python -m impacto extract --limit "$EXTRACT_LIMIT"

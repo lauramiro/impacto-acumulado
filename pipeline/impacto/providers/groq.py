@@ -6,7 +6,19 @@ import time
 
 from groq import BadRequestError, Groq, RateLimitError
 
+from impacto.providers import QuotaExhausted
+
 log = logging.getLogger(__name__)
+
+# Groq's daily cap reports "on tokens per day (TPD)" with a multi-minute wait
+# (see docs/sources.md, "Extraction observations"); the per-request backoff
+# cannot out-wait it, so such a 429 is terminal for the run.
+_DAILY_LIMIT_MARKERS = ("per day", "tpd", "tokens per day")
+
+
+def _is_daily_limit(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return any(marker in message for marker in _DAILY_LIMIT_MARKERS)
 
 
 def _extract_first_json_object(content: str) -> dict:
@@ -73,9 +85,11 @@ class GroqProvider:
             try:
                 content = self._request(system, user)
                 return _parse_json(content)
-            except RateLimitError:
+            except RateLimitError as exc:
+                if _is_daily_limit(exc):
+                    raise QuotaExhausted(f"daily quota exhausted: {exc}") from exc
                 if attempt == self.max_attempts:
-                    raise
+                    raise QuotaExhausted(f"rate limited after {attempt} attempts: {exc}") from exc
                 log.warning("rate limited, sleeping %.0fs (attempt %d)", backoff, attempt)
                 time.sleep(backoff)
                 backoff *= 2

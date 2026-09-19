@@ -7,6 +7,7 @@ from impacto.db.documents import (
     upsert_raw_document,
 )
 from impacto.extract.run import extract_document, run_extract
+from impacto.providers import QuotaExhausted
 from impacto.providers.stub import StubProvider
 
 HEADER_RESPONSE = {
@@ -226,6 +227,32 @@ def test_run_extract_records_failures_and_retries_up_to_three(db):
     assert row["status"] == "failed"
     assert row["attempts"] == 3
     assert "boom" in row["error"]
+
+
+def test_run_extract_stops_on_quota_exhausted_without_consuming_attempts(db):
+    # A daily-quota error is not the document's fault: no attempt is
+    # recorded against it and the loop stops instead of failing every
+    # remaining document one by one.
+    upsert_raw_document(db, RawDocument("boe", "Q1", date(2023, 1, 1), "t", "u", "III", "o", "uno"))
+    upsert_raw_document(db, RawDocument("boe", "Q2", date(2023, 1, 2), "t", "u", "III", "o", "dos"))
+
+    class Exhausted:
+        name = "exhausted"
+
+        def __init__(self):
+            self.calls = 0
+
+        def complete_json(self, system, user):
+            self.calls += 1
+            raise QuotaExhausted("tokens per day (TPD)")
+
+    provider = Exhausted()
+    assert run_extract(db, provider, limit=10) == 0
+    assert provider.calls == 1
+    with db.cursor() as cur:
+        cur.execute("SELECT count(*) AS n FROM extractions")
+        assert cur.fetchone()["n"] == 0
+    assert len(pending_for_extraction(db, 10)) == 2
 
 
 def test_pending_for_extraction_redo_prompt_version_reselects_ok_rows(db):
