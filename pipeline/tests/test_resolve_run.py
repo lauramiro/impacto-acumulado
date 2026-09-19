@@ -52,3 +52,29 @@ def test_run_resolve_is_idempotent(db, fixtures_dir):
     with db.cursor() as cur:
         cur.execute("SELECT count(*) AS n FROM projects")
         assert cur.fetchone()["n"] == 2
+
+
+def _project_ids(db) -> dict[str, int]:
+    with db.cursor() as cur:
+        cur.execute("SELECT id, canonical_name FROM projects")
+        return {r["canonical_name"]: r["id"] for r in cur.fetchall()}
+
+
+def test_run_resolve_project_ids_are_deterministic(db, fixtures_dir):
+    # A project's id is its group's minimum document id, so re-resolving
+    # (which rebuilds the table) keeps ids stable and links to a project
+    # in an exported file stay valid across weekly runs.
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    first = _project_ids(db)
+    run_resolve(db)
+    assert _project_ids(db) == first
+    with db.cursor() as cur:
+        cur.execute(
+            "SELECT p.id, min(pd.document_id) AS earliest FROM projects p "
+            "JOIN project_documents pd ON pd.project_id = p.id GROUP BY p.id"
+        )
+        rows = cur.fetchall()
+    assert rows
+    for row in rows:
+        assert row["id"] == row["earliest"]

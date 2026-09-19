@@ -91,13 +91,19 @@ def write_projects(conn: psycopg.Connection, groups: list[list[Record]]) -> int:
             for group in groups:
                 status, status_doc = derive_status(group)
                 name = _latest_with(group, "name") or f"Proyecto sin nombre ({group[0].document_id})"
+                # The id is the group's minimum document id: document ids
+                # never change, so a project keeps its id across the weekly
+                # rebuild of this table and links to it stay valid. The
+                # bigserial default is bypassed on purpose.
+                project_id = min(r.document_id for r in group)
                 cur.execute(
                     """
-                    INSERT INTO projects (canonical_name, developer, technology, mw_peak, mw_nominal, hectares, turbines,
-                                          status, status_document_id, first_seen, last_seen)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
+                    INSERT INTO projects (id, canonical_name, developer, technology, mw_peak, mw_nominal, hectares,
+                                          turbines, status, status_document_id, first_seen, last_seen)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
+                        project_id,
                         name,
                         _latest_with(group, "developer"),
                         _latest_with(group, "technology"),
@@ -111,7 +117,6 @@ def write_projects(conn: psycopg.Connection, groups: list[list[Record]]) -> int:
                         max(r.published_at for r in group),
                     ),
                 )
-                project_id = cur.fetchone()["id"]
                 for r in group:
                     score, reason = _match_reason(group, r)
                     cur.execute(
