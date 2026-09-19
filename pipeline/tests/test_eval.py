@@ -1,7 +1,7 @@
 import json
 from datetime import date
 
-from eval.run_eval import run_eval, score
+from evaluation.run_eval import run_eval, score
 from impacto.db.documents import RawDocument, upsert_raw_document
 from impacto.providers.stub import StubProvider
 

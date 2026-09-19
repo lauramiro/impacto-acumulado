@@ -12,7 +12,7 @@ COMMANDS = {
     "aggregate": "impacto.aggregate.run",
     "export": "impacto.aggregate.export",
     "reference": "impacto.reference.load",
-    "eval": "eval.run_eval",
+    "eval": "evaluation.run_eval",
 }
 
 

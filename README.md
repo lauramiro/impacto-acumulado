@@ -29,7 +29,7 @@ uv run python -m impacto resolve && uv run python -m impacto aggregate && uv run
 uv run pytest
 ```
 
-Configuration is through environment variables; see `pipeline/env.example`. Sources, filters and reference layers are documented in `docs/sources.md`. Extraction accuracy is measured with `uv run python -m impacto eval`.
+Configuration is through environment variables; see `pipeline/env.example`. Sources, filters and reference layers are documented in `docs/sources.md`. Extraction accuracy is measured with `uv run python -m impacto eval` (harness and labels in `pipeline/evaluation/`).
 
 ## Continuous integration and the weekly run
 

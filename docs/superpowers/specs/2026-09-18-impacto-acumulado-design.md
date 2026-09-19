@@ -276,7 +276,7 @@ map, colour scales with labels, WCAG AA contrast.
   validation, name normalisation, blocking, scoring, union-find and the
   status state machine. The LLM is stubbed in unit tests.
 - Extraction evaluation: twenty hand-labelled documents in
-  `pipeline/eval/`. A script runs extraction against them and reports
+  `pipeline/evaluation/`. A script runs extraction against them and reports
   per-field accuracy. The result is published on the methodology page and
   gates prompt changes.
 - Web: Playwright smoke tests for each route and keyboard navigation of the
@@ -295,7 +295,7 @@ impacto-acumulado/
   pipeline/                 # Python package, managed with uv
     impacto/
       fetch/ extract/ resolve/ aggregate/ reference/ providers/ db/
-    eval/
+    evaluation/
     tests/
     pyproject.toml
   web/                      # Next.js app

@@ -6,7 +6,8 @@ the scorer and exists to explain a labelling decision. Run with
 `uv run python -m impacto eval` (add `--provider stub` for a dry run); results
 go to `last_run.json` and are quoted on the site's methodology page.
 
-Scoring (`eval/run_eval.py`):
+Scoring (`evaluation/run_eval.py`; the package is named `evaluation` so it
+does not shadow Python's built-in `eval`, while the CLI subcommand stays `eval`):
 - `doc_type`, `verdict`, `technology`: exact match.
 - `mw_peak`, `mw_nominal`, `hectares`, `turbines`: within 2 percent; a `null`
   label scores only when the extraction is also null.
