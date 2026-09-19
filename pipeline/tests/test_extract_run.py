@@ -76,14 +76,38 @@ def test_extract_document_folds_per_plant_lists_into_project_totals():
         "turbines": [10, None, 5],
         "municipalities": [{"name": "Ronda", "province": "Málaga"}, {"name": None, "province": "Cádiz"}],
     }
+    header["expediente"] = ["PFot-123", "PFot-124"]
+    header["mw_peak"] = ["103", "103", "103"]
+    header["turbines"] = [10.4, None, 5]
     provider = StubProvider([header])
     e = extract_document(provider, "Resolución", "Promotor Y", {})
     assert [m.name for m in e.municipalities] == ["Ronda"]
     assert e.developer == "Nuza Solar II, SLU; Trofeo Solar II, SLU"
-    assert e.project_name == "Ronda I; Ronda II; Ronda III"
+    # One canonical name; the other plants are related projects, and one file
+    # number, because resolve matches expediente and phase tokens exactly.
+    assert e.project_name == "Ronda I"
+    assert e.related_projects == ["Ronda II", "Ronda III"]
+    assert e.expediente == "PFot-123"
     assert e.mw_nominal == 279
+    assert e.mw_peak == 309
     assert abs(e.hectares - 447.23) < 1e-6
     assert e.turbines == 15
+
+
+def test_operative_rule_does_not_override_an_evidenced_non_dia_document():
+    # A modification resolution quotes the original favourable DIA in its
+    # background; the model correctly reads it as a modificacion with
+    # evidence, and the quoted sentence must not turn it into a DIA.
+    model_says = {
+        "doc_type": "modificacion", "verdict": "no_aplica", "project_name": "PE Norte",
+        "evidence": {"doc_type": "se modifica la condicion 4 de la declaracion"},
+    }
+    provider = StubProvider([model_says])
+    text = ("Antecedentes: se formula declaración de impacto ambiental a la realización del proyecto PE Norte, "
+            "en la que se establecen las condiciones.\nResuelve modificar la condición 4.")
+    e = extract_document(provider, "Resolución de modificación", text, {})
+    assert e.doc_type == "modificacion"
+    assert e.verdict == "no_aplica"
 
 
 def test_extract_document_operative_sentence_overrides_model_verdict():

@@ -46,21 +46,41 @@ PLACEHOLDER_VERDICT = "no_aplica"
 # Top-level fields the schema declares as a single Literal (not a list).
 _SINGLE_VALUE_FIELDS = ("doc_type", "verdict", "technology")
 _NUMERIC_FIELDS = ("mw_peak", "mw_nominal", "hectares", "turbines")
-_STRING_FIELDS = ("project_name", "developer", "expediente")
+_INTEGER_FIELDS = ("turbines",)
+# Fields that resolve matches exactly (expediente) or reads a phase token
+# from (project_name) keep only their first value; the other plant names
+# go to related_projects, which the schema already has for phases.
+_FIRST_VALUE_FIELDS = ("project_name", "expediente")
+_JOINED_FIELDS = ("developer",)
+# Document types the operative-sentence rule may override. A model that
+# evidenced modificacion, caducidad or informacion_publica read a document
+# that merely quotes a decision, and the rule must not clobber it.
+_OVERRIDABLE_DOC_TYPES = {"dia": {"dia", "otro"}, "aau": {"aau", "otro"}}
+
+
+def _as_number(value):
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return value
+    if isinstance(value, str):
+        try:
+            return float(value.replace(",", "."))
+        except ValueError:
+            return None
+    return None
 
 
 def _fold_numbers(value):
     """Sum a per-plant list or dict of numbers into one project total."""
     parts = value.values() if isinstance(value, dict) else value
-    numbers = [p for p in parts if isinstance(p, (int, float)) and not isinstance(p, bool)]
+    numbers = [n for n in (_as_number(p) for p in parts) if n is not None]
     return sum(numbers) if numbers else None
 
 
-def _fold_strings(value):
-    """Join a per-plant list of strings into one string, dropping empties."""
+def _strings(value) -> list[str]:
     parts = value.values() if isinstance(value, dict) else value
-    strings = [str(p).strip() for p in parts if p not in (None, "")]
-    return "; ".join(strings) if strings else None
+    return [str(p).strip() for p in parts if p not in (None, "")]
 _ALLOWED_DOC_TYPES = set(get_args(DocType))
 _ALLOWED_VERDICTS = set(get_args(Verdict))
 _ALLOWED_TECHNOLOGIES = set(get_args(Technology))
@@ -109,9 +129,22 @@ def _sanitize(raw: dict) -> dict:
     for name in _NUMERIC_FIELDS:
         if isinstance(raw.get(name), (list, dict)):
             raw[name] = _fold_numbers(raw[name])
-    for name in _STRING_FIELDS:
+        elif isinstance(raw.get(name), str):
+            raw[name] = _as_number(raw[name])
+    for name in _INTEGER_FIELDS:
+        if isinstance(raw.get(name), float):
+            raw[name] = round(raw[name])
+    for name in _JOINED_FIELDS:
         if isinstance(raw.get(name), (list, dict)):
-            raw[name] = _fold_strings(raw[name])
+            strings = _strings(raw[name])
+            raw[name] = "; ".join(strings) if strings else None
+    for name in _FIRST_VALUE_FIELDS:
+        if isinstance(raw.get(name), (list, dict)):
+            strings = _strings(raw[name])
+            raw[name] = strings[0] if strings else None
+            if name == "project_name" and len(strings) > 1:
+                related = raw.get("related_projects") or []
+                raw["related_projects"] = list(related) + strings[1:]
     municipalities = raw.get("municipalities")
     if isinstance(municipalities, list):
         raw["municipalities"] = [
@@ -217,9 +250,10 @@ def extract_document(provider: Provider, title: str, text: str, municipality_nam
     data["doc_type"] = _decide_enum_field(parts, "doc_type", PLACEHOLDER_DOC_TYPE)
     data["verdict"] = _decide_enum_field(parts, "verdict", PLACEHOLDER_VERDICT)
     operative = find_operative(text)
-    if operative is not None:
+    if operative is not None and data["doc_type"] in _OVERRIDABLE_DOC_TYPES[operative.doc_type]:
         # The ministry's and the Junta's decision forms are fixed wording; the
-        # rule is more reliable than a model reading them, so it wins.
+        # rule is more reliable than a model reading them, so it wins for
+        # documents the model read as that decision or as nothing in particular.
         log.info("operative sentence: doc_type=%s verdict=%s", operative.doc_type, operative.verdict)
         data["doc_type"] = operative.doc_type
         data["verdict"] = operative.verdict

@@ -101,3 +101,30 @@ def test_persistent_500_raises_http_status_error_after_all_attempts():
     with pytest.raises(httpx.HTTPStatusError):
         provider.complete_json("s", "u")
     assert len(seen) == provider.max_attempts
+
+
+def test_transport_error_is_retried_like_a_5xx():
+    attempts = {"n": 0}
+
+    def handler(request):
+        attempts["n"] += 1
+        if attempts["n"] < 3:
+            raise httpx.ReadTimeout("slow upstream", request=request)
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"ok": true}'}}]})
+
+    provider, _ = _provider(handler)
+    assert provider.complete_json("s", "u") == {"ok": True}
+    assert attempts["n"] == 3
+
+
+def test_persistent_transport_error_raises_after_all_attempts():
+    attempts = {"n": 0}
+
+    def handler(request):
+        attempts["n"] += 1
+        raise httpx.ConnectError("no route", request=request)
+
+    provider, _ = _provider(handler)
+    with pytest.raises(httpx.ConnectError):
+        provider.complete_json("s", "u")
+    assert attempts["n"] == provider.max_attempts

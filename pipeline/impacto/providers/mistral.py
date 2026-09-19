@@ -44,7 +44,17 @@ class MistralProvider:
     def complete_json(self, system: str, user: str) -> dict:
         backoff = self.backoff_seconds
         for attempt in range(1, self.max_attempts + 1):
-            response = self._client.post(self._url, json=self._body(system, user))
+            try:
+                response = self._client.post(self._url, json=self._body(system, user))
+            except httpx.TransportError as exc:
+                # A dropped connection or read timeout over a multi-hour run is
+                # transient; treat it like a 5xx rather than failing the document.
+                if attempt == self.max_attempts:
+                    raise
+                log.warning("transport error %s, sleeping %.0fs (attempt %d)", type(exc).__name__, backoff, attempt)
+                time.sleep(backoff)
+                backoff *= 2
+                continue
             status = response.status_code
             if status == 429:
                 if is_quota_message(response.text):

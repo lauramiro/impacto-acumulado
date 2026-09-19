@@ -39,3 +39,39 @@ def test_aau_granted_and_denied():
 
 def test_no_operative_sentence_returns_none():
     assert find_operative("Anuncio por el que se somete a información pública el proyecto X.") is None
+
+
+def test_aau_negated_grant_and_dismissal_are_refusals():
+    negated = "Esta Delegación resuelve: no otorgar la autorización ambiental unificada al proyecto PSFV Sol."
+    dismissed = "RESUELVE desestimar la solicitud de autorización ambiental unificada del proyecto PSFV Sol."
+    assert find_operative(negated).verdict == "desfavorable"
+    assert find_operative(dismissed).verdict == "desfavorable"
+
+
+def test_aau_verbs_outside_the_resolving_part_are_ignored():
+    boilerplate = (
+        "Anuncio por el que se somete a información pública la solicitud. "
+        "El órgano competente para otorgar la autorización ambiental unificada es la Delegación Territorial."
+    )
+    assert find_operative(boilerplate) is None
+
+
+def test_abbreviation_inside_the_object_does_not_truncate_the_conditions_check():
+    text = (
+        "formula declaración de impacto ambiental desfavorable a la realización de la línea de evacuación "
+        "de Ronda I, S.L.U. y establece las condiciones ambientales para las plantas."
+    )
+    assert find_operative(text).verdict == "favorable_condicionada"
+
+
+def test_refused_project_infrastructure_is_not_a_line_refusal():
+    text = (
+        "formula declaración de impacto ambiental desfavorable a la realización de las infraestructuras "
+        "del proyecto PSFV Sol y establece las condiciones para su desmantelamiento."
+    )
+    assert find_operative(text).verdict == "desfavorable"
+
+
+def test_para_la_realizacion_is_a_project_object():
+    text = "formula declaración de impacto ambiental para la realización del proyecto PE Norte, en la que se establecen las condiciones."
+    assert find_operative(text).verdict == "favorable_condicionada"
