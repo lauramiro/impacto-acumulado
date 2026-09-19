@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-PROMPT_VERSION = "v2"
+PROMPT_VERSION = "v3"
 
 SYSTEM_PROMPT = """Eres un asistente que extrae datos estructurados de resoluciones ambientales
 publicadas en boletines oficiales españoles sobre proyectos de energía renovable.
@@ -33,7 +33,11 @@ Devuelve SOLO un objeto JSON con estas claves. Usa null cuando el texto no lo di
 - developer: promotor (empresa).
 - expediente: número de expediente si aparece.
 - technology: uno de "solar_fv", "eolica", "hibrida", "almacenamiento", "linea_evacuacion", "otra".
-- mw_peak, mw_nominal: potencia en MW (número). hectares: superficie en hectáreas. turbines: número de aerogeneradores.
+- mw_peak, mw_nominal: potencia en MW. hectares: superficie en hectáreas. turbines: número de aerogeneradores.
+  Si el proyecto tiene varias plantas o parques (por ejemplo "Ronda I, Ronda II y Ronda III, de 93 MWn cada una",
+  o "parque eólico Filabres, 153 MW, parque eólico Peregiles, 93 MW"), devuelve para cada uno de estos cuatro
+  campos una LISTA con un número por planta, en el mismo orden, y nunca la cifra de una sola planta. Si solo hay
+  una planta, devuelve un número.
 - municipalities: lista de {"name": ..., "province": ...} con los términos municipales del
   emplazamiento de la alternativa seleccionada únicamente: no incluyas los de alternativas descartadas
   ni los que solo atraviesa la línea de evacuación.

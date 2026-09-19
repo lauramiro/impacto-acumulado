@@ -33,5 +33,5 @@ def test_load_settings_defaults(monkeypatch, tmp_path):
     assert s.llm_key is None
     assert s.llm_model == "openai/gpt-oss-120b"
     assert s.mistral_key is None
-    assert s.mistral_model == "mistral-large-latest"
+    assert s.mistral_model == "ministral-14b-latest"
     assert s.http_cache.name == ".cache"

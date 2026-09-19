@@ -61,6 +61,45 @@ def test_extract_document_handles_null_fields_and_promotes_late_verdict():
     assert e.related_projects == []
 
 
+def test_extract_document_folds_per_plant_lists_into_project_totals():
+    # Observed live against Mistral/ministral-14b on multi-plant resolutions
+    # (Ronda I/II/III, Filabres + Peregiles + La Rambla): numeric fields come
+    # back as one value per plant (a list, or a dict keyed by plant name) and
+    # string fields as one value per plant. The project total is the sum of
+    # the numbers; the strings are joined so nothing is lost.
+    header = {
+        "doc_type": "dia", "verdict": "favorable_condicionada",
+        "developer": ["Nuza Solar II, SLU", "Trofeo Solar II, SLU"],
+        "project_name": ["Ronda I", "Ronda II", "Ronda III"],
+        "mw_nominal": [93, 93, 93],
+        "hectares": {"ronda_i": 140.1, "ronda_ii": 174.93, "ronda_iii": 132.2},
+        "turbines": [10, None, 5],
+        "municipalities": [{"name": "Ronda", "province": "Málaga"}, {"name": None, "province": "Cádiz"}],
+    }
+    provider = StubProvider([header])
+    e = extract_document(provider, "Resolución", "Promotor Y", {})
+    assert [m.name for m in e.municipalities] == ["Ronda"]
+    assert e.developer == "Nuza Solar II, SLU; Trofeo Solar II, SLU"
+    assert e.project_name == "Ronda I; Ronda II; Ronda III"
+    assert e.mw_nominal == 279
+    assert abs(e.hectares - 447.23) < 1e-6
+    assert e.turbines == 15
+
+
+def test_extract_document_operative_sentence_overrides_model_verdict():
+    # The ministry's favourable form has no adjective, which small models miss.
+    model_says = {"doc_type": "otro", "verdict": "no_aplica", "project_name": "PE Filabres",
+                  "conditions": [{"category": "general", "text": None}, {"category": "fauna", "text": "vallado"}]}
+    provider = StubProvider([model_says])
+    text = ("Fundamentos de derecho\nEsta Dirección General formula declaración de impacto ambiental "
+            "a la realización del proyecto PE Filabres en la que se establecen las condiciones.")
+    e = extract_document(provider, "Resolución", text, {})
+    assert e.doc_type == "dia"
+    assert e.verdict == "favorable_condicionada"
+    assert "formula declaracion" in e.evidence["verdict"]
+    assert [c.text for c in e.conditions] == ["vallado"]
+
+
 def test_extract_document_keeps_evidenced_placeholder_over_later_unevidenced_guess():
     # "otro" and "no_aplica" are legitimate values in their own right, not
     # just "not stated" sentinels. Reproduced live: a header section
@@ -207,7 +246,7 @@ def test_run_extract_saves_rows_and_skips_done(db):
         cur.execute("SELECT status, prompt_version, payload->>'project_name' AS name FROM extractions")
         row = cur.fetchone()
     assert row["status"] == "ok"
-    assert row["prompt_version"] == "v2"
+    assert row["prompt_version"] == "v3"
     assert row["name"] == "Parque Ronda I"
 
 

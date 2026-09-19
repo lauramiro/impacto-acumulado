@@ -2,7 +2,14 @@ from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_pr
 
 
 def test_prompt_version_is_set():
-    assert PROMPT_VERSION == "v2"
+    assert PROMPT_VERSION == "v3"
+
+
+def test_system_prompt_asks_for_per_plant_lists():
+    # v3: multi-plant projects return one number per plant for the numeric
+    # fields; the pipeline sums them (observed live: ministral-14b reported
+    # 93 MWn for "Ronda I, II y III, 93 MWn cada una").
+    assert "un número por planta" in SYSTEM_PROMPT
 
 
 def test_system_prompt_ties_verdict_evidence_to_the_operative_sentence():

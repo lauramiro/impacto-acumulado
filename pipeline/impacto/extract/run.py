@@ -8,6 +8,7 @@ import psycopg
 
 from impacto.db.connect import connect
 from impacto.db.documents import municipality_name_map, pending_for_extraction, save_extraction
+from impacto.extract.operative import find_operative
 from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_prompt
 from impacto.extract.schema import ConditionCategory, DocType, Extraction, Technology, Verdict
 from impacto.extract.sections import ORDER, split_sections
@@ -44,6 +45,22 @@ PLACEHOLDER_VERDICT = "no_aplica"
 
 # Top-level fields the schema declares as a single Literal (not a list).
 _SINGLE_VALUE_FIELDS = ("doc_type", "verdict", "technology")
+_NUMERIC_FIELDS = ("mw_peak", "mw_nominal", "hectares", "turbines")
+_STRING_FIELDS = ("project_name", "developer", "expediente")
+
+
+def _fold_numbers(value):
+    """Sum a per-plant list or dict of numbers into one project total."""
+    parts = value.values() if isinstance(value, dict) else value
+    numbers = [p for p in parts if isinstance(p, (int, float)) and not isinstance(p, bool)]
+    return sum(numbers) if numbers else None
+
+
+def _fold_strings(value):
+    """Join a per-plant list of strings into one string, dropping empties."""
+    parts = value.values() if isinstance(value, dict) else value
+    strings = [str(p).strip() for p in parts if p not in (None, "")]
+    return "; ".join(strings) if strings else None
 _ALLOWED_DOC_TYPES = set(get_args(DocType))
 _ALLOWED_VERDICTS = set(get_args(Verdict))
 _ALLOWED_TECHNOLOGIES = set(get_args(Technology))
@@ -76,6 +93,12 @@ def _sanitize(raw: dict) -> dict:
     - a condition's `category` is sometimes a value outside the schema's
       allowed set (e.g. "poblacion"); falls back to "general", the schema's
       own catch-all default for this field.
+    Observed live against Mistral/ministral-14b on multi-plant resolutions:
+    - numeric fields (mw, hectares, turbines) come back as one value per
+      plant, as a list or a dict keyed by plant name; they are summed into
+      the project total the labels use.
+    - string fields (project_name, developer, expediente) come back as one
+      value per plant; they are joined with "; ".
     Any of these would otherwise fail the whole document over one section's
     reasonable but non-conforming answer.
     """
@@ -83,6 +106,17 @@ def _sanitize(raw: dict) -> dict:
     for name, field in Extraction.model_fields.items():
         if name in raw and raw[name] is None and field.default_factory is not None:
             raw[name] = field.default_factory()
+    for name in _NUMERIC_FIELDS:
+        if isinstance(raw.get(name), (list, dict)):
+            raw[name] = _fold_numbers(raw[name])
+    for name in _STRING_FIELDS:
+        if isinstance(raw.get(name), (list, dict)):
+            raw[name] = _fold_strings(raw[name])
+    municipalities = raw.get("municipalities")
+    if isinstance(municipalities, list):
+        raw["municipalities"] = [
+            m for m in municipalities if not isinstance(m, dict) or m.get("name")
+        ]  # a municipality without a name is nothing to link (seen live from ministral-14b)
     for name in _SINGLE_VALUE_FIELDS:
         if isinstance(raw.get(name), list):
             values = [v for v in raw[name] if v is not None]
@@ -103,8 +137,11 @@ def _sanitize(raw: dict) -> dict:
     if isinstance(conditions, list):
         clean_conditions = []
         for condition in conditions:
-            if isinstance(condition, dict) and condition.get("category") not in _ALLOWED_CONDITION_CATEGORIES:
-                condition = {**condition, "category": _DEFAULT_CONDITION_CATEGORY}
+            if isinstance(condition, dict):
+                if not condition.get("text"):
+                    continue  # a condition without text is nothing to keep (seen live from ministral-14b)
+                if condition.get("category") not in _ALLOWED_CONDITION_CATEGORIES:
+                    condition = {**condition, "category": _DEFAULT_CONDITION_CATEGORY}
             clean_conditions.append(condition)
         raw["conditions"] = clean_conditions
     if raw.get("doc_type") not in _ALLOWED_DOC_TYPES:
@@ -179,6 +216,14 @@ def extract_document(provider: Provider, title: str, text: str, municipality_nam
     data = merged.model_dump()
     data["doc_type"] = _decide_enum_field(parts, "doc_type", PLACEHOLDER_DOC_TYPE)
     data["verdict"] = _decide_enum_field(parts, "verdict", PLACEHOLDER_VERDICT)
+    operative = find_operative(text)
+    if operative is not None:
+        # The ministry's and the Junta's decision forms are fixed wording; the
+        # rule is more reliable than a model reading them, so it wins.
+        log.info("operative sentence: doc_type=%s verdict=%s", operative.doc_type, operative.verdict)
+        data["doc_type"] = operative.doc_type
+        data["verdict"] = operative.verdict
+        data["evidence"] = {**data["evidence"], "verdict": operative.sentence, "doc_type": operative.sentence}
     merged = Extraction.model_validate(data)
     return validate_and_score(merged, municipality_names)
 

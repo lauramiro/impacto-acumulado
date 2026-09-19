@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 DEFAULT_MODEL = "openai/gpt-oss-120b"
-DEFAULT_MISTRAL_MODEL = "mistral-large-latest"
+DEFAULT_MISTRAL_MODEL = "ministral-14b-latest"
 
 
 @dataclass(frozen=True)
