@@ -34,16 +34,16 @@ Configuration is through environment variables; see `pipeline/env.example`. Sour
 ## Continuous integration and the weekly run
 
 - `.github/workflows/ci.yml` runs `ruff check` and `pytest` against a PostGIS service container on every push to `main`, every pull request, and on manual dispatch.
-- `.github/workflows/pipeline.yml` (`weekly-pipeline`) runs Mondays at 06:00 UTC and on manual dispatch: `migrate`, `fetch` (last 14 days by default), `extract`, `resolve`, `aggregate`, `export`, then commits `web/public/data/` if it changed. Manual inputs: `from` (fetch start date), `extract_limit` (default 200) and `model` (exported as `IMPACTO_LLM_MODEL` when set). It reads the `NEON_DSN` and `GROQ_KEY` repository secrets. A Groq quota error is recorded per document by the extract stage and does not fail the run.
+- `.github/workflows/pipeline.yml` (`weekly-pipeline`) runs Mondays at 06:00 UTC and on manual dispatch: `migrate`, `fetch` (last 14 days by default), `extract`, `resolve`, `aggregate`, `export`, then commits `web/public/data/` if it changed. Manual inputs: `from` (fetch start date), `extract_limit` (default 200) and `model` (exported as `IMPACTO_LLM_MODEL` when set). It reads the `NEON_DSN` and `GROQ_KEY` repository secrets. An exhausted Groq daily quota stops the extract stage early without recording an attempt against the document, and the step is `continue-on-error` so resolve, aggregate and export still run on what was extracted.
 
 ## Production setup
 
 The weekly workflow needs a production database and two repository secrets. None of these exist yet; the owner must do the following once.
 
-1. Create the Neon project. In the Neon console create a project named `impacto-acumulado` in an EU region (Frankfurt). No manual extension setup is needed: the first `migrate` run executes `CREATE EXTENSION postgis`, which Neon allows. Copy the pooled connection string.
+1. Create the Neon project. In the Neon console create a project named `impacto-acumulado` in an EU region (Frankfurt). No manual extension setup is needed: the first `migrate` run executes `CREATE EXTENSION postgis`, which Neon allows. Copy the direct (non-pooled) connection string, the one whose host does not contain `-pooler`: the pipeline is a single long-lived connection that runs multi-statement migrations and holds transactions across bulk loads, which PgBouncer's transaction-mode pooling behind the pooled endpoint does not support reliably.
 
 2. Add the repository secrets. In GitHub, Settings, Secrets and variables, Actions, create:
-   - `NEON_DSN`: the Neon pooled connection string.
+   - `NEON_DSN`: the Neon direct connection string.
    - `GROQ_KEY`: the Groq API key.
 
 3. Run the migration and the reference loads once against Neon from your machine, with `IMPACTO_DB_DSN` set to the Neon connection string (put it in the local config file described in `pipeline/env.example`; never commit it). The reference files and field names are the ones recorded in `docs/sources.md` ("Task 10 load results"); the sensitivity layer is loaded once per technology, so there are four commands for the three `reference` subcommands:

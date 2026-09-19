@@ -35,6 +35,9 @@ def upsert_raw_document(conn: psycopg.Connection, doc: RawDocument) -> bool:
         )
         row = cur.fetchone()
         if row and row["content_hash"] == digest:
+            # End the SELECT's transaction: with nothing to write, an open
+            # snapshot would otherwise sit across the rest of the fetch run.
+            conn.rollback()
             return False
         cur.execute(
             """

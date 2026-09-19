@@ -1,5 +1,7 @@
 from datetime import date
 
+from psycopg.pq import TransactionStatus
+
 from impacto.db.documents import (
     RawDocument,
     pending_for_extraction,
@@ -253,6 +255,26 @@ def test_run_extract_stops_on_quota_exhausted_without_consuming_attempts(db):
         cur.execute("SELECT count(*) AS n FROM extractions")
         assert cur.fetchone()["n"] == 0
     assert len(pending_for_extraction(db, 10)) == 2
+
+
+def test_run_extract_holds_no_transaction_open_during_llm_calls(db):
+    # The two SELECTs before the loop must be committed so the connection is
+    # idle while the provider spends minutes on rate-limited LLM calls.
+    upsert_raw_document(db, RawDocument("boe", "T1", date(2023, 1, 1), "t", "u", "III", "o", "uno"))
+
+    class Observing:
+        name = "observing"
+
+        def __init__(self):
+            self.statuses: list[TransactionStatus] = []
+
+        def complete_json(self, system, user):
+            self.statuses.append(db.info.transaction_status)
+            return dict(HEADER_RESPONSE)
+
+    provider = Observing()
+    assert run_extract(db, provider, limit=10) == 1
+    assert provider.statuses == [TransactionStatus.IDLE]
 
 
 def test_pending_for_extraction_redo_prompt_version_reselects_ok_rows(db):

@@ -1,5 +1,7 @@
 from datetime import date
 
+from psycopg.pq import TransactionStatus
+
 from impacto.db.documents import RawDocument, upsert_raw_document
 
 
@@ -22,6 +24,15 @@ def test_upsert_inserts_once(db):
     with db.cursor() as cur:
         cur.execute("SELECT count(*) AS n FROM raw_documents")
         assert cur.fetchone()["n"] == 1
+
+
+def test_upsert_unchanged_leaves_no_transaction_open(db):
+    # The unchanged early return used to leave the SELECT's transaction
+    # open until the next commit, holding a snapshot across a whole fetch
+    # run of hundreds of network calls.
+    upsert_raw_document(db, make_doc())
+    assert upsert_raw_document(db, make_doc()) is False
+    assert db.info.transaction_status == TransactionStatus.IDLE
 
 
 def test_upsert_updates_changed_text(db):

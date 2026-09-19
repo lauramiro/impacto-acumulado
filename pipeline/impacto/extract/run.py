@@ -186,8 +186,13 @@ def run_extract(
     conn: psycopg.Connection, provider: Provider, limit: int, redo_prompt_version: str | None = None
 ) -> int:
     names = municipality_name_map(conn)
+    rows = pending_for_extraction(conn, limit, redo_prompt_version)
+    # Both reads are done: commit so no transaction (and no snapshot or
+    # pooled-connection lease) stays open across the minutes of LLM calls
+    # that follow. save_extraction opens and commits its own.
+    conn.commit()
     done = 0
-    for row in pending_for_extraction(conn, limit, redo_prompt_version):
+    for row in rows:
         try:
             extraction = extract_document(provider, row["title"], row["text"], names)
         except QuotaExhausted as exc:
