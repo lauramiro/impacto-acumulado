@@ -162,3 +162,71 @@ def test_fetch_boja_stops_paging_on_400_out_of_range(db, fixtures_dir, tmp_path)
     with db.cursor() as cur:
         cur.execute("SELECT count(*) AS n FROM raw_documents WHERE source = 'boja'")
         assert cur.fetchone()["n"] == n
+
+
+def test_fetch_boe_skips_document_whose_xml_fails_and_stores_the_rest(db, fixtures_dir, tmp_path, caplog):
+    # One document's XML endpoint returning 500 (or malformed XML) must not
+    # abort the whole day: the rest are stored and the miss is logged, and
+    # the 14-day overlap of the next weekly run picks the document up again.
+    summary = (fixtures_dir / "boe_sumario_20230918.json").read_bytes()
+    ronda = (fixtures_dir / "boe_doc_BOE-A-2023-19635.xml").read_bytes()
+    broken: dict[str, int] = {}
+
+    def handler(request):
+        url = str(request.url)
+        if url.endswith("/sumario/20230918"):
+            return httpx.Response(200, content=summary)
+        if "id=BOE-A-2023-19635" in url:
+            return httpx.Response(200, content=ronda)
+        if "/sumario/" in url:
+            return httpx.Response(404)
+        if "id=BOE-A-2023-19631" in url:
+            broken[url] = 500
+            return httpx.Response(500)
+        if "id=BOE-A-2023-19632" in url:
+            broken[url] = 200
+            return httpx.Response(200, content=b"<documento><metadatos>not closed")
+        return httpx.Response(
+            200,
+            content=b"<documento><metadatos><identificador>X</identificador>"
+            b"<titulo>t</titulo><fecha_publicacion>20230918</fecha_publicacion>"
+            b"<departamento>d</departamento></metadatos>"
+            b"<texto><p>Zaragoza</p></texto></documento>",
+        )
+
+    client = CachedClient(tmp_path, rate_per_second=1000, transport=httpx.MockTransport(handler))
+    client.backoff_seconds = 0
+    with caplog.at_level(logging.WARNING, logger="impacto.fetch.run"):
+        n = fetch_boe(client, db, date(2023, 9, 18), date(2023, 9, 18))
+    assert n >= 1
+    assert len(broken) == 2
+    with db.cursor() as cur:
+        cur.execute("SELECT source_id FROM raw_documents WHERE source = 'boe'")
+        ids = {r["source_id"] for r in cur.fetchall()}
+    assert "BOE-A-2023-19635" in ids
+    warnings = [r.getMessage() for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 2
+    assert all("skipping" in w for w in warnings)
+
+
+def test_fetch_boja_skips_query_on_server_error_and_continues(db, fixtures_dir, tmp_path, caplog):
+    # A 500 from one query's search page is logged and that query is
+    # abandoned for this run; the other queries still fetch and store.
+    sample = (fixtures_dir / "boja_search_sample.json").read_bytes()
+    empty = json.dumps({"hits": 0, "total_hits": 0, "results": []}).encode()
+
+    def handler(request):
+        url = str(request.url)
+        if "general=autorizacion%20ambiental%20unificada" in url:
+            return httpx.Response(500)
+        if "page=1" in url:
+            return httpx.Response(200, content=sample)
+        return httpx.Response(200, content=empty)
+
+    client = CachedClient(tmp_path, rate_per_second=1000, transport=httpx.MockTransport(handler))
+    client.backoff_seconds = 0
+    with caplog.at_level(logging.WARNING, logger="impacto.fetch.run"):
+        n = fetch_boja(client, db, date(2024, 1, 1), date(2024, 12, 31))
+    assert n == 11
+    warnings = [r.getMessage() for r in caplog.records if r.levelno == logging.WARNING]
+    assert any("autorizacion ambiental unificada" in w and "skipping" in w for w in warnings)

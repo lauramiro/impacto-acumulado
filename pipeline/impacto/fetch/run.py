@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import xml.etree.ElementTree as ET
 from datetime import UTC, date, datetime, timedelta
 
 import httpx
@@ -35,7 +36,16 @@ def fetch_boe(client: CachedClient, conn: psycopg.Connection, day_from: date, da
             raise
         items = boe.select_items(boe.walk_items(json.loads(raw)))
         for item in items:
-            doc = boe.parse_document_xml(client.get(item.xml_url))
+            try:
+                doc = boe.parse_document_xml(client.get(item.xml_url))
+            except (httpx.HTTPError, ValueError, ET.ParseError) as exc:
+                # One document's XML failing (server error after retries,
+                # transport error, malformed or incomplete XML) must not
+                # abort the whole run. The next weekly run re-reads the last
+                # 14 days, so the miss heals itself once the endpoint
+                # recovers.
+                log.warning("boe item %s: skipping, %s", item.identifier, exc)
+                continue
             # Only the title, not the full body text: a resolution's title
             # reliably states the province(s) the project sits in (see
             # docs/sources.md), while scanning the whole body catches
@@ -92,7 +102,14 @@ def fetch_boja(client: CachedClient, conn: psycopg.Connection, day_from: date, d
                     else:
                         log.info("boja query %r: %d page(s)", query, page - 1)
                     break
-                raise
+                # Any other HTTP failure (5xx after retries, transport error)
+                # abandons this query for the run instead of aborting fetch;
+                # the next run's 14-day overlap re-reads the window.
+                log.warning("boja query %r page %d: skipping the query, %s", query, page, exc)
+                break
+            except httpx.HTTPError as exc:
+                log.warning("boja query %r page %d: skipping the query, %s", query, page, exc)
+                break
             payload = json.loads(raw)
             records = boja.parse_records(payload)
             if not records:
