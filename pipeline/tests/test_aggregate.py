@@ -15,6 +15,16 @@ def test_aggregate_builds_stats(db, fixtures_dir):
             "('alta', 'ftv', ST_Multi(ST_GeomFromText("
             "'POLYGON((-5.2 36.7,-5.15 36.7,-5.15 36.8,-5.2 36.8,-5.2 36.7))', 4326)))"
         )
+        # Two zones (one per technology) that each cover all of municipality
+        # 29067 and spill past its edges: the union must saturate the share at
+        # exactly 1.0, never above it through geography rounding.
+        cur.execute(
+            "INSERT INTO sensitivity_zones (klass, technology, geom) VALUES "
+            "('maxima', 'eol', ST_Multi(ST_GeomFromText("
+            "'POLYGON((-4.6 36.6,-4.3 36.6,-4.3 36.9,-4.6 36.9,-4.6 36.6))', 4326))), "
+            "('alta', 'ftv', ST_Multi(ST_GeomFromText("
+            "'POLYGON((-4.55 36.65,-4.35 36.65,-4.35 36.85,-4.55 36.85,-4.55 36.65))', 4326)))"
+        )
         cur.execute(
             "INSERT INTO protected_areas (site_code, name, type, geom) VALUES "
             "('ES0000001', 'Sierra', 'ZEPA', ST_Multi(ST_GeomFromText("
@@ -27,6 +37,8 @@ def test_aggregate_builds_stats(db, fixtures_dir):
         stats = cur.fetchall()
         cur.execute("SELECT sensitivity_high_share FROM municipalities WHERE ine_code = '29084'")
         share = cur.fetchone()["sensitivity_high_share"]
+        cur.execute("SELECT ine_code, sensitivity_high_share FROM municipalities ORDER BY ine_code")
+        shares = {r["ine_code"]: r["sensitivity_high_share"] for r in cur.fetchall()}
         cur.execute("SELECT site_code, status, project_count FROM protected_area_stats")
         pa = cur.fetchall()
         cur.execute("SELECT province, verdict, mw_nominal FROM province_monthly ORDER BY month")
@@ -36,6 +48,8 @@ def test_aggregate_builds_stats(db, fixtures_dir):
         ("29084", "favorable_condicionada", 93.0),
     ]
     assert 0.4 < share < 0.6
+    assert shares["29067"] == 1.0
+    assert all(0.0 <= s <= 1.0 for s in shares.values())
     assert pa == [{"site_code": "ES0000001", "status": "favorable_condicionada", "project_count": 1}]
     assert [(r["province"], r["verdict"]) for r in pm] == [
         ("Málaga", "desfavorable"),

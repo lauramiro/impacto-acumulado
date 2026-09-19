@@ -14,12 +14,16 @@ UPDATE municipalities SET sensitivity_high_share = 0;
 -- municipality's ST_Intersects test, instead of joining municipalities against
 -- all ~47k zone rows before grouping. ST_Union collapses overlaps within the
 -- matched set so the intersection area is not inflated.
+--
+-- LEAST(1.0, ...) clamps the share: geography area of the intersection can
+-- exceed the municipality's own by float rounding when zones cover it fully
+-- (observed live: Serrato, 29904, at 1.0000004 on the dev database).
 UPDATE municipalities m
 SET sensitivity_high_share = sub.share
 FROM (
   SELECT m2.ine_code,
-         ST_Area(ST_Intersection(m2.geom, u.geom)::geography)
-           / NULLIF(ST_Area(m2.geom::geography), 0) AS share
+         LEAST(1.0, ST_Area(ST_Intersection(m2.geom, u.geom)::geography)
+           / NULLIF(ST_Area(m2.geom::geography), 0)) AS share
   FROM municipalities m2
   CROSS JOIN LATERAL (
     SELECT ST_Union(z.geom) AS geom
