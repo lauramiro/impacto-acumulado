@@ -45,6 +45,7 @@ The weekly workflow needs a production database and two repository secrets. None
 2. Add the repository secrets. In GitHub, Settings, Secrets and variables, Actions, create:
    - `NEON_DSN`: the Neon direct connection string.
    - `GROQ_KEY`: the Groq API key.
+   - `MISTRAL_KEY` (optional): the Mistral API key, used only when the workflow is dispatched with `provider` set to `mistral`.
 
 3. Run the migration and the reference loads once against Neon from your machine, with `IMPACTO_DB_DSN` set to the Neon connection string (put it in the local config file described in `pipeline/env.example`; never commit it). The reference files and field names are the ones recorded in `docs/sources.md` ("Task 10 load results"); the sensitivity layer is loaded once per technology, so there are four commands for the three `reference` subcommands:
 
@@ -68,5 +69,7 @@ The weekly workflow needs a production database and two repository secrets. None
    ```
 
    The extract stage records each failed document and resumes on rerun; check progress with `SELECT status, count(*) FROM extractions GROUP BY 1`. Then run `resolve`, `aggregate` and `export`, and commit `web/public/data/`.
+
+   The backfill can also run on Mistral's free Experiment plan instead of Groq: set `IMPACTO_MISTRAL_KEY` (and optionally `IMPACTO_MISTRAL_MODEL`, default `mistral-large-latest`) and pass `--provider mistral` to `extract`. The Experiment plan's limits are only shown in the Mistral console (see `docs/sources.md`, "Mistral"); a 429 that names a monthly cap stops the run the same way Groq's daily cap does, and the run resumes where it left off when rerun.
 
 5. Trigger the weekly workflow once by hand (`gh workflow run weekly-pipeline`) and confirm it completes and either commits new exports or reports no changes.

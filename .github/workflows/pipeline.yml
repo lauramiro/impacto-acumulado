@@ -16,6 +16,12 @@ on:
         description: "LLM model id; when set, exported as IMPACTO_LLM_MODEL (default openai/gpt-oss-120b)"
         required: false
         default: ""
+      provider:
+        description: "LLM provider for the extract step (groq or mistral)"
+        required: false
+        type: choice
+        options: [groq, mistral]
+        default: groq
 
 concurrency:
   group: weekly-pipeline
@@ -34,6 +40,7 @@ jobs:
     env:
       IMPACTO_DB_DSN: ${{ secrets.NEON_DSN }}
       IMPACTO_LLM_KEY: ${{ secrets.GROQ_KEY }}
+      IMPACTO_MISTRAL_KEY: ${{ secrets.MISTRAL_KEY }}
       IMPACTO_HTTP_CACHE: ${{ github.workspace }}/pipeline/.cache
     steps:
       - uses: actions/checkout@v7
@@ -71,7 +78,8 @@ jobs:
         continue-on-error: true
         env:
           EXTRACT_LIMIT: ${{ inputs.extract_limit || '200' }}
-        run: uv run python -m impacto extract --limit "$EXTRACT_LIMIT"
+          PROVIDER: ${{ inputs.provider || 'groq' }}
+        run: uv run python -m impacto extract --limit "$EXTRACT_LIMIT" --provider "$PROVIDER"
       - run: uv run python -m impacto resolve
       - run: uv run python -m impacto aggregate
       - run: uv run python -m impacto export
