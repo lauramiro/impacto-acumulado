@@ -28,3 +28,5 @@ pipeline/env.local
 
 # HTTP response cache written by impacto.http.CachedClient
 pipeline/.cache/
+.neon
+.env.local
