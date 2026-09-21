@@ -82,10 +82,11 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,name,provi
 23056,favorable_condicionada,solar_fv,1,130.68,263.36,0,Lopera,Jaén
 23059,favorable_condicionada,solar_fv,1,130.68,263.36,0,Marmolejo,Jaén
 29012,favorable_condicionada,solar_fv,1,199.46,333.88,0,Álora,Málaga
-29015,favorable_condicionada,solar_fv,1,48.0,145.51,0,Antequera,Málaga
+29015,favorable_condicionada,solar_fv,2,548.0,963.06,0,Antequera,Málaga
 29017,desfavorable,solar_fv,1,83.0,123.6,0,Archidona,Málaga
 29017,favorable_condicionada,solar_fv,1,48.0,145.51,0,Archidona,Málaga
 29031,desfavorable,eolica,1,25.12,0.0,7,El Burgo,Málaga
+29032,favorable_condicionada,solar_fv,1,500.0,817.55,0,Campillos,Málaga
 29035,desfavorable,eolica,1,25.12,0.0,7,Cañete la Real,Málaga
 29040,desfavorable,eolica,1,25.12,0.0,7,Casarabonela,Málaga
 29040,desfavorable,solar_fv,1,62.5,94.75,0,Casarabonela,Málaga
@@ -110,6 +111,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,name,provi
 41038,favorable_condicionada,solar_fv,1,0.0,360.24,0,Dos Hermanas,Sevilla
 41042,favorable_condicionada,hibrida,1,98.0,267.8,0,Fuentes de Andalucía,Sevilla
 41058,favorable_condicionada,solar_fv,1,0.0,360.0,0,Mairena del Alcor,Sevilla
+41067,desfavorable,solar_fv,1,56.5,98.47,0,Olivares,Sevilla
 41085,favorable_condicionada,solar_fv,1,69.6,212.7,0,Salteras,Sevilla
 41091,desconocido,solar_fv,1,114.95,184.56,0,Sevilla,Sevilla
 41095,desconocido,solar_fv,1,150.0,0.0,0,Utrera,Sevilla
