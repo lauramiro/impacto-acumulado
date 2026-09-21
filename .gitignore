@@ -30,3 +30,5 @@ pipeline/env.local
 pipeline/.cache/
 .neon
 .env.local
+
+.vercel
