@@ -66,6 +66,28 @@ def test_projects_csv_carries_ine_codes(db, fixtures_dir, tmp_path):
     assert rows["Parque eólico Sierra Alta"]["ine_codes"] == "29067"
 
 
+def test_projects_csv_orders_ine_codes_like_municipalities(db, fixtures_dir, tmp_path):
+    # A project linked to more than one municipality must list ine_codes in
+    # the same order as municipalities (both by municipality name), not by
+    # ine_code, so the two columns stay aligned position by position.
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM projects WHERE canonical_name = %s", ("Parque fotovoltaico Ronda I",))
+        ronda_id = cur.fetchone()["id"]
+        cur.execute(
+            "INSERT INTO project_municipalities (project_id, ine_code) VALUES (%s, %s)",
+            (ronda_id, "29067"),
+        )
+    db.commit()
+    run_aggregate(db)
+    export_all(db, tmp_path)
+    with open(tmp_path / "projects.csv", encoding="utf-8", newline="") as f:
+        rows = {r["canonical_name"]: r for r in csv.DictReader(f)}
+    assert rows["Parque fotovoltaico Ronda I"]["municipalities"] == "Málaga; Ronda"
+    assert rows["Parque fotovoltaico Ronda I"]["ine_codes"] == "29067;29084"
+
+
 def test_municipality_stats_json_has_technology_split(db, fixtures_dir, tmp_path):
     seed(db, fixtures_dir)
     run_resolve(db)

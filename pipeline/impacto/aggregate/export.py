@@ -40,13 +40,17 @@ def export_projects(conn, out_dir: Path) -> Path:
         """
         SELECT p.id, p.canonical_name, p.developer, p.technology, p.status, p.mw_peak, p.mw_nominal, p.hectares, p.turbines,
                p.first_seen, p.last_seen,
-               string_agg(DISTINCT m.name, '; ' ORDER BY m.name) AS municipalities,
-               string_agg(DISTINCT m.ine_code, ';' ORDER BY m.ine_code) AS ine_codes,
-               string_agg(DISTINCT m.province, '; ') AS provinces,
+               (SELECT string_agg(m.name, '; ' ORDER BY m.name)
+                FROM project_municipalities pm JOIN municipalities m ON m.ine_code = pm.ine_code
+                WHERE pm.project_id = p.id) AS municipalities,
+               (SELECT string_agg(m.ine_code, ';' ORDER BY m.name)
+                FROM project_municipalities pm JOIN municipalities m ON m.ine_code = pm.ine_code
+                WHERE pm.project_id = p.id) AS ine_codes,
+               (SELECT string_agg(DISTINCT m.province, '; ')
+                FROM project_municipalities pm JOIN municipalities m ON m.ine_code = pm.ine_code
+                WHERE pm.project_id = p.id) AS provinces,
                string_agg(DISTINCT d.url, ' ') AS document_urls
         FROM projects p
-        LEFT JOIN project_municipalities pm ON pm.project_id = p.id
-        LEFT JOIN municipalities m ON m.ine_code = pm.ine_code
         LEFT JOIN project_documents pd ON pd.project_id = p.id
         LEFT JOIN raw_documents d ON d.id = pd.document_id
         GROUP BY p.id ORDER BY p.id
