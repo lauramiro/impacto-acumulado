@@ -42,9 +42,15 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
       </table>
       <p className={styles.tech}>
         Por tecnología:{" "}
-        {techs
-          .map((t) => `${TECHNOLOGY_LABELS[t]} ${formatInt(stats.byTechnology[t]!.projectCount)} · ${formatMw(stats.byTechnology[t]!.mwNominal)}`)
-          .join(" · ")}
+        {techs.map((t, i) => {
+          const f = stats.byTechnology[t]!;
+          return (
+            <span key={t}>
+              {i > 0 ? " · " : ""}
+              {TECHNOLOGY_LABELS[t]} <span className="dato">{formatInt(f.projectCount)} · {formatMw(f.mwNominal)}</span>
+            </span>
+          );
+        })}
       </p>
     </section>
   );
