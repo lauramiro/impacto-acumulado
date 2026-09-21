@@ -14,7 +14,7 @@ database live on Neon with the reference layers loaded; the weekly workflow
 runs against it and commits exports. Backfill partial: 71 BOE documents
 (2019 to July 2026) extracted with Mistral `ministral-14b-latest` and
 resolved into 63 projects; BOJA not fetched yet. See "Production setup"
-below. Web site not started.
+below. Web site: map page and municipality pages live (slice 1).
 
 - Design: [docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md](docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md)
 
@@ -33,6 +33,19 @@ uv run pytest
 ```
 
 Configuration is through environment variables; see `pipeline/env.example`. Sources, filters and reference layers are documented in `docs/sources.md`. Extraction accuracy is measured with `uv run python -m impacto eval` (harness and labels in `pipeline/evaluation/`).
+
+## Web
+
+Next.js app in `web/`, fully static: pages read `web/public/data/` at build time and Vercel rebuilds on every commit to `main`, including the weekly data commit. No database connection from the web.
+
+```bash
+cd web && npm ci
+npm run dev          # http://localhost:3000
+npm test             # vitest, loaders and pure helpers against tests/fixtures/data
+npm run build && npm run e2e   # playwright and axe against the built site
+```
+
+Vercel project settings: root directory `web`, framework Next.js, no environment variables. Design: [docs/superpowers/specs/2026-09-21-web-slice-1-design.md](docs/superpowers/specs/2026-09-21-web-slice-1-design.md).
 
 ## Continuous integration and the weekly run
 
