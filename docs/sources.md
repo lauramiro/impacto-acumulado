@@ -145,3 +145,11 @@ Given this, `pipeline/impacto/reference/load.py` does not actually use `rasterio
 - Polygonisation (no `rasterio.features.shapes` available) is done by run-length-merging each decimated row into horizontal spans per class, then `shapely.union_all` over all of a class's span-rectangles, which lets GEOS dissolve touching/overlapping spans (within and across rows) into the same per-connected-region polygons `rasterio.features.shapes` would produce (4-connectivity, since only edge-touching rectangles merge) - then each disconnected piece of the unioned (multi)polygon becomes its own row, matching the granularity the brief's row-count ruling (300000/15 min) implies. This was benchmarked against the real EOL raster at both factor 10 and 20 before the real run (see counts above) to confirm it would not blow past those limits.
 
 This is a substantially different implementation path than the brief anticipated, but the loader signatures, CLI shape, migration, and observable behaviour (row counts, klass values, repeatability, CRS/geometry-type of stored rows) all match what the task specified.
+
+## Export files (`pipeline/impacto/aggregate/export.py`)
+
+- `municipality_protected_areas.json`: `{ine_code: [{site_code, name, type}]}` for all 785 municipalities, Natura 2000 sites whose geometry intersects the municipal boundary (whole-boundary test, an attention filter, not an impact assessment). Empty lists are present.
+- `provinces.geojson`: eight features, one per province, `ST_Union` of the municipalities, simplified like the municipalities. Used for the map outlines only.
+- `projects.csv` column `ine_codes`: semicolon-separated INE codes of the project's municipalities.
+- `municipality_stats.json` entries carry `by_technology` next to `by_status`.
+- GeoJSON coordinates are written with five decimals.

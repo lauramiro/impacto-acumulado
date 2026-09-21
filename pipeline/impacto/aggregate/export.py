@@ -13,6 +13,7 @@ from impacto.settings import load_settings
 
 DEFAULT_OUT = Path(__file__).resolve().parents[3] / "web" / "public" / "data"
 SIMPLIFY_TOLERANCE = 0.0005  # degrees, roughly 50 m
+GEOJSON_DECIMALS = 5  # about one metre; the default nine only inflates the files
 
 
 def _write_csv(path: Path, rows: list[dict]) -> Path:
@@ -103,7 +104,7 @@ def export_municipalities_geojson(conn, out_dir: Path) -> Path:
     munis = _query(
         conn,
         "SELECT ine_code, name, province, area_ha, sensitivity_high_share, "
-        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, {SIMPLIFY_TOLERANCE})) AS geom "
+        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, {SIMPLIFY_TOLERANCE}), {GEOJSON_DECIMALS}) AS geom "
         "FROM municipalities ORDER BY ine_code",
     )
     features = [
@@ -145,7 +146,7 @@ def export_protected_areas_geojson(conn, out_dir: Path) -> Path:
     areas = _query(
         conn,
         "SELECT site_code, name, type, "
-        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, {SIMPLIFY_TOLERANCE})) AS geom "
+        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, {SIMPLIFY_TOLERANCE}), {GEOJSON_DECIMALS}) AS geom "
         "FROM protected_areas ORDER BY site_code",
     )
     features = [
@@ -167,6 +168,36 @@ def export_protected_area_stats_json(conn, out_dir: Path) -> Path:
             k: s[k] for k in ("project_count", "mw_nominal", "hectares")
         }
     return _write_json(out_dir / "protected_area_stats.json", by_site)
+
+
+def export_municipality_protected_areas_json(conn, out_dir: Path) -> Path:
+    # Reference relation, keyed by every municipality so the web can tell
+    # "none" from "missing". Same intersection test as 030_protected_area_stats.sql.
+    munis = _query(conn, "SELECT ine_code FROM municipalities ORDER BY ine_code")
+    pairs = _query(
+        conn,
+        "SELECT m.ine_code, pa.site_code, pa.name, pa.type "
+        "FROM municipalities m JOIN protected_areas pa ON ST_Intersects(m.geom, pa.geom) "
+        "ORDER BY m.ine_code, pa.site_code",
+    )
+    by_ine: dict[str, list[dict]] = {m["ine_code"]: [] for m in munis}
+    for p in pairs:
+        by_ine[p["ine_code"]].append({"site_code": p["site_code"], "name": p["name"], "type": p["type"]})
+    return _write_json(out_dir / "municipality_protected_areas.json", by_ine)
+
+
+def export_provinces_geojson(conn, out_dir: Path) -> Path:
+    provinces = _query(
+        conn,
+        "SELECT province, "
+        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(ST_Union(geom), {SIMPLIFY_TOLERANCE}), {GEOJSON_DECIMALS}) AS geom "
+        "FROM municipalities GROUP BY province ORDER BY province",
+    )
+    features = [
+        {"type": "Feature", "properties": {"province": p["province"]}, "geometry": json.loads(p["geom"])}
+        for p in provinces
+    ]
+    return _write_feature_collection(out_dir / "provinces.geojson", features)
 
 
 def export_meta(conn, out_dir: Path) -> Path:
@@ -193,6 +224,8 @@ def export_all(conn: psycopg.Connection, out_dir: Path) -> list[Path]:
         export_municipality_stats_json(conn, out_dir),
         export_protected_areas_geojson(conn, out_dir),
         export_protected_area_stats_json(conn, out_dir),
+        export_municipality_protected_areas_json(conn, out_dir),
+        export_provinces_geojson(conn, out_dir),
         export_meta(conn, out_dir),
     ]
 
