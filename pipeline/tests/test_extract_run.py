@@ -371,3 +371,28 @@ def test_pending_for_extraction_excludes_ok_and_exhausted_failures(db):
         run_extract(db, Broken(), limit=10)
 
     assert pending_for_extraction(db, 10) == []
+
+
+def test_extract_document_drops_malformed_utm_coordinates():
+    # Observed live from ministral-14b on Neon documents 31 and 33: the model
+    # listed MGRS 10 km grid squares ("SUF28") as the y of a UTM point, and
+    # a coordinate with null x/y whose zone was a description
+    # ("10x10 km (zona sensible para aves esteparias)"). Neither is a UTM
+    # point; drop the entry and keep the ones that parse, coercing numeric
+    # strings on the way. The whole document must not fail over them.
+    raw = {
+        "doc_type": "dia", "verdict": "favorable",
+        "utm_coordinates": [
+            {"x": 30, "y": "SUF28", "zone": None},
+            {"x": None, "y": None, "zone": "10x10 km (zona sensible para aves esteparias)"},
+            {"x": "254.321,5", "y": "4.123.456,7", "zone": "30"},
+            {"x": 254000.0, "y": 4123000.0, "zone": "30S"},
+            "30S 254000 4123000",
+        ],
+    }
+    provider = StubProvider([raw])
+    e = extract_document(provider, "Resolución", "texto sin encabezados", {})
+    assert [(c.x, c.y, c.zone) for c in e.utm_coordinates] == [
+        (254321.5, 4123456.7, 30),
+        (254000.0, 4123000.0, None),
+    ]

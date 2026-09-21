@@ -81,6 +81,37 @@ def _fold_numbers(value):
 def _strings(value) -> list[str]:
     parts = value.values() if isinstance(value, dict) else value
     return [str(p).strip() for p in parts if p not in (None, "")]
+
+def _as_coordinate(value):
+    """Parse one UTM easting/northing, accepting the Spanish "254.321,50" form."""
+    if isinstance(value, str) and "," in value and "." in value:
+        value = value.replace(".", "")
+    return _as_number(value)
+
+
+def _as_zone(value):
+    """Parse a UTM zone number; a non-numeric zone ("30S", a description) is dropped."""
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str) and value.strip().isdigit():
+        return int(value.strip())
+    return None
+
+
+def _clean_utm_coordinates(value) -> list[dict]:
+    """Keep only entries that parse as a UTM point, coercing numeric strings."""
+    clean = []
+    for entry in value:
+        if not isinstance(entry, dict):
+            continue
+        x, y = _as_coordinate(entry.get("x")), _as_coordinate(entry.get("y"))
+        if x is None or y is None:
+            continue
+        clean.append({"x": x, "y": y, "zone": _as_zone(entry.get("zone"))})
+    return clean
+
 _ALLOWED_DOC_TYPES = set(get_args(DocType))
 _ALLOWED_VERDICTS = set(get_args(Verdict))
 _ALLOWED_TECHNOLOGIES = set(get_args(Technology))
@@ -119,6 +150,11 @@ def _sanitize(raw: dict) -> dict:
       the project total the labels use.
     - string fields (project_name, developer, expediente) come back as one
       value per plant; they are joined with "; ".
+    - `utm_coordinates` sometimes lists MGRS 10 km grid squares ("SUF28") as
+      a point's y, or a point with null x/y and a descriptive `zone`; an
+      entry whose x and y do not parse as numbers is dropped, numeric
+      strings (including the Spanish "254.321,50" form) are coerced, and a
+      non-numeric zone becomes null.
     Any of these would otherwise fail the whole document over one section's
     reasonable but non-conforming answer.
     """
@@ -150,6 +186,8 @@ def _sanitize(raw: dict) -> dict:
         raw["municipalities"] = [
             m for m in municipalities if not isinstance(m, dict) or m.get("name")
         ]  # a municipality without a name is nothing to link (seen live from ministral-14b)
+    if isinstance(raw.get("utm_coordinates"), list):
+        raw["utm_coordinates"] = _clean_utm_coordinates(raw["utm_coordinates"])
     for name in _SINGLE_VALUE_FIELDS:
         if isinstance(raw.get(name), list):
             values = [v for v in raw[name] if v is not None]
