@@ -10,8 +10,11 @@ and per province, over time.
 
 Status: pipeline implemented (fetch, extract, resolve, aggregate, export,
 reference loads, evaluation harness, CI and weekly workflow). Production
-database and backfill pending; see "Production setup" below. Web site not
-started.
+database live on Neon with the reference layers loaded; the weekly workflow
+runs against it and commits exports. Backfill partial: 71 BOE documents
+(2019 to July 2026) extracted with Mistral `ministral-14b-latest` and
+resolved into 63 projects; BOJA not fetched yet. See "Production setup"
+below. Web site not started.
 
 - Design: [docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md](docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md)
 
@@ -38,7 +41,17 @@ Configuration is through environment variables; see `pipeline/env.example`. Sour
 
 ## Production setup
 
-The weekly workflow needs a production database and two repository secrets. None of these exist yet; the owner must do the following once.
+The weekly workflow needs a production database and the repository secrets. Steps 1 to 3 and 5 were done on 2026-09-20 and 2026-09-21 (Neon project `calm-sunset-94532458`, branch `production`, Frankfurt; secrets `NEON_DSN`, `GROQ_KEY`, `MISTRAL_KEY`; reference counts match the dev load; the first scheduled run on 2026-09-21 completed in 9 minutes and committed an export). Step 4 is in progress. The steps are kept as the record of what was done and how to redo it against a fresh database.
+
+To run a stage against Neon from your machine without editing `pipeline/env.local`, export the DSN for the shell only (the Neon CLI is linked to the project through `.neon`):
+
+```bash
+cd pipeline
+export IMPACTO_DB_DSN="$(neon connection-string --project-id calm-sunset-94532458 --branch production | tr -d '\r\n')"
+uv run python -m impacto extract --provider mistral --limit 20
+```
+
+Neon terminates idle connections when the endpoint suspends or restarts, which happens while `extract` spends minutes in LLM calls; the extract stage reconnects and retries the save once when that happens, so a dropped connection costs nothing.
 
 1. Create the Neon project. In the Neon console create a project named `impacto-acumulado` in an EU region (Frankfurt). No manual extension setup is needed: the first `migrate` run executes `CREATE EXTENSION postgis`, which Neon allows. Copy the direct (non-pooled) connection string, the one whose host does not contain `-pooler`: the pipeline is a single long-lived connection that runs multi-statement migrations and holds transactions across bulk loads, which PgBouncer's transaction-mode pooling behind the pooled endpoint does not support reliably.
 
@@ -72,4 +85,6 @@ The weekly workflow needs a production database and two repository secrets. None
 
    The backfill can also run on Mistral's free Experiment plan instead of Groq: set `IMPACTO_MISTRAL_KEY` (and optionally `IMPACTO_MISTRAL_MODEL`, default `ministral-14b-latest`) and pass `--provider mistral` to `extract`. The Experiment plan's limits are only shown in the Mistral console (see `docs/sources.md`, "Mistral"); a 429 that names a monthly cap stops the run the same way Groq's daily cap does, and the run resumes where it left off when rerun.
 
-5. Trigger the weekly workflow once by hand (`gh workflow run weekly-pipeline`) and confirm it completes and either commits new exports or reports no changes.
+   Progress so far (2026-09-21): 71 BOE documents fetched, all 71 extracted with `ministral-14b-latest` (two needed the `utm_coordinates` sanitiser fix), resolved into 63 projects, exported and committed. BOJA has not been fetched yet, and the BOE range has not been swept systematically; both are the remaining backfill work.
+
+5. Trigger the weekly workflow once by hand (`gh workflow run weekly-pipeline`) and confirm it completes and either commits new exports or reports no changes. Done: the scheduled run of 2026-09-21 (run 35599195548) succeeded and committed `data: weekly export 2026-09-21`.
