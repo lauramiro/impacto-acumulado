@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test("map renders every municipality and the date line", async ({ page }) => {
+test("map renders every municipality from the light geojson and the date line", async ({ page }) => {
+  const geojson = page.waitForResponse((r) => r.url().endsWith("/data/municipalities_map.geojson") && r.ok());
   await page.goto("/");
+  await geojson;
   await expect(page.getByTestId("dateline").first()).toContainText("Datos a");
   await expect(page.locator("path[data-ine]")).toHaveCount(785);
 });

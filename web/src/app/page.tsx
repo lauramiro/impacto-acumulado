@@ -3,7 +3,7 @@ import { MapExplorer } from "@/components/map/map-explorer";
 import { loadMapData } from "@/lib/data/map-data";
 
 export default async function HomePage() {
-  preload("/data/municipalities.geojson", { as: "fetch", crossOrigin: "anonymous" });
+  preload("/data/municipalities_map.geojson", { as: "fetch", crossOrigin: "anonymous" });
   preload("/data/provinces.geojson", { as: "fetch", crossOrigin: "anonymous" });
   const { municipalities, stats } = await loadMapData();
   return (

@@ -55,7 +55,7 @@ export function MapExplorer({ municipalities, stats }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([fetchJson<Geo["municipalities"]>("/data/municipalities.geojson"), fetchJson<Geo["provinces"]>("/data/provinces.geojson")])
+    Promise.all([fetchJson<Geo["municipalities"]>("/data/municipalities_map.geojson"), fetchJson<Geo["provinces"]>("/data/provinces.geojson")])
       .then(([m, p]) => {
         if (!cancelled) setGeo({ municipalities: m, provinces: p });
       })
