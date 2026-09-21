@@ -47,7 +47,7 @@ npm run build && npm run e2e   # playwright and axe against the built site
 
 Vercel project `impacto-acumulado` (team `lauramiros-projects`): root directory `web`, framework Next.js, Node 24, no environment variables. Production: https://impacto-acumulado.vercel.app (first deploy 2026-09-21 from `d2f355f` with `vercel --prod`). Connected to the GitHub repo: every push to `main` deploys to production; `vercel --prod` from the repo root also works.
 
-Lighthouse 13.5 (mobile, Chrome headless, 2026-09-21): `/` performance 73, accessibility 100 (LCP 5.3 s, dominated by the 531 KB compressed `municipalities.geojson` fetch, below the 85 target); `/municipio/11020` performance 99, accessibility 100 (LCP 2.0 s). Design: [docs/superpowers/specs/2026-09-21-web-slice-1-design.md](docs/superpowers/specs/2026-09-21-web-slice-1-design.md).
+Lighthouse 13.5 (mobile, Chrome headless, 2026-09-21): `/` performance 88, accessibility 100 (LCP 3.3 s; the map loads a 196 KB compressed `municipalities_map.geojson` simplified at 200 m, the first deploy scored 73 with the 531 KB full-fidelity file); `/municipio/11020` performance 99, accessibility 100 (LCP 2.0 s).
 
 ## Continuous integration and the weekly run
 
