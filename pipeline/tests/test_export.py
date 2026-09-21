@@ -50,3 +50,26 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
     meta = json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))
     assert meta["counts"]["projects"] == 2
     assert "generated_at" in meta
+
+
+def test_projects_csv_carries_ine_codes(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    run_aggregate(db)
+    export_all(db, tmp_path)
+    with open(tmp_path / "projects.csv", encoding="utf-8", newline="") as f:
+        rows = {r["canonical_name"]: r for r in csv.DictReader(f)}
+    assert rows["Parque fotovoltaico Ronda I"]["ine_codes"] == "29084"
+    assert rows["Parque fotovoltaico Ronda I"]["municipalities"] == "Ronda"
+    assert rows["Parque eólico Sierra Alta"]["ine_codes"] == "29067"
+
+
+def test_municipality_stats_json_has_technology_split(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    run_aggregate(db)
+    export_all(db, tmp_path)
+    stats = json.loads((tmp_path / "municipality_stats.json").read_text(encoding="utf-8"))
+    ronda = stats["29084"]
+    assert ronda["by_technology"] == {"solar_fv": {"project_count": 1, "mw_nominal": 93.0, "hectares": 140.1}}
+    assert sum(t["mw_nominal"] for t in ronda["by_technology"].values()) == ronda["mw_total"]

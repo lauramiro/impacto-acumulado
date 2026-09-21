@@ -39,7 +39,8 @@ def export_projects(conn, out_dir: Path) -> Path:
         """
         SELECT p.id, p.canonical_name, p.developer, p.technology, p.status, p.mw_peak, p.mw_nominal, p.hectares, p.turbines,
                p.first_seen, p.last_seen,
-               string_agg(DISTINCT m.name, '; ') AS municipalities,
+               string_agg(DISTINCT m.name, '; ' ORDER BY m.name) AS municipalities,
+               string_agg(DISTINCT m.ine_code, ';' ORDER BY m.ine_code) AS ine_codes,
                string_agg(DISTINCT m.province, '; ') AS provinces,
                string_agg(DISTINCT d.url, ' ') AS document_urls
         FROM projects p
@@ -121,13 +122,19 @@ def export_municipality_stats_json(conn, out_dir: Path) -> Path:
     by_ine: dict[str, dict] = {}
     for s in stats:
         entry = by_ine.setdefault(
-            s["ine_code"], {"by_status": {}, "mw_total": 0.0, "ha_total": 0.0, "count_total": 0}
+            s["ine_code"],
+            {"by_status": {}, "by_technology": {}, "mw_total": 0.0, "ha_total": 0.0, "count_total": 0},
         )
         st = entry["by_status"].setdefault(
             s["status"], {"project_count": 0, "mw_nominal": 0.0, "hectares": 0.0, "turbines": 0}
         )
         for key in ("project_count", "mw_nominal", "hectares", "turbines"):
             st[key] += s[key]
+        tech = entry["by_technology"].setdefault(
+            s["technology"], {"project_count": 0, "mw_nominal": 0.0, "hectares": 0.0}
+        )
+        for key in ("project_count", "mw_nominal", "hectares"):
+            tech[key] += s[key]
         entry["mw_total"] += s["mw_nominal"]
         entry["ha_total"] += s["hectares"]
         entry["count_total"] += s["project_count"]
