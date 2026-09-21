@@ -1,0 +1,6 @@
+import nextConfig from "eslint-config-next";
+
+export default [
+  ...nextConfig,
+  { ignores: [".next/**", "out/**", "test-results/**", "playwright-report/**"] },
+];

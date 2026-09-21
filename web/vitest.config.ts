@@ -1,0 +1,16 @@
+import { defineConfig } from "vitest/config";
+import path from "node:path";
+
+export default defineConfig({
+  test: {
+    include: ["tests/**/*.test.ts"],
+    environment: "node",
+    env: { IMPACTO_DATA_DIR: path.resolve(__dirname, "tests/fixtures/data") },
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+      "server-only": path.resolve(__dirname, "tests/server-only-stub.ts"),
+    },
+  },
+});

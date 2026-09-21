@@ -1,0 +1,14 @@
+.masthead {
+  padding-top: 1.5rem;
+  border-bottom: 2px solid var(--tinta);
+}
+
+.titulo {
+  display: block;
+  font-size: var(--texto-display);
+  color: var(--tinta);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 0.35rem;
+}

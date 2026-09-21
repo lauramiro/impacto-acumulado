@@ -1,0 +1,103 @@
+:root {
+  --papel: #f1f2ee;
+  --tinta: #1a1d1b;
+  --regla: #b9bdb7;
+  --escala-1: #ead9b3;
+  --escala-2: #d2a85c;
+  --escala-3: #b8862b;
+  --escala-4: #8a5a1b;
+  --escala-5: #5b3a12;
+  --oficial: #24406e;
+  --alerta: #c2401c;
+
+  --texto-display: clamp(2rem, 5vw, 3.25rem);
+  --texto-nombre: clamp(1.75rem, 4vw, 2.5rem);
+  --texto-cuerpo: 1rem;
+  --texto-dato: 0.9375rem;
+  --texto-pie: 0.8125rem;
+
+  --gutter: 16px;
+  --ancho-max: 1200px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--font-body), Georgia, serif;
+  font-size: var(--texto-cuerpo);
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papel);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--oficial);
+  text-underline-offset: 0.15em;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--oficial);
+  outline-offset: 2px;
+}
+
+.display {
+  font-family: var(--font-display), "Bodoni MT", serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+
+.dato {
+  font-family: var(--font-data), "Courier New", monospace;
+  font-size: var(--texto-dato);
+  font-variant-numeric: tabular-nums;
+}
+
+.pie {
+  font-size: var(--texto-pie);
+}
+
+.contenedor {
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--regla);
+  margin: 1.5rem 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

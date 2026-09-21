@@ -1,0 +1,6 @@
+.dateline {
+  margin: 0.5rem 0 1.25rem;
+  font-size: var(--texto-pie);
+  border-bottom: 1px solid var(--regla);
+  padding-bottom: 0.5rem;
+}
