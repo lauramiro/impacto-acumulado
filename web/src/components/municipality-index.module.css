@@ -1,0 +1,85 @@
+.section {
+  margin: 2.5rem 0;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+
+.recuento {
+  margin: 0;
+  font-size: var(--texto-pie);
+}
+
+.buscar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 24rem;
+  font-size: var(--texto-pie);
+  margin: 0.75rem 0 1rem;
+}
+
+.buscar input {
+  font: inherit;
+  font-size: var(--texto-dato);
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--tinta);
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--tinta);
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  border-bottom: 1px solid var(--regla);
+  vertical-align: baseline;
+}
+
+.table tbody tr {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 2.2rem;
+}
+
+.table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.seleccionada th,
+.seleccionada td {
+  background: color-mix(in srgb, var(--escala-1) 50%, var(--papel));
+}
+
+.ver {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: var(--texto-pie);
+  color: var(--oficial);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.vacio {
+  font-size: var(--texto-dato);
+}
+
+@media (max-width: 767px) {
+  .table td:nth-child(2),
+  .table th:nth-child(2) {
+    display: none;
+  }
+}
