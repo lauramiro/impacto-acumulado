@@ -1,0 +1,8 @@
+.section {
+  margin: 2rem 0;
+}
+
+.alerta {
+  color: var(--alerta);
+  font-weight: 500;
+}

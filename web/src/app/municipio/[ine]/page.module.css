@@ -1,0 +1,14 @@
+.eyebrow {
+  margin: 1.5rem 0 0;
+  font-size: var(--texto-pie);
+}
+
+.nombre {
+  font-size: var(--texto-nombre);
+  margin: 0.25rem 0 1.5rem;
+}
+
+.vacio,
+.proyectos {
+  margin: 2rem 0;
+}

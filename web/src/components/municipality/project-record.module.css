@@ -1,0 +1,33 @@
+.record {
+  border-top: 1px solid var(--regla);
+  padding: 1rem 0;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.meta {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.docs {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: var(--texto-pie);
+}
+
+.docs li {
+  padding: 0.15rem 0;
+}

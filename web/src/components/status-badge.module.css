@@ -1,0 +1,23 @@
+.badge {
+  display: inline-block;
+  font-size: var(--texto-pie);
+  border: 1px solid var(--regla);
+  border-left-width: 4px;
+  padding: 0.05rem 0.5rem;
+  white-space: nowrap;
+}
+
+.favorable,
+.favorable_condicionada {
+  border-left-color: var(--oficial);
+}
+
+.desfavorable,
+.caducado {
+  border-left-color: var(--alerta);
+}
+
+.en_consulta,
+.desconocido {
+  border-left-color: var(--regla);
+}

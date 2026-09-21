@@ -1,0 +1,34 @@
+.section {
+  margin: 2rem 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem 0.4rem 0;
+  border-bottom: 1px solid var(--regla);
+  vertical-align: baseline;
+}
+
+.table tfoot th,
+.table tfoot td {
+  border-bottom: 0;
+  border-top: 1px solid var(--tinta);
+  font-weight: 600;
+}
+
+.table .num {
+  text-align: right;
+}
+
+.tech {
+  font-size: var(--texto-pie);
+  margin-top: 0.75rem;
+}
