@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import logging
+from collections.abc import Callable
 from typing import get_args
 
 import psycopg
@@ -300,8 +302,35 @@ def extract_document(provider: Provider, title: str, text: str, municipality_nam
     return validate_and_score(merged, municipality_names)
 
 
+def _save_with_reconnect(
+    conn: psycopg.Connection, reconnect: Callable[[], psycopg.Connection] | None, *args
+) -> psycopg.Connection:
+    """save_extraction, retried once on a fresh connection if the server dropped ours.
+
+    Neon terminates an idle connection ("terminating connection due to
+    administrator command") when the endpoint suspends or restarts, which
+    can happen while a run is minutes deep in LLM calls. Returns the
+    connection to keep using, which is the new one after a reconnect.
+    """
+    try:
+        save_extraction(conn, *args)
+    except psycopg.OperationalError as exc:
+        if reconnect is None:
+            raise
+        log.warning("database connection lost (%s), reconnecting", str(exc).strip().splitlines()[0])
+        with contextlib.suppress(Exception):
+            conn.close()  # already dead; closing only releases the client side
+        conn = reconnect()
+        save_extraction(conn, *args)
+    return conn
+
+
 def run_extract(
-    conn: psycopg.Connection, provider: Provider, limit: int, redo_prompt_version: str | None = None
+    conn: psycopg.Connection,
+    provider: Provider,
+    limit: int,
+    redo_prompt_version: str | None = None,
+    reconnect: Callable[[], psycopg.Connection] | None = None,
 ) -> int:
     names = municipality_name_map(conn)
     rows = pending_for_extraction(conn, limit, redo_prompt_version)
@@ -309,6 +338,7 @@ def run_extract(
     # pooled-connection lease) stays open across the minutes of LLM calls
     # that follow. save_extraction opens and commits its own.
     conn.commit()
+    original = conn
     done = 0
     for row in rows:
         try:
@@ -321,11 +351,17 @@ def run_extract(
             break
         except Exception as exc:  # noqa: BLE001 - any failure is recorded, never fatal
             log.warning("document %s failed: %s", row["id"], exc)
-            save_extraction(conn, row["id"], provider.name, PROMPT_VERSION, None, None, str(exc)[:2000])
+            conn = _save_with_reconnect(
+                conn, reconnect, row["id"], provider.name, PROMPT_VERSION, None, None, str(exc)[:2000]
+            )
             continue
-        save_extraction(conn, row["id"], provider.name, PROMPT_VERSION, extraction.model_dump(), extraction.confidence, None)
+        conn = _save_with_reconnect(
+            conn, reconnect, row["id"], provider.name, PROMPT_VERSION, extraction.model_dump(), extraction.confidence, None
+        )
         done += 1
         log.info("document %s extracted (confidence %.2f)", row["id"], extraction.confidence)
+    if conn is not original:
+        conn.close()  # opened here by reconnect; the caller only owns the original
     return done
 
 
@@ -343,6 +379,6 @@ def main(argv: list[str]) -> int:
     settings = load_settings()
     provider = build_provider(settings, args.provider)
     with connect(settings.db_dsn) as conn:
-        n = run_extract(conn, provider, args.limit, args.redo_prompt_version)
+        n = run_extract(conn, provider, args.limit, args.redo_prompt_version, reconnect=lambda: connect(settings.db_dsn))
     print(f"extracted {n} document(s)")
     return 0

@@ -396,3 +396,33 @@ def test_extract_document_drops_malformed_utm_coordinates():
         (254321.5, 4123456.7, 30),
         (254000.0, 4123000.0, None),
     ]
+
+
+def test_run_extract_reconnects_when_the_server_drops_the_connection(db):
+    # Observed live against Neon: the endpoint terminated the pipeline's
+    # idle connection ("terminating connection due to administrator
+    # command") while the run was minutes deep in LLM calls, and the first
+    # save afterwards crashed the run, losing that document's extraction.
+    # With a reconnect callable the save is retried on a fresh connection.
+    import os
+
+    from impacto.db.connect import connect
+
+    dsn = os.environ["IMPACTO_TEST_DB_DSN"]
+    upsert_raw_document(db, RawDocument("boe", "C", date(2023, 1, 1), "t", "u", "III", "o", "texto"))
+    db.commit()
+    victim = connect(dsn)
+
+    class DropsConnection:
+        name = "drops"
+
+        def complete_json(self, system, user):
+            with db.cursor() as cur:
+                cur.execute("SELECT pg_terminate_backend(%s)", (victim.info.backend_pid,))
+            db.commit()
+            return HEADER_RESPONSE
+
+    assert run_extract(victim, DropsConnection(), limit=10, reconnect=lambda: connect(dsn)) == 1
+    with db.cursor() as cur:
+        cur.execute("SELECT status FROM extractions")
+        assert cur.fetchone()["status"] == "ok"
