@@ -77,7 +77,7 @@ export const DocumentRowSchema = z.object({
   source_id: z.string().min(1),
   published_at: isoDate,
   title: z.string(),
-  url: z.url(),
+  url: z.url({ protocol: /^https?$/ }),
   project_id: optionalNumber,
   role: optionalString.pipe(z.enum(DOCUMENT_ROLES).nullable()),
   verdict: optionalString.pipe(z.enum(VERDICTS).nullable()),

@@ -20,7 +20,7 @@
   stroke-width: 1.5;
 }
 
-.seleccionado {
+.muni.seleccionado {
   stroke: var(--tinta);
   stroke-width: 2;
 }

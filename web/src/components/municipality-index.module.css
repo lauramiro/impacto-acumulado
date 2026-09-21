@@ -47,11 +47,6 @@
   vertical-align: baseline;
 }
 
-.table tbody tr {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 2.2rem;
-}
-
 .table .num {
   text-align: right;
   white-space: nowrap;

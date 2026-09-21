@@ -1,13 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { startTransition, useEffect, useMemo, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
 import { formatNumber } from "@/lib/format";
 import { METRIC_UNITS } from "@/lib/labels";
-import { parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
+import { DEFAULT_STATE, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricValue } from "@/lib/metrics";
 import type { Metric, Municipality, MunicipalityStats, Status } from "@/lib/types";
 import type { MuniProps, ProvProps } from "./choropleth";
@@ -35,9 +35,23 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 export function MapExplorer({ municipalities, stats }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [state, setState] = useState<MapState>(() => parseMapState(new URLSearchParams(searchParams.toString())));
+  const [state, setState] = useState<MapState>(() => ({ ...DEFAULT_STATE, statuses: new Set(DEFAULT_STATE.statuses) }));
   const [geo, setGeo] = useState<Geo | "error" | null>(null);
+
+  useEffect(() => {
+    // Hydrate from the URL after mount: window.location is not available
+    // during prerendering, and reading it via useSearchParams would bail
+    // this whole subtree out of static generation (see page.tsx).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState(parseMapState(new URLSearchParams(window.location.search)));
+    function onPopState() {
+      setState(parseMapState(new URLSearchParams(window.location.search)));
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

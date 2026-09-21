@@ -14,7 +14,7 @@ database live on Neon with the reference layers loaded; the weekly workflow
 runs against it and commits exports. Backfill partial: 71 BOE documents
 (2019 to July 2026) extracted with Mistral `ministral-14b-latest` and
 resolved into 63 projects; BOJA not fetched yet. See "Production setup"
-below. Web site: map page and municipality pages live (slice 1).
+below. Web site: map page and municipality pages implemented (slice 1), not yet deployed.
 
 - Design: [docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md](docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md)
 
