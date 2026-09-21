@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","features":[
+{"type":"Feature","properties":{"ine_code":"29084","name":"Ronda","province":"Málaga","area_ha":48145.2,"sensitivity_high_share":0.4812},"geometry":{"type":"Polygon","coordinates":[[[-5.2,36.7],[-5.1,36.7],[-5.1,36.8],[-5.2,36.8],[-5.2,36.7]]]}},
+{"type":"Feature","properties":{"ine_code":"29067","name":"Málaga","province":"Málaga","area_ha":39500.0,"sensitivity_high_share":null},"geometry":{"type":"Polygon","coordinates":[[[-4.6,36.6],[-4.3,36.6],[-4.3,36.9],[-4.6,36.9],[-4.6,36.6]]]}}
+]}

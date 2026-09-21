@@ -1,0 +1,4 @@
+id,source,source_id,published_at,title,url,project_id,role,match_score,confidence,verdict,doc_type
+1,boe,A,2022-01-01,"Anuncio de información pública",https://www.boe.es/diario_boe/xml.php?id=A,1,consulta,1.0,0.8,no_aplica,informacion_publica
+2,boe,B,2023-09-18,"Resolución DIA Ronda I",https://www.boe.es/diario_boe/xml.php?id=B,1,dia,1.0,0.9,favorable_condicionada,dia
+3,boe,C,2023-05-05,"Resolución DIA Sierra Alta",https://www.boe.es/diario_boe/xml.php?id=C,2,dia,1.0,0.9,desfavorable,dia
