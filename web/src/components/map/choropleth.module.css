@@ -1,0 +1,33 @@
+.wrap {
+  position: relative;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.muni {
+  stroke: var(--papel);
+  stroke-width: 0.4;
+  cursor: pointer;
+  transition: stroke 120ms, stroke-width 120ms;
+}
+
+.muni:hover {
+  stroke: var(--tinta);
+  stroke-width: 1.5;
+}
+
+.seleccionado {
+  stroke: var(--tinta);
+  stroke-width: 2;
+}
+
+.provincias path {
+  fill: none;
+  stroke: var(--tinta);
+  stroke-width: 1;
+  pointer-events: none;
+}

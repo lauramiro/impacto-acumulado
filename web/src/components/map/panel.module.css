@@ -1,0 +1,65 @@
+.panel {
+  border-top: 2px solid var(--tinta);
+  padding-top: 0.75rem;
+  min-height: 12rem;
+}
+
+.titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.texto {
+  font-size: var(--texto-dato);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--texto-pie);
+}
+
+.nombre {
+  font-size: 1.75rem;
+  margin: 0.15rem 0 0.75rem;
+}
+
+.totales {
+  margin: 0;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--regla);
+  align-items: baseline;
+}
+
+.fila dt,
+.fila dd {
+  margin: 0;
+}
+
+.total {
+  border-bottom: 0;
+  border-top: 1px solid var(--tinta);
+  font-weight: 600;
+}
+
+.acciones {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  margin-top: 1rem;
+}
+
+.cerrar {
+  background: none;
+  border: 1px solid var(--regla);
+  padding: 0.2rem 0.6rem;
+  font: inherit;
+  cursor: pointer;
+}

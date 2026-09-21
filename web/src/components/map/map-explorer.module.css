@@ -1,0 +1,26 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.mapa {
+  min-height: 12rem;
+}
+
+.cargando,
+.error {
+  font-size: var(--texto-dato);
+  padding: 2rem 0;
+}
+
+.error {
+  color: var(--alerta);
+}
+
+@media (max-width: 767px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
