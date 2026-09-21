@@ -13,6 +13,7 @@ from impacto.settings import load_settings
 
 DEFAULT_OUT = Path(__file__).resolve().parents[3] / "web" / "public" / "data"
 SIMPLIFY_TOLERANCE = 0.0005  # degrees, roughly 50 m
+MAP_SIMPLIFY_TOLERANCE = 0.002  # roughly 200 m: sub-pixel on the web map even at a province zoom
 GEOJSON_DECIMALS = 5  # about one metre; the default nine only inflates the files
 
 
@@ -122,6 +123,25 @@ def export_municipalities_geojson(conn, out_dir: Path) -> Path:
     return _write_feature_collection(out_dir / "municipalities.geojson", features)
 
 
+def export_municipalities_map_geojson(conn, out_dir: Path) -> Path:
+    # Lighter copy for the web map only: coarser simplification, no figures.
+    munis = _query(
+        conn,
+        "SELECT ine_code, name, province, "
+        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, {MAP_SIMPLIFY_TOLERANCE}), {GEOJSON_DECIMALS}) AS geom "
+        "FROM municipalities ORDER BY ine_code",
+    )
+    features = [
+        {
+            "type": "Feature",
+            "properties": {k: m[k] for k in ("ine_code", "name", "province")},
+            "geometry": json.loads(m["geom"]),
+        }
+        for m in munis
+    ]
+    return _write_feature_collection(out_dir / "municipalities_map.geojson", features)
+
+
 def export_municipality_stats_json(conn, out_dir: Path) -> Path:
     stats = _query(conn, "SELECT * FROM municipality_stats ORDER BY ine_code, status, technology")
     by_ine: dict[str, dict] = {}
@@ -194,7 +214,7 @@ def export_provinces_geojson(conn, out_dir: Path) -> Path:
     provinces = _query(
         conn,
         "SELECT province, "
-        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(ST_Union(geom), {SIMPLIFY_TOLERANCE}), {GEOJSON_DECIMALS}) AS geom "
+        f"ST_AsGeoJSON(ST_SimplifyPreserveTopology(ST_Union(geom), {MAP_SIMPLIFY_TOLERANCE}), {GEOJSON_DECIMALS}) AS geom "
         "FROM municipalities GROUP BY province ORDER BY province",
     )
     features = [
@@ -225,6 +245,7 @@ def export_all(conn: psycopg.Connection, out_dir: Path) -> list[Path]:
         export_municipality_stats(conn, out_dir),
         export_province_monthly(conn, out_dir),
         export_municipalities_geojson(conn, out_dir),
+        export_municipalities_map_geojson(conn, out_dir),
         export_municipality_stats_json(conn, out_dir),
         export_protected_areas_geojson(conn, out_dir),
         export_protected_area_stats_json(conn, out_dir),

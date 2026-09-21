@@ -17,6 +17,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "documents.csv",
         "meta.json",
         "municipalities.geojson",
+        "municipalities_map.geojson",
         "municipality_protected_areas.json",
         "municipality_stats.csv",
         "municipality_stats.json",
@@ -150,3 +151,41 @@ def test_geojson_coordinates_have_five_decimals_at_most(db, fixtures_dir, tmp_pa
         geo = json.loads((tmp_path / name).read_text(encoding="utf-8"))
         for feature in geo["features"]:
             assert _max_decimals(feature["geometry"]["coordinates"]) <= 5, name
+
+
+def _vertex_count(geometry) -> int:
+    polygons = [geometry["coordinates"]] if geometry["type"] == "Polygon" else geometry["coordinates"]
+    return sum(len(ring) for polygon in polygons for ring in polygon)
+
+
+def _seed_jagged_municipality(db):
+    # A square with a 100 m sawtooth along its north edge: survives the 50 m
+    # export tolerance and collapses under the map tolerance.
+    north = ", ".join(
+        f"{-5.0 + i * 0.001:.4f} {36.8 + (0.001 if i % 2 else 0.0):.4f}" for i in range(100, -1, -1)
+    )
+    wkt = f"POLYGON((-5.0 36.7, -4.9 36.7, {north}, -5.0 36.7))"
+    with db.cursor() as cur:
+        cur.execute(
+            "INSERT INTO municipalities (ine_code, name, province, geom, area_ha) "
+            "VALUES ('29999', 'Sierra Dentada', 'Málaga', ST_Multi(ST_GeomFromText(%s, 4326)), 1000)",
+            (wkt,),
+        )
+    db.commit()
+
+
+def test_municipalities_map_geojson_is_coarser_and_carries_only_map_properties(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    _seed_jagged_municipality(db)
+    run_resolve(db)
+    run_aggregate(db)
+    export_all(db, tmp_path)
+    full = json.loads((tmp_path / "municipalities.geojson").read_text(encoding="utf-8"))
+    coarse = json.loads((tmp_path / "municipalities_map.geojson").read_text(encoding="utf-8"))
+    assert [f["properties"]["ine_code"] for f in coarse["features"]] == ["29067", "29084", "29999"]
+    assert all(set(f["properties"]) == {"ine_code", "name", "province"} for f in coarse["features"])
+    full_jagged = next(f for f in full["features"] if f["properties"]["ine_code"] == "29999")
+    coarse_jagged = next(f for f in coarse["features"] if f["properties"]["ine_code"] == "29999")
+    assert _vertex_count(full_jagged["geometry"]) > 50
+    assert _vertex_count(coarse_jagged["geometry"]) < 20
+    assert _max_decimals(coarse_jagged["geometry"]["coordinates"]) <= 5
