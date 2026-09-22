@@ -16,6 +16,10 @@ SIMPLIFY_TOLERANCE = 0.0005  # degrees, roughly 50 m
 MAP_SIMPLIFY_TOLERANCE = 0.002  # roughly 200 m: sub-pixel on the web map even at a province zoom
 GEOJSON_DECIMALS = 5  # about one metre; the default nine only inflates the files
 
+EVALUATION_DIR = Path(__file__).resolve().parents[2] / "evaluation"
+LAST_RUN = EVALUATION_DIR / "last_run.json"
+LABELS_DIR = EVALUATION_DIR / "labels"
+
 
 def _write_csv(path: Path, rows: list[dict]) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -224,6 +228,17 @@ def export_provinces_geojson(conn, out_dir: Path) -> Path:
     return _write_feature_collection(out_dir / "provinces.geojson", features)
 
 
+def export_evaluation(out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR) -> Path:
+    # The evaluation is run by hand after labelling, not weekly; the export
+    # carries the last checked result to the site. A missing run is an error,
+    # not an empty file: the methodology page must never quote nothing.
+    if not last_run.is_file():
+        raise FileNotFoundError(f"evaluation result not found: {last_run}; run `impacto eval` first")
+    result = json.loads(last_run.read_text(encoding="utf-8"))
+    result["labels_count"] = len(list(labels_dir.glob("*.json")))
+    return _write_json(out_dir / "evaluation.json", result)
+
+
 def export_meta(conn, out_dir: Path) -> Path:
     counts = {}
     for table in ("raw_documents", "extractions", "projects", "municipalities", "protected_areas"):
@@ -237,7 +252,9 @@ def export_meta(conn, out_dir: Path) -> Path:
     return path
 
 
-def export_all(conn: psycopg.Connection, out_dir: Path) -> list[Path]:
+def export_all(
+    conn: psycopg.Connection, out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR
+) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     return [
         export_projects(conn, out_dir),
@@ -251,6 +268,7 @@ def export_all(conn: psycopg.Connection, out_dir: Path) -> list[Path]:
         export_protected_area_stats_json(conn, out_dir),
         export_municipality_protected_areas_json(conn, out_dir),
         export_provinces_geojson(conn, out_dir),
+        export_evaluation(out_dir, last_run, labels_dir),
         export_meta(conn, out_dir),
     ]
 

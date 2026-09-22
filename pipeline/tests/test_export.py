@@ -1,7 +1,9 @@
 import csv
 import json
 
-from impacto.aggregate.export import export_all
+import pytest
+
+from impacto.aggregate.export import export_all, export_evaluation
 from impacto.aggregate.run import run_aggregate
 from impacto.resolve.run import run_resolve
 from tests.test_resolve_run import seed
@@ -15,6 +17,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
     names = sorted(p.name for p in paths)
     assert names == [
         "documents.csv",
+        "evaluation.json",
         "meta.json",
         "municipalities.geojson",
         "municipalities_map.geojson",
@@ -215,3 +218,23 @@ def test_projects_csv_carries_the_status_document(db, fixtures_dir, tmp_path):
     # The DIA (B) fixes Ronda I's status, not the earlier consultation notice (A).
     assert projects["Parque fotovoltaico Ronda I"]["status_document_id"] == docs["B"]
     assert projects["Parque eólico Sierra Alta"]["status_document_id"] == docs["C"]
+
+
+def test_export_evaluation_copies_last_run_and_counts_labels(tmp_path):
+    last_run = tmp_path / "last_run.json"
+    last_run.write_text(json.dumps({"provider": "stub", "accuracy": {"verdict": 1.0}, "n_labels": 2, "n_scored": 2, "skipped": []}), encoding="utf-8")
+    labels = tmp_path / "labels"
+    labels.mkdir()
+    (labels / "a.json").write_text("{}", encoding="utf-8")
+    (labels / "b.json").write_text("{}", encoding="utf-8")
+    out = tmp_path / "out"
+    path = export_evaluation(out, last_run=last_run, labels_dir=labels)
+    written = json.loads(path.read_text(encoding="utf-8"))
+    assert path.name == "evaluation.json"
+    assert written["accuracy"] == {"verdict": 1.0}
+    assert written["labels_count"] == 2
+
+
+def test_export_evaluation_fails_loudly_without_a_run(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        export_evaluation(tmp_path / "out", last_run=tmp_path / "missing.json", labels_dir=tmp_path)

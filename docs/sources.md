@@ -176,3 +176,4 @@ This is a substantially different implementation path than the brief anticipated
 - `projects.csv` column `status_document_id`: `raw_documents.id` of the document that fixed `status` (empty when the status is `desconocido` with no resolving document).
 - `municipality_stats.json` entries carry `by_technology` next to `by_status`.
 - GeoJSON coordinates are written with five decimals.
+- `evaluation.json`: copy of `pipeline/evaluation/last_run.json` (`provider`, `accuracy` per field, `n_labels`, `n_scored`, `skipped`) plus `labels_count`. Quoted on `/metodologia`. The export fails if no evaluation has been run.
