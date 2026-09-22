@@ -36,6 +36,8 @@ approval and every milestone.
   Task 5 (export `status_document_id`) is next.
 - 2026-09-22: Task 5 done (`8c32d36`: projects.csv carries status_document_id).
   Task 6 (export evaluation.json) is next.
+- 2026-09-22: Task 6 done (`51eafc6`: evaluation.json exported with
+  labels_count). Task 7 (`meta.files`) is next.
 
 ## Decisions taken during brainstorming, in order
 
