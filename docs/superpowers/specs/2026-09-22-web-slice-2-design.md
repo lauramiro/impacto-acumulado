@@ -15,6 +15,8 @@ approval and every milestone.
   committed. Implementation plan written at
   `docs/superpowers/plans/2026-09-22-web-slice-2.md` (15 tasks: labels 1-4,
   export 5-8, web 9-14, deploy 15). Nothing implemented yet.
+- 2026-09-22: Task 1 done (label well-formedness test added in `cc49e8a`, 16
+  candidates picked into `$TMP/picked.txt`). Task 2 (BOE labels) is next.
 
 ## Decisions taken during brainstorming, in order
 
