@@ -1,7 +1,7 @@
 # Web slice 2: project page, data page, methodology with published accuracy
 
 Date: 2026-09-22
-Status: design approved in chat, spec under user review, pre-implementation
+Status: spec and plan written, pre-implementation
 Parent design: [2026-09-18-impacto-acumulado-design.md](2026-09-18-impacto-acumulado-design.md)
 Previous slice: [2026-09-21-web-slice-1-design.md](2026-09-21-web-slice-1-design.md)
 
@@ -12,8 +12,9 @@ approval and every milestone.
 
 - 2026-09-22: brainstorming. Decisions 1 to 7 below taken. Sections 1 and 2
   of the design approved in chat, then sections 3 and 4. Spec written and
-  committed. Next: user reviews this file, then the implementation plan is
-  written with the writing-plans skill. Nothing implemented yet.
+  committed. Implementation plan written at
+  `docs/superpowers/plans/2026-09-22-web-slice-2.md` (15 tasks: labels 1-4,
+  export 5-8, web 9-14, deploy 15). Nothing implemented yet.
 
 ## Decisions taken during brainstorming, in order
 
