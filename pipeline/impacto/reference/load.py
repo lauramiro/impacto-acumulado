@@ -13,7 +13,6 @@ import psycopg
 import shapefile
 import shapely
 import tifffile
-from pyproj import Transformer
 from shapely.geometry import MultiPolygon, box
 from shapely.geometry import shape as shapely_shape
 from shapely.geometry.base import BaseGeometry
@@ -27,7 +26,7 @@ log = logging.getLogger(__name__)
 # pyogrio/fiona/rasterio load on import (confirmed: geopandas.read_file and
 # `import rasterio` both fail with "DLL load failed ... directiva de Control
 # de aplicaciones", the same failure Task 1 hit and documented in
-# docs/sources.md). geopandas, shapely, pyproj and numpy import fine; pyshp
+# docs/sources.md). geopandas, shapely and numpy import fine; pyshp
 # and tifffile+imagecodecs (pure-Python/no-GDAL) also import fine, so vector
 # and raster reading below is built on those instead of geopandas.read_file
 # and rasterio/pyogrio - which is why rasterio/pyogrio/geopandas are no
@@ -93,6 +92,8 @@ def _read_vector(path: Path) -> tuple[list[tuple[dict, BaseGeometry]], int]:
 def _reprojector(src_epsg: int, dst_epsg: int):
     if src_epsg == dst_epsg:
         return None
+    from pyproj import Transformer
+
     transformer = Transformer.from_crs(src_epsg, dst_epsg, always_xy=True)
 
     def _apply(coords: np.ndarray) -> np.ndarray:
