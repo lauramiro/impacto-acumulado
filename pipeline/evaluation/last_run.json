@@ -1,14 +1,19 @@
 {
   "provider": "mistral:ministral-14b-latest",
   "accuracy": {
-    "doc_type": 1.0,
-    "verdict": 1.0,
+    "doc_type": 0.95,
+    "verdict": 0.95,
     "developer": 1.0,
-    "technology": 1.0,
-    "mw_nominal": 0.75,
-    "municipalities": 1.0
+    "technology": 0.95,
+    "mw_nominal": 0.9,
+    "mw_peak": 1.0,
+    "hectares": 1.0,
+    "project_name": 0.4,
+    "municipalities": 0.8,
+    "turbines": 1.0,
+    "expediente": 1.0
   },
-  "n_labels": 4,
-  "n_scored": 4,
+  "n_labels": 20,
+  "n_scored": 20,
   "skipped": []
 }

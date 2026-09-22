@@ -35,7 +35,6 @@ Labelling rules:
 - Aim for a mix: at least 5 BOJA documents, at least 3 unfavourable, at least 2
   wind, at least 2 public consultation notices.
 
-Status: four labels so far (see each file's `note`). The 20-document set and
-the published accuracy table are deferred until after the backfill, because the
-Groq free tier (200,000 tokens per day) covers only two or three long documents
-a day.
+Status: 20 labels (11 BOE, 9 BOJA), reviewed by hand on 2026-09-22.
+`last_run.json` holds the result of the Mistral run on that set and is
+exported to the site as `web/public/data/evaluation.json` by `impacto export`.
