@@ -173,5 +173,6 @@ This is a substantially different implementation path than the brief anticipated
 - `municipalities_map.geojson`: the 785 municipalities again, simplified at 0.002 degrees (about 200 m) with only `ine_code`, `name`, `province`. Read by the web map only; `municipalities.geojson` (50 m, with figures) stays the download and page-build source.
 - `provinces.geojson`: eight features, one per province, `ST_Union` of the municipalities, simplified at the map tolerance (0.002 degrees). Used for the map outlines only.
 - `projects.csv` column `ine_codes`: semicolon-separated INE codes of the project's municipalities.
+- `projects.csv` column `status_document_id`: `raw_documents.id` of the document that fixed `status` (empty when the status is `desconocido` with no resolving document).
 - `municipality_stats.json` entries carry `by_technology` next to `by_status`.
 - GeoJSON coordinates are written with five decimals.

@@ -201,3 +201,17 @@ def test_municipalities_map_geojson_is_coarser_and_carries_only_map_properties(d
     assert _vertex_count(full_jagged["geometry"]) > 50
     assert _vertex_count(coarse_jagged["geometry"]) < 20
     assert _max_decimals(coarse_jagged["geometry"]["coordinates"]) <= 5
+
+
+def test_projects_csv_carries_the_status_document(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    run_aggregate(db)
+    export_all(db, tmp_path)
+    with open(tmp_path / "documents.csv", encoding="utf-8", newline="") as f:
+        docs = {r["source_id"]: r["id"] for r in csv.DictReader(f)}
+    with open(tmp_path / "projects.csv", encoding="utf-8", newline="") as f:
+        projects = {r["canonical_name"]: r for r in csv.DictReader(f)}
+    # The DIA (B) fixes Ronda I's status, not the earlier consultation notice (A).
+    assert projects["Parque fotovoltaico Ronda I"]["status_document_id"] == docs["B"]
+    assert projects["Parque eólico Sierra Alta"]["status_document_id"] == docs["C"]

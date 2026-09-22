@@ -40,7 +40,7 @@ def export_projects(conn, out_dir: Path) -> Path:
         conn,
         """
         SELECT p.id, p.canonical_name, p.developer, p.technology, p.status, p.mw_peak, p.mw_nominal, p.hectares, p.turbines,
-               p.first_seen, p.last_seen,
+               p.status_document_id, p.first_seen, p.last_seen,
                (SELECT string_agg(m.name, '; ' ORDER BY m.name)
                 FROM project_municipalities pm JOIN municipalities m ON m.ine_code = pm.ine_code
                 WHERE pm.project_id = p.id) AS municipalities,
