@@ -97,6 +97,33 @@ def mentions_andalusia(text: str) -> bool:
     return _has_any(text, ANDALUSIAN_PROVINCES + ["andalucia"])
 
 
+def consulted_andalusian_authority(text: str) -> bool:
+    """Whether the body consults a territorial delegation of the Junta de Andalucía.
+
+    The regional environmental authority for an Andalusian project is a
+    "Delegación Territorial en <province> de la Consejería ... de la Junta de
+    Andalucía", and the consulted-bodies table of a state resolution names it
+    only when the project sits in that province. Used as a second chance for
+    the documents whose title names no province at all - typically
+    "modificación de condiciones" resolutions, which restate only the project
+    name (observed for BOE-A-2025-11509, "Instalación fotovoltaica Puerto Real
+    110 MW", in Cádiz).
+
+    A bare "Junta de Andalucía" mention is not enough: non-Andalusian
+    resolutions cite its technical guidance - a bat-mortality wind-speed
+    instruction in BOE-A-2022-7119 (Huesca), a game-species monitoring
+    programme in BOE-A-2026-13449 (Toledo). Pairing the phrase with a province
+    separates the two (checked over all 624 renewable resolutions of 2019-01 to
+    2026-09: 72 selected, no misses, no false positives).
+    """
+    n = normalize(text)
+    return any(f"delegacion territorial en {p}" in n for p in ANDALUSIAN_PROVINCES)
+
+
+def concerns_andalusia(title: str, body: str) -> bool:
+    return mentions_andalusia(title) or consulted_andalusian_authority(body)
+
+
 def _text_of(element: ET.Element | None) -> str:
     return "".join(element.itertext()).strip() if element is not None else ""
 

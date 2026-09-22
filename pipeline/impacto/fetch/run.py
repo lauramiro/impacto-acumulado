@@ -46,15 +46,16 @@ def fetch_boe(client: CachedClient, conn: psycopg.Connection, day_from: date, da
                 # recovers.
                 log.warning("boe item %s: skipping, %s", item.identifier, exc)
                 continue
-            # Only the title, not the full body text: a resolution's title
-            # reliably states the province(s) the project sits in (see
-            # docs/sources.md), while scanning the whole body catches
-            # unrelated substring hits - e.g. a submitter's surname
-            # "Cordoba" or an out-of-region municipality "La Granada"
+            # The title first, not the full body text: a resolution's title
+            # almost always states the province(s) the project sits in (see
+            # docs/sources.md), while scanning the whole body for a province
+            # name catches unrelated substring hits - e.g. a submitter's
+            # surname "Cordoba" or an out-of-region municipality "La Granada"
             # (Barcelona) - for documents about projects in other regions
-            # (observed live for BOE-A-2023-19523 and BOE-A-2023-19526,
-            # both in Huesca/Barcelona).
-            if not boe.mentions_andalusia(doc.title):
+            # (observed live for BOE-A-2023-19523 and BOE-A-2023-19526, both
+            # in Huesca/Barcelona). The body is then consulted for one
+            # specific phrase only, see consulted_andalusian_authority.
+            if not boe.concerns_andalusia(doc.title, doc.text):
                 continue
             stored = upsert_raw_document(
                 conn,

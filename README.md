@@ -11,10 +11,11 @@ and per province, over time.
 Status: pipeline implemented (fetch, extract, resolve, aggregate, export,
 reference loads, evaluation harness, CI and weekly workflow). Production
 database live on Neon with the reference layers loaded; the weekly workflow
-runs against it and commits exports. Backfill partial: 71 BOE documents
-(2019 to July 2026) extracted with Mistral `ministral-14b-latest` and
-resolved into 347 projects from 71 BOE and 566 BOJA documents (2019 to 2026-09). See "Production setup"
-below. Web site: map, municipality and project pages, methodology with measured accuracy and a data download page at https://impacto-acumulado.vercel.app (slices 1 and 2).
+runs against it and commits exports. Backfill: the BOE range 2019-01 to
+2026-09 is swept and audited, the BOJA range has no documents for 2020 or
+2021. 347 projects resolved from 71 BOE and 566 BOJA documents
+(2019 to 2026-09), extracted with Mistral `ministral-14b-latest`. See
+"Production setup" below. Web site: map, municipality and project pages, methodology with measured accuracy and a data download page at https://impacto-acumulado.vercel.app (slices 1 and 2).
 
 - Design: [docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md](docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md)
 
@@ -102,6 +103,8 @@ Neon terminates idle connections when the endpoint suspends or restarts, which h
 
    The backfill can also run on Mistral's free Experiment plan instead of Groq: set `IMPACTO_MISTRAL_KEY` (and optionally `IMPACTO_MISTRAL_MODEL`, default `ministral-14b-latest`) and pass `--provider mistral` to `extract`. The Experiment plan's limits are only shown in the Mistral console (see `docs/sources.md`, "Mistral"); a 429 that names a monthly cap stops the run the same way Groq's daily cap does, and the run resumes where it left off when rerun.
 
-   Progress so far (2026-09-22): 71 BOE and 566 BOJA documents fetched (2019-01 to 2026-09), all 637 extracted (BOE with `ministral-14b-latest` locally, BOJA by a manual dispatch of the weekly workflow with `provider=mistral`, `extract_limit=600`, run 35682369232), resolved into 347 projects, exported and committed. The BOE range has not been swept systematically; that is the remaining backfill work.
+   Progress so far (2026-09-22): 71 BOE and 566 BOJA documents fetched (2019-01 to 2026-09), all 637 extracted (BOE with `ministral-14b-latest` locally, BOJA by a manual dispatch of the weekly workflow with `provider=mistral`, `extract_limit=600`, run 35682369232), resolved into 347 projects, exported and committed.
+
+   The BOE side of the backfill is complete: `fetch` has read every day from 2019-01-01 to 2026-09-22 and the 71 stored documents are exactly what the selection rules yield from those summaries. This was audited on 2026-09-22 by replaying the rules over the cached summaries and document XML, with no network or LLM calls; see `docs/sources.md`, "BOE backfill audit". The audit found one document the title-only Andalusia test had missed; the `consulted_andalusian_authority` fallback added it, so the same range now yields 72 selected documents, one more than the 71 in the database. Re-running `fetch` over the range picks it up from the HTTP cache without touching the network. The BOJA side is thinner than the gazette itself: 2020 and 2021 hold no BOJA documents at all, which the audit did not cover and which is the remaining backfill question.
 
 5. Trigger the weekly workflow once by hand (`gh workflow run weekly-pipeline`) and confirm it completes and either commits new exports or reports no changes. Done: the scheduled run of 2026-09-21 (run 35599195548) succeeded and committed `data: weekly export 2026-09-21`.

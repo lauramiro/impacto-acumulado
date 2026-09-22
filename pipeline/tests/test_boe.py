@@ -3,6 +3,8 @@ from datetime import date
 
 from impacto.fetch.boe import (
     SummaryItem,
+    concerns_andalusia,
+    consulted_andalusian_authority,
     mentions_andalusia,
     parse_document_xml,
     select_items,
@@ -69,3 +71,52 @@ def test_parse_document_xml_all_fixtures(fixtures_dir):
 def test_mentions_andalusia():
     assert mentions_andalusia("en los términos municipales de Ronda (Málaga)")
     assert not mentions_andalusia("en la provincia de Zaragoza")
+
+
+# The three quotations below are the live wording of the documents named in
+# consulted_andalusian_authority's docstring, kept verbatim so a change to the
+# phrase test is measured against the real text it was derived from.
+PUERTO_REAL_BODY = (
+    "Responde el Servicio de Protección Ambiental y el Servicio de Gestión del Medio Natural de la "
+    "Delegación Territorial en Cádiz de la Consejería de Sostenibilidad y Medio Ambiente de la Junta "
+    "de Andalucía."
+)
+HUESCA_BODY = (
+    "Sugiere seguir la instrucción de la administración de la Junta de Andalucía que fija una "
+    "velocidad de viento menor de 3 m/s."
+)
+TOLEDO_BODY = (
+    "De acuerdo con la clasificación propuesta en el programa de seguimiento de especies cinegéticas "
+    "de la Junta de Andalucía."
+)
+
+
+def test_consulted_andalusian_authority_needs_a_province_next_to_the_junta():
+    assert consulted_andalusian_authority(PUERTO_REAL_BODY)
+    # A bare "Junta de Andalucía" is guidance cited by an out-of-region
+    # resolution, not the authority consulted for the project.
+    assert not consulted_andalusian_authority(HUESCA_BODY)
+    assert not consulted_andalusian_authority(TOLEDO_BODY)
+
+
+def test_concerns_andalusia_falls_back_to_the_body_when_the_title_names_no_province():
+    # BOE-A-2025-11509: a modification of conditions, whose title carries the
+    # project name only.
+    title = (
+        "Resolución de 27 de mayo de 2025, de la Dirección General de Calidad y Evaluación Ambiental, "
+        "de modificación de condiciones de la de 13 de julio de 2018 ... del proyecto «Instalación "
+        "fotovoltaica Puerto Real 110 MW»."
+    )
+    assert not mentions_andalusia(title)
+    assert concerns_andalusia(title, PUERTO_REAL_BODY)
+
+
+def test_concerns_andalusia_rejects_out_of_region_projects():
+    huesca = 'Parques solares fotovoltaicos Manto y Lamos ... en Villanueva de Sigena (Huesca)".'
+    assert not concerns_andalusia(huesca, HUESCA_BODY)
+    toledo = "Parque solar fotovoltaico FV Aceca ... en la provincia de Toledo."
+    assert not concerns_andalusia(toledo, TOLEDO_BODY)
+
+
+def test_concerns_andalusia_keeps_matching_on_the_title_alone():
+    assert concerns_andalusia("Plantas fotovoltaicas Ronda I, Ronda II y Ronda III (Cádiz y Málaga)", "")
