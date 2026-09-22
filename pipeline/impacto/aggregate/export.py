@@ -239,14 +239,29 @@ def export_evaluation(out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path
     return _write_json(out_dir / "evaluation.json", result)
 
 
-def export_meta(conn, out_dir: Path) -> Path:
+def _row_count(path: Path) -> int:
+    # CSV: data rows. FeatureCollection: features. Other JSON object: keys.
+    # Anything else (a single result object) counts as one row.
+    if path.suffix == ".csv":
+        with open(path, encoding="utf-8", newline="") as f:
+            return sum(1 for _ in csv.DictReader(f))
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, dict) and payload.get("type") == "FeatureCollection":
+        return len(payload["features"])
+    if isinstance(payload, dict) and "accuracy" not in payload:
+        return len(payload)
+    return 1
+
+
+def export_meta(conn, out_dir: Path, files: list[Path]) -> Path:
     counts = {}
     for table in ("raw_documents", "extractions", "projects", "municipalities", "protected_areas"):
         counts[table] = _query(conn, f"SELECT count(*) AS n FROM {table}")[0]["n"]
+    file_info = {p.name: {"rows": _row_count(p), "bytes": p.stat().st_size} for p in files}
     path = out_dir / "meta.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        json.dumps({"generated_at": datetime.now(UTC).isoformat(), "counts": counts}, indent=2),
+        json.dumps({"generated_at": datetime.now(UTC).isoformat(), "counts": counts, "files": file_info}, indent=2),
         encoding="utf-8",
     )
     return path
@@ -256,7 +271,7 @@ def export_all(
     conn: psycopg.Connection, out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR
 ) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
-    return [
+    paths = [
         export_projects(conn, out_dir),
         export_documents(conn, out_dir),
         export_municipality_stats(conn, out_dir),
@@ -269,8 +284,9 @@ def export_all(
         export_municipality_protected_areas_json(conn, out_dir),
         export_provinces_geojson(conn, out_dir),
         export_evaluation(out_dir, last_run, labels_dir),
-        export_meta(conn, out_dir),
     ]
+    paths.append(export_meta(conn, out_dir, paths))
+    return paths
 
 
 def main(argv: list[str]) -> int:

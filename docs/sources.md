@@ -177,3 +177,4 @@ This is a substantially different implementation path than the brief anticipated
 - `municipality_stats.json` entries carry `by_technology` next to `by_status`.
 - GeoJSON coordinates are written with five decimals.
 - `evaluation.json`: copy of `pipeline/evaluation/last_run.json` (`provider`, `accuracy` per field, `n_labels`, `n_scored`, `skipped`) plus `labels_count`. Quoted on `/metodologia`. The export fails if no evaluation has been run.
+- `meta.json` key `files`: per exported file `{rows, bytes}`; rows are data rows for CSV, features for GeoJSON, keys for keyed JSON, 1 for `evaluation.json`. Read by `/datos`.

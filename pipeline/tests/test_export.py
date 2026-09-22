@@ -238,3 +238,19 @@ def test_export_evaluation_copies_last_run_and_counts_labels(tmp_path):
 def test_export_evaluation_fails_loudly_without_a_run(tmp_path):
     with pytest.raises(FileNotFoundError):
         export_evaluation(tmp_path / "out", last_run=tmp_path / "missing.json", labels_dir=tmp_path)
+
+
+def test_meta_lists_every_export_with_rows_and_bytes(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    run_aggregate(db)
+    paths = export_all(db, tmp_path)
+    meta = json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))
+    assert set(meta["files"]) == {p.name for p in paths} - {"meta.json"}
+    assert meta["files"]["projects.csv"]["rows"] == 2  # data rows, header excluded
+    assert meta["files"]["documents.csv"]["rows"] == 3
+    assert meta["files"]["municipalities.geojson"]["rows"] == 2  # features
+    assert meta["files"]["municipality_stats.json"]["rows"] == 2  # keys
+    assert meta["files"]["evaluation.json"]["rows"] == 1  # a single object
+    for entry in meta["files"].values():
+        assert entry["bytes"] > 0
