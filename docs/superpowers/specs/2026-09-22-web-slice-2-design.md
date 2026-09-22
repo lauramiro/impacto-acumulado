@@ -1,7 +1,7 @@
 # Web slice 2: project page, data page, methodology with published accuracy
 
 Date: 2026-09-22
-Status: spec and plan written, pre-implementation
+Status: implemented and deployed on 2026-09-22
 Parent design: [2026-09-18-impacto-acumulado-design.md](2026-09-18-impacto-acumulado-design.md)
 Previous slice: [2026-09-21-web-slice-1-design.md](2026-09-21-web-slice-1-design.md)
 
@@ -62,6 +62,18 @@ approval and every milestone.
   next.
 - 2026-09-22: Task 14 done (`c1cfafb`: sitemap, footer link, accessibility
   sweep, README). Task 15 (deploy check and Lighthouse) is next.
+- 2026-09-22: Task 15 done, slice 2 complete and deployed. CI run
+  `35779369513` green on both `pipeline` and `web` jobs. Live checks against
+  https://impacto-acumulado.vercel.app: `/proyecto/1`, `/datos`,
+  `/metodologia` all 200; `/sitemap.xml` lists 347 `/proyecto/` entries
+  (1135 `<url>` total); `/datos` renders the real file catalogue (347
+  projects, 637 documents, correct byte sizes) and `/metodologia` renders
+  the measured per-field accuracies. Lighthouse 13.5 (mobile) on
+  `/proyecto/1`: performance 99, accessibility 100. Slice 2 shipped: the
+  project page for all 347 projects, `/datos`, `/metodologia` with measured
+  accuracy, the sitemap, and the footer data link. Left for slice 3: the
+  map's technology filter, protected-area overlays, the province table, and
+  the monthly timeline.
 
 ## Decisions taken during brainstorming, in order
 
