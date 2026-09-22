@@ -1,0 +1,16 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-2422",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Green Capital Power, SL",
+    "technology": "eolica",
+    "mw_nominal": 63.08,
+    "project_name": "Parque eólico Hinojosa",
+    "municipalities": [
+      {"name": "Alcalá del Valle", "province": "Cádiz"}
+    ]
+  },
+  "note": "Verdict: ministry favourable form, 'formula declaracion de impacto ambiental a la realizacion del proyecto Parque eolico Hinojosa, de 63.08 MW, y su infraestructura de evacuacion, ubicado en las provincias de Malaga y Cadiz en la que se establecen las condiciones ambientales ... en las que se debe desarrollar el proyecto', followed by a long condicionado and an annex II protocol. developer: 'cuyo promotor es Green Capital Power, SL'. mw_nominal: the printed project total is '63,08 MW' (title, antecedentes and operative sentence); section 2 writes it as '63,08 MWp de potencia, obtenida mediante 11 aerogeneradores de 5,735 MWn de potencia unitaria' (11 x 5,735 = 63,085), so the figure is the sum of nominal unit powers despite the stray 'MWp' and is labelled as nominal. turbines is omitted: the project as described has 11 turbines (13 in the original EIA), but condition 1.2.3.1 orders the final design 'excluyendo dichos aerogeneradores HI-02, HI-03, HI-04 y HI-05 de la configuracion final', leaving 7, and the resolution never prints a resulting count or capacity, so neither 11 nor 7 is a clean answer. Municipalities: 'la construccion en el termino municipal de Alcala del Valle (Cadiz), de un parque eolico PE Hinojosa' (section 2); the 132 kV evacuation line runs through Alcala del Valle, Canete la Real, El Burgo and Casarabonela (Malaga), and the primillar of Olvera is nearby, but only Alcala del Valle hosts turbines, so the three Malaga municipalities are excluded as line-only. No hectares or expediente number are printed."
+}

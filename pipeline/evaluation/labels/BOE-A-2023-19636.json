@@ -1,0 +1,17 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-19636",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "desfavorable",
+    "technology": "eolica",
+    "mw_nominal": 25.12,
+    "turbines": 7,
+    "project_name": "Parque eólico Hinojosa Ampliación",
+    "municipalities": [
+      {"name": "Alcalá del Valle", "province": "Cádiz"},
+      {"name": "Setenil de las Bodegas", "province": "Cádiz"}
+    ]
+  },
+  "note": "Verdict: 'formula declaracion de impacto ambiental desfavorable para el proyecto Parque eolico Hinojosa ampliacion, de 25,12 MW, y de la infraestructura de evacuacion ... al haberse identificado la posibilidad de impactos negativos significativos sobre el medio ambiente para los que las medidas propuestas no presentan garantia suficiente'; no condicionado follows. mw_nominal: the printed total is '25,12 MW' (title, antecedentes and operative sentence); the description says '7 aerogeneradores de 3,6 MW cada uno ... potencia total a instalar de 25,2 MW', a 0,3 percent discrepancy that is inside the scorer's tolerance, and the operative figure is kept. turbines: 7. developer is omitted: the antecedentes name Green Capital Power, SL as promotor and then record a 'cambio de titularidad ... a favor de Green Capital Development 161, SL', so the document names two holders without a single lead. Municipalities: the title lists Alcala del Valle, Torre Alhaquime and Setenil de las Bodegas for the park plus its evacuation, but the turbines themselves are placed 'en un triangulo de unos 2 kilometros de este a oeste y 5 kilometros de norte a sur situado en el limite de los terminos municipales de Setenil de las Bodegas y Alcala del Valle' (section 3.a); Torre Alhaquime is therefore reached only by the 19 km underground 30 kV line to SET Hinojosa and is excluded as line-only. No hectares or expediente number are printed."
+}

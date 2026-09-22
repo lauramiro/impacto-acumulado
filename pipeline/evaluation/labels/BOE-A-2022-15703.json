@@ -1,0 +1,18 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2022-15703",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Iberdrola Renovables Andalucía S.A.U.",
+    "technology": "solar_fv",
+    "mw_nominal": 38,
+    "mw_peak": 45.586,
+    "hectares": 121.56,
+    "project_name": "Parque Fotovoltaico Retuerta",
+    "municipalities": [
+      {"name": "El Almendro", "province": "Huelva"}
+    ]
+  },
+  "note": "Verdict: ministry favourable form, 'formula declaracion de impacto ambiental a la realizacion del proyecto Parque Fotovoltaico Retuerta de 38 MW de potencia instalada, para su hibridacion con el Parque Eolico existente Retuerta de 38 MW, y su infraestructura de evacuacion, en el termino municipal de El Almendro (Huelva), en la que se establecen las condiciones ambientales ... en las que se debe desarrollar el proyecto', followed by a full condicionado. developer: 'remitido por Iberdrola Renovables Andalucia S.A.U., como promotor'. technology solar_fv: the object of evaluation is the photovoltaic plant only ('Es objeto de evaluacion es la PFV La Retuerta y su conexion con la SET La Retuerta'); the 'hibridacion' is the sharing of the existing wind farm's SET and cable trench, and the 23 existing turbines are not part of this project, so hibrida was not used. mw_nominal and mw_peak: printed total in section 1, 'una potencia instalada de 38 MWn/45,586 MWp'. hectares: 'El proyecto ocupara una superficie total de 121,56 ha' (section 1; the two PV zones are 41,93 and 25,27 ha and the modules cover about 40 ha, but the printed project total is kept). turbines omitted: none are built by this project. Municipalities: 'El proyecto afecta unicamente al termino municipal de El Almendro (Huelva)'; the 2.072 m underground line stays inside it. No expediente number is printed."
+}

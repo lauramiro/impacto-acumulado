@@ -1,0 +1,17 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2025-24233",
+  "expected": {
+    "doc_type": "informe_impacto",
+    "verdict": "favorable_condicionada",
+    "developer": "Planta Solar OPDE Extremadura 2, SL",
+    "technology": "almacenamiento",
+    "mw_nominal": 24.04,
+    "hectares": 1.24,
+    "project_name": "Módulo de almacenamiento OPDE Miramundo",
+    "municipalities": [
+      {"name": "Puerto Real", "province": "Cádiz"}
+    ]
+  },
+  "note": "doc_type informe_impacto: this is a simplified evaluation, 'por la que se formula informe de impacto ambiental del proyecto' (title) under articles 45 to 47 of Ley 21/2013. Verdict: 'Esta Direccion General resuelve: ... que no es necesario el sometimiento al procedimiento de evaluacion ambiental ordinaria del proyecto Modulo de almacenamiento OPDE Miramundo ... ya que no se preven efectos adversos significativos sobre el medio ambiente, siempre que se cumplan las medidas y prescripciones establecidas en el documento ambiental y en la presente resolucion', with ten numbered prescriptions in section d, so favorable_condicionada. developer: 'promovido por Planta Solar OPDE Extremadura 2, SL'. technology almacenamiento: the project is a battery storage system (BESS, 126 MWh, four hours) plus a 2 km underground 30 kV line; the 49,99 MW photovoltaic plant it hybridises with already exists and is not part of the project. mw_nominal: 'El BESS, de 24,04 MW de potencia instalada' (title, antecedentes, operative sentence); the 49,99 MW figure belongs to the existing plant and must not be summed in. hectares: 'ocupara una superficie de 1,24 ha' (antecedentes; 'superficie vallada de 1,24 ha' in section a). Municipalities: 'La actuacion se desarrollara integramente en el termino municipal de Puerto Real, en la provincia de Cadiz'. turbines and mw_peak omitted (not applicable, not printed). No expediente number is printed."
+}

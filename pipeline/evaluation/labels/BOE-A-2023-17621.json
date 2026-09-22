@@ -1,0 +1,17 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-17621",
+  "expected": {
+    "doc_type": "modificacion",
+    "verdict": "no_aplica",
+    "developer": "Free Mountain Systems, SL",
+    "technology": "solar_fv",
+    "mw_nominal": 150,
+    "project_name": "Instalación Fotovoltaica Don Rodrigo",
+    "municipalities": [
+      {"name": "Utrera", "province": "Sevilla"},
+      {"name": "Alcalá de Guadaíra", "province": "Sevilla"}
+    ]
+  },
+  "note": "doc_type modificacion: the resolution 'modifica las condiciones de la Resolucion de 15 de junio de 2015 ... por la que se formula declaracion de impacto ambiental'. Operative sentence: 'Resuelve la modificacion de la condicion 5.3 del proyecto Instalacion fotovoltaica Don Rodrigo de 150 MW ... al concurrir el supuesto de la letra c) del apartado 1 del articulo 44'. It rewrites one condition (vegetation control, allows a localised herbicide and spring mowing) and decides nothing about the project itself, so verdict is no_aplica. developer: 'escrito de Free Mountain Systems, SL, promotor del proyecto'. mw_nominal: the only capacity printed is '150 MW' in the project name (title and operative sentence), not qualified as nominal or peak, so it is labelled as the project total; no mw_peak, hectares or turbines are stated and those fields are omitted. Municipalities: 'terminos municipales de Utrera y Alcala de Guadaira (Sevilla)' host the plant; no evacuation line is described. No expediente number is printed."
+}

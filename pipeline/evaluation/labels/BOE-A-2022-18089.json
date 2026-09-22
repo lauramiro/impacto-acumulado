@@ -1,0 +1,19 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2022-18089",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Enel Green Power España, SL",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "mw_peak": 90,
+    "hectares": 96.94,
+    "project_name": "Planta fotovoltaica Carbo",
+    "municipalities": [
+      {"name": "Guadalcázar", "province": "Córdoba"},
+      {"name": "Fuente Palmera", "province": "Córdoba"}
+    ]
+  },
+  "note": "Verdict: ministry favourable form, 'formula declaracion de impacto ambiental a la realizacion del proyecto Planta fotovoltaica Carbo de 90 MWp y su infraestructura de evacuacion, TTMM de Fuente Palmera, Guadalcazar y Almodovar del Rio (Cordoba) en la que se establecen las condiciones ambientales ... en las que se debe desarrollar el proyecto', followed by 26 numbered conditions. developer: 'promovida por Enel Green Power Espana, SL'. Capacity: the only figure printed anywhere is '90 MWp' (title, antecedentes, operative sentence), so mw_peak is 90 and mw_nominal is null because no nominal or installed-power figure is stated; an extraction that copies the peak figure into mw_nominal is wrong for this document. hectares: 'ocupa una superficie final aproximada de 97 ha, de las 171 ha previstas inicialmente' (section 1) and 'pasa de 171 ha a 96,94 ha' (section 3.b2); the exact final figure 96,94 is labelled and 97 is inside tolerance. Municipalities: the two plant parcels are in 'los Parajes de El Escorial (Parcela 1) y El Duque (Parcela 2), que se localizan en los terminos municipales de Guadalcazar y Fuente Palmera, respectivamente'; part of parcela 2 north of the A-445 was removed from the design but panels remain on the rest of it, so Fuente Palmera stays. Almodovar del Rio appears in the title but hosts only the SET Almodovar Renovables (not part of this project) and the 10 km underground line, so it is excluded as line-only. turbines omitted (photovoltaic). No expediente number is printed."
+}

@@ -1,0 +1,17 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2026-3880",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "desfavorable",
+    "developer": "PSFV Cartuja, SL",
+    "technology": "hibrida",
+    "mw_nominal": 79.99,
+    "turbines": 5,
+    "project_name": "Instalación híbrida Cartuja",
+    "municipalities": [
+      {"name": "Jerez de la Frontera", "province": "Cádiz"}
+    ]
+  },
+  "note": "Verdict: 'formula declaracion de impacto ambiental desfavorable a la realizacion del proyecto Instalacion hibrida Cartuja de 79,99 MW de potencia instalada, y para una parte de su infraestructura de evacuacion, en la provincia de Cadiz, debido a que no puede descartarse que el proyecto produzca un impacto negativo significativo'; no condicionado follows. developer: 'respecto del que PSFV Cartuja, SL, es promotor'. technology hibrida: the project is named and resolved as 'Instalacion hibrida Cartuja', although the description only covers the wind component ('Parque eolico Hibrido Cartuja con una potencia instalada de 30 MW: 5 aerogeneradores de 6 MW'), the photovoltaic half being outside this resolution. mw_nominal: the printed project total is '79,99 MW de potencia instalada' (title, antecedentes and operative sentence); the 30 MW wind figure is a component, not the total. turbines: 5. Municipalities: 'El parque eolico se proyecta en el termino municipal de Jerez de la Frontera. La linea electrica discurre por los terminos municipales de Jerez de la Frontera y Puerto Real', so Puerto Real is line-only (SET Puerto Real I) and excluded. No hectares or expediente number are printed."
+}

@@ -1,0 +1,17 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2024-16661",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "TAXOS LUX, SL",
+    "technology": "solar_fv",
+    "mw_nominal": 99.85,
+    "hectares": 203.25,
+    "project_name": "Parque fotovoltaico Tabernas 100",
+    "municipalities": [
+      {"name": "Tabernas", "province": "Almería"}
+    ]
+  },
+  "note": "Verdict: ministry favourable form, 'formula declaracion de impacto ambiental a la realizacion del proyecto Parque fotovoltaico Tabernas 100 MW, de 99,85 MW de potencia instalada, y para una parte de su infraestructura de evacuacion, en la provincia de Almeria en la que se establecen las condiciones ambientales ... en las que se debe desarrollar el proyecto', followed by 35 numbered conditions. developer: 'promovido por TAXOS LUX, SL'. mw_nominal: printed total, '99,85 MW de potencia instalada' (title, antecedentes, section 1 and operative sentence); the '100 MW' in the project name is a round label, not a capacity figure, and no MWp is printed so mw_peak is omitted. hectares: 'una superficie de ocupacion de 203,25 hectareas' (section 1, alternative 1). Municipalities: 'en el termino municipal de Tabernas (Almeria)' for the plant; the 4,5 km underground 132 kV line to SET Colectora Tabernas is not said to leave Tabernas, and no other municipality is named. turbines omitted (photovoltaic). No expediente number is printed."
+}
