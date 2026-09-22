@@ -60,6 +60,8 @@ approval and every milestone.
 - 2026-09-22: Task 13 done (`f7c106c`: `/metodologia` with the measured
   accuracy). Task 14 (sitemap, footer link, accessibility sweep, README) is
   next.
+- 2026-09-22: Task 14 done (`c1cfafb`: sitemap, footer link, accessibility
+  sweep, README). Task 15 (deploy check and Lighthouse) is next.
 
 ## Decisions taken during brainstorming, in order
 
