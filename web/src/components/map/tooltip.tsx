@@ -5,10 +5,10 @@ export type TooltipState = { x: number; y: number; name: string; value: string }
 export function Tooltip({ state }: { state: TooltipState }) {
   if (!state) return null;
   return (
-    <div className={styles.tooltip} style={{ left: state.x, top: state.y }} role="status">
+    <div className={styles.tooltip} style={{ left: state.x, top: state.y }} aria-hidden="true">
       <strong>{state.name}</strong>
       <br />
-      <span className="dato">{state.value}</span>
+      <span className={`dato ${styles.valor}`}>{state.value}</span>
     </div>
   );
 }

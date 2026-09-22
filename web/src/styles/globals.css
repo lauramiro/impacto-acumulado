@@ -64,7 +64,6 @@ input:focus-visible,
 
 .dato {
   font-family: var(--font-data), "Courier New", monospace;
-  font-size: var(--texto-dato);
   font-variant-numeric: tabular-nums;
 }
 

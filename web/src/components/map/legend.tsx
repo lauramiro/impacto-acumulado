@@ -23,7 +23,7 @@ export function Legend({ metric, thresholds, anyStatus }: { metric: Metric; thre
       {labels.map((label, i) => (
         <li key={i} className={styles.item}>
           <span className={styles.swatch} style={{ background: `var(${CLASS_VARS[i]})` }} aria-hidden="true" />
-          <span className="dato">{label}</span>
+          <span className={`dato ${styles.valor}`}>{label}</span>
         </li>
       ))}
     </ol>

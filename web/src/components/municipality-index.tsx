@@ -5,10 +5,10 @@ import { useDeferredValue, useState } from "react";
 import { formatInt, formatNumber } from "@/lib/format";
 import { METRIC_LABELS, METRIC_UNITS } from "@/lib/labels";
 import { matches } from "@/lib/search";
-import type { Metric, Municipality } from "@/lib/types";
+import type { MapMunicipality, Metric } from "@/lib/types";
 import styles from "./municipality-index.module.css";
 
-export type IndexRow = Municipality & { value: number };
+export type IndexRow = MapMunicipality & { value: number };
 
 export type MunicipalityIndexProps = {
   rows: IndexRow[];

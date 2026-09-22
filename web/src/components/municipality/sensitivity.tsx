@@ -11,7 +11,7 @@ export function Sensitivity({ share }: { share: number | null }) {
         <p>Sin datos de zonificación para este municipio.</p>
       ) : (
         <p>
-          <span className={`dato ${share >= ALERT_THRESHOLD ? styles.alerta : ""}`}>{formatPercent(share)}</span> del
+          <span className={`dato ${styles.valor} ${share >= ALERT_THRESHOLD ? styles.alerta : ""}`}>{formatPercent(share)}</span> del
           término en clases alta o máxima de la zonificación ambiental para renovables (eólica y fotovoltaica).
         </p>
       )}

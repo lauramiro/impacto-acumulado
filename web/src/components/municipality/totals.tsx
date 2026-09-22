@@ -1,3 +1,4 @@
+import { Figure } from "@/components/figure";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { formatHa, formatInt, formatMw } from "@/lib/format";
 import { STATUSES, TECHNOLOGIES, type MunicipalityStats } from "@/lib/types";
@@ -24,9 +25,15 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
             return (
               <tr key={s}>
                 <th scope="row">{STATUS_LABELS[s]}</th>
-                <td className={`dato ${styles.num}`}>{formatInt(f.projectCount)}</td>
-                <td className={`dato ${styles.num}`}>{formatMw(f.mwNominal)}</td>
-                <td className={`dato ${styles.num}`}>{formatHa(f.hectares)}</td>
+                <td className={styles.num}>
+                  <Figure value={formatInt(f.projectCount)} />
+                </td>
+                <td className={styles.num}>
+                  <Figure value={formatMw(f.mwNominal)} />
+                </td>
+                <td className={styles.num}>
+                  <Figure value={formatHa(f.hectares)} />
+                </td>
               </tr>
             );
           })}
@@ -34,9 +41,15 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
         <tfoot>
           <tr>
             <th scope="row">Total</th>
-            <td className={`dato ${styles.num}`}>{formatInt(stats.countTotal)}</td>
-            <td className={`dato ${styles.num}`}>{formatMw(stats.mwTotal)}</td>
-            <td className={`dato ${styles.num}`}>{formatHa(stats.haTotal)}</td>
+            <td className={styles.num}>
+              <Figure value={formatInt(stats.countTotal)} />
+            </td>
+            <td className={styles.num}>
+              <Figure value={formatMw(stats.mwTotal)} />
+            </td>
+            <td className={styles.num}>
+              <Figure value={formatHa(stats.haTotal)} />
+            </td>
           </tr>
         </tfoot>
       </table>
@@ -47,7 +60,7 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
           return (
             <span key={t}>
               {i > 0 ? " · " : ""}
-              {TECHNOLOGY_LABELS[t]} <span className="dato">{formatInt(f.projectCount)} · {formatMw(f.mwNominal)}</span>
+              {TECHNOLOGY_LABELS[t]} <Figure value={`${formatInt(f.projectCount)} · ${formatMw(f.mwNominal)}`} />
             </span>
           );
         })}

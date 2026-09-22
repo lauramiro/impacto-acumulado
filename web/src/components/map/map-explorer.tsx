@@ -2,14 +2,14 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
 import { formatNumber } from "@/lib/format";
 import { METRIC_UNITS } from "@/lib/labels";
 import { DEFAULT_STATE, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricValue } from "@/lib/metrics";
-import type { Metric, Municipality, MunicipalityStats, Status } from "@/lib/types";
+import type { MapMunicipality, Metric, MunicipalityStats, Status } from "@/lib/types";
 import type { MuniProps, ProvProps } from "./choropleth";
 import { Controls } from "./controls";
 import { Panel } from "./panel";
@@ -25,7 +25,7 @@ type Geo = {
   provinces: FeatureCollection<Geometry, ProvProps>;
 };
 
-type Props = { municipalities: Municipality[]; stats: Record<string, MunicipalityStats> };
+type Props = { municipalities: MapMunicipality[]; stats: Record<string, MunicipalityStats> };
 
 async function fetchJson<T>(url: string): Promise<T> {
   const r = await fetch(url);
@@ -67,13 +67,16 @@ export function MapExplorer({ municipalities, stats }: Props) {
     };
   }, []);
 
-  function update(next: MapState) {
-    setState(next);
-    startTransition(() => {
-      const qs = serializeMapState(next);
-      router.replace(qs ? `/?${qs}` : "/", { scroll: false });
-    });
-  }
+  const update = useCallback(
+    (next: MapState) => {
+      setState(next);
+      startTransition(() => {
+        const qs = serializeMapState(next);
+        router.replace(qs ? `/?${qs}` : "/", { scroll: false });
+      });
+    },
+    [router],
+  );
 
   const byIne = useMemo(() => new Map(municipalities.map((m) => [m.ine, m])), [municipalities]);
 
@@ -85,8 +88,11 @@ export function MapExplorer({ municipalities, stats }: Props) {
 
   const thresholds = useMemo(() => classify([...values.values()], 5), [values]);
   const decimals = state.metric === "proyectos" ? 0 : 1;
-  const labelOf = (ine: string) => `${formatNumber(values.get(ine) ?? 0, decimals)} ${METRIC_UNITS[state.metric]}`;
-  const classOf = (ine: string) => classIndex(values.get(ine) ?? 0, thresholds);
+  const labelOf = useCallback(
+    (ine: string) => `${formatNumber(values.get(ine) ?? 0, decimals)} ${METRIC_UNITS[state.metric]}`,
+    [values, decimals, state.metric],
+  );
+  const classOf = useCallback((ine: string) => classIndex(values.get(ine) ?? 0, thresholds), [values, thresholds]);
 
   const rows: IndexRow[] = useMemo(
     () =>
@@ -98,7 +104,7 @@ export function MapExplorer({ municipalities, stats }: Props) {
   );
 
   const selected = state.selected ? (byIne.get(state.selected) ?? null) : null;
-  const select = (ine: string | null) => update({ ...state, selected: ine });
+  const select = useCallback((ine: string | null) => update({ ...state, selected: ine }), [state, update]);
 
   return (
     <div>

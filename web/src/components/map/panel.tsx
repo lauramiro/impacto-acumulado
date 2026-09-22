@@ -2,12 +2,12 @@ import Link from "next/link";
 import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
 import { formatHa, formatInt, formatMw } from "@/lib/format";
-import { STATUSES, type Metric, type Municipality, type MunicipalityStats } from "@/lib/types";
+import { STATUSES, type MapMunicipality, type Metric, type MunicipalityStats } from "@/lib/types";
 import { Legend } from "./legend";
 import styles from "./panel.module.css";
 
 type Props = {
-  municipality: Municipality | null;
+  municipality: MapMunicipality | null;
   stats: MunicipalityStats | undefined;
   metric: Metric;
   thresholds: number[];
@@ -17,7 +17,7 @@ type Props = {
 
 export function Panel({ municipality, stats, metric, thresholds, anyStatus, onClose }: Props) {
   return (
-    <aside className={styles.panel} aria-live="polite" aria-label="Municipio seleccionado">
+    <aside className={styles.panel} aria-label={municipality === null ? "Leyenda del mapa" : "Municipio seleccionado"}>
       {municipality === null ? (
         <>
           <h2 className={styles.titulo}>Cómo leer el mapa</h2>
@@ -28,7 +28,7 @@ export function Panel({ municipality, stats, metric, thresholds, anyStatus, onCl
           <Legend metric={metric} thresholds={thresholds} anyStatus={anyStatus} />
         </>
       ) : (
-        <>
+        <div aria-live="polite">
           <p className={`dato ${styles.eyebrow}`}>
             {municipality.province} · INE {municipality.ine}
           </p>
@@ -66,7 +66,7 @@ export function Panel({ municipality, stats, metric, thresholds, anyStatus, onCl
               Cerrar
             </button>
           </p>
-        </>
+        </div>
       )}
     </aside>
   );

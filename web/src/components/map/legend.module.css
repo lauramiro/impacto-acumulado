@@ -19,6 +19,10 @@
   flex: none;
 }
 
+.valor {
+  font-size: var(--texto-dato);
+}
+
 .nota {
   font-size: var(--texto-pie);
 }

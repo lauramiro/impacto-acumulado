@@ -60,7 +60,6 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
     docsByProject.set(d.projectId, list);
   }
   for (const list of docsByProject.values()) list.sort((a, b) => a.publishedAt.localeCompare(b.publishedAt));
-  const spansSeveral = here.some((p) => p.ineCodes.length > 1);
 
   return (
     <article>
@@ -83,9 +82,6 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
 
       <section aria-labelledby="proyectos" className={styles.proyectos}>
         <h2 id="proyectos">Proyectos ({formatInt(here.length)})</h2>
-        {spansSeveral ? (
-          <p className="pie">Un proyecto situado en varios municipios cuenta íntegro en cada uno de ellos.</p>
-        ) : null}
         {here.map((p) => (
           <ProjectRecord key={p.id} project={p} documents={docsByProject.get(p.id) ?? []} />
         ))}

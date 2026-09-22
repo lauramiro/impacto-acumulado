@@ -10,3 +10,7 @@
   max-width: 16rem;
   z-index: 2;
 }
+
+.valor {
+  font-size: var(--texto-dato);
+}

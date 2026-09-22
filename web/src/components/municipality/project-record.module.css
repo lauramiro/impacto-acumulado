@@ -30,4 +30,5 @@
 
 .docs li {
   padding: 0.15rem 0;
+  font-size: var(--texto-dato);
 }

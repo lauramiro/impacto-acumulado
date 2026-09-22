@@ -1,3 +1,4 @@
+import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatHa, formatInt, formatMw } from "@/lib/format";
 import { ROLE_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
@@ -21,7 +22,7 @@ export function ProjectRecord({ project, documents }: { project: Project; docume
         {figures.length > 0 ? (
           <>
             {" · "}
-            <span className="dato">{figures.join(" · ")}</span>
+            <Figure value={figures.join(" · ")} />
           </>
         ) : null}
       </p>

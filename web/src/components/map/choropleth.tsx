@@ -29,7 +29,7 @@ type MuniLayerProps = {
   items: MuniItem[];
   selected: string | null;
   onSelect: (ine: string | null) => void;
-  onHover: (ine: string, name: string, label: string, clientX: number, clientY: number) => void;
+  onHover: (name: string, label: string, clientX: number, clientY: number) => void;
 };
 
 /**
@@ -48,7 +48,7 @@ const MuniLayer = memo(function MuniLayer({ items, selected, onSelect, onHover }
           data-ine={m.ine}
           className={`${styles.muni} ${selected === m.ine ? styles.seleccionado : ""}`}
           style={{ fill: `var(${CLASS_VARS[m.cls]})` }}
-          onMouseMove={(e) => onHover(m.ine, m.name, m.label, e.clientX, e.clientY)}
+          onMouseMove={(e) => onHover(m.name, m.label, e.clientX, e.clientY)}
           onClick={() => onSelect(selected === m.ine ? null : m.ine)}
         >
           <title>{`${m.name}: ${m.label}`}</title>
@@ -76,7 +76,7 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
     [paths, classOf, labelOf],
   );
 
-  const handleHover = useCallback((ine: string, name: string, label: string, clientX: number, clientY: number) => {
+  const handleHover = useCallback((name: string, label: string, clientX: number, clientY: number) => {
     const host = wrapRef.current;
     if (!host) return;
     const rect = host.getBoundingClientRect();

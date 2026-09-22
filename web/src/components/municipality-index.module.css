@@ -52,6 +52,10 @@
   white-space: nowrap;
 }
 
+.table td.num {
+  font-size: var(--texto-dato);
+}
+
 .seleccionada th,
 .seleccionada td {
   background: color-mix(in srgb, var(--escala-1) 50%, var(--papel));

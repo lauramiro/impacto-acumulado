@@ -21,6 +21,9 @@ export type Municipality = {
   sensitivityHighShare: number | null;
 };
 
+/** The subset of Municipality the map explorer needs: no per-request weight from unused figures. */
+export type MapMunicipality = Pick<Municipality, "ine" | "name" | "province">;
+
 export type StatusFigures = { projectCount: number; mwNominal: number; hectares: number; turbines: number };
 export type TechnologyFigures = { projectCount: number; mwNominal: number; hectares: number };
 

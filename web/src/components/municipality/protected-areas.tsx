@@ -1,4 +1,5 @@
 import type { ProtectedAreaRef } from "@/lib/types";
+import styles from "./protected-areas.module.css";
 
 export function ProtectedAreas({ areas }: { areas: ProtectedAreaRef[] }) {
   return (
@@ -10,7 +11,8 @@ export function ProtectedAreas({ areas }: { areas: ProtectedAreaRef[] }) {
         <ul>
           {areas.map((a) => (
             <li key={a.siteCode}>
-              <span className="dato">{a.siteCode}</span> · {a.name} · <span className="dato">{a.type}</span>
+              <span className={`dato ${styles.codigo}`}>{a.siteCode}</span> · {a.name} ·{" "}
+              <span className={`dato ${styles.codigo}`}>{a.type}</span>
             </li>
           ))}
         </ul>
