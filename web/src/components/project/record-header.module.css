@@ -1,0 +1,4 @@
+.header { margin: 1.5rem 0; }
+.eyebrow { margin: 0; font-size: var(--texto-pie); }
+.nombre { font-size: var(--texto-nombre); margin: 0.25rem 0 0.5rem; }
+.promotor { margin: 0; }
