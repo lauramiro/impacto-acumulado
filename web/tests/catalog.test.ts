@@ -1,13 +1,24 @@
 import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { CATALOG } from "@/lib/data/catalog";
 import { dataFile } from "@/lib/data/paths";
 import { loadMeta } from "@/lib/data/meta";
 
+// This test's whole purpose (per the design spec) is to catch the catalogue
+// drifting from the real exports, so it must read the real files under
+// web/public/data, not the fixtures `dataFile()` resolves to via
+// IMPACTO_DATA_DIR. Resolved from this test file's own location, not
+// process.cwd(), so it is correct regardless of where vitest is invoked from.
+function realDataFile(name: string): string {
+  return path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public", "data", name);
+}
+
 describe("catalog", () => {
   it("documents every column of each CSV, in the export's order", () => {
     for (const entry of CATALOG.filter((e) => e.columns)) {
-      const header = readFileSync(dataFile(entry.file), "utf-8").split("\n")[0].trim().split(",");
+      const header = readFileSync(realDataFile(entry.file), "utf-8").split("\n")[0].trim().split(",");
       expect(entry.columns!.map((c) => c.name), entry.file).toEqual(header);
     }
   });

@@ -47,3 +47,13 @@ const twoDecimals = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, ma
 export function formatScore(n: number): string {
   return twoDecimals.format(n);
 }
+
+/**
+ * A file size in bytes as "330 B", "8,8 KB" or "2,0 MB". Below 1 000 bytes it
+ * shows the exact byte count rather than rounding a small file down to "0 KB".
+ */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1000) return `${integer.format(bytes)} B`;
+  if (bytes < 1_000_000) return `${oneDecimal.format(bytes / 1000)} KB`;
+  return `${oneDecimal.format(bytes / 1_000_000)} MB`;
+}

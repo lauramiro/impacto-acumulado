@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatHa, formatInt, formatLongDate, formatMw, formatPercent, formatScore } from "@/lib/format";
+import { formatBytes, formatDate, formatHa, formatInt, formatLongDate, formatMw, formatPercent, formatScore } from "@/lib/format";
 
 describe("format (es-ES)", () => {
   it("formats MW and hectares with one decimal and thousands separators", () => {
@@ -17,5 +17,11 @@ describe("format (es-ES)", () => {
   it("formats a score with two decimals", () => {
     expect(formatScore(0.82)).toBe("0,82");
     expect(formatScore(1)).toBe("1,00");
+  });
+  it("formats byte counts without ever rounding a real file down to zero", () => {
+    expect(formatBytes(330)).toBe("330 B");
+    expect(formatBytes(999)).toBe("999 B");
+    expect(formatBytes(8793)).toBe("8,8 KB");
+    expect(formatBytes(1_997_358)).toBe("2,0 MB");
   });
 });

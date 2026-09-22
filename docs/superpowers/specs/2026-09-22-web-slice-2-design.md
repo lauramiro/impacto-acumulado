@@ -54,8 +54,9 @@ approval and every milestone.
   links to projects) is next.
 - 2026-09-22: Task 11 done (`701f6a8`: municipality project records link to
   the project page). Task 12 (`/datos`) is next.
-- 2026-09-22: Task 12 done (`db4db4e`: `/datos` with the catalogue, licence
-  and citation). Task 13 (`/metodologia` with the measured accuracy) is next.
+- 2026-09-22: Task 12 done (`351199a`: `/datos` with the catalogue, licence
+  and citation, matching the spec's file order). Task 13 (`/metodologia`
+  with the measured accuracy) is next.
 
 ## Decisions taken during brainstorming, in order
 

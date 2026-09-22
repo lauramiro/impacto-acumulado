@@ -2,6 +2,8 @@ export type CatalogColumn = { name: string; type: string; meaning: string };
 export type CatalogEntry = { file: string; description: string; columns?: CatalogColumn[] };
 
 const ENUM_NOTE = "valor de la lista de estados";
+const TECH_NOTE = "valor de la lista de tecnologías";
+const VERDICT_NOTE = "valor de la lista de resultados de la resolución";
 
 export const CATALOG: CatalogEntry[] = [
   {
@@ -11,7 +13,7 @@ export const CATALOG: CatalogEntry[] = [
       { name: "id", type: "entero", meaning: "Identificador estable; es el id del documento más antiguo del grupo" },
       { name: "canonical_name", type: "texto", meaning: "Nombre del proyecto en el documento más reciente que lo cita" },
       { name: "developer", type: "texto", meaning: "Promotor; vacío si no se identifica" },
-      { name: "technology", type: "texto", meaning: "solar_fv, eolica, hibrida, almacenamiento, linea_evacuacion u otra" },
+      { name: "technology", type: "texto", meaning: TECH_NOTE },
       { name: "status", type: "texto", meaning: ENUM_NOTE },
       { name: "mw_peak", type: "decimal", meaning: "Potencia pico en MW; vacío si no consta" },
       { name: "mw_nominal", type: "decimal", meaning: "Potencia nominal en MW; vacío si no consta" },
@@ -40,7 +42,7 @@ export const CATALOG: CatalogEntry[] = [
       { name: "role", type: "texto", meaning: "consulta, informe, dia, aau, modificacion, caducidad u otro" },
       { name: "match_score", type: "decimal", meaning: "Confianza de la agrupación, de 0 a 1" },
       { name: "confidence", type: "decimal", meaning: "Confianza declarada por el modelo de extracción, de 0 a 1" },
-      { name: "verdict", type: "texto", meaning: "favorable, favorable_condicionada, desfavorable o no_aplica" },
+      { name: "verdict", type: "texto", meaning: VERDICT_NOTE },
       { name: "doc_type", type: "texto", meaning: "Tipo de documento según la extracción" },
     ],
   },

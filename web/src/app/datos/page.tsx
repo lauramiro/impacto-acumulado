@@ -5,21 +5,25 @@ import { Figure } from "@/components/figure";
 import { CATALOG } from "@/lib/data/catalog";
 import { loadMeta } from "@/lib/data/meta";
 import { dataFile } from "@/lib/data/paths";
-import { formatInt, formatLongDate } from "@/lib/format";
-import { STATUS_LABELS } from "@/lib/labels";
+import { formatBytes, formatInt, formatLongDate } from "@/lib/format";
+import { STATUS_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
 import { SITE_URL } from "@/lib/site";
-import { STATUSES } from "@/lib/types";
+import { STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
 import styles from "./page.module.css";
+
+// Reused for the "Valores de las listas" glossary below: every enumeration a
+// catalogued column can hold, its Spanish labels, and a heading. Listed once
+// here rather than spelled out again in catalog.ts's column descriptions.
+const ENUMERATIONS = [
+  { slug: "status", title: "Estados (status)", values: STATUSES, labels: STATUS_LABELS },
+  { slug: "technology", title: "Tecnologías (technology)", values: TECHNOLOGIES, labels: TECHNOLOGY_LABELS },
+  { slug: "verdict", title: "Resultado de la resolución (verdict)", values: VERDICTS, labels: VERDICT_LABELS },
+] as const;
 
 export const metadata: Metadata = {
   title: "Datos · Impacto Acumulado",
   description: "Descarga del conjunto de datos de resoluciones ambientales de proyectos renovables en Andalucía, con licencia CC BY 4.0.",
 };
-
-function formatBytes(bytes: number): string {
-  if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1).replace(".", ",")} MB`;
-  return `${formatInt(Math.round(bytes / 1000))} KB`;
-}
 
 export default async function DataPage() {
   const meta = await loadMeta();
@@ -95,15 +99,20 @@ export default async function DataPage() {
           </dl>
         </section>
       ))}
-      <h2>Estados</h2>
-      <dl className={styles.definiciones}>
-        {STATUSES.map((s) => (
-          <div key={s}>
-            <dt className="dato">{s}</dt>
-            <dd>{STATUS_LABELS[s]}</dd>
-          </div>
-        ))}
-      </dl>
+      <h2>Valores de las listas</h2>
+      {ENUMERATIONS.map(({ slug, title, values, labels }) => (
+        <section key={slug} aria-labelledby={`enum-${slug}`} className={styles.columnas}>
+          <h3 id={`enum-${slug}`}>{title}</h3>
+          <dl className={styles.definiciones}>
+            {values.map((v) => (
+              <div key={v}>
+                <dt className="dato">{v}</dt>
+                <dd>{(labels as Record<string, string>)[v]}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
     </article>
   );
 }
