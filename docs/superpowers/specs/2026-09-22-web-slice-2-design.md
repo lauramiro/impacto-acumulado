@@ -27,6 +27,13 @@ approval and every milestone.
   disposition.2026.125.87, disposition.2026.142.33; 8 more extraction
   observations added to `docs/sources.md`). The 20-label set is complete.
   Task 4 (user review gate on all 20 labels, then the eval run) is next.
+- 2026-09-22: Task 4 done (`3caf790`: user reviewed the 20 labels at the
+  gate and said proceed; evaluation ran on all 20 labels with
+  `mistral:ministral-14b-latest`, nothing skipped; headline accuracies
+  doc_type 0.95, verdict 0.95, developer 1.0, technology 0.95, mw_nominal
+  0.9, project_name 0.4, municipalities 0.8; `pipeline/evaluation/README.md`
+  status paragraph and `docs/sources.md` extraction observations updated).
+  Task 5 (export `status_document_id`) is next.
 
 ## Decisions taken during brainstorming, in order
 
