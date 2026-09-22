@@ -1,9 +1,17 @@
 import json
 from datetime import date
+from pathlib import Path
+from typing import get_args
 
-from evaluation.run_eval import run_eval, score
+import pytest
+
+from evaluation.run_eval import EXACT, LABELS_DIR, NUMERIC, run_eval, score
 from impacto.db.documents import RawDocument, upsert_raw_document
+from impacto.extract.schema import DocType, Technology, Verdict
 from impacto.providers.stub import StubProvider
+
+SCORABLE = EXACT | NUMERIC | {"municipalities", "developer", "project_name", "expediente"}
+LITERALS = {"doc_type": set(get_args(DocType)), "verdict": set(get_args(Verdict)), "technology": set(get_args(Technology))}
 
 
 def test_score_compares_fields_leniently():
@@ -53,3 +61,20 @@ def test_run_eval_skips_failed_extractions_with_warning(db, tmp_path, caplog):
     assert written["n_labels"] == 3
     assert written["n_scored"] == 1
     assert written["skipped"] == ["a-BAD.json", "c-MISSING.json"]
+
+
+@pytest.mark.parametrize("label_path", sorted(LABELS_DIR.glob("*.json")), ids=lambda p: p.name)
+def test_label_is_well_formed(label_path: Path):
+    # A typo in a hand-written label would silently score as a miss; catch it here.
+    label = json.loads(label_path.read_text(encoding="utf-8"))
+    assert label["source"] in ("boe", "boja")
+    assert label["source_id"]
+    assert label["note"], "every label explains its decisions in a note"
+    expected = label["expected"]
+    assert set(expected) <= SCORABLE, set(expected) - SCORABLE
+    for field, allowed in LITERALS.items():
+        if field in expected:
+            assert expected[field] in allowed, (field, expected[field])
+    assert "verdict" in expected and "doc_type" in expected
+    for m in expected.get("municipalities", []):
+        assert m["name"], "municipality without name"
