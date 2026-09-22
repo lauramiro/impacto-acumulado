@@ -13,7 +13,7 @@ reference loads, evaluation harness, CI and weekly workflow). Production
 database live on Neon with the reference layers loaded; the weekly workflow
 runs against it and commits exports. Backfill partial: 71 BOE documents
 (2019 to July 2026) extracted with Mistral `ministral-14b-latest` and
-resolved into 63 projects; BOJA not fetched yet. See "Production setup"
+resolved into 347 projects from 71 BOE and 566 BOJA documents (2019 to 2026-09). See "Production setup"
 below. Web site: map page and municipality pages live at https://impacto-acumulado.vercel.app (slice 1).
 
 - Design: [docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md](docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md)
@@ -100,6 +100,6 @@ Neon terminates idle connections when the endpoint suspends or restarts, which h
 
    The backfill can also run on Mistral's free Experiment plan instead of Groq: set `IMPACTO_MISTRAL_KEY` (and optionally `IMPACTO_MISTRAL_MODEL`, default `ministral-14b-latest`) and pass `--provider mistral` to `extract`. The Experiment plan's limits are only shown in the Mistral console (see `docs/sources.md`, "Mistral"); a 429 that names a monthly cap stops the run the same way Groq's daily cap does, and the run resumes where it left off when rerun.
 
-   Progress so far (2026-09-21): 71 BOE documents fetched, all 71 extracted with `ministral-14b-latest` (two needed the `utm_coordinates` sanitiser fix), resolved into 63 projects, exported and committed. BOJA has not been fetched yet, and the BOE range has not been swept systematically; both are the remaining backfill work.
+   Progress so far (2026-09-22): 71 BOE and 566 BOJA documents fetched (2019-01 to 2026-09), all 637 extracted (BOE with `ministral-14b-latest` locally, BOJA by a manual dispatch of the weekly workflow with `provider=mistral`, `extract_limit=600`, run 35682369232), resolved into 347 projects, exported and committed. The BOE range has not been swept systematically; that is the remaining backfill work.
 
 5. Trigger the weekly workflow once by hand (`gh workflow run weekly-pipeline`) and confirm it completes and either commits new exports or reports no changes. Done: the scheduled run of 2026-09-21 (run 35599195548) succeeded and committed `data: weekly export 2026-09-21`.
