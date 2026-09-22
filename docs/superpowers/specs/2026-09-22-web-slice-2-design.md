@@ -48,6 +48,10 @@ approval and every milestone.
 - 2026-09-22: Task 9 done (loaders for the new fields: status_document_id,
   document match_score/confidence, evaluation.json, meta.files, and
   loadProjectRecord). Task 10 (project page) is next.
+- 2026-09-22: Task 10 done (`6a62ea5`: project page live at
+  `/proyecto/[id]`, statically generated for all 347 projects, with fact
+  sheet, document timeline and provenance). Task 11 (municipality page
+  links to projects) is next.
 
 ## Decisions taken during brainstorming, in order
 
