@@ -1,8 +1,10 @@
+import { stat } from "node:fs/promises";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Figure } from "@/components/figure";
 import { CATALOG } from "@/lib/data/catalog";
 import { loadMeta } from "@/lib/data/meta";
+import { dataFile } from "@/lib/data/paths";
 import { formatInt, formatLongDate } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/labels";
 import { SITE_URL } from "@/lib/site";
@@ -21,6 +23,10 @@ function formatBytes(bytes: number): string {
 
 export default async function DataPage() {
   const meta = await loadMeta();
+  // meta.json cannot list itself in meta.files (it is the file that lists every
+  // OTHER export), so its own row and byte figures come from the filesystem: a
+  // single manifest object, and its size on disk.
+  const metaJsonBytes = (await stat(dataFile("meta.json"))).size;
   const year = meta.generatedAt.getUTCFullYear();
   return (
     <article className={styles.page}>
@@ -50,7 +56,7 @@ export default async function DataPage() {
         </thead>
         <tbody>
           {CATALOG.map((entry) => {
-            const info = meta.files[entry.file];
+            const info = entry.file === "meta.json" ? { rows: 1, bytes: metaJsonBytes } : meta.files[entry.file];
             if (!info) throw new Error(`datos: ${entry.file} is in the catalogue but not in meta.files`);
             return (
               <tr key={entry.file}>

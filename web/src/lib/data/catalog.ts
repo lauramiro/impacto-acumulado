@@ -70,15 +70,19 @@ export const CATALOG: CatalogEntry[] = [
       { name: "mw_nominal", type: "decimal", meaning: "Suma de MW nominales" },
     ],
   },
-  {
-    file: "municipality_stats.json",
-    description:
-      "Por municipio: proyectos, MW y hectáreas desglosados por estado y, aparte, por tecnología, con los totales del municipio. Alimenta el mapa interactivo; municipality_stats.csv cruza estado y tecnología en una tabla, con un desglose distinto.",
-  },
   { file: "protected_area_stats.json", description: "Por espacio de la Red Natura 2000 y estado: proyectos cuyo municipio intersecta el espacio (a nivel de municipio, no de parcela)." },
   { file: "municipality_protected_areas.json", description: "Por código INE, los espacios de la Red Natura 2000 que intersectan el término municipal." },
   { file: "municipalities.geojson", description: "Límites municipales (DERA) simplificados a unos 50 m, con superficie y cuota de sensibilidad alta o máxima." },
   { file: "protected_areas.geojson", description: "Espacios de la Red Natura 2000 en Andalucía, simplificados a unos 50 m." },
   { file: "provinces.geojson", description: "Límites provinciales, unión de los municipios." },
+  {
+    file: "meta.json",
+    description: "Manifiesto de la exportación: fecha de generación, recuentos por tabla y filas y tamaño de cada uno de los demás archivos.",
+  },
   { file: "evaluation.json", description: "Precisión medida de la extracción, por campo, sobre el conjunto etiquetado a mano." },
 ];
+
+// municipality_stats.json y municipalities_map.geojson quedan fuera a propósito: son
+// versiones internas, en forma apta para la web, de datos que ya están en esta lista
+// (municipality_stats.csv y municipalities.geojson respectivamente) y no aportan
+// información nueva. Ver docs/superpowers/specs/2026-09-22-web-slice-2-design.md.

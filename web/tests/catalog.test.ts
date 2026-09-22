@@ -14,7 +14,20 @@ describe("catalog", () => {
 
   it("lists only files the export wrote", async () => {
     const meta = await loadMeta();
-    for (const entry of CATALOG) expect(meta.files, entry.file).toHaveProperty(entry.file);
+    for (const entry of CATALOG) {
+      // meta.json cannot list itself inside its own `files` map (see
+      // web/src/lib/data/meta.ts): the export writes meta.json last, describing
+      // every OTHER file it wrote. It is still a real, catalogued export; it is
+      // just not a member of `meta.files`. Do not "fix" this by adding a
+      // meta.json entry to meta.files or to the fixtures.
+      if (entry.file === "meta.json") continue;
+      expect(meta.files, entry.file).toHaveProperty(entry.file);
+    }
+  });
+
+  it("catalogues meta.json itself as a real data file, even though it is absent from meta.files", () => {
+    expect(CATALOG.some((e) => e.file === "meta.json")).toBe(true);
+    expect(() => readFileSync(dataFile("meta.json"), "utf-8")).not.toThrow();
   });
 
   it("has eleven entries", () => {
