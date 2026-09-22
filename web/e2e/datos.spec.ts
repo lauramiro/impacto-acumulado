@@ -12,3 +12,18 @@ test("data page lists every export with a working download link, the licence and
     expect(res.status(), href).toBe(200);
   }
 });
+
+test("no horizontal scroll on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto("/datos");
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  expect(overflow).toBe(false);
+});
+
+test("file table's column headers stay reachable on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto("/datos");
+  for (const name of ["Archivo", "Contenido", "Filas", "Tamaño"]) {
+    await expect(page.getByRole("columnheader", { name })).toBeAttached();
+  }
+});
