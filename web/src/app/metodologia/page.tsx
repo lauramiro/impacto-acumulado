@@ -56,12 +56,12 @@ export default async function MethodologyPage() {
       <p>
         Cada semana el pipeline descarga los documentos nuevos y un modelo de lenguaje (<span className="dato">{ev.provider}</span>)
         convierte cada uno en un registro: tipo, resultado, promotor, tecnología, potencia, superficie y municipios. Una regla lee
-        además la frase dispositiva (la que formula la declaración o resuelve la autorización) y corrige al modelo cuando no
-        coinciden.
+        además la frase dispositiva (la que formula la declaración o resuelve la autorización) y corrige el tipo de documento y
+        el resultado, pero solo cuando el modelo ya los había leído como ese mismo tipo de decisión o como «otro».
       </p>
       <p>
         Los documentos se agrupan en proyectos por nombre, promotor, expediente y municipio. El identificador de un proyecto es
-        el del documento más antiguo del grupo, así que no cambia entre semanas. El estado lo fija el documento resolutorio más
+        el id de documento más bajo del grupo, así que no cambia entre semanas. El estado lo fija el documento resolutorio más
         reciente; una consulta pública no cambia el estado de un proyecto ya resuelto.
       </p>
 
@@ -101,7 +101,8 @@ export default async function MethodologyPage() {
         cortar en el nombre de la planta (para «Planta fotovoltaica Carbo de 90 MWp y su infraestructura de evacuación» el nombre
         correcto es «Planta fotovoltaica Carbo»); en «municipios», arrastra los términos de la línea de evacuación además de los
         del emplazamiento generador. En el parque fotovoltaico Retuerta, hibridado con un parque eólico ya existente, el modelo
-        confunde ambas instalaciones: la tecnología y la potencia nominal salen sumadas (76 MW en vez de 38). Un acierto en
+        confunde ambas instalaciones: la tecnología sale como híbrida en vez de solar fotovoltaica, y la potencia nominal sale
+        sumada (76 MW en vez de 38). Un acierto en
         potencia, superficie o aerogeneradores admite un 2 por ciento de diferencia con el valor impreso.
       </p>
 
