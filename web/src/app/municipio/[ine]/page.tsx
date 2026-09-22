@@ -5,13 +5,12 @@ import { ProjectRecord } from "@/components/municipality/project-record";
 import { ProtectedAreas } from "@/components/municipality/protected-areas";
 import { Sensitivity } from "@/components/municipality/sensitivity";
 import { Totals } from "@/components/municipality/totals";
-import { loadDocuments } from "@/lib/data/documents";
+import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
 import { formatInt, formatMw } from "@/lib/format";
-import type { GazetteDocument } from "@/lib/types";
 import styles from "./page.module.css";
 
 type Params = { ine: string };
@@ -52,14 +51,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
 
   const s = stats.get(ine);
   const here = projects.filter((p) => p.ineCodes.includes(ine)).sort((a, b) => b.lastSeen.localeCompare(a.lastSeen));
-  const docsByProject = new Map<number, GazetteDocument[]>();
-  for (const d of documents) {
-    if (d.projectId === null) continue;
-    const list = docsByProject.get(d.projectId) ?? [];
-    list.push(d);
-    docsByProject.set(d.projectId, list);
-  }
-  for (const list of docsByProject.values()) list.sort((a, b) => a.publishedAt.localeCompare(b.publishedAt));
+  const docsByProject = groupDocumentsByProject(documents);
 
   return (
     <article>

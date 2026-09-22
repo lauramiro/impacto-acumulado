@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatHa, formatInt, formatMw } from "@/lib/format";
@@ -14,7 +15,9 @@ export function ProjectRecord({ project, documents }: { project: Project; docume
   return (
     <article className={styles.record}>
       <header className={styles.header}>
-        <h3 className={styles.name}>{project.name}</h3>
+        <h3 className={styles.name}>
+          <Link href={`/proyecto/${project.id}`}>{project.name}</Link>
+        </h3>
         <StatusBadge status={project.status} />
       </header>
       <p className={styles.meta}>

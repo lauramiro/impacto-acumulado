@@ -28,3 +28,12 @@ test("no horizontal scroll on a phone", async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBe(false);
 });
+
+test("each project record links to its project page", async ({ page }) => {
+  await page.goto("/municipio/11020");
+  const link = page.locator("a[href^='/proyecto/']").first();
+  await expect(link).toBeVisible();
+  await link.click();
+  await expect(page).toHaveURL(/\/proyecto\/\d+$/);
+  await expect(page.getByRole("region", { name: "Ficha", exact: true })).toBeVisible();
+});
