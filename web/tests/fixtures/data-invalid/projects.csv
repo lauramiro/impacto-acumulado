@@ -1,0 +1,2 @@
+id,canonical_name,developer,technology,status,mw_peak,mw_nominal,hectares,turbines,status_document_id,first_seen,last_seen,municipalities,ine_codes,provinces,document_urls
+1,Parque de prueba,Dev SL,solar_fv,favorable_condicionada,10.0,10.0,5.0,,99,2022-01-01,2022-01-01,Test,00000,Test,https://example.com/x

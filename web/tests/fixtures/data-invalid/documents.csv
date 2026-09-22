@@ -1,0 +1,2 @@
+id,source,source_id,published_at,title,url,project_id,role,match_score,confidence,verdict,doc_type
+1,boe,X,2022-01-01,"Documento de prueba",https://example.com/x,1,consulta,1.0,0.9,no_aplica,informacion_publica
