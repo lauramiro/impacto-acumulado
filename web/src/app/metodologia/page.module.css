@@ -1,0 +1,5 @@
+.page { max-width: 44rem; }
+.tabla { width: 100%; max-width: 28rem; border-collapse: collapse; border-top: 1px solid var(--tinta); border-bottom: 1px solid var(--tinta); margin: 1rem 0; }
+.tabla th, .tabla td { text-align: left; padding: 0.4rem 0.5rem 0.4rem 0; border-bottom: 1px solid var(--regla); }
+.tabla .num { text-align: right; }
+.alerta { color: var(--alerta); }
