@@ -4,6 +4,7 @@ export type CatalogEntry = { file: string; description: string; columns?: Catalo
 const ENUM_NOTE = "valor de la lista de estados";
 const TECH_NOTE = "valor de la lista de tecnologías";
 const VERDICT_NOTE = "valor de la lista de resultados de la resolución";
+const ROLE_NOTE = "valor de la lista de tipos de documento";
 
 export const CATALOG: CatalogEntry[] = [
   {
@@ -39,7 +40,7 @@ export const CATALOG: CatalogEntry[] = [
       { name: "title", type: "texto", meaning: "Título tal como aparece en el boletín" },
       { name: "url", type: "texto", meaning: "Enlace al boletín" },
       { name: "project_id", type: "entero", meaning: "id en projects.csv; vacío si no se agrupó" },
-      { name: "role", type: "texto", meaning: "consulta, informe, dia, aau, modificacion, caducidad u otro" },
+      { name: "role", type: "texto", meaning: ROLE_NOTE },
       { name: "match_score", type: "decimal", meaning: "Confianza de la agrupación, de 0 a 1" },
       { name: "confidence", type: "decimal", meaning: "Confianza declarada por el modelo de extracción, de 0 a 1" },
       { name: "verdict", type: "texto", meaning: VERDICT_NOTE },
