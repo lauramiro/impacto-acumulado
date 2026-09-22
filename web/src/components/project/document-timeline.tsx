@@ -1,6 +1,6 @@
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatInt, formatScore } from "@/lib/format";
-import { ROLE_LABELS } from "@/lib/labels";
+import { ROLE_LABELS, VERDICT_LABELS } from "@/lib/labels";
 import type { GazetteDocument } from "@/lib/types";
 import styles from "./document-timeline.module.css";
 
@@ -18,10 +18,10 @@ export function DocumentTimeline({ documents, statusDocumentId }: { documents: G
             </p>
             <p className={styles.tipo}>
               {d.role ? ROLE_LABELS[d.role] : "Documento"}
-              {d.verdict && d.verdict !== "no_aplica" ? (
+              {d.verdict ? (
                 <>
                   {" · "}
-                  <StatusBadge status={d.verdict} />
+                  {d.verdict === "no_aplica" ? VERDICT_LABELS[d.verdict] : <StatusBadge status={d.verdict} />}
                 </>
               ) : null}
             </p>

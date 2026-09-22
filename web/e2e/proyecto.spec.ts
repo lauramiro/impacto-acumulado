@@ -11,6 +11,9 @@ test("project page shows the record, the timeline and which document fixed the s
   expect(await page.locator("a[href^='https://www.boe.es/']").count()).toBeGreaterThan(0);
   await expect(page.getByRole("link", { name: /Jerez de la Frontera/ })).toHaveAttribute("href", "/municipio/11020");
   await expect(page.getByRole("region", { name: "Cómo se ha construido esta ficha" })).toBeVisible();
+  const noAplicaRow = page.locator("li", { hasText: "BOE-A-2020-14181" });
+  await expect(noAplicaRow).toContainText("No aplica");
+  await expect(noAplicaRow.locator("[data-status]")).toHaveCount(0);
 });
 
 test("unknown project id is a 404", async ({ page }) => {
