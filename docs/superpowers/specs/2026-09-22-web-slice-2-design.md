@@ -34,6 +34,8 @@ approval and every milestone.
   0.9, project_name 0.4, municipalities 0.8; `pipeline/evaluation/README.md`
   status paragraph and `docs/sources.md` extraction observations updated).
   Task 5 (export `status_document_id`) is next.
+- 2026-09-22: Task 5 done (`8c32d36`: projects.csv carries status_document_id).
+  Task 6 (export evaluation.json) is next.
 
 ## Decisions taken during brainstorming, in order
 
