@@ -71,22 +71,34 @@ def test_projects_csv_orders_ine_codes_like_municipalities(db, fixtures_dir, tmp
     # A project linked to more than one municipality must list ine_codes in
     # the same order as municipalities (both by municipality name), not by
     # ine_code, so the two columns stay aligned position by position.
+    # Alfarnate sorts first by name but last by ine_code (29998), so a bug
+    # that orders ine_codes by m.ine_code instead of m.name would misalign
+    # the two columns and this test would catch it.
     seed(db, fixtures_dir)
     run_resolve(db)
     with db.cursor() as cur:
+        cur.execute(
+            "INSERT INTO municipalities (ine_code, name, province, geom, area_ha) VALUES "
+            "('29998', 'Alfarnate', 'Málaga', ST_Multi(ST_GeomFromText("
+            "'POLYGON((-4.2 37.0,-4.1 37.0,-4.1 37.1,-4.2 37.1,-4.2 37.0))', 4326)), 100)"
+        )
         cur.execute("SELECT id FROM projects WHERE canonical_name = %s", ("Parque fotovoltaico Ronda I",))
         ronda_id = cur.fetchone()["id"]
         cur.execute(
             "INSERT INTO project_municipalities (project_id, ine_code) VALUES (%s, %s)",
             (ronda_id, "29067"),
         )
+        cur.execute(
+            "INSERT INTO project_municipalities (project_id, ine_code) VALUES (%s, %s)",
+            (ronda_id, "29998"),
+        )
     db.commit()
     run_aggregate(db)
     export_all(db, tmp_path)
     with open(tmp_path / "projects.csv", encoding="utf-8", newline="") as f:
         rows = {r["canonical_name"]: r for r in csv.DictReader(f)}
-    assert rows["Parque fotovoltaico Ronda I"]["municipalities"] == "Málaga; Ronda"
-    assert rows["Parque fotovoltaico Ronda I"]["ine_codes"] == "29067;29084"
+    assert rows["Parque fotovoltaico Ronda I"]["municipalities"] == "Alfarnate; Málaga; Ronda"
+    assert rows["Parque fotovoltaico Ronda I"]["ine_codes"] == "29998;29067;29084"
 
 
 def test_municipality_stats_json_has_technology_split(db, fixtures_dir, tmp_path):
