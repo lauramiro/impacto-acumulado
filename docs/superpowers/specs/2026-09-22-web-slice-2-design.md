@@ -38,6 +38,8 @@ approval and every milestone.
   Task 6 (export evaluation.json) is next.
 - 2026-09-22: Task 6 done (`51eafc6`: evaluation.json exported with
   labels_count). Task 7 (`meta.files`) is next.
+- 2026-09-22: Task 7 done (`cd0c5ed`: meta.json lists files with rows and
+  bytes). Task 8 (export against Neon and commit the data) is next.
 
 ## Decisions taken during brainstorming, in order
 
