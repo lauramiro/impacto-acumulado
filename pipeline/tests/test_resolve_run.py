@@ -78,3 +78,18 @@ def test_run_resolve_project_ids_are_deterministic(db, fixtures_dir):
     assert rows
     for row in rows:
         assert row["id"] == row["earliest"]
+
+
+def test_run_resolve_falls_back_to_otra_when_no_document_names_a_technology(db, fixtures_dir):
+    load_municipalities(db, fixtures_dir / "municipalities_sample.geojson", "CODIGO_INE", "NOMBRE", "PROVINCIA")
+    payload = {"doc_type": "dia", "verdict": "favorable", "project_name": "Instalación sin tecnología",
+               "municipalities": [{"name": "Ronda", "province": "Málaga"}], "confidence": 0.7}
+    upsert_raw_document(db, RawDocument("boja", "D", date(2024, 2, 2), "t", "u", "III", "o", "text D"))
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = 'D'")
+        doc_id = cur.fetchone()["id"]
+    save_extraction(db, doc_id, "stub", "v1", payload, payload["confidence"], None)
+    assert run_resolve(db) == 1
+    with db.cursor() as cur:
+        cur.execute("SELECT technology FROM projects")
+        assert cur.fetchone()["technology"] == "otra"

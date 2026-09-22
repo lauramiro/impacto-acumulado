@@ -106,7 +106,8 @@ def write_projects(conn: psycopg.Connection, groups: list[list[Record]]) -> int:
                         project_id,
                         name,
                         _latest_with(group, "developer"),
-                        _latest_with(group, "technology"),
+                        # "otra" rather than NULL: the exports and the web enum have no empty technology.
+                        _latest_with(group, "technology") or "otra",
                         _latest_with(group, "mw_peak"),
                         _latest_with(group, "mw_nominal"),
                         _latest_with(group, "hectares"),
