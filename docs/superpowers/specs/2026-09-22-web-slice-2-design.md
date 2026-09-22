@@ -40,6 +40,11 @@ approval and every milestone.
   labels_count). Task 7 (`meta.files`) is next.
 - 2026-09-22: Task 7 done (`cd0c5ed`: meta.json lists files with rows and
   bytes). Task 8 (export against Neon and commit the data) is next.
+- 2026-09-22: Task 8 done (`59e123d`: export run against Neon production
+  and committed; projects.csv 347 data rows, documents.csv 637,
+  evaluation.json labels_count 20, meta.json files map has all 12 entries
+  with rows/bytes; GeoJSON files unchanged). Task 9 (web data layer for the
+  new fields) is next.
 
 ## Decisions taken during brainstorming, in order
 
