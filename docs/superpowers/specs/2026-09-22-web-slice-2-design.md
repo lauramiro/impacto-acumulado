@@ -21,6 +21,12 @@ approval and every milestone.
   BOE-A-2022-18089, BOE-A-2023-2422, BOE-A-2023-17621, BOE-A-2023-19636,
   BOE-A-2024-16661, BOE-A-2025-24233, BOE-A-2026-3880; extraction observations
   added to `docs/sources.md`). Task 3 (BOJA labels) is next.
+- 2026-09-22: Task 3 done (8 BOJA labels written in `8ee318a`:
+  disposition.2023.19.81, disposition.2023.221.80, disposition.2024.38.48,
+  disposition.2025.144.69, disposition.2025.23.46, disposition.2025.63.37,
+  disposition.2026.125.87, disposition.2026.142.33; 8 more extraction
+  observations added to `docs/sources.md`). The 20-label set is complete.
+  Task 4 (user review gate on all 20 labels, then the eval run) is next.
 
 ## Decisions taken during brainstorming, in order
 
