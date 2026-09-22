@@ -1,0 +1,22 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2023.221.80",
+  "expected": {
+    "doc_type": "modificacion",
+    "verdict": "no_aplica",
+    "developer": "Villar Mir Energía, S.L.",
+    "technology": "eolica",
+    "mw_nominal": null,
+    "expediente": "AAU/GR/042/20",
+    "municipalities": [
+      {"name": "El Pinar", "province": "Granada"},
+      {"name": "Vélez de Benaudalla", "province": "Granada"},
+      {"name": "Los Guájares", "province": "Granada"},
+      {"name": "El Valle", "province": "Granada"},
+      {"name": "Villamena", "province": "Granada"},
+      {"name": "Dúrcal", "province": "Granada"},
+      {"name": "Albuñuelas", "province": "Granada"}
+    ]
+  },
+  "note": "Anuncio with no resolving marker at all; its whole operative content is 'se hace publico la modificacion del informe vinculante de 10 de marzo de 2023 ... para los Proyectos de Parques Eolicos Vico y Mizan e Infraestructuras de Evacuacion ... promovido por Villar Mir Energia, S.L. (expte. AAU/GR/042/20)'. It publishes a modification of an earlier binding report and decides nothing itself, so modificacion / no_aplica. The modified report's content is only linked, never reproduced, so the direction of the modification is unknowable from this text. developer and expediente as printed. project_name is omitted: the anuncio covers two parks ('Vico y Mizan') under one file and prints no single project name. technology eolica. No capacity, area or turbine count appears, so mw_nominal is null and mw_peak, hectares and turbines are omitted. Municipalities: the seven named in both title and body (El Pinar, Velez de Benaudalla, Los Guajares, El Valle, Villamena, Durcal, Albunuelas) cover the parks plus their evacuation infrastructure together and the text does not separate them, so all seven are labelled."
+}

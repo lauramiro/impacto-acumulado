@@ -1,0 +1,18 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2025.144.69",
+  "expected": {
+    "doc_type": "modificacion",
+    "verdict": "no_aplica",
+    "developer": "Propus Solar, S.L.",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "mw_peak": 35,
+    "project_name": "Tabernas Solar 3",
+    "expediente": "AAU/AL/0022/20/M3",
+    "municipalities": [
+      {"name": "Tabernas", "province": "Almería"}
+    ]
+  },
+  "note": "Acuerdo whose operative part is 'ACUERDO Primero. La publicacion en el Boletin Oficial de la Junta de Andalucia de la resolucion de modificacion del condicionado de la autorizacion ambiental unificada del proyecto Proyecto de parque fotovoltaico Tabernas Solar 3 de 35 MWP y su infraestructura de evacuacion ... promovido por Propus Solar, S.L., con numero de expediente: AAU/AL/0022/20/M3'. It gives publicity to a change of the condicionado, opens no consultation period and decides nothing about the project, so modificacion / no_aplica; the modified condicionado itself is only linked. mw_peak 35 from '35 MWP' in the project name, the only capacity printed; no nominal figure appears anywhere, so mw_nominal is null (an extractor that copies 35 into mw_nominal scores a miss). project_name Tabernas Solar 3, technology solar_fv from 'parque fotovoltaico'. Municipalities: 'en el termino municipal de Tabernas (Almeria)'; the evacuation infrastructure is not located separately. hectares and turbines are not stated and are omitted."
+}

@@ -1,0 +1,17 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2026.125.87",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "favorable_condicionada",
+    "developer": "Teleiro Solar, S.L.",
+    "technology": "almacenamiento",
+    "mw_nominal": 5,
+    "project_name": "Planta de Almacenamiento Teleiro Los Barrios",
+    "expediente": "AAUS/CA/011/25",
+    "municipalities": [
+      {"name": "Los Barrios", "province": "Cádiz"}
+    ]
+  },
+  "note": "Operative part: 'HA RESUELTO Primero. Dar publicidad en el BOJA a la resolucion con la que se otorga autorizacion ambiental unificada simplificada a Teleiro Solar, S.L., para el proyecto Planta de Almacenamiento Teleiro Los Barrios ... (expediente: AAUS/CA/011/25)'. The AAU (simplified variant, AAUS) is granted with a condicionado, so aau / favorable_condicionada. technology almacenamiento: the project is a battery storage plant, 'de potencial instalada de 5 MW y 20 MWH'; there is no generation. mw_nominal 5 from that same printed figure, which appears twice (resolution body and anexo); 20 MWh is energy, not power, and is not labelled. project_name taken from the project title without the trailing line and switching centre. Municipalities: 'en el termino municipal de Los Barrios (Cadiz)' is the only one named; the 20 kV evacuation line is not located separately. hectares and turbines are not stated and are omitted; mw_peak does not apply to storage."
+}

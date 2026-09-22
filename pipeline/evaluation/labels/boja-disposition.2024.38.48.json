@@ -1,0 +1,17 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2024.38.48",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "Solar Airport PV, S.L.U.",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "project_name": "Solar Airport PV",
+    "expediente": "AAU/SE/0059/2021/M1",
+    "municipalities": [
+      {"name": "La Rinconada", "province": "Sevilla"}
+    ]
+  },
+  "note": "Acuerdo of the Delegacion Territorial en Sevilla whose operative part is 'ACUERDO Primero. La apertura de un periodo de informacion publica en el seno del procedimiento administrativo de modificacion sustancial de la autorizacion ambiental unificada y de evaluacion de impacto ambiental', so it is a public consultation notice (informacion_publica) that decides nothing about the project: verdict no_aplica. The subject of the consultation is a substantial modification of the AAU (expediente suffix M1), but the act itself is the opening of the consultation, not the modification decision, so doc_type is informacion_publica rather than modificacion. developer: 'Titular: Solar Airport PV, S.L.U.'. project_name: 'Actividad: Proyecto de planta solar fotovoltaica Solar Airport PV e infraestructura de evacuacion', labelled by the proper name only. technology from 'planta solar fotovoltaica'. The document states no capacity at all (no MW, MWp or MWn anywhere), so mw_nominal is null; mw_peak, hectares and turbines are omitted. Municipalities: 'Municipio: La Rinconada (Sevilla)' is the only one printed and hosts the plant; the evacuation infrastructure is not located in the text."
+}

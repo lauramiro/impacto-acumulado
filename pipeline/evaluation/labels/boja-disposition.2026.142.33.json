@@ -1,0 +1,18 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2026.142.33",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "Olivento, S.L.",
+    "technology": "eolica",
+    "mw_nominal": null,
+    "project_name": "Parque Eólico Carrascal I",
+    "expediente": "AAU/AL/0020/25",
+    "municipalities": [
+      {"name": "Serón", "province": "Almería"},
+      {"name": "Tíjola", "province": "Almería"}
+    ]
+  },
+  "note": "Acuerdo of the Delegacion Territorial en Almeria: 'ACUERDO Primero. La apertura de un nuevo periodo de informacion publica, en el seno del procedimiento administrativo de autorizacion ambiental unificada, relativo al expediente: AAU/AL/0020/25'. A consultation notice, so doc_type informacion_publica and verdict no_aplica; point Segundo explains the reopening ('al haberse aportado documentacion que genera una modificacion sustancial con respecto a la Declaracion de impacto ambiental, de 17 de junio de 2003'), which is the reason for the consultation, not a decision, so the label is not modificacion. developer: 'Promotor: Olivento, S.L.'. project_name: the activity is named 'Repotenciacion del Parque Eolico Carrascal I, sin incremento de potencia'; the project's own name is Parque Eolico Carrascal I. technology eolica. No capacity is printed anywhere (the text only says the repowering is 'sin incremento de potencia'), so mw_nominal is null and mw_peak, hectares and turbines are omitted. Municipalities: 'Terminos municipales: Seron y Tijola (Almeria)' host the wind farm; no evacuation line is described."
+}

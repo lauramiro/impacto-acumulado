@@ -1,0 +1,20 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2023.19.81",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "favorable_condicionada",
+    "developer": "Zumirito, S.L.",
+    "technology": "solar_fv",
+    "mw_nominal": 39.6,
+    "mw_peak": 45.52,
+    "project_name": "Gelo",
+    "expediente": "AAU/SE/0099/2021/N",
+    "municipalities": [
+      {"name": "Huévar del Aljarafe", "province": "Sevilla"},
+      {"name": "Pilas", "province": "Sevilla"},
+      {"name": "Bollullos de la Mitación", "province": "Sevilla"}
+    ]
+  },
+  "note": "Operative part after the only resolving marker: 'HA RESUELTO Primero. Dar publicidad en BOJA al informe vinculante sobre la autorizacion ambiental unificada otorgada por la Delegacion Territorial ... que se relaciona en el anexo'. The AAU is granted, and a binding report on an AAU always carries a condicionado, so verdict is favorable_condicionada per the project's rule for granted AAUs. developer: 'Promotor: Zumirito, S.L.'. mw_nominal 39,60 and mw_peak 45,52 both come from the resumen: 'la planta solar fotovoltaica denominada Gelo, de 45,52 MWp (39,60 MW de potencia nominal)'; the title of the actuacion rounds the peak to '45 MWp', and the more precise anexo figure is kept. project_name Gelo. Municipalities: the anexo prints 'Termino municipal: Huevar del Aljarafe, Pilas, Bollullos de la Mitacion (Sevilla)' for the actuacion as a whole and never says which of the three holds the panels, so all three are labelled as printed; the shared evacuation line is described in four tramos but no tramo is tied to a municipality, so nothing can be excluded as line-only. No hectares or turbine count is stated and those fields are omitted."
+}

@@ -1,0 +1,19 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2025.23.46",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "desfavorable",
+    "developer": "Iberian Retail Bernesga 6, S.L.U.",
+    "technology": "eolica",
+    "mw_nominal": null,
+    "project_name": "Parque Eólico Los Morales",
+    "expediente": "AAU/CA/040/23",
+    "municipalities": [
+      {"name": "El Puerto de Santa María", "province": "Cádiz"},
+      {"name": "Jerez de la Frontera", "province": "Cádiz"},
+      {"name": "Sanlúcar de Barrameda", "province": "Cádiz"}
+    ]
+  },
+  "note": "Operative part: 'HA RESUELTO Primero. Dar publicidad en el BOJA al informe vinculante con la que se deniega la autorizacion ambiental unificada a Iberian Retail Bernesga 6, S.L.U., para el proyecto Parque Eolico Los Morales e infraestructura de evacuacion ... (expediente: AAU/CA/040/23)'. The refusal is of the AAU for the project itself, so aau / desfavorable. developer and expediente as printed. project_name is the park; the 'e infraestructura de evacuacion' suffix is dropped. technology eolica from 'Parque Eolico'. No capacity figure appears anywhere in the resolution (the full binding report is only linked), so mw_nominal is null; mw_peak, hectares and turbines are omitted for the same reason. Municipalities: the title and both the operative part and the anexo give the same three, 'en los terminos municipales de El Puerto de Santa Maria, Jerez de la Frontera y Sanlucar de Barrameda (Cadiz)', without separating park from line, so all three are labelled."
+}

@@ -1,0 +1,19 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2025.63.37",
+  "expected": {
+    "doc_type": "caducidad",
+    "verdict": "no_aplica",
+    "developer": "Iberian Retail Bernesga 6, S.L.U.",
+    "technology": "eolica",
+    "mw_nominal": null,
+    "project_name": "Parque eólico Los Morales",
+    "expediente": "AAU/CA/040/23",
+    "municipalities": [
+      {"name": "El Puerto de Santa María", "province": "Cádiz"},
+      {"name": "Jerez de la Frontera", "province": "Cádiz"},
+      {"name": "Sanlúcar de Barrameda", "province": "Cádiz"}
+    ]
+  },
+  "note": "Operative part: 'HA RESUELTO Primero. Dar publicidad en el BOJA a la revocacion de la autorizacion ambiental unificada a Iberian Retail Bernesga 6, S.L.U., para el proyecto Parque eolico Los Morales e infraestructura de evacuacion ... (expediente AAU/CA/040/23)'. A resolution that revokes an earlier binding report is doc_type caducidad; it withdraws the previous act rather than deciding favourably or unfavourably on the project's environmental effects, so verdict is no_aplica. This is the same file as disposition.2025.23.46 (the AAU denied two months earlier), and the revocation text gives no reason, so the outcome for the project cannot be read from it. developer, expediente, municipalities and technology as printed in the title and the anexo; no capacity is stated anywhere, so mw_nominal is null and mw_peak, hectares and turbines are omitted."
+}
