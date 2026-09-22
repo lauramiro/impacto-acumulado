@@ -31,10 +31,14 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const record = n === null ? null : await loadProjectRecord(n);
   if (!record) return { title: "Proyecto no encontrado · Impacto Acumulado" };
   const { project } = record;
+  const munis = await loadMunicipalities();
+  const names = project.ineCodes
+    .map((ine) => munis.find((m) => m.ine === ine)?.name)
+    .filter((name): name is string => name !== undefined);
   const mw = project.mwNominal === null ? "potencia no indicada" : formatMw(project.mwNominal);
   return {
     title: `${project.name} · Impacto Acumulado`,
-    description: `${STATUS_LABELS[project.status]}, ${mw}, en ${project.provinces.join(", ")}. Resoluciones del BOE y el BOJA.`,
+    description: `${STATUS_LABELS[project.status]}, ${mw}, en ${names.join(", ")}. Resoluciones del BOE y el BOJA.`,
   };
 }
 

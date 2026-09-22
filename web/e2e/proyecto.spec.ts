@@ -6,6 +6,8 @@ test("project page shows the record, the timeline and which document fixed the s
   await expect(page.getByRole("region", { name: "Ficha", exact: true })).toBeVisible();
   await expect(page.getByRole("region", { name: /^Documentos/ })).toBeVisible();
   await expect(page.getByTestId("fija-estado")).toHaveCount(1);
+  await expect(page.getByTestId("agrupado")).toHaveCount(2);
+  await expect(page.getByTestId("agrupado").first()).toContainText("Agrupado con confianza");
   expect(await page.locator("a[href^='https://www.boe.es/']").count()).toBeGreaterThan(0);
   await expect(page.getByRole("link", { name: /Jerez de la Frontera/ })).toHaveAttribute("href", "/municipio/11020");
   await expect(page.getByRole("region", { name: "Cómo se ha construido esta ficha" })).toBeVisible();

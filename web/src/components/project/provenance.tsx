@@ -9,13 +9,22 @@ export function Provenance({ statusDocument, latestDocument }: { statusDocument:
       <h2 id="procedencia">Cómo se ha construido esta ficha</h2>
       <p>
         Los datos proceden de la lectura automática de los documentos anteriores con un modelo de lenguaje.{" "}
-        {statusDocument
-          ? `El estado lo fija la resolución marcada (${statusDocument.sourceId}).`
-          : "Ningún documento resuelve el expediente; el estado queda sin determinar."}{" "}
+        {statusDocument ? (
+          <>
+            El estado lo fija la resolución marcada (<span className="dato">{statusDocument.sourceId}</span>).
+          </>
+        ) : (
+          "Ningún documento resuelve el expediente; el estado queda sin determinar."
+        )}{" "}
         La potencia y la superficie son las del documento más reciente que las cita
-        {latestDocument?.confidence !== null && latestDocument?.confidence !== undefined
-          ? `; la confianza declarada por el modelo para ese documento es ${formatScore(latestDocument.confidence)}.`
-          : "."}{" "}
+        {latestDocument?.confidence !== null && latestDocument?.confidence !== undefined ? (
+          <>
+            ; la confianza declarada por el modelo para ese documento es{" "}
+            <span className="dato">{formatScore(latestDocument.confidence)}</span>.
+          </>
+        ) : (
+          "."
+        )}{" "}
         La precisión medida de la extracción está en <Link href="/metodologia">Metodología</Link>.
       </p>
     </section>

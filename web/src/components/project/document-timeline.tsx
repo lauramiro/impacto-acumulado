@@ -1,5 +1,6 @@
+import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatInt, formatScore } from "@/lib/format";
-import { ROLE_LABELS, VERDICT_LABELS } from "@/lib/labels";
+import { ROLE_LABELS } from "@/lib/labels";
 import type { GazetteDocument } from "@/lib/types";
 import styles from "./document-timeline.module.css";
 
@@ -17,7 +18,12 @@ export function DocumentTimeline({ documents, statusDocumentId }: { documents: G
             </p>
             <p className={styles.tipo}>
               {d.role ? ROLE_LABELS[d.role] : "Documento"}
-              {d.verdict ? ` · ${VERDICT_LABELS[d.verdict]}` : ""}
+              {d.verdict && d.verdict !== "no_aplica" ? (
+                <>
+                  {" · "}
+                  <StatusBadge status={d.verdict} />
+                </>
+              ) : null}
             </p>
             <blockquote className={styles.titulo}>{d.title}</blockquote>
             <p className={styles.acciones}>
@@ -29,7 +35,7 @@ export function DocumentTimeline({ documents, statusDocumentId }: { documents: G
               ) : null}
               {d.matchScore !== null && d.matchScore < 1 ? (
                 <span className={`pie ${styles.marca}`} data-testid="agrupado">
-                  Agrupado con confianza {formatScore(d.matchScore)}
+                  Agrupado con confianza <span className="dato">{formatScore(d.matchScore)}</span>
                 </span>
               ) : null}
             </p>
