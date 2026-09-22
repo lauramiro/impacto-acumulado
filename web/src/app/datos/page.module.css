@@ -1,0 +1,16 @@
+.page { max-width: 48rem; }
+.cita { padding: 0.75rem 1rem; border-left: 2px solid var(--tinta); background: color-mix(in srgb, var(--regla) 20%, transparent); overflow-wrap: anywhere; }
+.tabla { width: 100%; border-collapse: collapse; border-top: 1px solid var(--tinta); border-bottom: 1px solid var(--tinta); }
+.tabla th, .tabla td { text-align: left; padding: 0.4rem 0.5rem 0.4rem 0; border-bottom: 1px solid var(--regla); vertical-align: top; }
+.tabla .num { text-align: right; white-space: nowrap; }
+.columnas { margin: 1.5rem 0; }
+.definiciones { margin: 0; }
+.definiciones div { display: grid; grid-template-columns: minmax(10rem, max-content) 1fr; gap: 0 1rem; padding: 0.25rem 0; border-bottom: 1px solid var(--regla); }
+.definiciones dd { margin: 0; }
+@media (max-width: 600px) {
+  .tabla thead { display: none; }
+  .tabla tr { display: grid; grid-template-columns: 1fr 1fr; padding: 0.5rem 0; border-bottom: 1px solid var(--regla); }
+  .tabla th[scope="row"], .tabla td:nth-child(2) { grid-column: 1 / -1; border: 0; padding: 0.1rem 0; }
+  .tabla td { border: 0; padding: 0.1rem 0; }
+  .definiciones div { grid-template-columns: 1fr; }
+}
