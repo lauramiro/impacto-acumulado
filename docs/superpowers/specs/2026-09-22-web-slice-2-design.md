@@ -57,6 +57,9 @@ approval and every milestone.
 - 2026-09-22: Task 12 done (`351199a`: `/datos` with the catalogue, licence
   and citation, matching the spec's file order). Task 13 (`/metodologia`
   with the measured accuracy) is next.
+- 2026-09-22: Task 13 done (`f7c106c`: `/metodologia` with the measured
+  accuracy). Task 14 (sitemap, footer link, accessibility sweep, README) is
+  next.
 
 ## Decisions taken during brainstorming, in order
 
