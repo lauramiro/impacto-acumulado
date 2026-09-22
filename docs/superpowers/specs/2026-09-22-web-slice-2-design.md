@@ -45,6 +45,9 @@ approval and every milestone.
   evaluation.json labels_count 20, meta.json files map has all 12 entries
   with rows/bytes; GeoJSON files unchanged). Task 9 (web data layer for the
   new fields) is next.
+- 2026-09-22: Task 9 done (loaders for the new fields: status_document_id,
+  document match_score/confidence, evaluation.json, meta.files, and
+  loadProjectRecord). Task 10 (project page) is next.
 
 ## Decisions taken during brainstorming, in order
 
