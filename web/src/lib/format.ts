@@ -40,3 +40,10 @@ export function formatDate(iso: string): string {
 export function formatLongDate(date: Date): string {
   return longDate.format(date);
 }
+
+const twoDecimals = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/** A 0 to 1 score such as a match or confidence value: "0,82". */
+export function formatScore(n: number): string {
+  return twoDecimals.format(n);
+}

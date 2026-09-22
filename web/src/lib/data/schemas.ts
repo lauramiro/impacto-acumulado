@@ -65,6 +65,7 @@ export const ProjectRowSchema = z.object({
   mw_nominal: optionalNumber,
   hectares: optionalNumber,
   turbines: optionalNumber,
+  status_document_id: optionalNumber,
   first_seen: isoDate,
   last_seen: isoDate,
   ine_codes: semicolonList,
@@ -81,4 +82,6 @@ export const DocumentRowSchema = z.object({
   project_id: optionalNumber,
   role: optionalString.pipe(z.enum(DOCUMENT_ROLES).nullable()),
   verdict: optionalString.pipe(z.enum(VERDICTS).nullable()),
+  match_score: optionalNumber,
+  confidence: optionalNumber,
 });

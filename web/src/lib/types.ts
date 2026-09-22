@@ -47,6 +47,7 @@ export type Project = {
   mwNominal: number | null;
   hectares: number | null;
   turbines: number | null;
+  statusDocumentId: number | null;
   firstSeen: string;
   lastSeen: string;
   ineCodes: string[];
@@ -63,4 +64,15 @@ export type GazetteDocument = {
   projectId: number | null;
   role: DocumentRole | null;
   verdict: Verdict | null;
+  matchScore: number | null;
+  confidence: number | null;
+};
+
+export type Evaluation = {
+  provider: string;
+  accuracy: Record<string, number>;
+  nLabels: number;
+  nScored: number;
+  skipped: string[];
+  labelsCount: number;
 };

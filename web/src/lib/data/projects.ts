@@ -25,6 +25,7 @@ export async function loadProjects(): Promise<Project[]> {
       mwNominal: r.mw_nominal,
       hectares: r.hectares,
       turbines: r.turbines,
+      statusDocumentId: r.status_document_id,
       firstSeen: r.first_seen,
       lastSeen: r.last_seen,
       ineCodes: r.ine_codes,

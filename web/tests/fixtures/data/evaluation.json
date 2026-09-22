@@ -1,0 +1,8 @@
+{
+  "provider": "mistral:ministral-14b-latest",
+  "accuracy": { "doc_type": 1.0, "verdict": 0.95, "developer": 0.9, "technology": 1.0, "mw_nominal": 0.8, "municipalities": 0.95 },
+  "n_labels": 20,
+  "n_scored": 20,
+  "skipped": [],
+  "labels_count": 20
+}

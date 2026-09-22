@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { loadDocuments } from "@/lib/data/documents";
+import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
+import { EvaluationSchema, loadEvaluation } from "@/lib/data/evaluation";
 import { loadMapData } from "@/lib/data/map-data";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
@@ -31,14 +32,33 @@ describe("loaders", () => {
 
   it("parses projects with nullable numbers and ine code lists", async () => {
     const projects = await loadProjects();
-    expect(projects[0]).toMatchObject({ id: 1, name: "Parque fotovoltaico Ronda I", mwPeak: 103, turbines: null, ineCodes: ["29084"] });
-    expect(projects[1]).toMatchObject({ developer: null, hectares: null, turbines: 10, provinces: ["Málaga"] });
+    expect(projects[0]).toMatchObject({ id: 1, name: "Parque fotovoltaico Ronda I", mwPeak: 103, turbines: null, ineCodes: ["29084"], statusDocumentId: 2 });
+    expect(projects[1]).toMatchObject({ developer: null, hectares: null, turbines: 10, provinces: ["Málaga"], statusDocumentId: 3 });
   });
 
-  it("parses documents with their project link, role and verdict", async () => {
+  it("parses documents with their project link, role, verdict and scores", async () => {
     const docs = await loadDocuments();
     expect(docs).toHaveLength(3);
-    expect(docs[1]).toMatchObject({ sourceId: "B", projectId: 1, role: "dia", verdict: "favorable_condicionada", publishedAt: "2023-09-18" });
+    expect(docs[0]).toMatchObject({ sourceId: "A", matchScore: 0.82, confidence: 0.8 });
+    expect(docs[1]).toMatchObject({ sourceId: "B", projectId: 1, role: "dia", verdict: "favorable_condicionada", publishedAt: "2023-09-18", matchScore: 1 });
+  });
+
+  it("groups documents by project in publication order", async () => {
+    const grouped = groupDocumentsByProject(await loadDocuments());
+    expect(grouped.get(1)?.map((d) => d.sourceId)).toEqual(["A", "B"]);
+    expect(grouped.get(2)?.map((d) => d.sourceId)).toEqual(["C"]);
+  });
+
+  it("loads the evaluation result", async () => {
+    const ev = await loadEvaluation();
+    expect(ev.provider).toBe("mistral:ministral-14b-latest");
+    expect(ev.accuracy["mw_nominal"]).toBe(0.8);
+    expect(ev).toMatchObject({ nLabels: 20, nScored: 20, labelsCount: 20, skipped: [] });
+  });
+
+  it("rejects an evaluation with more scored than labelled", () => {
+    const result = EvaluationSchema.safeParse({ provider: "x", accuracy: {}, n_labels: 1, n_scored: 2, skipped: [], labels_count: 1 });
+    expect(result.success).toBe(false);
   });
 
   it("rejects an unknown status with the field named", () => {

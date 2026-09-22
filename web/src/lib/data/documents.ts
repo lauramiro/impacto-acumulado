@@ -25,6 +25,21 @@ export async function loadDocuments(): Promise<GazetteDocument[]> {
       projectId: r.project_id,
       role: r.role,
       verdict: r.verdict,
+      matchScore: r.match_score,
+      confidence: r.confidence,
     };
   });
+}
+
+/** Documents per project, oldest first: a timeline reads forward. */
+export function groupDocumentsByProject(docs: GazetteDocument[]): Map<number, GazetteDocument[]> {
+  const byProject = new Map<number, GazetteDocument[]>();
+  for (const d of docs) {
+    if (d.projectId === null) continue;
+    const list = byProject.get(d.projectId) ?? [];
+    list.push(d);
+    byProject.set(d.projectId, list);
+  }
+  for (const list of byProject.values()) list.sort((a, b) => a.publishedAt.localeCompare(b.publishedAt) || a.id - b.id);
+  return byProject;
 }
