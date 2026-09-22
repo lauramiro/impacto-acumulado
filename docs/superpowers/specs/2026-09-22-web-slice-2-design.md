@@ -17,6 +17,10 @@ approval and every milestone.
   export 5-8, web 9-14, deploy 15). Nothing implemented yet.
 - 2026-09-22: Task 1 done (label well-formedness test added in `cc49e8a`, 16
   candidates picked into `$TMP/picked.txt`). Task 2 (BOE labels) is next.
+- 2026-09-22: Task 2 done (8 BOE labels written in `1f2c027`: BOE-A-2022-15703,
+  BOE-A-2022-18089, BOE-A-2023-2422, BOE-A-2023-17621, BOE-A-2023-19636,
+  BOE-A-2024-16661, BOE-A-2025-24233, BOE-A-2026-3880; extraction observations
+  added to `docs/sources.md`). Task 3 (BOJA labels) is next.
 
 ## Decisions taken during brainstorming, in order
 
