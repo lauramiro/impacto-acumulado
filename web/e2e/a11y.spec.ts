@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-for (const url of ["/", "/municipio/11020", "/municipio/29084"]) {
+for (const url of ["/", "/municipio/11020", "/municipio/29084", "/proyecto/1", "/datos", "/metodologia"]) {
   test(`no serious or critical axe violations on ${url}`, async ({ page }) => {
     await page.goto(url);
     if (url === "/") await page.locator("path[data-ine]").first().waitFor();

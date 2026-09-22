@@ -14,7 +14,7 @@ database live on Neon with the reference layers loaded; the weekly workflow
 runs against it and commits exports. Backfill partial: 71 BOE documents
 (2019 to July 2026) extracted with Mistral `ministral-14b-latest` and
 resolved into 347 projects from 71 BOE and 566 BOJA documents (2019 to 2026-09). See "Production setup"
-below. Web site: map page and municipality pages live at https://impacto-acumulado.vercel.app (slice 1).
+below. Web site: map, municipality and project pages, methodology with measured accuracy and a data download page at https://impacto-acumulado.vercel.app (slices 1 and 2).
 
 - Design: [docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md](docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md)
 
@@ -44,6 +44,8 @@ npm run dev          # http://localhost:3000
 npm test             # vitest, loaders and pure helpers against tests/fixtures/data
 npm run build && npm run e2e   # playwright and axe against the built site
 ```
+
+Routes: `/`, `/municipio/[ine]`, `/proyecto/[id]`, `/metodologia`, `/datos`, `/sitemap.xml`. The dataset is published under CC BY 4.0 on `/datos`.
 
 Vercel project `impacto-acumulado` (team `lauramiros-projects`): root directory `web`, framework Next.js, Node 24, no environment variables. Production: https://impacto-acumulado.vercel.app (first deploy 2026-09-21 from `d2f355f` with `vercel --prod`). Connected to the GitHub repo: every push to `main` deploys to production; `vercel --prod` from the repo root also works.
 
