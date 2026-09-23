@@ -52,7 +52,11 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
     <article className={styles.page}>
       <RecordHeader project={record.project} />
       <FactSheet project={record.project} municipalities={here} />
-      <DocumentTimeline documents={record.documents} statusDocumentId={record.project.statusDocumentId} />
+      {/* record.statusDocument, not record.project.statusDocumentId: loadProjectRecord
+          already nulls it for a "desconocido" project (status_document_id still names
+          a real document - the latest one - even though nothing resolved the status),
+          so the timeline mark and the Provenance section below agree by construction. */}
+      <DocumentTimeline documents={record.documents} statusDocumentId={record.statusDocument?.id ?? null} />
       <Provenance statusDocument={record.statusDocument} latestDocument={record.latestDocument} />
       <p>
         <Link href="/">Volver al mapa</Link>

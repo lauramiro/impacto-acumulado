@@ -1,4 +1,21 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { parse } from "csv-parse/sync";
 import { expect, test } from "@playwright/test";
+
+// Finds a real "desconocido" project id from the live export rather than
+// hardcoding one: status_document_id still names a real document for every
+// desconocido project (see web/src/lib/data/project-record.ts), so a test
+// pinned to a specific id would stop testing the right thing, not just fail,
+// the day that project's status resolves in a weekly run.
+function findDesconocidoProjectId(): number {
+  const csvPath = path.join(process.cwd(), "public", "data", "projects.csv");
+  const text = readFileSync(csvPath, "utf-8");
+  const rows: Record<string, string>[] = parse(text, { columns: true, skip_empty_lines: true, bom: true });
+  const row = rows.find((r) => r["status"] === "desconocido");
+  if (!row) throw new Error("no desconocido project found in public/data/projects.csv");
+  return Number(row["id"]);
+}
 
 test("project page shows the record, the timeline and which document fixed the status", async ({ page }) => {
   await page.goto("/proyecto/1");
@@ -19,6 +36,22 @@ test("project page shows the record, the timeline and which document fixed the s
   const noAplicaRow = page.locator("li", { hasText: "BOE-A-2020-14181" });
   await expect(noAplicaRow).toContainText("No aplica");
   await expect(noAplicaRow.locator("[data-status]")).toHaveCount(0);
+});
+
+test("a desconocido project shows no fija-estado mark and says no document resolved it", async ({ page }) => {
+  // status_document_id names a real document even for a desconocido project
+  // (derive_status seeds it with the latest document and never clears the
+  // seed when nothing resolves the status - see
+  // pipeline/impacto/resolve/status.py). The timeline must not mark that
+  // document as having fixed the status, and the provenance section must
+  // say plainly that nothing resolved it; the two must agree.
+  const id = findDesconocidoProjectId();
+  await page.goto(`/proyecto/${id}`);
+  await expect(page.getByRole("region", { name: "Ficha", exact: true })).toBeVisible();
+  await expect(page.getByTestId("fija-estado")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Cómo se ha construido esta ficha" })).toContainText(
+    "Ningún documento resuelve el expediente",
+  );
 });
 
 test("unknown project id is a 404", async ({ page }) => {

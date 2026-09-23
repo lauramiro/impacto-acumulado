@@ -78,6 +78,22 @@ describe("loaders", () => {
     expect(result.success).toBe(false);
   });
 
+  it("rejects an evaluation whose field_samples omits a field present in accuracy", () => {
+    // Every field with an accuracy must have a sample size, or /metodologia's
+    // "Muestra" column would silently render "—" for it instead of the
+    // build failing loudly.
+    const result = EvaluationSchema.safeParse({
+      provider: "x",
+      accuracy: { verdict: 1.0, turbines: 1.0 },
+      n_labels: 2,
+      n_scored: 2,
+      skipped: [],
+      labels_count: 2,
+      field_samples: { verdict: 2 }, // missing "turbines"
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("rejects an unknown status with the field named", () => {
     const bad = { "29084": { by_status: { aprobado: { project_count: 1, mw_nominal: 1, hectares: 0, turbines: 0 } }, by_technology: {}, mw_total: 1, ha_total: 0, count_total: 1 } };
     const result = StatsFileSchema.safeParse(bad);
