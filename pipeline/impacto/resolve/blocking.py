@@ -1,19 +1,24 @@
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 
 from impacto.resolve.model import Record
-from impacto.text import tokens
+from impacto.text import normalize, tokens
 
 GENERIC = {
     "parque", "planta", "plantas", "proyecto", "instalacion", "fotovoltaico", "fotovoltaica", "fotovoltaicos",
     "solar", "eolico", "eolica", "psfv", "pfv", "pe", "de", "la", "el", "los", "las", "del", "y", "e",
     "s", "l", "u", "a", "sl", "slu", "sa", "sau", "mw", "mwp", "mwn",
 }
+# A capacity figure ("50 MW", "90,5 MWp") describes a project, it does not
+# name it. Left in, its number becomes the last token and phase_token reads
+# it as a phase, which blocks two documents of one project from grouping.
+_CAPACITY = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:mwp|mwn|mwh|mw|kwp|kwn|kw|kv)\b")
 
 
 def name_key(name: str) -> str:
-    return " ".join(t for t in tokens(name) if t not in GENERIC)
+    return " ".join(t for t in tokens(_CAPACITY.sub(" ", normalize(name))) if t not in GENERIC)
 
 
 def candidate_pairs(records: list[Record]) -> set[tuple[int, int]]:

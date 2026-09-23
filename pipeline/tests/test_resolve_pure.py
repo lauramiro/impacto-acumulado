@@ -3,7 +3,7 @@ from datetime import date
 from impacto.resolve.blocking import candidate_pairs, name_key
 from impacto.resolve.model import Record
 from impacto.resolve.run import resolve
-from impacto.resolve.scoring import THRESHOLD, score_pair
+from impacto.resolve.scoring import THRESHOLD, phase_token, score_pair
 from impacto.resolve.status import derive_status
 from impacto.resolve.unionfind import UnionFind
 
@@ -84,3 +84,26 @@ def test_resolve_groups_and_respects_overrides():
     assert sorted(sorted(r.document_id for r in g) for g in groups) == [[1], [2], [3]]
     groups = resolve([a, b, c], overrides={1: "k", 3: "k"})
     assert sorted(sorted(r.document_id for r in g) for g in groups) == [[1, 2, 3]]
+
+
+def test_name_key_drops_capacity_figures():
+    assert name_key("Parque eolico Ronda II de 50 MW") == "ronda ii"
+    assert name_key("Planta fotovoltaica Carbo de 90,5 MWp") == "carbo"
+    # A number with no unit after it is part of the name.
+    assert name_key("Parque fotovoltaico Tabernas 100") == "tabernas 100"
+
+
+def test_phase_token_is_not_read_from_a_capacity_figure():
+    assert phase_token("Parque eolico Ronda I") == "i"
+    assert phase_token("Parque eolico Ronda II de 50 MW") == "ii"
+    # The evacuation tail still hides the phase here; impacto.extract.names
+    # removes such tails at extraction time.
+    assert phase_token("Parque eolico Ronda I de 50 MW y su infraestructura de evacuacion") is None
+
+
+def test_a_capacity_figure_does_not_block_two_documents_of_one_project():
+    a = rec(1, "Parque eolico Ronda II de 50 MW", mw=50)
+    b = rec(2, "Parque eolico Ronda II", mw=50)
+    score, reason = score_pair(a, b)
+    assert reason != "phase_mismatch"
+    assert score >= THRESHOLD
