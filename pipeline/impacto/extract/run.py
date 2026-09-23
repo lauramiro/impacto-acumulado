@@ -65,7 +65,11 @@ _JOINED_FIELDS = ("developer",)
 # Document types the operative-sentence rule may override. A model that
 # evidenced modificacion, caducidad or informacion_publica read a document
 # that merely quotes a decision, and the rule must not clobber it.
-_OVERRIDABLE_DOC_TYPES = {"dia": {"dia", "otro"}, "aau": {"aau", "otro"}}
+_OVERRIDABLE_DOC_TYPES = {
+    "dia": {"dia", "otro"},
+    "aau": {"aau", "otro"},
+    "informe_impacto": {"informe_impacto", "otro"},
+}
 
 
 def _as_number(value):

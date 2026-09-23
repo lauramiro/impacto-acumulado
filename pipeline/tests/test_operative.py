@@ -75,3 +75,39 @@ def test_refused_project_infrastructure_is_not_a_line_refusal():
 def test_para_la_realizacion_is_a_project_object():
     text = "formula declaración de impacto ambiental para la realización del proyecto PE Norte, en la que se establecen las condiciones."
     assert find_operative(text).verdict == "favorable_condicionada"
+
+
+# BOE-A-2025-24233 (OPDE Miramundo), abridged from the stored text: the legal
+# grounds quote both halves of article 47 before the operative sentence.
+MIRAMUNDO = (
+    "El artículo 47 dispone que el órgano ambiental determinará, mediante la emisión del informe de impacto "
+    "ambiental, si el proyecto debe someterse a una evaluación de impacto ambiental ordinaria, por tener efectos "
+    "significativos sobre el medio ambiente, o si por el contrario no es necesario dicho procedimiento.\n"
+    "Esta Dirección General resuelve:\nDe acuerdo con los antecedentes de hecho y fundamentos de derecho alegados "
+    "y como resultado de la evaluación de impacto ambiental practicada, que no es necesario el sometimiento al "
+    "procedimiento de evaluación ambiental ordinaria del proyecto «Módulo de almacenamiento OPDE Miramundo», ya que "
+    "no se prevén efectos adversos significativos sobre el medio ambiente, siempre que se cumplan las medidas y "
+    "prescripciones establecidas en el documento ambiental y en la presente resolución."
+)
+
+
+def test_simplified_evaluation_without_ordinary_procedure_is_favourable_with_conditions():
+    # The grounds' "debe someterse ... ordinaria" sits before "resuelve" and must not count.
+    hit = find_operative(MIRAMUNDO)
+    assert hit is not None
+    assert hit.doc_type == "informe_impacto"
+    assert hit.verdict == "favorable_condicionada"
+    assert "no es necesario el sometimiento" in hit.sentence
+
+
+def test_simplified_evaluation_requiring_ordinary_procedure_has_no_verdict():
+    # The other half of the form routes the procedure; it says nothing about effects.
+    routed = MIRAMUNDO.replace(
+        "que no es necesario el sometimiento al procedimiento de evaluación ambiental ordinaria",
+        "que el proyecto debe someterse a una evaluación ambiental ordinaria",
+    )
+    hit = find_operative(routed)
+    assert (hit.doc_type, hit.verdict) == ("informe_impacto", "no_aplica")
+    needed = ("Esta Dirección General resuelve que es necesario el sometimiento al procedimiento de evaluación de "
+              "impacto ambiental ordinaria del proyecto PSFV Sol.")
+    assert (find_operative(needed).doc_type, find_operative(needed).verdict) == ("informe_impacto", "no_aplica")

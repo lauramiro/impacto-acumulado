@@ -417,6 +417,14 @@ def test_extract_document_nulls_an_unknown_municipality_role_and_splits_evacuati
     assert [m.name for m in e.evacuation_municipalities] == ["Almodóvar del Río"]
 
 
+def test_extract_document_simplified_evaluation_overrides_otro():
+    model_says = {"doc_type": "otro", "verdict": "no_aplica", "project_name": "Módulo de almacenamiento OPDE Miramundo"}
+    text = ("Esta Dirección General resuelve: que no es necesario el sometimiento al procedimiento de evaluación "
+            "ambiental ordinaria del proyecto «Módulo de almacenamiento OPDE Miramundo».")
+    e = extract_document(StubProvider([model_says]), "Resolución", text, {})
+    assert (e.doc_type, e.verdict) == ("informe_impacto", "favorable_condicionada")
+
+
 def test_prompt_asks_for_every_municipality_with_a_role():
     assert '"role"' in SYSTEM_PROMPT
     assert '"evacuacion"' in SYSTEM_PROMPT and '"generacion"' in SYSTEM_PROMPT

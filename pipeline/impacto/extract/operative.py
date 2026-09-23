@@ -21,10 +21,19 @@ Forms handled (matched on normalised text: lowercase, no accents):
   -> aau, favorable_condicionada
 - "no otorgar/denegar/se deniega/desestimar ... autorizacion ambiental
   unificada" -> aau, desfavorable
+- "no es necesario el sometimiento al procedimiento de evaluacion ambiental
+  ordinaria" (simplified evaluation, Ley 21/2013 article 47)
+  -> informe_impacto, favorable_condicionada
+- "es necesario el sometimiento ..." / "debe someterse a ... evaluacion ...
+  ordinaria" -> informe_impacto, no_aplica (the report routes the procedure
+  and says nothing about the project's effects)
 
-AAU verbs are only read inside the resolving part of the document (after
-the last "resuelve", "ha resuelto", "acuerda" or similar marker), because
-the same verbs appear in legal boilerplate of public-consultation notices.
+AAU verbs and the simplified-evaluation forms are only read inside the resolving
+part of the document (after the last "resuelve", "ha resuelto", "acuerda" or
+similar marker), because the same verbs appear in legal boilerplate of
+public-consultation notices. The simplified form's legal grounds quote both halves
+of article 47 before the operative sentence, and its opening, "formula informe de
+impacto ambiental", appears only in the title.
 When several operative sentences appear (a resolution that quotes an earlier
 one), the last match wins: the document's own decision closes the text.
 """
@@ -49,6 +58,14 @@ _RESOLVING_MARKER = re.compile(r"\b(?:resuelve|ha resuelto|resuelvo|acuerda|disp
 _AAU_GRANT = re.compile(r"(?<!\bno )(?:otorgar|se otorga|conceder|se concede) (?:la )?autorizacion ambiental unificada")
 _AAU_DENY = re.compile(
     r"(?:no otorgar|denegar|se deniega|desestimar) (?:la solicitud de )?(?:la )?autorizacion ambiental unificada"
+)
+_IIA_NOT_NEEDED = re.compile(
+    r"no es necesari[oa] (?:el sometimiento|someter(?:lo)?) (?:al procedimiento de |a )?"
+    r"evaluacion (?:de impacto )?ambiental ordinaria"
+)
+_IIA_NEEDED = re.compile(
+    r"(?<!\bno )(?:es necesari[oa] (?:el sometimiento|someter(?:lo)?)|debe someterse) "
+    r"(?:al procedimiento de |a (?:una )?)?evaluacion (?:de impacto )?ambiental ordinaria"
 )
 
 
@@ -100,6 +117,10 @@ def find_operative(text: str) -> OperativeHit | None:
             hits.append((offset + match.start(), OperativeHit("aau", "desfavorable", match.group(0))))
         for match in _AAU_GRANT.finditer(part):
             hits.append((offset + match.start(), OperativeHit("aau", "favorable_condicionada", match.group(0))))
+        for match in _IIA_NOT_NEEDED.finditer(part):
+            hits.append((offset + match.start(), OperativeHit("informe_impacto", "favorable_condicionada", match.group(0))))
+        for match in _IIA_NEEDED.finditer(part):
+            hits.append((offset + match.start(), OperativeHit("informe_impacto", "no_aplica", match.group(0))))
     if not hits:
         return None
     hits.sort(key=lambda pair: pair[0])
