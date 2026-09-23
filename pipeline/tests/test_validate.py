@@ -26,3 +26,17 @@ def test_out_of_range_numbers_are_dropped():
     assert out.mw_nominal is None
     assert out.hectares is None
     assert abs(out.confidence - 0.3) < 1e-6
+
+
+def test_evacuation_only_municipalities_move_out_of_the_generation_site():
+    e = Extraction(doc_type="dia", verdict="favorable", confidence=0.9, municipalities=[
+        Municipality(name="Ronda", role="generacion"),
+        Municipality(name="Cortes de la Frontera", role="evacuacion"),
+        Municipality(name="MALAGA"),
+    ])
+    out = validate_and_score(e, NAMES)
+    # An untagged municipality stays where it was: the split can only remove
+    # false positives, never introduce false negatives.
+    assert [(m.name, m.role) for m in out.municipalities] == [("Ronda", "generacion"), ("Málaga", None)]
+    assert [(m.name, m.role) for m in out.evacuation_municipalities] == [("Cortes de la Frontera", "evacuacion")]
+    assert out.confidence == 0.9

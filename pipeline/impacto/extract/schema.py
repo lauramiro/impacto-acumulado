@@ -12,11 +12,15 @@ Technology = Literal["solar_fv", "eolica", "hibrida", "almacenamiento", "linea_e
 ConditionCategory = Literal[
     "fauna", "flora", "agua", "suelo", "paisaje", "patrimonio", "vigilancia", "compensacion", "general"
 ]
+MunicipalityRole = Literal["generacion", "evacuacion"]
 
 
 class Municipality(BaseModel):
     name: str
     province: str | None = None
+    # generacion: the plant, park, turbines, modules or batteries stand here.
+    # evacuacion: only the evacuation line or substation does. None: untagged.
+    role: MunicipalityRole | None = None
 
 
 class Condition(BaseModel):
@@ -42,6 +46,9 @@ class Extraction(BaseModel):
     hectares: float | None = None
     turbines: int | None = None
     municipalities: list[Municipality] = Field(default_factory=list)
+    # Municipalities reached only by the evacuation infrastructure. Kept for
+    # inspection; resolve and the site use `municipalities` alone.
+    evacuation_municipalities: list[Municipality] = Field(default_factory=list)
     utm_coordinates: list[UtmCoordinate] = Field(default_factory=list)
     protected_areas_mentioned: list[str] = Field(default_factory=list)
     species_mentioned: list[str] = Field(default_factory=list)

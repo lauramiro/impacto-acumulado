@@ -42,9 +42,12 @@ Devuelve SOLO un objeto JSON con estas claves. Usa null cuando el texto no lo di
   o "parque eólico Filabres, 153 MW, parque eólico Peregiles, 93 MW"), devuelve para cada uno de estos cuatro
   campos una LISTA con un número por planta, en el mismo orden, y nunca la cifra de una sola planta. Si solo hay
   una planta, devuelve un número.
-- municipalities: lista de {"name": ..., "province": ...} con los términos municipales del
-  emplazamiento de la alternativa seleccionada únicamente: no incluyas los de alternativas descartadas
-  ni los que solo atraviesa la línea de evacuación.
+- municipalities: lista de {"name": ..., "province": ..., "role": ...} con todos los términos
+  municipales de la alternativa seleccionada; no incluyas los de alternativas descartadas. role es
+  "generacion" si en ese término se ubica la planta, el parque, sus aerogeneradores, sus módulos o
+  sus baterías, y "evacuacion" si solo lo atraviesa o lo ocupa la infraestructura de evacuación
+  (línea eléctrica, subestación o centro de seccionamiento). Un término con ambas cosas es
+  "generacion".
 - utm_coordinates: lista de {"x": ..., "y": ..., "zone": ...} si aparecen coordenadas UTM.
 - protected_areas_mentioned: lista de nombres de espacios protegidos (Red Natura 2000, ZEPA, LIC, parques).
 - species_mentioned: lista de especies citadas.

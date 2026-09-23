@@ -8,6 +8,7 @@ from impacto.db.documents import (
     save_extraction,
     upsert_raw_document,
 )
+from impacto.extract.prompts import SYSTEM_PROMPT
 from impacto.extract.run import extract_document, run_extract
 from impacto.providers import QuotaExhausted
 from impacto.providers.stub import StubProvider
@@ -403,6 +404,22 @@ def test_extract_document_drops_malformed_utm_coordinates():
         (254321.5, 4123456.7, 30),
         (254000.0, 4123000.0, None),
     ]
+
+
+def test_extract_document_nulls_an_unknown_municipality_role_and_splits_evacuation():
+    model_says = {"doc_type": "dia", "verdict": "favorable_condicionada", "municipalities": [
+        {"name": "Ronda", "province": "Málaga", "role": "generacion"},
+        {"name": "Almodóvar del Río", "province": "Córdoba", "role": "evacuacion"},
+        {"name": "Cortes de la Frontera", "province": "Málaga", "role": "subestacion"},
+    ]}
+    e = extract_document(StubProvider([model_says]), "Resolución", "Promotor Y", {})
+    assert [(m.name, m.role) for m in e.municipalities] == [("Ronda", "generacion"), ("Cortes de la Frontera", None)]
+    assert [m.name for m in e.evacuation_municipalities] == ["Almodóvar del Río"]
+
+
+def test_prompt_asks_for_every_municipality_with_a_role():
+    assert '"role"' in SYSTEM_PROMPT
+    assert '"evacuacion"' in SYSTEM_PROMPT and '"generacion"' in SYSTEM_PROMPT
 
 
 def test_run_extract_reconnects_when_the_server_drops_the_connection(db):

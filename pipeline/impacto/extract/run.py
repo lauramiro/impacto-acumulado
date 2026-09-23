@@ -13,7 +13,14 @@ from impacto.db.documents import municipality_name_map, pending_for_extraction, 
 from impacto.extract.names import trim_project_name
 from impacto.extract.operative import find_operative
 from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_prompt
-from impacto.extract.schema import ConditionCategory, DocType, Extraction, Technology, Verdict
+from impacto.extract.schema import (
+    ConditionCategory,
+    DocType,
+    Extraction,
+    MunicipalityRole,
+    Technology,
+    Verdict,
+)
 from impacto.extract.sections import ORDER, split_sections
 from impacto.extract.validate import validate_and_score
 from impacto.providers import Provider, QuotaExhausted
@@ -120,6 +127,7 @@ _ALLOWED_VERDICTS = set(get_args(Verdict))
 _ALLOWED_TECHNOLOGIES = set(get_args(Technology))
 _ALLOWED_CONDITION_CATEGORIES = set(get_args(ConditionCategory))
 _DEFAULT_CONDITION_CATEGORY = "general"
+_ALLOWED_MUNICIPALITY_ROLES = set(get_args(MunicipalityRole))
 
 
 def _sanitize(raw: dict) -> dict:
@@ -147,6 +155,8 @@ def _sanitize(raw: dict) -> dict:
     - a condition's `category` is sometimes a value outside the schema's
       allowed set (e.g. "poblacion"); falls back to "general", the schema's
       own catch-all default for this field.
+    - a municipality's `role` outside "generacion"/"evacuacion" becomes
+      null, which leaves it in `municipalities`.
     Observed live against Mistral/ministral-14b on multi-plant resolutions:
     - numeric fields (mw, hectares, turbines) come back as one value per
       plant, as a list or a dict keyed by plant name; they are summed into
@@ -186,9 +196,15 @@ def _sanitize(raw: dict) -> dict:
                 raw["related_projects"] = list(related) + strings[1:]
     municipalities = raw.get("municipalities")
     if isinstance(municipalities, list):
-        raw["municipalities"] = [
-            m for m in municipalities if not isinstance(m, dict) or m.get("name")
-        ]  # a municipality without a name is nothing to link (seen live from ministral-14b)
+        clean_municipalities = []
+        for m in municipalities:
+            if isinstance(m, dict):
+                if not m.get("name"):
+                    continue  # a municipality without a name is nothing to link (seen live from ministral-14b)
+                if m.get("role") not in _ALLOWED_MUNICIPALITY_ROLES:
+                    m = {**m, "role": None}  # an unknown role is no tag, and keeps the municipality in place
+            clean_municipalities.append(m)
+        raw["municipalities"] = clean_municipalities
     if isinstance(raw.get("utm_coordinates"), list):
         raw["utm_coordinates"] = _clean_utm_coordinates(raw["utm_coordinates"])
     for name in _SINGLE_VALUE_FIELDS:

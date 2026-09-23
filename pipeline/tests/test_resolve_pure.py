@@ -107,3 +107,10 @@ def test_a_capacity_figure_does_not_block_two_documents_of_one_project():
     score, reason = score_pair(a, b)
     assert reason != "phase_mismatch"
     assert score >= THRESHOLD
+
+
+def test_record_groups_on_the_generation_site_only():
+    payload = {"municipalities": [{"name": "Ronda", "role": "generacion"}],
+               "evacuation_municipalities": [{"name": "Cortes de la Frontera", "role": "evacuacion"}]}
+    r = Record.from_extraction(1, date(2023, 1, 1), payload)
+    assert r.municipalities == frozenset({"ronda"})
