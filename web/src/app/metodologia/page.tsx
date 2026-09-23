@@ -74,7 +74,9 @@ export default async function MethodologyPage() {
         <a href={`${REPO_URL}/tree/main/pipeline/evaluation/labels`} rel="noopener">
           etiquetas
         </a>{" "}
-        se escribieron leyendo cada resolución, no la extracción, y se revisaron una a una.
+        se escribieron leyendo cada resolución, no la extracción, y se revisaron una a una. Esta precisión se midió
+        antes de corregir el extractor con esos mismos documentos; los datos publicados proceden ya de la versión
+        corregida, y medir su precisión exige etiquetar documentos nuevos.
       </p>
       <table className={styles.tabla} aria-label="Precisión por campo">
         <thead>

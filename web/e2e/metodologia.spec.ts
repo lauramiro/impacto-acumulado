@@ -12,5 +12,8 @@ test("methodology page publishes per-field accuracy with its sample size", async
   await expect(table.getByRole("row", { name: /Nombre del proyecto/ })).toContainText("40 %");
   await expect(page.getByTestId("muestra")).toContainText(/sobre \d+ documentos/);
   await expect(page.getByTestId("muestra")).toContainText(/mistral/);
+  // The published figure predates the extractor corrections made against the
+  // same labelled documents; the page must say so.
+  await expect(page.getByTestId("muestra")).toContainText("antes de corregir el extractor");
   await expect(page.getByRole("link", { name: /etiquetas/ })).toHaveAttribute("href", /github\.com/);
 });
