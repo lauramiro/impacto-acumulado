@@ -1,3 +1,4 @@
+import inspect
 import json
 from datetime import date
 from pathlib import Path
@@ -5,7 +6,17 @@ from typing import get_args
 
 import pytest
 
-from evaluation.run_eval import EXACT, LABELS_DIR, NUMERIC, run_eval, score
+from evaluation.run_eval import (
+    EXACT,
+    LABELS_DIR,
+    LAST_RUN,
+    NUMERIC,
+    TUNED_RUN,
+    main,
+    misses_path,
+    run_eval,
+    score,
+)
 from impacto.db.documents import RawDocument, upsert_raw_document
 from impacto.extract.schema import DocType, Technology, Verdict
 from impacto.providers.stub import StubProvider
@@ -53,14 +64,46 @@ def test_run_eval_skips_failed_extractions_with_warning(db, tmp_path, caplog):
                 raise RuntimeError("HTTP 429 rate_limit_exceeded")
             return provider.complete_json(system, user)
 
-    accuracy = run_eval(db, Flaky(), labels, last_run=tmp_path / "last_run.json")
+    out = tmp_path / "run.json"
+    accuracy = run_eval(db, Flaky(), labels, out=out)
     assert accuracy == {"verdict": 1.0, "mw_nominal": 1.0}
     assert "BAD" in caplog.text and "rate_limit_exceeded" in caplog.text
-    written = json.loads((tmp_path / "last_run.json").read_text(encoding="utf-8"))
+    written = json.loads(out.read_text(encoding="utf-8"))
     assert written["accuracy"] == accuracy
     assert written["n_labels"] == 3
     assert written["n_scored"] == 1
     assert written["skipped"] == ["a-BAD.json", "c-MISSING.json"]
+
+
+def test_run_eval_writes_misses_next_to_its_output(db, tmp_path):
+    # Miss detail used to reach only stdout, which is how the project_name
+    # pairs the extraction fixes were designed from became unreachable.
+    upsert_raw_document(db, RawDocument("boe", "OK", date(2023, 1, 1), "t", "u", "III", "o", "Promotor X"))
+    labels = tmp_path / "labels"
+    labels.mkdir()
+    _label(labels / "a-OK.json", "OK", {"verdict": "favorable", "mw_nominal": 50})
+    provider = StubProvider([{"doc_type": "dia", "verdict": "desfavorable", "mw_nominal": 50}])
+    out = tmp_path / "run.json"
+    run_eval(db, provider, labels, out=out)
+    misses = json.loads((tmp_path / "run_misses.json").read_text(encoding="utf-8"))
+    assert misses == [{"source_id": "OK", "field": "verdict", "expected": "favorable", "actual": "desfavorable"}]
+
+
+def test_run_eval_defaults_to_the_tuned_run_not_the_published_baseline():
+    # export copies last_run.json to the site on every weekly run, so an eval
+    # run must never land there by default.
+    assert inspect.signature(run_eval).parameters["out"].default == TUNED_RUN
+    assert TUNED_RUN.name == "tuned_run.json"
+    assert misses_path(TUNED_RUN).name == "tuned_run_misses.json"
+
+
+def test_run_eval_refuses_to_overwrite_the_published_baseline(tmp_path):
+    before = LAST_RUN.read_bytes()
+    with pytest.raises(ValueError, match="published baseline"):
+        run_eval(None, StubProvider([]), tmp_path, out=LAST_RUN)
+    with pytest.raises(SystemExit):
+        main(["--provider", "stub", "--out", str(LAST_RUN)])
+    assert LAST_RUN.read_bytes() == before
 
 
 @pytest.mark.parametrize("label_path", sorted(LABELS_DIR.glob("*.json")), ids=lambda p: p.name)

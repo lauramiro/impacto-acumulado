@@ -19,6 +19,10 @@ log = logging.getLogger(__name__)
 
 LABELS_DIR = Path(__file__).resolve().parent / "labels"
 LAST_RUN = Path(__file__).resolve().parent / "last_run.json"
+# last_run.json is the published baseline: export copies it to the site, and
+# it predates any tuning against the labels, so nothing may overwrite it.
+# Runs go to tuned_run.json unless --out says otherwise.
+TUNED_RUN = Path(__file__).resolve().parent / "tuned_run.json"
 NUMERIC = {"mw_peak", "mw_nominal", "hectares", "turbines"}
 EXACT = {"doc_type", "verdict", "technology"}
 
@@ -48,21 +52,34 @@ def score(expected: dict, actual: dict) -> dict[str, bool]:
     return {field: _same(field, value, actual.get(field)) for field, value in expected.items()}
 
 
+def misses_path(out: Path) -> Path:
+    """Where a run written to `out` records its misses: `<stem>_misses.json` beside it."""
+    return out.with_name(f"{out.stem}_misses.json")
+
+
+def _refuse_baseline(out: Path) -> None:
+    if out.resolve() == LAST_RUN.resolve():
+        raise ValueError(f"{LAST_RUN.name} is the published baseline; write eval runs elsewhere")
+
+
 def run_eval(
     conn: psycopg.Connection,
     provider: Provider,
     labels_dir: Path = LABELS_DIR,
-    last_run: Path = LAST_RUN,
+    out: Path = TUNED_RUN,
 ) -> dict[str, float]:
     """Per-field accuracy over every label in labels_dir whose document is fetched.
 
     A label whose document is not in raw_documents, or whose extraction raises
     (rate limit, malformed response), is skipped with a warning so a partial
     run still records what completed. The result is printed as a table and
-    written to `last_run`.
+    written to `out`; each miss is written to `misses_path(out)`. `out` may
+    not be the published baseline, `last_run.json`.
     """
+    _refuse_baseline(out)
     names = municipality_name_map(conn)
     hits: dict[str, list[bool]] = {}
+    misses: list[dict] = []
     label_paths = sorted(labels_dir.glob("*.json"))
     skipped: list[str] = []
     for label_path in label_paths:
@@ -86,7 +103,9 @@ def run_eval(
         for field, ok in score(label["expected"], actual).items():
             hits.setdefault(field, []).append(ok)
             if not ok:
-                print(f"{label['source_id']} {field}: expected {label['expected'][field]!r}, got {actual.get(field)!r}")
+                expected = label["expected"][field]
+                misses.append({"source_id": label["source_id"], "field": field, "expected": expected, "actual": actual.get(field)})
+                print(f"{label['source_id']} {field}: expected {expected!r}, got {actual.get(field)!r}")
     accuracy = {field: round(sum(v) / len(v), 3) for field, v in hits.items()}
     print("\nfield                 accuracy  n")
     for field, acc in sorted(accuracy.items()):
@@ -98,7 +117,8 @@ def run_eval(
         "n_scored": len(label_paths) - len(skipped),
         "skipped": skipped,
     }
-    last_run.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    misses_path(out).write_text(json.dumps(misses, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return accuracy
 
 
@@ -106,9 +126,14 @@ def main(argv: list[str]) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(prog="impacto eval")
     parser.add_argument("--provider", choices=PROVIDER_NAMES, default="groq")
+    parser.add_argument("--out", type=Path, default=TUNED_RUN, help="result file; its misses go beside it")
     args = parser.parse_args(argv)
+    try:
+        _refuse_baseline(args.out)
+    except ValueError as exc:
+        parser.error(str(exc))
     settings = load_settings()
     provider = build_provider(settings, args.provider)
     with connect(settings.db_dsn) as conn:
-        run_eval(conn, provider)
+        run_eval(conn, provider, out=args.out)
     return 0
