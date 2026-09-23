@@ -16,6 +16,14 @@ approval and every milestone.
   written. Work happens in the worktree
   `.claude/worktrees/extraction-fixes` on branch `worktree-extraction-fixes`,
   branched from `main` at `8071225`. Nothing implemented yet.
+- 2026-09-23: scope revised by user decision. Slice 2 is deployed, so the
+  reason for stopping at the extractor is gone: re-extraction, resolve,
+  aggregate and export are now in scope (section 5). The BOE backfill audit
+  (`2f983c8`, recovers `BOE-A-2025-11509`) was rebased and fast-forwarded
+  onto `main`, and this branch was rebased onto it. Section 3 now also
+  moves the eval runner's default output off `last_run.json`, because
+  `export` (run weekly) copies that file to the site. Nothing implemented
+  yet. Slice 3 of the web design waits for this slice.
 
 ## The baseline this is designed against
 
@@ -49,10 +57,10 @@ slice 2 should publish it as it stands.
 2. `municipalities` is fixed by adding a role field the model fills, not by
    sharpening an instruction it has already ignored. The prompt has told it
    to exclude evacuation-line municipalities all along.
-3. This slice stops at the extractor. Re-extraction, resolve and export are
-   deferred. **This is an assumption, not a user decision** - the question
-   was put twice and not answered, and the reasoning is in "Scope" below.
-   Overriding it changes only what runs after the code lands, not the code.
+3. ~~This slice stops at the extractor.~~ Superseded on 2026-09-23 by user
+   decision: the slice carries the fixes through re-extraction, resolve,
+   aggregate and export to the published site, and picks up the document
+   recovered by the BOE backfill audit on the way. See section 5.
 4. The five latent operative-rule gaps found while labelling are recorded
    and deliberately not fixed. See "Deliberately out of scope".
 5. Miss detail is persisted to a sibling file, not into `last_run.json`,
@@ -91,7 +99,9 @@ because the sections are not in this order:
    (2 misses) - section 2b.
 4. BOE-A-2022-15703 hibridación and BOE-A-2023-2907 per-plant summing
    (3 misses), the prompt half - section 4.
-5. Persisting miss detail from the eval runner - section 3.
+5. Persisting miss detail from the eval runner, and keeping eval runs off
+   the published file - section 3.
+6. Re-extracting the corpus and republishing the dataset - section 5.
 
 ## Implementation order
 
@@ -105,19 +115,26 @@ depends on its output:
 3. **Section 1b**, the trimmer, derived from the captured pairs.
 4. **Section 2a and 2b**, in either order.
 5. **Section 4**, the prompt half, last, after 1 to 3 are green.
-6. A final eval run to record the after-figure.
+6. A final eval run to record the after-figure, written to
+   `tuned_run.json` (section 3), never to `last_run.json`.
+7. **Section 5**, the production re-run, only after the branch is merged to
+   `main`, so production data is never produced by unmerged code.
 
-### `last_run.json` must survive the capture run
+### `last_run.json` must survive every run
 
-`run_eval` overwrites `pipeline/evaluation/last_run.json` unconditionally.
-The committed copy is the pre-tuning baseline that slice 2 publishes, and it
-is the last figure measurable on unseen documents - it cannot be regenerated
-once this slice merges.
+`run_eval` today overwrites `pipeline/evaluation/last_run.json`
+unconditionally, and `impacto export`, which the weekly workflow runs, copies
+that file to `web/public/data/evaluation.json`. The committed copy is the
+pre-tuning baseline that `/metodologia` publishes, and it is the last figure
+measurable on unseen documents - it cannot be regenerated once this slice
+merges.
 
-After the miss-capture run in step 1, and after any intermediate run,
-`git checkout pipeline/evaluation/last_run.json` to restore it. Only the
-final run in step 6 may update it, and that update must be labelled in the
-commit message as a post-tuning figure.
+Restoring it with `git checkout` after each run, as this spec first
+proposed, relies on nobody forgetting, and one forgotten commit publishes a
+tuning figure on the next weekly run. Section 3 therefore removes the path
+instead: after it lands, no code path writes `last_run.json`. It is frozen
+as the published baseline until a later slice writes new labels and
+replaces it deliberately.
 
 A capture run is a fresh model run, so its miss strings may differ from the
 original 18. That is acceptable for deriving the trimmer, which needs a
@@ -154,21 +171,16 @@ as sole promotor with the later entry a transfer of title, and the same
 company is the labelled developer on two other labels. It is a label
 consistency question, logged as a deferred minor, not an extractor bug.
 
-### Scope assumption: this slice stops at the extractor
+### Scope: this slice carries the fixes to the site
 
 The fixes change extraction output, so corrected groupings and corrected
 municipality attributions reach the site only after a re-extraction, then
-`resolve`, then `export`. This spec does not carry that through, because:
-
-- Slice 2 is in flight and owns `export.py` and the published dataset.
-  Re-extracting the corpus mid-slice republishes data underneath it.
-- The eval verifies every fix here directly, without touching production.
-- Section 3b repairs grouping on the existing stored data with no LLM call
-  at all, so deferring the re-run leaves nothing broken that is broken today.
-
-That third point is what makes the assumption safe rather than merely
-convenient. If the re-run is wanted in this slice, it is additive: nothing
-in the code changes.
+`resolve`, `aggregate` and `export`. The first version of this spec deferred
+that because slice 2 was in flight and owned `export.py` and the published
+dataset. Slice 2 is deployed, so that reason is gone, and the web slice that
+follows (technology filter, overlays, province table, monthly timeline)
+would otherwise be built and checked against data this slice knows to be
+wrong. Section 5 specifies the re-run.
 
 ## Section 1: `project_name` and resolve hardening
 
@@ -317,13 +329,30 @@ a favourable verdict on the form's other half.
 detail survives only in terminal scrollback. That is how the nine
 `project_name` pairs this spec depends on came to be unreachable.
 
-`run_eval` writes `pipeline/evaluation/last_run_misses.json`, a list of
+### 3a. The output path
+
+`run_eval`'s default output moves from `last_run.json` to
+`pipeline/evaluation/tuned_run.json`, and the CLI gains `--out` to override
+it. `impacto export` keeps reading `last_run.json` and is not changed. After
+this, no code path writes the published file; see "`last_run.json` must
+survive every run".
+
+`--out` must refuse `last_run.json` itself, so the frozen file cannot be
+overwritten by passing its path by hand. A later slice that writes new
+labels and wants to publish a new figure removes that guard in the same
+commit, which makes the replacement a visible decision in the history.
+
+### 3b. The misses file
+
+Each run also writes `<out stem>_misses.json` next to its output (by
+default `tuned_run_misses.json`), a list of
 `{source_id, field, expected, actual}`.
 
-It is a sibling file, not a key in `last_run.json`, because slice 2 copies
-`last_run.json` wholesale to `web/public/data/evaluation.json`. Adding a key
-there would collide with slice 2's file contract and publish raw model output
-to the site as a side effect of a debugging aid.
+It is a sibling file, not a key in the run result, because `export` copies
+`last_run.json` wholesale to `web/public/data/evaluation.json`. Keeping the
+same shape across run files means a later deliberate replacement of
+`last_run.json` cannot carry raw model output to the site as a side effect
+of a debugging aid.
 
 ## Section 4: The prompt half
 
@@ -346,7 +375,49 @@ This section is the one where a change can fix its two documents and quietly
 break something else, invisibly, because at n=20 one document's field is 5
 percentage points. It is therefore implemented last, after sections 1 to 3
 are green, and it is the section for which the before-and-after in
-`last_run_misses.json` is the actual instrument.
+`tuned_run_misses.json` is the actual instrument.
+
+## Section 5: The production re-run
+
+Runs after the branch is merged to `main`, against Neon production, with
+`mistral` as the provider the baseline was measured on.
+
+1. **Bump `PROMPT_VERSION`** in `impacto/extract/prompts.py` from `v3` to
+   `v4`, in the same commit as the section 2a and section 4 prompt changes.
+   The trimmer and the role split change output without changing the
+   prompt text, so they ride on the same bump rather than going unversioned.
+2. **Fetch the recovered document.** `impacto fetch --source boe --from
+   2025-06-07 --to 2025-06-07` stores `BOE-A-2025-11509` (Puerto Real,
+   published 2025-06-07 per `docs/sources.md`). It is extracted in step 3
+   with everything else, so it is never extracted under `v3`.
+3. **Re-extract.** `impacto extract --provider mistral --redo-prompt-version
+   v3 --limit N`, repeated until it reports 0 documents. The existing
+   `--redo-prompt-version` path re-selects `ok` rows extracted under `v3`,
+   so no rows are deleted and an interrupted run resumes where it stopped.
+4. **Check before publishing.** Before `export`, compare against the
+   current published data and record in the progress log: document count
+   (expected 638 = 72 BOE + 566 BOJA), project count against today's 347,
+   the number of extractions whose `evacuation_municipalities` is non-empty,
+   and the `project_id`s that disappear. An unexplained swing in the project
+   count stops the run here rather than going to the site.
+5. `impacto resolve`, `impacto aggregate`, `impacto export`, then commit the
+   exported data in `web/public/data/` as the weekly workflow would.
+
+Known consequences, accepted:
+
+- **Retired project URLs.** Project ids are `min(document_id)` of a group
+  (slice 2, decision 7), so a group split or merged by the `name_key` fix or
+  the trimmer changes or retires ids, and those `/proyecto/[id]` URLs 404.
+  The sitemap is regenerated by the build. The retired ids are listed in
+  the progress log.
+- **The published accuracy describes the previous extractor.** The site's
+  data will come from `v4` while `/metodologia` keeps showing the `v3`
+  baseline from `last_run.json`, per "The one-way door". The paragraph
+  under "Precisión medida" in `web/src/app/metodologia/page.tsx` gains one
+  sentence saying so: the figure was measured before the extractor was
+  corrected against those same documents, and a figure for the current
+  version needs newly labelled documents. That is the only web change in
+  this slice.
 
 ## Testing
 
@@ -364,8 +435,11 @@ output is discarded.
 - `tests/test_resolve_pure.py`: `name_key` and `phase_token` on the three
   strings in section 1a.
 - `tests/test_extract_run.py`: `_sanitize` on an out-of-enum `role`.
-- `tests/test_eval.py`: `last_run_misses.json` is written with the expected
-  shape.
+- `tests/test_eval.py`: the misses file is written next to the output with
+  the expected shape; the default output is `tuned_run.json`, not
+  `last_run.json`; passing `last_run.json` as `--out` is refused.
+- `web/e2e/metodologia.spec.ts`: asserts the new sentence. The existing
+  axe sweep in `web/e2e/a11y.spec.ts` covers the page otherwise.
 
 The eval is re-run once at the end to record the after-figure, understood per
 "The one-way door" as a tuning figure rather than evidence about unseen
@@ -375,8 +449,9 @@ documents.
 
 `tests/test_aggregate.py`, `test_export.py`, `test_reference.py` and
 `test_resolve_run.py` fail to collect on this machine on the pyproj DLL block
-already recorded in `docs/sources.md`. Baseline on the worktree is 117 passed,
-21 skipped with those four excluded. `test_resolve_pure.py` collects fine, so
+already recorded in `docs/sources.md`. Baseline in this worktree after the
+2026-09-23 rebase is 121 passed, 21 skipped with those four excluded.
+`test_resolve_pure.py` collects fine, so
 section 1c is testable here; anything touching `test_resolve_run.py` is not.
 
 ## Documentation
@@ -385,5 +460,8 @@ section 1c is testable here; anything touching `test_resolve_run.py` is not.
   recorded; append that measurement showed them covered by the model, so a
   later reader does not re-derive them as open bugs.
 - `pipeline/evaluation/README.md`: record that the 20 labels became a tuning
-  set on merge of this slice, and that any figure published afterwards needs
-  labels written later.
+  set on merge of this slice, that any figure published afterwards needs
+  labels written later, that `last_run.json` is frozen as the published
+  `v3` baseline, and that runs now write `tuned_run.json`.
+- `README.md`: the status paragraph's document and project counts, updated
+  from the section 5 figures.
