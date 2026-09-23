@@ -10,6 +10,7 @@ import psycopg
 
 from impacto.db.connect import connect
 from impacto.db.documents import municipality_name_map, pending_for_extraction, save_extraction
+from impacto.extract.names import trim_project_name
 from impacto.extract.operative import find_operative
 from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_prompt
 from impacto.extract.schema import ConditionCategory, DocType, Extraction, Technology, Verdict
@@ -287,6 +288,9 @@ def extract_document(provider: Provider, title: str, text: str, municipality_nam
     for part in parts[1:]:
         merged = merged.merge(part)
     data = merged.model_dump()
+    if data.get("project_name"):
+        # Once, on the name actually chosen after merging, not per chunk.
+        data["project_name"] = trim_project_name(data["project_name"])
     data["doc_type"] = _decide_enum_field(parts, "doc_type", PLACEHOLDER_DOC_TYPE)
     data["verdict"] = _decide_enum_field(parts, "verdict", PLACEHOLDER_VERDICT)
     operative = find_operative(text)

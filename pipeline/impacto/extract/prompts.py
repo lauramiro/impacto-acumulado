@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-PROMPT_VERSION = "v3"
+# v4: names trimmed of descriptive tails, municipalities tagged with a role,
+# the simplified-evaluation form read by rule, and the installations under
+# evaluation told apart from existing ones. Re-extract v3 rows with
+# `impacto extract --redo-prompt-version v3`.
+PROMPT_VERSION = "v4"
 
 SYSTEM_PROMPT = """Eres un asistente que extrae datos estructurados de resoluciones ambientales
 publicadas en boletines oficiales españoles sobre proyectos de energía renovable.

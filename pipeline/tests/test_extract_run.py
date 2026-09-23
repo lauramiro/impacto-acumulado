@@ -94,6 +94,13 @@ def test_extract_document_folds_per_plant_lists_into_project_totals():
     assert e.turbines == 15
 
 
+def test_extract_document_trims_the_descriptive_tail_of_the_project_name():
+    model_says = {"doc_type": "dia", "verdict": "favorable_condicionada",
+                  "project_name": "Planta fotovoltaica Carbo de 90 MWp y su infraestructura de evacuación"}
+    e = extract_document(StubProvider([model_says]), "Resolución", "Promotor Y", {})
+    assert e.project_name == "Planta fotovoltaica Carbo"
+
+
 def test_operative_rule_does_not_override_an_evidenced_non_dia_document():
     # A modification resolution quotes the original favourable DIA in its
     # background; the model correctly reads it as a modificacion with
@@ -270,7 +277,7 @@ def test_run_extract_saves_rows_and_skips_done(db):
         cur.execute("SELECT status, prompt_version, payload->>'project_name' AS name FROM extractions")
         row = cur.fetchone()
     assert row["status"] == "ok"
-    assert row["prompt_version"] == "v3"
+    assert row["prompt_version"] == "v4"
     assert row["name"] == "Parque Ronda I"
 
 

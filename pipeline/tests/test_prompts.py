@@ -2,7 +2,7 @@ from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_pr
 
 
 def test_prompt_version_is_set():
-    assert PROMPT_VERSION == "v3"
+    assert PROMPT_VERSION == "v4"
 
 
 def test_system_prompt_asks_for_per_plant_lists():
