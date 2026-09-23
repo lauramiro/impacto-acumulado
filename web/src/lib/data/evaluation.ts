@@ -12,6 +12,7 @@ export const EvaluationSchema = z
     n_scored: z.number().int().nonnegative(),
     skipped: z.array(z.string()),
     labels_count: z.number().int().nonnegative(),
+    field_samples: z.record(z.string(), z.number().int().nonnegative()),
   })
   .refine((e) => e.n_scored <= e.n_labels, { message: "n_scored exceeds n_labels" });
 
@@ -24,5 +25,6 @@ export async function loadEvaluation(): Promise<Evaluation> {
     nScored: raw.n_scored,
     skipped: raw.skipped,
     labelsCount: raw.labels_count,
+    fieldSamples: raw.field_samples,
   };
 }

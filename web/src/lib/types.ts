@@ -75,4 +75,6 @@ export type Evaluation = {
   nScored: number;
   skipped: string[];
   labelsCount: number;
+  /** Per field, how many labels carry it under `expected` - each field's own denominator, not a single shared sample size. */
+  fieldSamples: Record<string, number>;
 };

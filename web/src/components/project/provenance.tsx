@@ -16,15 +16,15 @@ export function Provenance({ statusDocument, latestDocument }: { statusDocument:
         ) : (
           "Ningún documento resuelve el expediente; el estado queda sin determinar."
         )}{" "}
-        La potencia y la superficie son las del documento más reciente que las cita
+        La potencia y la superficie son las últimas citadas: cada una se toma del documento más reciente que la menciona, no
+        necesariamente el mismo para las dos.
         {latestDocument?.confidence !== null && latestDocument?.confidence !== undefined ? (
           <>
-            ; la confianza declarada por el modelo para ese documento es{" "}
+            {" "}
+            La confianza declarada por el modelo para el documento más reciente del proyecto es{" "}
             <span className="dato">{formatScore(latestDocument.confidence)}</span>.
           </>
-        ) : (
-          "."
-        )}{" "}
+        ) : null}{" "}
         La precisión medida de la extracción está en <Link href="/metodologia">Metodología</Link>.
       </p>
     </section>

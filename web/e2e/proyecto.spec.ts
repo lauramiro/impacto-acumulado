@@ -6,8 +6,13 @@ test("project page shows the record, the timeline and which document fixed the s
   await expect(page.getByRole("region", { name: "Ficha", exact: true })).toBeVisible();
   await expect(page.getByRole("region", { name: /^Documentos/ })).toBeVisible();
   await expect(page.getByTestId("fija-estado")).toHaveCount(1);
-  await expect(page.getByTestId("agrupado")).toHaveCount(2);
-  await expect(page.getByTestId("agrupado").first()).toContainText("Agrupado con confianza");
+  // agrupado's count reflects how many documents got grouped into this
+  // project, which shifts as the weekly workflow commits fresh data to
+  // main; pin only that at least one mark is present, not the exact count,
+  // so a routine regrouping does not break the weekly run.
+  const agrupado = page.getByTestId("agrupado");
+  expect(await agrupado.count()).toBeGreaterThan(0);
+  await expect(agrupado.first()).toContainText("Agrupado con confianza");
   expect(await page.locator("a[href^='https://www.boe.es/']").count()).toBeGreaterThan(0);
   await expect(page.getByRole("link", { name: /Jerez de la Frontera/ })).toHaveAttribute("href", "/municipio/11020");
   await expect(page.getByRole("region", { name: "Cómo se ha construido esta ficha" })).toBeVisible();

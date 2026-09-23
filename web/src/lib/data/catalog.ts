@@ -20,7 +20,7 @@ export const CATALOG: CatalogEntry[] = [
       { name: "mw_nominal", type: "decimal", meaning: "Potencia nominal en MW; vacío si no consta" },
       { name: "hectares", type: "decimal", meaning: "Superficie en hectáreas; vacío si no consta" },
       { name: "turbines", type: "entero", meaning: "Aerogeneradores; vacío si no consta" },
-      { name: "status_document_id", type: "entero", meaning: "id en documents.csv del documento que fija el estado" },
+      { name: "status_document_id", type: "entero", meaning: "id en documents.csv del documento que fija el estado, o el más reciente si ninguno lo fija (status = desconocido)" },
       { name: "first_seen", type: "fecha", meaning: "Primera publicación (AAAA-MM-DD)" },
       { name: "last_seen", type: "fecha", meaning: "Última publicación (AAAA-MM-DD)" },
       { name: "municipalities", type: "texto", meaning: "Nombres de municipio separados por punto y coma" },

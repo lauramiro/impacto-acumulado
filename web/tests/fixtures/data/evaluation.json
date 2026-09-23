@@ -4,5 +4,6 @@
   "n_labels": 20,
   "n_scored": 20,
   "skipped": [],
-  "labels_count": 20
+  "labels_count": 20,
+  "field_samples": { "doc_type": 20, "verdict": 20, "developer": 18, "technology": 20, "mw_nominal": 20, "municipalities": 20 }
 }

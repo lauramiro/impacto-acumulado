@@ -54,10 +54,27 @@ describe("loaders", () => {
     expect(ev.provider).toBe("mistral:ministral-14b-latest");
     expect(ev.accuracy["mw_nominal"]).toBe(0.8);
     expect(ev).toMatchObject({ nLabels: 20, nScored: 20, labelsCount: 20, skipped: [] });
+    // field_samples carries each field's own denominator (e.g. developer is
+    // scored over 18 labels, not the 20 every other field in this fixture
+    // uses), distinct from the single n_scored figure.
+    expect(ev.fieldSamples).toEqual({ doc_type: 20, verdict: 20, developer: 18, technology: 20, mw_nominal: 20, municipalities: 20 });
   });
 
   it("rejects an evaluation with more scored than labelled", () => {
-    const result = EvaluationSchema.safeParse({ provider: "x", accuracy: {}, n_labels: 1, n_scored: 2, skipped: [], labels_count: 1 });
+    const result = EvaluationSchema.safeParse({
+      provider: "x",
+      accuracy: {},
+      n_labels: 1,
+      n_scored: 2,
+      skipped: [],
+      labels_count: 1,
+      field_samples: {},
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an evaluation missing field_samples", () => {
+    const result = EvaluationSchema.safeParse({ provider: "x", accuracy: {}, n_labels: 1, n_scored: 1, skipped: [], labels_count: 1 });
     expect(result.success).toBe(false);
   });
 

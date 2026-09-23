@@ -69,7 +69,8 @@ export default async function MethodologyPage() {
       <p data-testid="muestra">
         Medida con <span className="dato">{ev.provider}</span> sobre {formatInt(ev.nScored)} documentos etiquetados a mano
         {ev.skipped.length > 0 ? ` (${formatInt(ev.skipped.length)} más no pudieron evaluarse)` : ""}, de un conjunto de{" "}
-        {formatInt(ev.labelsCount)}. Las{" "}
+        {formatInt(ev.labelsCount)}. Cada campo se mide solo sobre las etiquetas que lo llevan, así que la muestra varía por
+        campo; la columna «Muestra» de la tabla la indica para cada uno. Las{" "}
         <a href={`${REPO_URL}/tree/main/pipeline/evaluation/labels`} rel="noopener">
           etiquetas
         </a>{" "}
@@ -80,17 +81,20 @@ export default async function MethodologyPage() {
           <tr>
             <th scope="col">Campo</th>
             <th scope="col" className={styles.num}>Aciertos</th>
+            <th scope="col" className={styles.num}>Muestra</th>
           </tr>
         </thead>
         <tbody>
           {fields.map((f) => {
             const acc = ev.accuracy[f]!;
+            const sample = ev.fieldSamples[f];
             return (
               <tr key={f}>
                 <th scope="row">{FIELD_LABELS[f] ?? f}</th>
                 <td className={`${styles.num} ${acc < ALERT_BELOW ? styles.alerta : ""}`}>
                   <Figure value={formatPercent(acc)} />
                 </td>
+                <td className={styles.num}>{sample !== undefined ? <Figure value={formatInt(sample)} /> : "—"}</td>
               </tr>
             );
           })}
@@ -121,6 +125,12 @@ export default async function MethodologyPage() {
       <ul>
         <li>Los boletines provinciales (BOP) y los proyectos de menos de 50 MW que no pasan por el BOJA.</li>
         <li>La geometría de las plantas: la localización es a nivel de municipio.</li>
+        <li>
+          El registro antes de 2022 es muy escaso: el backfill reúne <Figure value={formatInt(4)} /> documentos de 2019,{" "}
+          <Figure value={formatInt(1)} /> de 2020 y <Figure value={formatInt(0)} /> de 2021, frente a{" "}
+          <Figure value={formatInt(303)} /> solo en 2023. Un total por municipio o provincia que incluya esos años no debe
+          leerse como completo.
+        </li>
         <li>
           Lo que el extractor no lee bien; la lista de problemas conocidos está en el{" "}
           <a href={`${REPO_URL}/blob/main/docs/sources.md`} rel="noopener">
