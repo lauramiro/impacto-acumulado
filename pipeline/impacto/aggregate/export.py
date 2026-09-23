@@ -228,6 +228,23 @@ def export_provinces_geojson(conn, out_dir: Path) -> Path:
     return _write_feature_collection(out_dir / "provinces.geojson", features)
 
 
+def _field_samples(labels_dir: Path, skipped: set[str]) -> dict[str, int]:
+    # run_eval scores each field only over the labels that carry it (a label
+    # with no `expediente` key, say, never enters that field's denominator),
+    # prints that per-field n to stdout and drops it. It is fully recoverable
+    # from the label files themselves: replay the same per-label loop run_eval
+    # used, skipping exactly the labels run_eval skipped (a document that
+    # failed to fetch or extract contributes to no field's count either).
+    counts: dict[str, int] = {}
+    for label_path in sorted(labels_dir.glob("*.json")):
+        if label_path.name in skipped:
+            continue
+        label = json.loads(label_path.read_text(encoding="utf-8"))
+        for field in label.get("expected", {}):
+            counts[field] = counts.get(field, 0) + 1
+    return counts
+
+
 def export_evaluation(out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR) -> Path:
     # The evaluation is run by hand after labelling, not weekly; the export
     # carries the last checked result to the site. A missing run is an error,
@@ -236,6 +253,7 @@ def export_evaluation(out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path
         raise FileNotFoundError(f"evaluation result not found: {last_run}; run `impacto eval` first")
     result = json.loads(last_run.read_text(encoding="utf-8"))
     result["labels_count"] = len(list(labels_dir.glob("*.json")))
+    result["field_samples"] = _field_samples(labels_dir, set(result.get("skipped", [])))
     return _write_json(out_dir / "evaluation.json", result)
 
 

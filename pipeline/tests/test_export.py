@@ -3,6 +3,7 @@ import json
 
 import pytest
 
+from evaluation.run_eval import LABELS_DIR
 from impacto.aggregate.export import export_all, export_evaluation
 from impacto.aggregate.run import run_aggregate
 from impacto.resolve.run import run_resolve
@@ -238,6 +239,73 @@ def test_export_evaluation_copies_last_run_and_counts_labels(tmp_path):
 def test_export_evaluation_fails_loudly_without_a_run(tmp_path):
     with pytest.raises(FileNotFoundError):
         export_evaluation(tmp_path / "out", last_run=tmp_path / "missing.json", labels_dir=tmp_path)
+
+
+def test_export_evaluation_computes_field_samples_from_labels(tmp_path):
+    # run_eval prints a per-field n to stdout and drops it; export_evaluation
+    # must recompute the same denominators from the label files themselves -
+    # how many labels carry each field under `expected` - rather than quoting
+    # n_scored as a single shared sample size for every field.
+    last_run = tmp_path / "last_run.json"
+    last_run.write_text(
+        json.dumps({"provider": "stub", "accuracy": {"verdict": 1.0, "turbines": 1.0}, "n_labels": 3, "n_scored": 3, "skipped": []}),
+        encoding="utf-8",
+    )
+    labels = tmp_path / "labels"
+    labels.mkdir()
+    (labels / "a.json").write_text(json.dumps({"expected": {"verdict": "favorable", "turbines": 2}}), encoding="utf-8")
+    (labels / "b.json").write_text(json.dumps({"expected": {"verdict": "desfavorable"}}), encoding="utf-8")
+    (labels / "c.json").write_text(json.dumps({"expected": {"verdict": "favorable"}}), encoding="utf-8")
+    out = tmp_path / "out"
+    path = export_evaluation(out, last_run=last_run, labels_dir=labels)
+    written = json.loads(path.read_text(encoding="utf-8"))
+    assert written["field_samples"] == {"verdict": 3, "turbines": 1}
+
+
+def test_export_evaluation_excludes_skipped_labels_from_field_samples(tmp_path):
+    # A label run_eval skipped (its document failed to fetch or extract)
+    # contributed to no field's count; the export must not count it either.
+    last_run = tmp_path / "last_run.json"
+    last_run.write_text(
+        json.dumps({"provider": "stub", "accuracy": {"verdict": 1.0}, "n_labels": 2, "n_scored": 1, "skipped": ["b.json"]}),
+        encoding="utf-8",
+    )
+    labels = tmp_path / "labels"
+    labels.mkdir()
+    (labels / "a.json").write_text(json.dumps({"expected": {"verdict": "favorable"}}), encoding="utf-8")
+    (labels / "b.json").write_text(json.dumps({"expected": {"verdict": "favorable"}}), encoding="utf-8")
+    out = tmp_path / "out"
+    path = export_evaluation(out, last_run=last_run, labels_dir=labels)
+    written = json.loads(path.read_text(encoding="utf-8"))
+    assert written["field_samples"] == {"verdict": 1}
+
+
+def test_export_evaluation_field_samples_match_the_real_labels(tmp_path):
+    # The real labels directory (pipeline/evaluation/labels), against the
+    # denominators the controller verified by hand: doc_type, verdict,
+    # technology, mw_nominal and municipalities 20; developer 18; project_name
+    # 15; expediente 8; mw_peak 4; hectares 4; turbines 2.
+    last_run = tmp_path / "last_run.json"
+    last_run.write_text(
+        json.dumps({"provider": "stub", "accuracy": {}, "n_labels": 20, "n_scored": 20, "skipped": []}),
+        encoding="utf-8",
+    )
+    out = tmp_path / "out"
+    path = export_evaluation(out, last_run=last_run, labels_dir=LABELS_DIR)
+    written = json.loads(path.read_text(encoding="utf-8"))
+    assert written["field_samples"] == {
+        "doc_type": 20,
+        "verdict": 20,
+        "technology": 20,
+        "mw_nominal": 20,
+        "municipalities": 20,
+        "developer": 18,
+        "project_name": 15,
+        "expediente": 8,
+        "mw_peak": 4,
+        "hectares": 4,
+        "turbines": 2,
+    }
 
 
 def test_meta_lists_every_export_with_rows_and_bytes(db, fixtures_dir, tmp_path):
