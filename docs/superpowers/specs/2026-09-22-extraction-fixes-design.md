@@ -24,6 +24,13 @@ approval and every milestone.
   moves the eval runner's default output off `last_run.json`, because
   `export` (run weekly) copies that file to the site. Nothing implemented
   yet. Slice 3 of the web design waits for this slice.
+- 2026-09-23: checked against production before planning. The fifteen
+  stored `v3` names replace the capture run (section 1b); two of the nine
+  misses are head misses outside the trimmer's contract, so the gate is
+  seven fixed, two tail-only, six unchanged. The simplified-form rule reads
+  the resolving part, because `formula informe de impacto ambiental` is only
+  in the title (section 2b). Plan written at
+  `docs/superpowers/plans/2026-09-23-extraction-fixes.md`.
 
 ## The baseline this is designed against
 
@@ -105,14 +112,14 @@ because the sections are not in this order:
 
 ## Implementation order
 
-Cost order is not build order. Section 3 comes first because section 1
-depends on its output:
+Cost order is not build order. Section 3 comes first because every later
+eval run depends on it writing somewhere other than the published file:
 
-1. **Section 3**, miss persistence, then a miss-capture eval run to
-   regenerate the nine `project_name` pairs.
+1. **Section 3**, miss persistence and the output path. No capture run: the
+   nine `project_name` pairs are read from production instead (section 1b).
 2. **Section 1c**, the `name_key` fix. Independent of everything and repairs
    live data on its own.
-3. **Section 1b**, the trimmer, derived from the captured pairs.
+3. **Section 1b**, the trimmer, derived from the production pairs.
 4. **Section 2a and 2b**, in either order.
 5. **Section 4**, the prompt half, last, after 1 to 3 are green.
 6. A final eval run to record the after-figure, written to
@@ -135,12 +142,6 @@ tuning figure on the next weekly run. Section 3 therefore removes the path
 instead: after it lands, no code path writes `last_run.json`. It is frozen
 as the published baseline until a later slice writes new labels and
 replaces it deliberately.
-
-A capture run is a fresh model run, so its miss strings may differ from the
-original 18. That is acceptable for deriving the trimmer, which needs a
-representative sample of tails rather than those exact strings, and the
-validation gate in section 1b is defined over all 15 label pairs regardless
-of which ones a given run fails.
 
 ### Deliberately out of scope
 
@@ -228,25 +229,28 @@ Contract, fixed by this spec:
 - **Must not cut** a trailing phase marker, nor a trailing number with no
   unit after it. `"Parque fotovoltaico Tabernas 100"` survives intact.
 
-The exact cut patterns are **derived during implementation** from the nine
-expected-versus-got pairs. The spec fixes the contract and the gate; it does
-not guess regexes.
+The exact cut patterns are derived from the fifteen expected-versus-got
+pairs. Added 2026-09-23: those pairs are the `project_name` values stored in
+production for the fifteen labelled documents, which were extracted with the
+same model (`mistral:ministral-14b-latest`) and prompt (`v3`) as the
+baseline. They contain exactly nine misses, matching the baseline's 40%, so
+they stand in for the capture run the first version of this spec planned.
+The plan copies them verbatim into `tests/test_names.py`.
 
-Those pairs are not currently reachable in this worktree - they exist only in
-the controller session's `$TMP/eval-misses.txt`. **Section 3 is therefore
-implemented first**, and a miss-capture eval run regenerates them. Ordering
-the sections this way removes the circularity of needing the file that
-section 3 creates; see "Implementation order".
+Two of the nine are head misses the contract forbids fixing:
+`"Proyecto de parque fotovoltaico Tabernas Solar 3 de 35 MWP y su
+infraestructura de evacuación"` (label `"Tabernas Solar 3"`) and
+`"Repotenciación del Parque Eólico Carrascal I"` (label `"Parque Eólico
+Carrascal I"`). Suffix removal cannot reach either, and the first keeps its
+head after its tail is cut.
 
-If `$TMP/eval-misses.txt` is pasted or committed before implementation
-starts, that supersedes the capture run and section 3 can move back to its
-cost-ordered position.
-
-**Validation gate.** On the nine failing pairs the trimmer must produce the
-label string, and on the six that already pass it must be a no-op. The second
-half is the real test: a trimmer that fixes nine and breaks one of the six is
-+8 on this set and has still demonstrated it eats real names. That is a fail,
-not a trade.
+**Validation gate.** On the seven tail-only misses the trimmer must produce
+the label string. On the two head misses it must remove only the tail (the
+first becomes `"Proyecto de parque fotovoltaico Tabernas Solar 3"`, the
+second is unchanged), and they stay misses. On the six that already pass it
+must be a no-op. The last condition is the real test: a trimmer that fixes
+seven and breaks one of the six has demonstrated it eats real names. That is
+a fail, not a trade.
 
 **Exit.** If the pairs support no rule meeting the safety property, this item
 drops to the prompt half rather than shipping a rule that guesses. Naming the
@@ -310,11 +314,21 @@ has nothing to match, and the model returned `otro` / `no_aplica`.
 Add two branches to `operative.py`, both from the Ley 21/2013 wording rather
 than from this one document:
 
-- `formula informe de impacto ambiental` ... `no es necesario el
-  sometimiento` -> `informe_impacto` / `favorable_condicionada`
-- the same opening followed by a requirement to undergo ordinary evaluation
+- `no es necesario el sometimiento al procedimiento de evaluación ambiental
+  ordinaria` -> `informe_impacto` / `favorable_condicionada`
+- a requirement to undergo ordinary evaluation (`es necesario el
+  sometimiento ...`, `debe someterse a ... evaluación ... ordinaria`)
   -> `informe_impacto` / `no_aplica`, because that report routes the
   procedure and says nothing about the project's effects
+
+Corrected 2026-09-23 against the stored text: `formula informe de impacto
+ambiental` appears only in the title, which `find_operative` never sees, so
+the rule cannot anchor on it. The body carries both halves of the form in
+its legal grounds (article 47: "si el proyecto debe someterse a una
+evaluación de impacto ambiental ordinaria ... o si por el contrario no es
+necesario dicho procedimiento") before the operative sentence. Both
+branches are therefore read only inside the resolving part, after the last
+resolving marker, exactly as the AAU verbs already are.
 
 The second branch is not in the label set and will not move the number. It
 exists because writing only the favourable branch would make the rule assert
@@ -422,12 +436,10 @@ Known consequences, accepted:
 ## Testing
 
 Unit tests only. No eval run *verifies* sections 1, 2 or 3 - a unit test is
-the instrument for all three. The miss-capture run in step 1 of the
-implementation order is data gathering, not verification, and its accuracy
-output is discarded.
+the instrument for all three.
 
 - `tests/test_names.py` (new): `trim_project_name` against all 15 label
-  pairs - nine corrected, six unchanged.
+  pairs - seven corrected, two head misses tail-trimmed only, six unchanged.
 - `tests/test_operative.py`: both branches of the simplified form; existing
   cases must not regress.
 - `tests/test_validate.py`: the role split, including `role = None` staying
