@@ -31,6 +31,105 @@ approval and every milestone.
   the resolving part, because `formula informe de impacto ambiental` is only
   in the title (section 2b). Plan written at
   `docs/superpowers/plans/2026-09-23-extraction-fixes.md`.
+- 2026-09-24: Task 6 (section 4, the prompt half). Step 1's eval against
+  production, with sections 1 through 3 and section 2a's role bullet all
+  live, regressed 8 pairs against the `last_run.json` (`v3`) baseline that
+  section 4 had not yet touched:
+  `[('BOE-A-2022-18089','mw_nominal'), ('BOE-A-2023-19635','municipalities'),
+  ('BOE-A-2023-2580','municipalities'), ('BOE-A-2023-2580','mw_nominal'),
+  ('BOE-A-2023-2907','technology'), ('BOE-A-2025-24233','technology'),
+  ('BOE-A-2026-3880','mw_nominal'), ('disposition.2023.19.81','municipalities')]`,
+  the brief's own stop condition. A diagnostic (with only the section 2a
+  `municipalities` bullet swapped for its pre-`ae893e9` wording, everything
+  else held at HEAD, then restored) isolated the cause: reverting only that
+  bullet collapsed NEW from 8 to 1 (`BOE-A-2022-15703/hectares`, on a field
+  the bullet cannot touch - ordinary run-to-run noise), while an identical
+  rerun of the unreverted HEAD code produced a *different* 8-pair NEW set
+  (2 of 8 pairs churned between the two draws), confirming the bullet, not
+  variance, was the dominant cause. Per-field accuracy across the three
+  diagnostic runs (before_prompt HEAD / HEAD rerun / reverted bullet):
+  municipalities 0.75 / 0.80 / 0.80, mw_nominal 0.80 / 0.80 / 0.90,
+  technology 0.85 / 0.90 / 0.95. NEW-pair count: 8 / 8 / 1. Across every
+  visible (missed) `municipalities` entry in all three runs the model never
+  once tagged a municipality `"evacuacion"` - the role split moved nothing
+  in this eval. By user decision, section 2a's prompt wording (the
+  `municipalities` bullet asking for a `role`) was dropped and restored to
+  its exact pre-`ae893e9` (`v3`) text; the plumbing it added -
+  `Municipality.role`, `Extraction.evacuation_municipalities`, the
+  `_sanitize` role handling, and the `validate_and_score` split - stays,
+  inert until a later prompt actually requests tags (Step 0 commit
+  `535f422`, full suite 174 passed).
+
+  With that reverted, Step 1 onward used a variance-aware acceptance rule
+  (single-run comparisons are too noisy at n=20 and temperature 0 is not
+  fully deterministic on this provider): any non-empty `NEW` from
+  `compare_misses.py` is rerun once to a second output path, and a pair
+  counts as a regression only when it is `NEW` in both runs. Step 1's rerun
+  (post-revert) came back with `NEW` empty on the first draw, so it
+  proceeded directly to Step 2.
+
+  Section 4's prompt text (the "instalaciones objeto de esta evaluación"
+  paragraph, directly after the capacity bullet) went through three
+  revisions against this rule, each revision's acceptance requiring
+  recurring `NEW` empty AND the three target misses
+  (`BOE-A-2022-15703/technology`, `BOE-A-2022-15703/mw_nominal`,
+  `BOE-A-2023-2907/mw_nominal`) fixed in both runs of that revision:
+  - Revision 0 (brief's exact text): recurring `NEW`
+    `{(BOE-A-2022-15703,mw_peak), (BOE-A-2023-2907,technology)}` - not
+    accepted.
+  - Revision 1 (added the "hibrida only when several new installations of
+    different technology" clause; scoped the solicitud-inicial/descripción-
+    final substitution to "the same field, not copied to another field"):
+    recurring `NEW` `{(disposition.2025.63.37,technology),
+    (disposition.2026.125.87,mw_nominal)}`, and
+    `BOE-A-2022-15703/technology` was not fixed in either run of this
+    revision - not accepted.
+  - Revision 2 (made explicit that hybridising with an existing installation
+    is never "hibrida", even when the text says "hibridación"; reworded the
+    multi-new-technology clause as its own sentence): all three targets
+    fixed in both runs, but recurring `NEW`
+    `{(BOE-A-2023-2907,technology), (disposition.2023.221.80,technology)}` -
+    not accepted. (One of this revision's two verification runs hit a Neon
+    dropped-idle-connection error mid-run with no output produced - a known
+    infrastructure issue, not a data point - and was retried.)
+  - Revision 3 (kept revision 2's explicit "never hibrida when hybridising
+    with an existing installation" wording, reverted to revision 1's
+    connective phrasing for the multi-new-technology clause): all three
+    targets fixed in both runs and `technology` scored 100% in both runs,
+    but recurring `NEW` `{(BOE-A-2022-15703,mw_peak),
+    (BOE-A-2022-18089,mw_nominal), (BOE-A-2023-17621,mw_nominal)}` - still
+    not accepted.
+
+  Three revisions is the brief's limit. Section 4's prompt text and its
+  Step 2 test were reverted to byte-identical `v3` wording (verified by
+  diff against `pipeline/impacto/extract/prompts.py` at `87385d6`), and
+  `impacto eval --provider mistral` was rerun so `tuned_run.json` reflects
+  the shipped code. **Section 4 did not ship.** The two Retuerta
+  (`BOE-A-2022-15703`) and `BOE-A-2023-2907` misses the section targeted
+  remain in the tuning set, unresolved by this slice.
+
+  Before/after (Task 6 start, i.e. after Tasks 1-5 and the section-2a
+  revert, vs. the final shipped-code run) against the `v3` baseline:
+  FIXED `[('BOE-A-2022-15703','project_name'), ('BOE-A-2022-18089','project_name'),
+  ('BOE-A-2024-16661','project_name'), ('BOE-A-2025-24233','doc_type'),
+  ('BOE-A-2025-24233','verdict'), ('disposition.2024.38.48','project_name'),
+  ('disposition.2025.23.46','project_name'), ('disposition.2025.63.37','project_name'),
+  ('disposition.2026.125.87','project_name')]`; STILL MISSED
+  `[('BOE-A-2022-15703','mw_nominal'), ('BOE-A-2022-15703','technology'),
+  ('BOE-A-2022-18089','municipalities'), ('BOE-A-2023-19636','municipalities'),
+  ('BOE-A-2023-2422','municipalities'), ('BOE-A-2023-2907','mw_nominal'),
+  ('BOE-A-2026-3880','municipalities'), ('disposition.2025.144.69','project_name'),
+  ('disposition.2026.142.33','project_name')]`; two pairs of ordinary
+  run-to-run noise on the final confirmation run
+  (`BOE-A-2022-15703/hectares`, `BOE-A-2023-2580/mw_nominal`), neither
+  recurring across the revision history above. Full per-field accuracy on
+  the final shipped-code run is in `pipeline/evaluation/tuned_run.json` and
+  quoted in `docs/sources.md`.
+
+  Commit hashes: Task 1 `476ab6b`, Task 2 `37928de`, Task 3 `87385d6`,
+  Task 4 `ae893e9`, Task 5 `356fb7e`, Task 7 `5ac5b83`, Task 6 Step 0
+  (section 2a prompt revert) `535f422`, Task 6 (this entry, section 4
+  measured and dropped) is the commit that carries this progress-log entry.
 
 ## The baseline this is designed against
 

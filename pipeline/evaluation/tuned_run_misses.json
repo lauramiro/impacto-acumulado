@@ -1,0 +1,160 @@
+[
+  {
+    "source_id": "BOE-A-2022-15703",
+    "field": "technology",
+    "expected": "solar_fv",
+    "actual": "hibrida"
+  },
+  {
+    "source_id": "BOE-A-2022-15703",
+    "field": "mw_nominal",
+    "expected": 38,
+    "actual": 76.0
+  },
+  {
+    "source_id": "BOE-A-2022-15703",
+    "field": "hectares",
+    "expected": 121.56,
+    "actual": 67.2
+  },
+  {
+    "source_id": "BOE-A-2022-18089",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Guadalcázar",
+        "province": "Córdoba"
+      },
+      {
+        "name": "Fuente Palmera",
+        "province": "Córdoba"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Fuente Palmera",
+        "province": "Córdoba",
+        "role": null
+      },
+      {
+        "name": "Guadalcázar",
+        "province": "Córdoba",
+        "role": null
+      },
+      {
+        "name": "Almodóvar del Río",
+        "province": "Córdoba",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "BOE-A-2023-19636",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Alcalá del Valle",
+        "province": "Cádiz"
+      },
+      {
+        "name": "Setenil de las Bodegas",
+        "province": "Cádiz"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Alcalá del Valle",
+        "province": "Cádiz",
+        "role": null
+      },
+      {
+        "name": "Torre Alháquime",
+        "province": "Cádiz",
+        "role": null
+      },
+      {
+        "name": "Setenil de las Bodegas",
+        "province": "Cádiz",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "BOE-A-2023-2422",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Alcalá del Valle",
+        "province": "Cádiz"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Alcalá del Valle",
+        "province": "Cádiz",
+        "role": null
+      },
+      {
+        "name": "Cañete la Real",
+        "province": "Málaga",
+        "role": null
+      },
+      {
+        "name": "El Burgo",
+        "province": "Málaga",
+        "role": null
+      },
+      {
+        "name": "Casarabonela",
+        "province": "Málaga",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "BOE-A-2023-2580",
+    "field": "mw_nominal",
+    "expected": 801,
+    "actual": 740.43
+  },
+  {
+    "source_id": "BOE-A-2023-2907",
+    "field": "mw_nominal",
+    "expected": 326,
+    "actual": 346.0
+  },
+  {
+    "source_id": "BOE-A-2026-3880",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Jerez de la Frontera",
+        "province": "Cádiz"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Jerez de la Frontera",
+        "province": "Cádiz",
+        "role": null
+      },
+      {
+        "name": "Puerto Real",
+        "province": "Cádiz",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "disposition.2025.144.69",
+    "field": "project_name",
+    "expected": "Tabernas Solar 3",
+    "actual": "Proyecto de parque fotovoltaico Tabernas Solar 3"
+  },
+  {
+    "source_id": "disposition.2026.142.33",
+    "field": "project_name",
+    "expected": "Parque Eólico Carrascal I",
+    "actual": "Repotenciación del Parque Eólico Carrascal I"
+  }
+]

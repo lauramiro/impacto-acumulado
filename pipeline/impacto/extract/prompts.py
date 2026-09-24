@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-# v4: names trimmed of descriptive tails, the simplified-evaluation form
-# read by rule, and the installations under evaluation told apart from
-# existing ones. Re-extract v3 rows with
+# v4: names trimmed of descriptive tails and the simplified-evaluation form
+# read by rule. Re-extract v3 rows with
 # `impacto extract --redo-prompt-version v3`.
 PROMPT_VERSION = "v4"
 
