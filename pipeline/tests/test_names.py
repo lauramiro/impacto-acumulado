@@ -2,6 +2,8 @@ import pytest
 
 from evaluation.run_eval import score
 from impacto.extract.names import trim_project_name
+from impacto.resolve.blocking import name_key
+from impacto.resolve.scoring import phase_token  # last-token phase reader
 
 # (source_id, stored v3 extraction, label). Seven misses are descriptive tails.
 TAIL_MISSES = [
@@ -65,3 +67,18 @@ def test_contract_keeps_numbers_and_phases_that_are_part_of_the_name(name):
 
 def test_a_cut_that_would_empty_the_name_is_not_made():
     assert trim_project_name("de 50 MW") == "de 50 MW"
+
+
+def test_unit_after_a_short_trailing_number_is_kept():
+    # A 1- or 2-digit trailing number left bare is read by resolve as a
+    # phase marker (PHASE matches \d{1,2}), which would re-create the
+    # phase_mismatch block the name_key capacity fix closed.
+    name = "Parque eolico Ronda II 50 MW"
+    assert trim_project_name(name) == name
+    assert phase_token(trim_project_name(name)) == "ii"
+
+
+def test_unit_after_a_decimal_tail_is_kept():
+    name = "PSFV Carmona 49,9 MWp"
+    assert trim_project_name(name) == name
+    assert name_key(trim_project_name(name)) == "carmona"

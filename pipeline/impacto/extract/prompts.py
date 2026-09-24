@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 # v4: names trimmed of descriptive tails and the simplified-evaluation form
-# read by rule. Re-extract v3 rows with
+# read by rule. The prompt text itself is unchanged from v3; only the
+# post-extraction rules changed. Re-extract v3 rows with
 # `impacto extract --redo-prompt-version v3`.
 PROMPT_VERSION = "v4"
 

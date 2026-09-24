@@ -14,7 +14,11 @@ Contract:
   infraestructura de evacuacion"), from the first one found to the end;
 - keeps a trailing phase marker and a trailing number with no unit after it
   ("Parque fotovoltaico Tabernas 100"); a unit directly after a trailing
-  number is dropped alone ("Tabernas 100 MW" -> "Tabernas 100").
+  integer of 3 or more digits is dropped alone ("Tabernas 100 MW" ->
+  "Tabernas 100"), because a shorter number left bare would be read by
+  resolve as a phase marker (resolve's PHASE matches \\d{1,2}); a unit
+  after a shorter trailing number, or after the decimal tail of any
+  number, is kept ("Ronda II 50 MW", "Carmona 49,9 MWp").
 """
 
 from __future__ import annotations
@@ -31,10 +35,16 @@ _TAILS = (
         re.IGNORECASE,
     ),
 )
-_TRAILING_UNIT = re.compile(rf"(?<=\d)\s*{_UNIT}\s*$", re.IGNORECASE)
+# A 1- or 2-digit number left bare at the end of a name is read by resolve
+# as a phase marker (PHASE matches \d{1,2}), which blocks grouping. Only a
+# trailing integer of 3+ digits is unambiguous with a phase marker, so the
+# unit is dropped after that alone; the digit run must not be preceded by a
+# decimal separator, since a decimal's fractional tail is never a phase-safe
+# integer regardless of its length.
+_TRAILING_UNIT = re.compile(rf"(?<![.,])(\d{{3,}})\s*{_UNIT}\s*$", re.IGNORECASE)
 
 
 def trim_project_name(name: str) -> str:
     cut = min((m.start() for pattern in _TAILS if (m := pattern.search(name))), default=len(name))
-    trimmed = _TRAILING_UNIT.sub("", name[:cut]).rstrip(" ,;:-")
+    trimmed = _TRAILING_UNIT.sub(r"\1", name[:cut]).rstrip(" ,;:-")
     return trimmed or name
