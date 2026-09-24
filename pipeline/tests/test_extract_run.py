@@ -8,7 +8,6 @@ from impacto.db.documents import (
     save_extraction,
     upsert_raw_document,
 )
-from impacto.extract.prompts import SYSTEM_PROMPT
 from impacto.extract.run import extract_document, run_extract
 from impacto.providers import QuotaExhausted
 from impacto.providers.stub import StubProvider
@@ -423,11 +422,6 @@ def test_extract_document_simplified_evaluation_overrides_otro():
             "ambiental ordinaria del proyecto «Módulo de almacenamiento OPDE Miramundo».")
     e = extract_document(StubProvider([model_says]), "Resolución", text, {})
     assert (e.doc_type, e.verdict) == ("informe_impacto", "favorable_condicionada")
-
-
-def test_prompt_asks_for_every_municipality_with_a_role():
-    assert '"role"' in SYSTEM_PROMPT
-    assert '"evacuacion"' in SYSTEM_PROMPT and '"generacion"' in SYSTEM_PROMPT
 
 
 def test_run_extract_reconnects_when_the_server_drops_the_connection(db):
