@@ -1,7 +1,7 @@
 # Extraction fixes measured against the 20-label evaluation
 
 Date: 2026-09-22
-Status: spec written, pre-implementation
+Status: implemented on branch worktree-extraction-fixes; production re-run (section 5) pending
 Parent design: [2026-09-18-impacto-acumulado-design.md](2026-09-18-impacto-acumulado-design.md)
 Related slice: [2026-09-22-web-slice-2-design.md](2026-09-22-web-slice-2-design.md), which
 produced the labels and the baseline this spec is designed against, and which
@@ -134,6 +134,25 @@ approval and every milestone.
   Task 4 `ae893e9`, Task 5 `356fb7e`, Task 7 `5ac5b83`, Task 6 Step 0
   (section 2a prompt revert) `535f422`, Task 6 (this entry, section 4
   measured and dropped) is the commit that carries this progress-log entry.
+- 2026-09-24: final whole-branch review (opus, `2f983c8..3317d07`) found
+  that `impacto/extract/names.py`'s `_TRAILING_UNIT` dropped a unit after
+  any trailing number, not only a 3+-digit one, re-creating the
+  capacity-as-phase corruption section 1c had just closed: "Parque eolico
+  Ronda II 50 MW" trimmed to "...Ronda II 50", whose `name_key` is "ronda
+  ii 50" and `phase_token` "50" (`PHASE` matches `\d{1,2}`), a hard
+  `phase_mismatch` block; "PSFV Carmona 49,9 MWp" likewise lost its unit to
+  key "carmona 49 9". Fixed by dropping the unit only after an integer of 3
+  or more digits that is not the tail of a decimal, with tests
+  (`trim_project_name` and `phase_token`/`name_key` on both strings) added
+  first and confirmed failing before the fix; code commit `8cf9ac4`, full
+  suite 176 passed, ruff clean. The review also found this plan and spec
+  still described the section 2a role prompt and section 4 as shipped when
+  both were dropped during execution, and that section 5 step 5's plan text
+  had no numeric-drift check before export; this commit brings the plan and
+  spec in line with what shipped (see the notes on section 2a, section 4
+  and section 5 step 1 above, and the corresponding plan edits) and adds
+  the numeric-drift check to the plan's Task 9 Step 5. This is the commit
+  that carries this progress-log entry.
 
 ## The baseline this is designed against
 
@@ -167,6 +186,15 @@ slice 2 should publish it as it stands.
 2. `municipalities` is fixed by adding a role field the model fills, not by
    sharpening an instruction it has already ignored. The prompt has told it
    to exclude evacuation-line municipalities all along.
+
+   **Note, added 2026-09-24:** the prompt half of this decision (the
+   `municipalities` bullet asking for a `role`) was dropped during
+   execution and reverted to its exact pre-fix `v3` wording, after
+   measurement showed the model tagged every municipality `generacion` and
+   moved nothing (see the 2026-09-24 progress-log entry). The plumbing -
+   `Municipality.role`, `Extraction.evacuation_municipalities`, the
+   `_sanitize` role handling and the `validate_and_score` split - shipped
+   and stays; it is inert until a later prompt actually requests tags.
 3. ~~This slice stops at the extractor.~~ Superseded on 2026-09-23 by user
    decision: the slice carries the fixes through re-extraction, resolve,
    aggregate and export to the published site, and picks up the document
@@ -332,6 +360,17 @@ Contract, fixed by this spec:
 - **Must not cut** a trailing phase marker, nor a trailing number with no
   unit after it. `"Parque fotovoltaico Tabernas 100"` survives intact.
 
+**Note, added 2026-09-24:** the unit-after-a-trailing-number rule is
+narrower than first shipped. A unit is dropped alone only after an integer
+of 3 or more digits, never after a shorter number or after the decimal
+tail of any number. A 1- or 2-digit number left bare at the end of a name
+is read by `resolve`'s `PHASE` (`\d{1,2}`) as a phase marker, so dropping
+the unit after e.g. "Ronda II 50 MW" would have re-created the
+phase-mismatch block the `name_key` capacity fix (section 1c) closed;
+"Carmona 49,9 MWp" is likewise left whole rather than cut to "Carmona
+49,9". A 3+-digit integer cannot be misread as a phase, so its unit is
+still dropped alone ("Tabernas 100 MW" -> "Tabernas 100").
+
 The exact cut patterns are derived from the fifteen expected-versus-got
 pairs. Added 2026-09-23: those pairs are the `project_name` values stored in
 production for the fifteen labelled documents, which were extracted with the
@@ -373,6 +412,15 @@ with no LLM call.
 ## Section 2: `municipalities` and the operative rule
 
 ### 2a. `municipalities` role field
+
+**Note, added 2026-09-24:** the prompt change below (asking the model to
+return every municipality with a `role`) was dropped during execution. It
+was measured against the eval (see the 2026-09-24 progress-log entry) and
+found to move nothing - the model tagged every municipality `generacion`,
+including the four it should have excluded - and was reverted to its
+pre-fix `v3` wording. The schema and validation changes below shipped and
+stay; the model is not asked for roles. The original text is kept as
+written, since it records the decision as brainstormed.
 
 The prompt already instructs the model to exclude municipalities the
 evacuation line merely crosses. It ignored that instruction on 4 of 20
@@ -473,6 +521,16 @@ of a debugging aid.
 
 ## Section 4: The prompt half
 
+**Note, added 2026-09-24:** this section's prompt text was measured over
+three revisions against the eval (each revision's acceptance requiring an
+empty recurring `NEW` set and the three target misses fixed in both runs
+of a two-run variance check) and did not meet acceptance in any revision;
+see the 2026-09-24 progress-log entry for the per-revision `NEW` sets.
+Section 4 was dropped: the prompt text was reverted to byte-identical `v3`
+wording, and the two documents it targeted, Retuerta (`BOE-A-2022-15703`)
+and `BOE-A-2023-2907`, remain misses. The description below is kept as
+written, since it records the section as designed.
+
 Three misses, both documents already understood:
 
 - **BOE-A-2022-15703 (Retuerta)**: `"Parque Fotovoltaico Retuerta de 38 MW
@@ -500,9 +558,16 @@ Runs after the branch is merged to `main`, against Neon production, with
 `mistral` as the provider the baseline was measured on.
 
 1. **Bump `PROMPT_VERSION`** in `impacto/extract/prompts.py` from `v3` to
-   `v4`, in the same commit as the section 2a and section 4 prompt changes.
-   The trimmer and the role split change output without changing the
-   prompt text, so they ride on the same bump rather than going unversioned.
+   `v4`. **Corrected 2026-09-24:** the bump happened in Task 3, not in the
+   same commit as the section 2a and section 4 prompt changes, because
+   those two prompt changes were both dropped during execution (see the
+   notes on section 2a and section 4, and the 2026-09-24 progress-log
+   entry). What actually changes `v4` output against `v3` is the
+   project-name trimmer (section 1b), the `name_key` capacity fix (section
+   1c) and the simplified-evaluation-form rule (section 2b) - all
+   deterministic, prompt-text-independent changes - plus the inert
+   `Municipality.role` plumbing (section 2a) that the prompt does not yet
+   populate. The prompt text itself is byte-identical to `v3`.
 2. **Fetch the recovered document.** `impacto fetch --source boe --from
    2025-06-07 --to 2025-06-07` stores `BOE-A-2025-11509` (Puerto Real,
    published 2025-06-07 per `docs/sources.md`). It is extracted in step 3
@@ -516,7 +581,12 @@ Runs after the branch is merged to `main`, against Neon production, with
    (expected 638 = 72 BOE + 566 BOJA), project count against today's 347,
    the number of extractions whose `evacuation_municipalities` is non-empty,
    and the `project_id`s that disappear. An unexplained swing in the project
-   count stops the run here rather than going to the site.
+   count stops the run here rather than going to the site. **Corrected
+   2026-09-24:** since section 2a's prompt change was dropped and the model
+   is never asked for a `role`, the `evacuation_municipalities` count is
+   expected to be exactly 0; a non-zero count means the model volunteered
+   roles unprompted and must be reported to the user, not treated as the
+   fix working.
 5. `impacto resolve`, `impacto aggregate`, `impacto export`, then commit the
    exported data in `web/public/data/` as the weekly workflow would.
 

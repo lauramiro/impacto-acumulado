@@ -4,7 +4,7 @@
 
 **Goal:** Fix the extractor misses measured by the 20-label evaluation (project-name tails, evacuation-only municipalities, the simplified-evaluation form, two capacity misreads), repair resolve's phase guard, keep eval runs off the published accuracy file, then re-extract production and republish the dataset.
 
-**Architecture:** Deterministic fixes live in the pipeline's extract and resolve packages and are verified by unit tests: a suffix-only name trimmer, a capacity-stripping `name_key`, a `role` field that moves evacuation-only municipalities into their own list, and two new operative-sentence branches. The prompt half is verified by an eval run whose output goes to `tuned_run.json`, never to the published `last_run.json`. The production re-run bumps `PROMPT_VERSION` to `v4` and reuses the existing `--redo-prompt-version` path.
+**Architecture:** Deterministic fixes live in the pipeline's extract and resolve packages and are verified by unit tests: a suffix-only name trimmer, a capacity-stripping `name_key`, a `role` field that moves evacuation-only municipalities into their own list, and two new operative-sentence branches. The prompt half is verified by an eval run whose output goes to `tuned_run.json`, never to the published `last_run.json`. The production re-run bumps `PROMPT_VERSION` to `v4` and reuses the existing `--redo-prompt-version` path. **Note, added 2026-09-24:** two prompt-text changes described below were dropped during execution after measurement against the eval - the `municipalities` role bullet (Task 4, spec section 2a) and the installations-under-evaluation paragraph (Task 6, spec section 4). Both were reverted to byte-identical `v3` wording; the `role` schema and validation plumbing shipped and stays, inert. See the spec's notes on section 2a and section 4, and its 2026-09-24 progress-log entry, for the measurements that led to dropping them.
 
 **Tech Stack:** Python 3.12, uv, pytest, pydantic v2, psycopg 3, rapidfuzz; Mistral `ministral-14b-latest` for the eval and the re-run; Neon Postgres; Next.js 16 and Playwright for the one web sentence.
 
@@ -1186,7 +1186,17 @@ with connect(load_settings().db_dsn) as conn, conn.cursor() as cur:
     docs = {r["source"]: r["n"] for r in cur.fetchall()}
     cur.execute("SELECT payload->>'doc_type' AS t, count(*) AS n FROM extractions WHERE status = 'ok' GROUP BY 1 ORDER BY 1")
     types = {r["t"]: r["n"] for r in cur.fetchall()}
-print(json.dumps({"project_ids": ids, "documents": docs, "doc_types": types}))
+    # Per-document numeric fields, keyed by source_id, for Task 9 Step 5's
+    # numeric-drift check.
+    cur.execute("""
+        SELECT d.source_id, e.payload->>'technology' AS technology,
+               e.payload->>'mw_nominal' AS mw_nominal, e.payload->>'mw_peak' AS mw_peak,
+               e.payload->>'hectares' AS hectares
+        FROM extractions e JOIN raw_documents d ON d.id = e.document_id
+        WHERE e.status = 'ok'
+    """)
+    numeric = {r["source_id"]: dict(r) for r in cur.fetchall()}
+print(json.dumps({"project_ids": ids, "documents": docs, "doc_types": types, "numeric": numeric}))
 EOF
 ```
 
@@ -1226,7 +1236,9 @@ with connect(load_settings().db_dsn) as conn, conn.cursor() as cur:
 EOF
 ```
 
-Expected: a single row `v4 / ok / 638` and no failed documents. **If any document is `failed`, stop and report the list to the user**: restoring those rows from `pre-v4-reextract` is the user's call.
+Expected: a single row `v4 / ok / 638` and no failed documents. **If any document is `failed`, stop and report the list to the user**: restoring those rows from `pre-v4-reextract` is the user's call. **The stop also applies if any `ok` row is under a prompt version other than `v4`** (the first query's rows are not all `v4 / ok`) - that is not the clean single-row result this step expects and must be reported before continuing.
+
+**If any document ends up restored from `pre-v4-reextract` as a `v3` row** (whether from a failed re-extraction left unresolved, or a deliberate restore), the `/metodologia` sentence added in Task 7 ("los datos publicados proceden ya de la versión corregida") is partly false for that document, and this must be reported to the user before Task 9 Step 7 pushes.
 
 - [ ] **Step 5: Resolve, aggregate, and check before exporting**
 
@@ -1235,15 +1247,23 @@ uv run python -m impacto resolve
 uv run python -m impacto aggregate
 ```
 
-Then compute the after-state with the Step 2 script into `$SCRATCH/after.json`, plus:
+Then compute the after-state with the Step 2 script (with its `numeric` query, so `after.json` carries the same per-source_id `mw_nominal`/`mw_peak`/`hectares`/`technology` fields as `before.json`) into `$SCRATCH/after.json`, plus:
 
 ```sql
 SELECT count(*) FROM extractions WHERE status = 'ok' AND jsonb_array_length(payload->'evacuation_municipalities') > 0;
 ```
 
-Record in the spec's progress log: documents per source, project count before and after, the project ids that disappeared (`before - after`), doc_type counts before and after, and the evacuation count.
+Also record the model id the provider actually served, from the `provider` column of a re-extracted `ok` row (`SELECT DISTINCT provider FROM extractions WHERE prompt_version = 'v4' AND status = 'ok'`), since the eval's `mistral:ministral-14b-latest` is a request, not a guarantee.
 
-Stop and report to the user, without exporting, if any of these holds: the project count moved by more than 10% (below 312 or above 382); `informe_impacto` changed by more than a few documents without a named reason; any doc_type other than `informe_impacto` changed by more than 10%. Otherwise continue.
+Record in the spec's progress log: documents per source, project count before and after, the project ids that disappeared (`before - after`), doc_type counts before and after, the evacuation count, and the served model id.
+
+**Numeric-drift check**, comparing `before.json`'s and `after.json`'s `numeric` maps by `source_id`:
+- total `mw_nominal` per `technology` (sum across all `ok` documents of that technology, before vs. after);
+- per document, whether `mw_nominal`, `mw_peak` or `hectares` changed by more than 2%.
+
+Stop and report to the user, without exporting, if any of these holds: the project count moved by more than 10% (below 312 or above 382); `informe_impacto` changed by more than a few documents without a named reason; any doc_type other than `informe_impacto` changed by more than 10%; total `mw_nominal` for any technology moved by more than 5%; more than 10% of `ok` documents changed `mw_nominal`, `mw_peak` or `hectares` by more than 2%. Otherwise continue.
+
+**The `evacuation_municipalities` count is expected to be exactly 0**, since section 2a's prompt change was dropped and the model is never asked for a `role` (see the spec's note on section 2a). A non-zero count means the model volunteered roles unprompted and must be reported to the user, not treated as the fix working.
 
 - [ ] **Step 6: Export and commit the data**
 
@@ -1261,7 +1281,7 @@ git add ../web/public/data ../README.md ../docs/superpowers/specs/2026-09-22-ext
 git commit -m "data: re-extract with prompt v4, resolve and export
 
 <one line each: document counts, project count before -> after, retired
-project ids, evacuation-only municipalities now excluded>
+project ids, municipality role field present, not yet requested by the prompt>
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
