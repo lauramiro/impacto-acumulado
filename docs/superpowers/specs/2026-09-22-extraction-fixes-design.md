@@ -119,10 +119,14 @@ approval and every milestone.
   ('BOE-A-2022-18089','municipalities'), ('BOE-A-2023-19636','municipalities'),
   ('BOE-A-2023-2422','municipalities'), ('BOE-A-2023-2907','mw_nominal'),
   ('BOE-A-2026-3880','municipalities'), ('disposition.2025.144.69','project_name'),
-  ('disposition.2026.142.33','project_name')]`; two pairs of ordinary
-  run-to-run noise on the final confirmation run
-  (`BOE-A-2022-15703/hectares`, `BOE-A-2023-2580/mw_nominal`), neither
-  recurring across the revision history above. Full per-field accuracy on
+  ('disposition.2026.142.33','project_name')]`; a final single-run comparison
+  against `last_run.json`, not subject to the two-run variance rule applied to
+  revisions: `BOE-A-2022-15703/hectares` was new against the baseline but not
+  reconfirmed in a second run, while `BOE-A-2023-2580/mw_nominal` recurred as new
+  across four separate single runs at different revisions (revision 0 run 2,
+  revision 1 run 1, revision 2 run 2, post-drop confirmation), suggesting a
+  possible instability rather than noise, worth investigation in a later
+  data-quality pass. Full per-field accuracy on
   the final shipped-code run is in `pipeline/evaluation/tuned_run.json` and
   quoted in `docs/sources.md`.
 
