@@ -44,6 +44,10 @@ approval and every milestone.
   `IMPACTO_DB_DSN` in `pipeline/env.local` is not production; production
   is reached with `neon connection-string` as in the README. Next: Task 6,
   labels, month formatting and the timeline model.
+- 2026-09-28: Task 6 done (province slugs, event and sensitivity-layer
+  labels, formatMonth/formatCoverage, and the timeline series model in
+  timeline.ts; catalog.ts's municipality_stats.csv entry updated for
+  mw_count). Next: Task 7, stats cells data model and its consumers.
 
 ## The data this is designed against
 
