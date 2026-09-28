@@ -2,8 +2,11 @@ from datetime import date
 
 from impacto.aggregate.run import run_aggregate
 from impacto.db.documents import RawDocument, save_extraction, upsert_raw_document
+from impacto.reference.load import load_municipalities
 from impacto.resolve.run import run_resolve
 from tests.test_resolve_run import seed
+
+SEVILLA_SQUARE = "POLYGON((-6.0 37.3,-5.9 37.3,-5.9 37.4,-6.0 37.4,-6.0 37.3))"
 
 
 def test_aggregate_builds_stats(db, fixtures_dir):
@@ -106,3 +109,119 @@ def test_aggregate_counts_multi_municipality_project_once(db, fixtures_dir):
         pa = cur.fetchone()
     assert pm == {"project_count": 1, "mw_nominal": 10.0}
     assert pa == {"project_count": 1, "mw_nominal": 10.0, "hectares": 20.0}
+
+
+def _doc(db, source_id: str, day: date, verdict: str | None) -> int:
+    upsert_raw_document(db, RawDocument("boe", source_id, day, "t " + source_id, "u", "III", "o", "text " + source_id))
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = %s", (source_id,))
+        doc_id = cur.fetchone()["id"]
+    if verdict is not None:
+        payload = {"verdict": verdict, "confidence": 0.9}
+        save_extraction(db, doc_id, "stub", "v1", payload, 0.9, None)
+    return doc_id
+
+
+def seed_slice3(db, fixtures_dir) -> dict[str, int]:
+    """Projects written directly (no resolve), so every case is explicit:
+
+    p1 solar_fv, favorable_condicionada, 100 MW, 200 ha, Ronda (Málaga) + Sevilla (Sevilla)
+    p2 linea_evacuacion, favorable_condicionada, 40 MW, Ronda
+    p3 solar_fv, desconocido, no MW, Málaga
+    p4 eolica, en_consulta, 30 MW, no municipality
+
+    Documents: d1 consulta p1 (2023-01), d2 aau p1 favorable_condicionada (2023-06),
+    d3 aau p3 no_aplica (2023-06), d4 modificacion p1 (2023-07), d5 dia p2
+    favorable_condicionada (2023-06), d6 aau p1 with no extraction row (2023-08),
+    d7 consulta p4 (2023-02).
+    """
+    load_municipalities(db, fixtures_dir / "municipalities_sample.geojson", "CODIGO_INE", "NOMBRE", "PROVINCIA")
+    with db.cursor() as cur:
+        cur.execute(
+            "INSERT INTO municipalities (ine_code, name, province, geom, area_ha) "
+            f"VALUES ('41091', 'Sevilla', 'Sevilla', ST_Multi(ST_GeomFromText('{SEVILLA_SQUARE}', 4326)), 14000)"
+        )
+    db.commit()
+    d = {
+        "d1": _doc(db, "d1", date(2023, 1, 10), "no_aplica"),
+        "d2": _doc(db, "d2", date(2023, 6, 5), "favorable_condicionada"),
+        "d3": _doc(db, "d3", date(2023, 6, 20), "no_aplica"),
+        "d4": _doc(db, "d4", date(2023, 7, 1), "no_aplica"),
+        "d5": _doc(db, "d5", date(2023, 6, 25), "favorable_condicionada"),
+        "d6": _doc(db, "d6", date(2023, 8, 3), None),
+        "d7": _doc(db, "d7", date(2023, 2, 14), "no_aplica"),
+    }
+    projects = [
+        (1, "P1", "solar_fv", 100, 200, "favorable_condicionada", d["d2"], ["29084", "41091"]),
+        (2, "P2", "linea_evacuacion", 40, None, "favorable_condicionada", d["d5"], ["29084"]),
+        (3, "P3", "solar_fv", None, None, "desconocido", d["d3"], ["29067"]),
+        (4, "P4", "eolica", 30, None, "en_consulta", d["d7"], []),
+    ]
+    links = [
+        (1, d["d1"], "consulta"), (1, d["d2"], "aau"), (3, d["d3"], "aau"), (1, d["d4"], "modificacion"),
+        (2, d["d5"], "dia"), (1, d["d6"], "aau"), (4, d["d7"], "consulta"),
+    ]
+    with db.cursor() as cur:
+        for pid, name, tech, mw, ha, status, status_doc, ines in projects:
+            cur.execute(
+                "INSERT INTO projects (id, canonical_name, technology, mw_nominal, hectares, status, status_document_id, "
+                "first_seen, last_seen) VALUES (%s, %s, %s, %s, %s, %s, %s, '2023-01-01', '2023-08-31')",
+                (pid, name, tech, mw, ha, status, status_doc),
+            )
+            for ine in ines:
+                cur.execute("INSERT INTO project_municipalities (project_id, ine_code) VALUES (%s, %s)", (pid, ine))
+        for pid, doc_id, role in links:
+            cur.execute(
+                "INSERT INTO project_documents (project_id, document_id, role, match_score, match_reason) "
+                "VALUES (%s, %s, %s, 1.0, 'test')",
+                (pid, doc_id, role),
+            )
+        # Covers the Ronda fixture square only.
+        cur.execute(
+            "INSERT INTO protected_areas (site_code, name, type, geom) VALUES "
+            "('ES0000001', 'SIERRA', 'ZEPA', ST_Multi(ST_GeomFromText("
+            "'POLYGON((-5.25 36.75,-5.15 36.75,-5.15 36.85,-5.25 36.85,-5.25 36.75))', 4326))), "
+            "('ES0000009', 'LAGUNA', 'ZEC', ST_Multi(ST_GeomFromText("
+            "'POLYGON((-3.0 38.0,-2.9 38.0,-2.9 38.1,-3.0 38.1,-3.0 38.0))', 4326)))"
+        )
+    db.commit()
+    return d
+
+
+def _rows(db, sql: str) -> list[dict]:
+    with db.cursor() as cur:
+        cur.execute(sql)
+        return [dict(r) for r in cur.fetchall()]
+
+
+def test_evacuation_line_counts_as_project_but_not_as_mw(db, fixtures_dir):
+    seed_slice3(db, fixtures_dir)
+    run_aggregate(db)
+    ms = _rows(db, "SELECT ine_code, status, technology, project_count, mw_nominal, mw_count "
+                   "FROM municipality_stats ORDER BY ine_code, status, technology")
+    assert ms == [
+        {"ine_code": "29067", "status": "desconocido", "technology": "solar_fv", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0},
+        {"ine_code": "29084", "status": "favorable_condicionada", "technology": "linea_evacuacion", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0},
+        {"ine_code": "29084", "status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1},
+        {"ine_code": "41091", "status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1},
+    ]
+    pa = _rows(db, "SELECT site_code, status, technology, project_count, mw_nominal, mw_count "
+                   "FROM protected_area_stats ORDER BY site_code, technology")
+    assert pa == [
+        {"site_code": "ES0000001", "status": "favorable_condicionada", "technology": "linea_evacuacion", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0},
+        {"site_code": "ES0000001", "status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1},
+    ]
+    pm = _rows(db, "SELECT province, month, verdict, project_count, mw_nominal FROM province_monthly "
+                   "WHERE province = 'Málaga' AND verdict = 'favorable_condicionada'")
+    assert pm == [{"province": "Málaga", "month": date(2023, 6, 1), "verdict": "favorable_condicionada", "project_count": 2, "mw_nominal": 100.0}]
+
+
+def test_projects_for_aggregates_nulls_only_line_mw(db, fixtures_dir):
+    seed_slice3(db, fixtures_dir)
+    view = _rows(db, "SELECT id, technology, mw_nominal FROM projects_for_aggregates ORDER BY id")
+    assert view == [
+        {"id": 1, "technology": "solar_fv", "mw_nominal": 100.0},
+        {"id": 2, "technology": "linea_evacuacion", "mw_nominal": None},
+        {"id": 3, "technology": "solar_fv", "mw_nominal": None},
+        {"id": 4, "technology": "eolica", "mw_nominal": 30.0},
+    ]

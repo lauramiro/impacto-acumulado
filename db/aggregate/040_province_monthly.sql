@@ -2,6 +2,7 @@
 -- otherwise match one row per municipality, summing its mw_nominal once per
 -- municipality instead of once per project. Deduplicate to one
 -- (province, month, verdict, project) row first, then aggregate.
+-- MW comes from projects_for_aggregates (evacuation lines contribute none).
 DELETE FROM province_monthly;
 INSERT INTO province_monthly (province, month, verdict, project_count, mw_nominal)
 SELECT province, month, verdict, count(*), COALESCE(sum(mw_nominal), 0)
@@ -11,7 +12,7 @@ FROM (
          p.status AS verdict,
          p.id,
          p.mw_nominal
-  FROM projects p
+  FROM projects_for_aggregates p
   JOIN raw_documents d ON d.id = p.status_document_id
   JOIN project_municipalities pm ON pm.project_id = p.id
   JOIN municipalities m ON m.ine_code = pm.ine_code
