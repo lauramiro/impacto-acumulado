@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-28T16:54:11.111815+00:00",
+  "generated_at": "2026-09-28T21:08:29.744054+00:00",
   "counts": {
     "raw_documents": 638,
     "extractions": 638,
@@ -18,11 +18,15 @@
     },
     "municipality_stats.csv": {
       "rows": 439,
-      "bytes": 29802
+      "bytes": 30646
     },
     "province_monthly.csv": {
       "rows": 230,
-      "bytes": 10126
+      "bytes": 10123
+    },
+    "monthly_events.csv": {
+      "rows": 582,
+      "bytes": 28678
     },
     "municipalities.geojson": {
       "rows": 785,
@@ -34,15 +38,19 @@
     },
     "municipality_stats.json": {
       "rows": 244,
-      "bytes": 83882
+      "bytes": 69569
     },
     "protected_areas.geojson": {
       "rows": 197,
       "bytes": 1038193
     },
     "protected_area_stats.json": {
-      "rows": 141,
-      "bytes": 28663
+      "rows": 197,
+      "bytes": 84053
+    },
+    "province_stats.json": {
+      "rows": 9,
+      "bytes": 11527
     },
     "municipality_protected_areas.json": {
       "rows": 785,
@@ -51,6 +59,14 @@
     "provinces.geojson": {
       "rows": 8,
       "bytes": 99960
+    },
+    "sensitivity_ftv.geojson": {
+      "rows": 1,
+      "bytes": 1481681
+    },
+    "sensitivity_eol.geojson": {
+      "rows": 1,
+      "bytes": 1030382
     },
     "evaluation.json": {
       "rows": 1,

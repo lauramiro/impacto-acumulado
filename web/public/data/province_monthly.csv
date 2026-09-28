@@ -125,7 +125,7 @@ Huelva,2023-02-01,favorable_condicionada,2,32.28
 Huelva,2023-03-01,desconocido,2,0.0
 Huelva,2023-03-01,favorable_condicionada,2,17.25
 Huelva,2023-05-01,favorable_condicionada,3,204.0
-Huelva,2023-06-01,favorable_condicionada,1,46.6
+Huelva,2023-06-01,favorable_condicionada,1,0.0
 Huelva,2023-08-01,desconocido,1,51.0
 Huelva,2023-08-01,favorable_condicionada,1,96.0
 Huelva,2023-09-01,favorable_condicionada,1,27.83
@@ -146,9 +146,9 @@ Huelva,2025-05-01,favorable_condicionada,1,180.0
 Huelva,2025-06-01,en_consulta,1,0.0
 Huelva,2025-06-01,favorable_condicionada,1,39.98
 Huelva,2025-10-01,favorable_condicionada,4,139.52
-Huelva,2025-12-01,favorable_condicionada,1,20.0
+Huelva,2025-12-01,favorable_condicionada,1,0.0
 Huelva,2026-04-01,favorable_condicionada,1,209.0
-Huelva,2026-08-01,favorable_condicionada,1,90.0
+Huelva,2026-08-01,favorable_condicionada,1,0.0
 Jaén,2022-05-01,favorable_condicionada,1,149.0
 Jaén,2022-11-01,favorable_condicionada,1,0.0
 Jaén,2023-02-01,en_consulta,1,0.0
@@ -173,7 +173,7 @@ Málaga,2023-07-01,desfavorable,1,19.9
 Málaga,2023-09-01,desfavorable,1,25.12
 Málaga,2024-02-01,desconocido,2,0.0
 Málaga,2024-04-01,desconocido,2,0.0
-Málaga,2024-05-01,desconocido,1,27.0
+Málaga,2024-05-01,desconocido,1,0.0
 Málaga,2024-06-01,desconocido,2,0.0
 Málaga,2024-08-01,desconocido,1,0.0
 Málaga,2024-10-01,desfavorable,1,250.0
@@ -196,7 +196,7 @@ Sevilla,2023-02-01,desfavorable,1,56.5
 Sevilla,2023-02-01,en_consulta,1,0.0
 Sevilla,2023-02-01,favorable_condicionada,20,357.58002
 Sevilla,2023-03-01,favorable_condicionada,9,98.99
-Sevilla,2023-05-01,favorable_condicionada,3,20.0
+Sevilla,2023-05-01,favorable_condicionada,3,0.0
 Sevilla,2023-07-01,desconocido,1,150.0
 Sevilla,2023-07-01,favorable_condicionada,5,169.30301
 Sevilla,2023-11-01,favorable_condicionada,1,9.0
@@ -204,7 +204,7 @@ Sevilla,2024-01-01,favorable_condicionada,1,0.0
 Sevilla,2024-02-01,en_consulta,1,0.0
 Sevilla,2024-04-01,en_consulta,1,0.0
 Sevilla,2024-07-01,desconocido,1,0.0
-Sevilla,2024-07-01,favorable_condicionada,8,63.885
+Sevilla,2024-07-01,favorable_condicionada,8,27.219997
 Sevilla,2024-08-01,desconocido,1,0.0
 Sevilla,2024-09-01,en_consulta,1,0.0
 Sevilla,2024-10-01,en_consulta,1,0.0
@@ -220,7 +220,7 @@ Sevilla,2025-07-01,favorable_condicionada,1,24.04
 Sevilla,2025-08-01,favorable_condicionada,1,0.0
 Sevilla,2025-09-01,favorable_condicionada,1,0.0
 Sevilla,2025-10-01,favorable_condicionada,2,0.0
-Sevilla,2025-12-01,favorable_condicionada,2,20.0
+Sevilla,2025-12-01,favorable_condicionada,2,0.0
 Sevilla,2026-01-01,favorable_condicionada,2,0.0
 Sevilla,2026-02-01,favorable_condicionada,1,0.0
 Sevilla,2026-03-01,favorable_condicionada,1,0.0

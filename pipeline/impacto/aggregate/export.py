@@ -24,7 +24,7 @@ LABELS_DIR = EVALUATION_DIR / "labels"
 # tolerance and area floor are tuned against production so each file stays
 # under SENSITIVITY_MAX_BYTES (see docs/sources.md for the measured sizes).
 SENSITIVITY_FILES = {"ftv": "sensitivity_ftv.geojson", "eol": "sensitivity_eol.geojson"}
-SENSITIVITY_TOLERANCE = 0.002  # degrees, roughly 200 m, the same as the web map layer
+SENSITIVITY_TOLERANCE = 0.004  # degrees, roughly 400 m; tuned against production (docs/sources.md)
 SENSITIVITY_MIN_AREA = 0.0  # square degrees; parts smaller than this are dropped
 SENSITIVITY_DECIMALS = 4  # about 10 m, below the zoning's 250 m cell
 SENSITIVITY_MAX_BYTES = 1_500_000
