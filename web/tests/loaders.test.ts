@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { EvaluationSchema, loadEvaluation } from "@/lib/data/evaluation";
 import { loadMapData } from "@/lib/data/map-data";
+import { loadMonthlyEvents } from "@/lib/data/monthly-events";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
+import { loadProtectedAreaStats } from "@/lib/data/protected-area-stats";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
+import { loadProvinceStats } from "@/lib/data/province-stats";
+import { MonthlyEventRowSchema, ProvinceStatsFileSchema, StatsFileSchema } from "@/lib/data/schemas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
-import { StatsFileSchema } from "@/lib/data/schemas";
 
 describe("loaders", () => {
   it("reads municipalities from GeoJSON properties", async () => {
@@ -114,5 +117,49 @@ describe("loaders", () => {
     const { municipalities, stats } = await loadMapData();
     expect(municipalities).toHaveLength(2);
     expect(Object.keys(stats).sort()).toEqual(["29067", "29084"]);
+  });
+});
+
+describe("slice 3 loaders", () => {
+  it("reads every protected area sorted by name, with its municipality count", async () => {
+    const sites = await loadProtectedAreaStats();
+    expect(sites.map((s) => s.siteCode)).toEqual(["ES0000002", "ES0000001"]);
+    expect(sites[0]).toEqual({ siteCode: "ES0000002", name: "LAGUNA", type: "ZEC", municipalityCount: 0, cells: [] });
+    expect(sites[1].cells[0]).toMatchObject({ technology: "solar_fv", mwNominal: 93, mwCount: 1 });
+  });
+
+  it("reads province stats for every scope", async () => {
+    const ps = await loadProvinceStats();
+    expect(Object.keys(ps)).toHaveLength(9);
+    expect(ps["Sevilla"]).toHaveLength(1);
+    expect(ps["Almería"]).toEqual([]);
+    expect(ps["Andalucía"].reduce((n, c) => n + c.projectCount, 0)).toBe(4);
+  });
+
+  it("rejects a province file missing a province or carrying an unknown scope", () => {
+    const valid = Object.fromEntries(["Almería", "Cádiz", "Córdoba", "Granada", "Huelva", "Jaén", "Málaga", "Sevilla", "Andalucía"].map((s) => [s, { cells: [] }]));
+    expect(ProvinceStatsFileSchema.safeParse(valid).success).toBe(true);
+    const { Jaén: _dropped, ...missing } = valid;
+    expect(ProvinceStatsFileSchema.safeParse(missing).success).toBe(false);
+    expect(ProvinceStatsFileSchema.safeParse({ ...valid, Madrid: { cells: [] } }).success).toBe(false);
+  });
+
+  it("reads monthly events with year-month keys", async () => {
+    const events = await loadMonthlyEvents();
+    expect(events).toHaveLength(9);
+    expect(events[0]).toEqual({ month: "2022-01", scope: "Andalucía", technology: "solar_fv", event: "consulta", count: 1 });
+  });
+
+  it("rejects an unknown event", () => {
+    const row = { month: "2023-01-01", scope: "Andalucía", technology: "solar_fv", event: "aprobado", document_count: "1" };
+    expect(MonthlyEventRowSchema.safeParse(row).success).toBe(false);
+  });
+
+  it("assembles the map data with the last export month", async () => {
+    const data = await loadMapData();
+    expect(data.lastMonth).toBe("2026-09");
+    expect(data.sites).toHaveLength(2);
+    expect(data.events).toHaveLength(9);
+    expect(data.provinceStats["Málaga"]).toHaveLength(3);
   });
 });

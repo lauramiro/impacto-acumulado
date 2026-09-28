@@ -40,6 +40,9 @@ export type StatsCell = Figures & { status: Status; technology: Technology };
 export type MunicipalityStats = { cells: StatsCell[] };
 export type Filters = { statuses: ReadonlySet<Status>; technologies: ReadonlySet<Technology> };
 
+export type ProtectedAreaStats = { siteCode: string; name: string; type: string; municipalityCount: number; cells: StatsCell[] };
+export type ProvinceStats = Record<Scope, StatsCell[]>;
+
 export type ProtectedAreaRef = { siteCode: string; name: string; type: string };
 
 export type Project = {

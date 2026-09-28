@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DOCUMENT_ROLES, STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
+import { DOCUMENT_ROLES, EVENTS, SCOPES, STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
 
 export const CellSchema = z.object({
   status: z.enum(STATUSES),
@@ -72,4 +72,24 @@ export const DocumentRowSchema = z.object({
   verdict: optionalString.pipe(z.enum(VERDICTS).nullable()),
   match_score: optionalNumber,
   confidence: optionalNumber,
+});
+
+export const ProtectedAreaStatsFileSchema = z.record(
+  z.string(),
+  z.object({ name: z.string(), type: z.string(), municipality_count: z.number().int().nonnegative(), cells: z.array(CellSchema) }),
+);
+
+const ScopeEntrySchema = z.object({ cells: z.array(CellSchema) });
+// Every province and Andalucía, nothing else: a missing or unknown scope means
+// the reference layer and the aggregate disagree.
+export const ProvinceStatsFileSchema = z.strictObject(
+  Object.fromEntries(SCOPES.map((s) => [s, ScopeEntrySchema])) as Record<(typeof SCOPES)[number], typeof ScopeEntrySchema>,
+);
+
+export const MonthlyEventRowSchema = z.object({
+  month: isoDate,
+  scope: z.enum(SCOPES),
+  technology: z.enum(TECHNOLOGIES),
+  event: z.enum(EVENTS),
+  document_count: z.coerce.number().int().positive(),
 });
