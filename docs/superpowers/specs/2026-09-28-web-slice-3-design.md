@@ -26,6 +26,9 @@ approval and every milestone.
   view, mw_count, protected_area_stats technology split, and empty
   province_stats/monthly_events; 010/030/040 rewritten to read the view).
   Next: Task 2, province stats and monthly events aggregates.
+- 2026-09-28: Task 2 done (050_province_stats.sql and 060_monthly_events.sql
+  fill province_stats and monthly_events from projects_for_aggregates).
+  Next: Task 3, export the new aggregate shapes.
 
 ## The data this is designed against
 
