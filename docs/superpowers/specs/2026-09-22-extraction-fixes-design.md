@@ -1,7 +1,7 @@
 # Extraction fixes measured against the 20-label evaluation
 
 Date: 2026-09-22
-Status: implemented on branch worktree-extraction-fixes; production re-run (section 5) pending
+Status: implemented; production re-extracted with prompt v4 on 2026-09-28
 Parent design: [2026-09-18-impacto-acumulado-design.md](2026-09-18-impacto-acumulado-design.md)
 Related slice: [2026-09-22-web-slice-2-design.md](2026-09-22-web-slice-2-design.md), which
 produced the labels and the baseline this spec is designed against, and which
@@ -153,6 +153,40 @@ approval and every milestone.
   and section 5 step 1 above, and the corresponding plan edits) and adds
   the numeric-drift check to the plan's Task 9 Step 5. This is the commit
   that carries this progress-log entry.
+- 2026-09-28: production re-run (section 5). Branch merged to `main` by
+  fast-forward (`2f983c8..5426ea8`). The weekly workflow was disabled for the
+  run (today's scheduled run had not fired). Backup branch
+  `pre-v4-reextract` = `br-snowy-feather-b26zgt2j`. Fetch stored
+  `BOE-A-2025-11509`; documents 71 BOE + 566 BOJA -> 72 + 566. Re-extraction
+  finished at 638 `v4 / ok`, no failed rows; served model
+  `mistral:ministral-14b-latest`. `evacuation_municipalities` non-empty: 0,
+  as expected. doc_type before -> after: aau 477 -> 476, caducidad 1 -> 1,
+  dia 61 -> 60, informacion_publica 78 -> 78, informe_impacto 0 -> 4,
+  modificacion 11 -> 14, otro 9 -> 5.
+
+  Three section 5 stops tripped and were investigated before export, by
+  user decision. Projects 347 -> 433 (+24.8%; 90 new ids, retired ids 26,
+  43, 302, 531). Resolving in memory isolated the cause: v3 payloads with
+  the current code give 346 projects, v3 payloads with only the names
+  trimmed give 431, and swapping in v4 municipalities or v4 `mw_nominal`
+  leaves 346. The trimmer accounts for the whole change, and it is a
+  correction: in v3 the shared tail "... y su infraestructura/linea de
+  evacuacion" made unrelated plants similar enough to chain, so one v3
+  project held 32 distinct Sevilla plants (Salteras 1 to 5, Alcala I to V,
+  Metaway, Guillena and others, each with its own expediente) and another
+  held 10 distinct Tabernas plants. One split looks wrong: Celeno Solar and
+  its modification "Soterramiento de Linea de Evacuacion ... Celeno Solar"
+  (expedientes `aau/ma/38/20` and `aau/ma/38/20/m1`) are now two projects.
+  Total `mw_nominal` moved solar_fv -5.8% and linea_evacuacion +12.0%
+  (hibrida -1.8%, eolica and almacenamiento 0%); 40 of 637 documents changed
+  `mw_nominal`, `mw_peak` or `hectares` by more than 2%. No code in this
+  slice touches capacity; the largest changes are the model reading figures
+  differently on a second run (disposition.2023.11.82 300 -> 0.3,
+  BOE-A-2023-2578 199.5 -> null, BOE-A-2023-1929 null -> 300), the same
+  run-to-run noise the eval measured, some correcting v3 and some
+  introducing errors. The user chose to export. Open for a later slice:
+  confirming disagreeing capacity figures with a second extraction, and
+  grouping a modification with its parent expediente (`/m1`).
 
 ## The baseline this is designed against
 

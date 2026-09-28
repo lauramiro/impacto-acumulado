@@ -13,8 +13,9 @@ reference loads, evaluation harness, CI and weekly workflow). Production
 database live on Neon with the reference layers loaded; the weekly workflow
 runs against it and commits exports. Backfill: the BOE range 2019-01 to
 2026-09 is swept and audited, the BOJA range has no documents for 2020 or
-2021. 347 projects resolved from 71 BOE and 566 BOJA documents
-(2019 to 2026-09), extracted with Mistral `ministral-14b-latest`. See
+2021. 433 projects resolved from 72 BOE and 566 BOJA documents
+(2019 to 2026-09), extracted with Mistral `ministral-14b-latest` under
+prompt `v4` (re-extracted 2026-09-28; see the extraction-fixes spec). See
 "Production setup" below. Web site: map, municipality and project pages, methodology with measured accuracy and a data download page at https://impacto-acumulado.vercel.app (slices 1 and 2).
 
 - Design: [docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md](docs/superpowers/specs/2026-09-18-impacto-acumulado-design.md)
