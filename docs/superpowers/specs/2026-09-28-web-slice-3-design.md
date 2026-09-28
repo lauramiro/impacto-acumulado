@@ -36,6 +36,14 @@ approval and every milestone.
   per technology, clips to the municipalities, and is skipped unless
   --refresh-sensitivity is passed). Next: Task 5, production run and data
   commit (waits for the user).
+- 2026-09-28: Task 5 done. `weekly-pipeline` disabled (stays off until
+  Task 16); migration 003 applied to Neon production; aggregate and
+  `export --refresh-sensitivity` run from the branch, exports committed.
+  Figures: 433 projects, 167 with MW; 197 sites; sensitivity tolerance
+  raised to 0.004 degrees, ftv 1 481 681 bytes, eol 1 030 382. Note:
+  `IMPACTO_DB_DSN` in `pipeline/env.local` is not production; production
+  is reached with `neon connection-string` as in the README. Next: Task 6,
+  labels, month formatting and the timeline model.
 
 ## The data this is designed against
 
