@@ -7,6 +7,7 @@ from evaluation.run_eval import LABELS_DIR
 from impacto.aggregate.export import export_all, export_evaluation
 from impacto.aggregate.run import run_aggregate
 from impacto.resolve.run import run_resolve
+from tests.test_aggregate import seed_slice3
 from tests.test_resolve_run import seed
 
 
@@ -20,6 +21,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "documents.csv",
         "evaluation.json",
         "meta.json",
+        "monthly_events.csv",
         "municipalities.geojson",
         "municipalities_map.geojson",
         "municipality_protected_areas.json",
@@ -29,6 +31,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "protected_area_stats.json",
         "protected_areas.geojson",
         "province_monthly.csv",
+        "province_stats.json",
         "provinces.geojson",
     ]
     with open(tmp_path / "projects.csv", encoding="utf-8", newline="") as f:
@@ -43,17 +46,16 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
     assert set(ronda["properties"]) == {"ine_code", "name", "province", "area_ha", "sensitivity_high_share"}
     assert ronda["geometry"]["type"] in ("Polygon", "MultiPolygon")
     muni_stats = json.loads((tmp_path / "municipality_stats.json").read_text(encoding="utf-8"))
-    assert muni_stats["29084"]["mw_total"] == 93.0
-    assert muni_stats["29084"]["count_total"] == 1
-    assert muni_stats["29084"]["by_status"]["favorable_condicionada"]["mw_nominal"] == 93.0
+    cells = muni_stats["29084"]["cells"]
+    assert sum(c["mw_nominal"] for c in cells) == 93.0
+    assert sum(c["project_count"] for c in cells) == 1
     areas = json.loads((tmp_path / "protected_areas.geojson").read_text(encoding="utf-8"))
     for feature in areas["features"]:
         assert set(feature["properties"]) == {"site_code", "name", "type"}
     area_stats = json.loads((tmp_path / "protected_area_stats.json").read_text(encoding="utf-8"))
     assert isinstance(area_stats, dict)
     for site in area_stats.values():
-        for status_stats in site.values():
-            assert set(status_stats) == {"project_count", "mw_nominal", "hectares"}
+        assert set(site) == {"name", "type", "municipality_count", "cells"}
     meta = json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))
     assert meta["counts"]["projects"] == 2
     assert "generated_at" in meta
@@ -103,17 +105,6 @@ def test_projects_csv_orders_ine_codes_like_municipalities(db, fixtures_dir, tmp
         rows = {r["canonical_name"]: r for r in csv.DictReader(f)}
     assert rows["Parque fotovoltaico Ronda I"]["municipalities"] == "Alfarnate; Málaga; Ronda"
     assert rows["Parque fotovoltaico Ronda I"]["ine_codes"] == "29998;29067;29084"
-
-
-def test_municipality_stats_json_has_technology_split(db, fixtures_dir, tmp_path):
-    seed(db, fixtures_dir)
-    run_resolve(db)
-    run_aggregate(db)
-    export_all(db, tmp_path)
-    stats = json.loads((tmp_path / "municipality_stats.json").read_text(encoding="utf-8"))
-    ronda = stats["29084"]
-    assert ronda["by_technology"] == {"solar_fv": {"project_count": 1, "mw_nominal": 93.0, "hectares": 140.1}}
-    assert sum(t["mw_nominal"] for t in ronda["by_technology"].values()) == ronda["mw_total"]
 
 
 def _seed_protected_area(db):
@@ -322,3 +313,59 @@ def test_meta_lists_every_export_with_rows_and_bytes(db, fixtures_dir, tmp_path)
     assert meta["files"]["evaluation.json"]["rows"] == 1  # a single object
     for entry in meta["files"].values():
         assert entry["bytes"] > 0
+
+
+def _export_slice3(db, fixtures_dir, tmp_path):
+    seed_slice3(db, fixtures_dir)
+    run_aggregate(db)
+    export_all(db, tmp_path)
+
+
+def _json(tmp_path, name):
+    return json.loads((tmp_path / name).read_text(encoding="utf-8"))
+
+
+def test_municipality_stats_json_is_a_list_of_cells(db, fixtures_dir, tmp_path):
+    _export_slice3(db, fixtures_dir, tmp_path)
+    ronda = _json(tmp_path, "municipality_stats.json")["29084"]
+    assert set(ronda) == {"cells"}
+    assert sorted(ronda["cells"], key=lambda c: c["technology"]) == [
+        {"status": "favorable_condicionada", "technology": "linea_evacuacion", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0, "hectares": 0.0, "turbines": 0},
+        {"status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1, "hectares": 200.0, "turbines": 0},
+    ]
+
+
+def test_protected_area_stats_json_lists_every_site_with_name_type_and_municipality_count(db, fixtures_dir, tmp_path):
+    _export_slice3(db, fixtures_dir, tmp_path)
+    sites = _json(tmp_path, "protected_area_stats.json")
+    assert set(sites) == {"ES0000001", "ES0000009"}
+    assert sites["ES0000009"] == {"name": "LAGUNA", "type": "ZEC", "municipality_count": 0, "cells": []}
+    sierra = sites["ES0000001"]
+    assert (sierra["name"], sierra["type"], sierra["municipality_count"]) == ("SIERRA", "ZEPA", 1)
+    assert {c["technology"] for c in sierra["cells"]} == {"solar_fv", "linea_evacuacion"}
+    for cell in sierra["cells"]:
+        assert set(cell) == {"status", "technology", "project_count", "mw_nominal", "mw_count", "hectares"}
+
+
+def test_province_stats_json_has_every_province_and_andalucia(db, fixtures_dir, tmp_path):
+    _export_slice3(db, fixtures_dir, tmp_path)
+    scopes = _json(tmp_path, "province_stats.json")
+    assert set(scopes) == {"Málaga", "Sevilla", "Andalucía"}
+    solar = [c for c in scopes["Andalucía"]["cells"] if c["technology"] == "solar_fv" and c["status"] == "favorable_condicionada"]
+    assert solar == [{"status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1, "hectares": 200.0}]
+
+
+def test_monthly_events_csv(db, fixtures_dir, tmp_path):
+    _export_slice3(db, fixtures_dir, tmp_path)
+    with open(tmp_path / "monthly_events.csv", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert list(rows[0]) == ["month", "scope", "technology", "event", "document_count"]
+    assert {"month": "2023-06-01", "scope": "Andalucía", "technology": "solar_fv", "event": "sin_veredicto", "document_count": "1"} in rows
+    assert rows == sorted(rows, key=lambda r: (r["month"], r["scope"], r["technology"], r["event"]))
+
+
+def test_municipality_stats_csv_carries_mw_count(db, fixtures_dir, tmp_path):
+    _export_slice3(db, fixtures_dir, tmp_path)
+    with open(tmp_path / "municipality_stats.csv", encoding="utf-8", newline="") as f:
+        header = next(csv.reader(f))
+    assert header == ["ine_code", "status", "technology", "project_count", "mw_nominal", "hectares", "turbines", "mw_count", "name", "province"]

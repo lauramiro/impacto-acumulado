@@ -146,27 +146,17 @@ def export_municipalities_map_geojson(conn, out_dir: Path) -> Path:
     return _write_feature_collection(out_dir / "municipalities_map.geojson", features)
 
 
+CELL_KEYS = ("status", "technology", "project_count", "mw_nominal", "mw_count", "hectares")
+
+
 def export_municipality_stats_json(conn, out_dir: Path) -> Path:
+    # One cell per (status, technology): the web sums whichever cells match
+    # its active filters, so no split is precomputed here.
     stats = _query(conn, "SELECT * FROM municipality_stats ORDER BY ine_code, status, technology")
     by_ine: dict[str, dict] = {}
     for s in stats:
-        entry = by_ine.setdefault(
-            s["ine_code"],
-            {"by_status": {}, "by_technology": {}, "mw_total": 0.0, "ha_total": 0.0, "count_total": 0},
-        )
-        st = entry["by_status"].setdefault(
-            s["status"], {"project_count": 0, "mw_nominal": 0.0, "hectares": 0.0, "turbines": 0}
-        )
-        for key in ("project_count", "mw_nominal", "hectares", "turbines"):
-            st[key] += s[key]
-        tech = entry["by_technology"].setdefault(
-            s["technology"], {"project_count": 0, "mw_nominal": 0.0, "hectares": 0.0}
-        )
-        for key in ("project_count", "mw_nominal", "hectares"):
-            tech[key] += s[key]
-        entry["mw_total"] += s["mw_nominal"]
-        entry["ha_total"] += s["hectares"]
-        entry["count_total"] += s["project_count"]
+        cell = {k: s[k] for k in CELL_KEYS} | {"turbines": s["turbines"]}
+        by_ine.setdefault(s["ine_code"], {"cells": []})["cells"].append(cell)
     return _write_json(out_dir / "municipality_stats.json", by_ine)
 
 
@@ -189,13 +179,42 @@ def export_protected_areas_geojson(conn, out_dir: Path) -> Path:
 
 
 def export_protected_area_stats_json(conn, out_dir: Path) -> Path:
-    stats = _query(conn, "SELECT * FROM protected_area_stats ORDER BY site_code, status")
-    by_site: dict[str, dict] = {}
-    for s in stats:
-        by_site.setdefault(s["site_code"], {})[s["status"]] = {
-            k: s[k] for k in ("project_count", "mw_nominal", "hectares")
-        }
+    # Every site, with name and type, so the web lists all of them without
+    # loading the geometry file. municipality_count uses the same
+    # ST_Intersects test as 030 and does not depend on any filter.
+    sites = _query(
+        conn,
+        "SELECT pa.site_code, pa.name, pa.type, "
+        "(SELECT count(*) FROM municipalities m WHERE ST_Intersects(m.geom, pa.geom)) AS municipality_count "
+        "FROM protected_areas pa ORDER BY pa.site_code",
+    )
+    by_site = {
+        s["site_code"]: {"name": s["name"], "type": s["type"], "municipality_count": s["municipality_count"], "cells": []}
+        for s in sites
+    }
+    for s in _query(conn, "SELECT * FROM protected_area_stats ORDER BY site_code, status, technology"):
+        by_site[s["site_code"]]["cells"].append({k: s[k] for k in CELL_KEYS})
     return _write_json(out_dir / "protected_area_stats.json", by_site)
+
+
+def export_province_stats_json(conn, out_dir: Path) -> Path:
+    # Keyed by every province in the reference layer plus 'Andalucía', so a
+    # province with no projects is present with no cells.
+    provinces = _query(conn, "SELECT DISTINCT province FROM municipalities ORDER BY province")
+    by_scope: dict[str, dict] = {p["province"]: {"cells": []} for p in provinces}
+    by_scope["Andalucía"] = {"cells": []}
+    for s in _query(conn, "SELECT * FROM province_stats ORDER BY scope, status, technology"):
+        by_scope[s["scope"]]["cells"].append({k: s[k] for k in CELL_KEYS})
+    return _write_json(out_dir / "province_stats.json", by_scope)
+
+
+def export_monthly_events(conn, out_dir: Path) -> Path:
+    rows = _query(
+        conn,
+        "SELECT month, scope, technology, event, document_count FROM monthly_events "
+        "ORDER BY month, scope, technology, event",
+    )
+    return _write_csv(out_dir / "monthly_events.csv", rows)
 
 
 def export_municipality_protected_areas_json(conn, out_dir: Path) -> Path:
@@ -294,11 +313,13 @@ def export_all(
         export_documents(conn, out_dir),
         export_municipality_stats(conn, out_dir),
         export_province_monthly(conn, out_dir),
+        export_monthly_events(conn, out_dir),
         export_municipalities_geojson(conn, out_dir),
         export_municipalities_map_geojson(conn, out_dir),
         export_municipality_stats_json(conn, out_dir),
         export_protected_areas_geojson(conn, out_dir),
         export_protected_area_stats_json(conn, out_dir),
+        export_province_stats_json(conn, out_dir),
         export_municipality_protected_areas_json(conn, out_dir),
         export_provinces_geojson(conn, out_dir),
         export_evaluation(out_dir, last_run, labels_dir),
