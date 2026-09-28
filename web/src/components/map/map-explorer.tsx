@@ -7,7 +7,7 @@ import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
 import { formatNumber } from "@/lib/format";
 import { METRIC_UNITS } from "@/lib/labels";
-import { DEFAULT_STATE, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
+import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricValue } from "@/lib/metrics";
 import { TECHNOLOGIES, type MapMunicipality, type Metric, type MunicipalityStats, type Status } from "@/lib/types";
 import type { MuniProps, ProvProps } from "./choropleth";
@@ -35,7 +35,7 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 export function MapExplorer({ municipalities, stats }: Props) {
   const router = useRouter();
-  const [state, setState] = useState<MapState>(() => ({ ...DEFAULT_STATE, statuses: new Set(DEFAULT_STATE.statuses) }));
+  const [state, setState] = useState<MapState>(defaultState);
   const [geo, setGeo] = useState<Geo | "error" | null>(null);
 
   useEffect(() => {

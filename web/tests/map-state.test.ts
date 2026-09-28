@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_STATE, parseMapState, serializeMapState } from "@/lib/map-state";
-import { STATUSES } from "@/lib/types";
+import { DEFAULT_STATE, defaultState, parseMapState, serializeMapState } from "@/lib/map-state";
+import { STATUSES, TECHNOLOGIES } from "@/lib/types";
 
 describe("map state in the URL", () => {
   it("defaults to MW, every status, nothing selected", () => {
@@ -23,8 +23,39 @@ describe("map state in the URL", () => {
   });
   it("serialises only what differs from the defaults", () => {
     expect(serializeMapState(DEFAULT_STATE)).toBe("");
-    expect(serializeMapState({ metric: "proyectos", statuses: new Set(["favorable"]), selected: "04016" })).toBe(
+    expect(serializeMapState({ ...DEFAULT_STATE, metric: "proyectos", statuses: new Set(["favorable"]), selected: "04016" })).toBe(
       "metrica=proyectos&estado=favorable&m=04016",
     );
+  });
+});
+
+describe("slice 3 map state", () => {
+  it("defaults to every technology, no overlays, no province", () => {
+    const s = parseMapState(new URLSearchParams(""));
+    expect([...s.technologies].sort()).toEqual([...TECHNOLOGIES].sort());
+    expect(s).toMatchObject({ natura: false, sensitivity: "ninguna", province: null });
+  });
+  it("reads technologies, overlays and province", () => {
+    const s = parseMapState(new URLSearchParams("tecnologia=solar_fv,eolica&natura=1&sensibilidad=eolica&provincia=sevilla"));
+    expect([...s.technologies]).toEqual(["solar_fv", "eolica"]);
+    expect(s).toMatchObject({ natura: true, sensitivity: "eol", province: "Sevilla" });
+    expect(parseMapState(new URLSearchParams("sensibilidad=fv")).sensitivity).toBe("ftv");
+  });
+  it("ignores unknown values", () => {
+    const s = parseMapState(new URLSearchParams("tecnologia=nuclear&natura=si&sensibilidad=alta&provincia=madrid"));
+    expect(s.technologies.size).toBe(0);
+    expect(s).toMatchObject({ natura: false, sensitivity: "ninguna", province: null });
+  });
+  it("round-trips a full state and omits defaults", () => {
+    const full = { ...defaultState(), technologies: new Set(["eolica"] as const), natura: true, sensitivity: "ftv" as const, province: "Cádiz" as const };
+    const qs = serializeMapState(full);
+    expect(qs).toBe("tecnologia=eolica&natura=1&sensibilidad=fv&provincia=cadiz");
+    expect(parseMapState(new URLSearchParams(qs))).toEqual(full);
+    expect(serializeMapState(defaultState())).toBe("");
+  });
+  it("hands out independent sets", () => {
+    const a = defaultState();
+    a.technologies.delete("solar_fv");
+    expect(defaultState().technologies.has("solar_fv")).toBe(true);
   });
 });

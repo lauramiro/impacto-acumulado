@@ -1,35 +1,71 @@
-import { METRICS, STATUSES, type Metric, type Status } from "./types";
+import { provinceFromSlug, provinceSlug } from "./labels";
+import { METRICS, STATUSES, TECHNOLOGIES, type Metric, type Province, type SensitivityLayer, type Status, type Technology } from "./types";
 
-export type MapState = { metric: Metric; statuses: Set<Status>; selected: string | null };
+export type MapState = {
+  metric: Metric;
+  statuses: Set<Status>;
+  technologies: Set<Technology>;
+  natura: boolean;
+  sensitivity: SensitivityLayer;
+  province: Province | null;
+  selected: string | null;
+};
 
-export const DEFAULT_STATE: MapState = { metric: "mw", statuses: new Set(STATUSES), selected: null };
+export function defaultState(): MapState {
+  return {
+    metric: "mw",
+    statuses: new Set(STATUSES),
+    technologies: new Set(TECHNOLOGIES),
+    natura: false,
+    sensitivity: "ninguna",
+    province: null,
+    selected: null,
+  };
+}
+
+export const DEFAULT_STATE: MapState = defaultState();
 
 const INE = /^\d{5}$/;
+const SENSITIVITY_PARAM: Record<Exclude<SensitivityLayer, "ninguna">, string> = { ftv: "fv", eol: "eolica" };
 
 function isMetric(s: string | null): s is Metric {
   return s !== null && (METRICS as readonly string[]).includes(s);
 }
 
-function isStatus(s: string): s is Status {
-  return (STATUSES as readonly string[]).includes(s);
+function listParam<T extends string>(params: URLSearchParams, name: string, all: readonly T[]): Set<T> {
+  const raw = params.get(name);
+  if (raw === null) return new Set(all);
+  return new Set(raw.split(",").filter((v): v is T => (all as readonly string[]).includes(v)));
+}
+
+function sensitivityParam(raw: string | null): SensitivityLayer {
+  if (raw === SENSITIVITY_PARAM.ftv) return "ftv";
+  if (raw === SENSITIVITY_PARAM.eol) return "eol";
+  return "ninguna";
 }
 
 export function parseMapState(params: URLSearchParams): MapState {
   const metricParam = params.get("metrica");
-  const metric: Metric = isMetric(metricParam) ? metricParam : "mw";
-
-  const statusParam = params.get("estado");
-  const statuses = statusParam === null ? new Set<Status>(STATUSES) : new Set<Status>(statusParam.split(",").filter(isStatus));
-
   const m = params.get("m");
-  const selected = m !== null && INE.test(m) ? m : null;
-  return { metric, statuses, selected };
+  return {
+    metric: isMetric(metricParam) ? metricParam : "mw",
+    statuses: listParam(params, "estado", STATUSES),
+    technologies: listParam(params, "tecnologia", TECHNOLOGIES),
+    natura: params.get("natura") === "1",
+    sensitivity: sensitivityParam(params.get("sensibilidad")),
+    province: provinceFromSlug(params.get("provincia")),
+    selected: m !== null && INE.test(m) ? m : null,
+  };
 }
 
 export function serializeMapState(state: MapState): string {
   const params = new URLSearchParams();
   if (state.metric !== "mw") params.set("metrica", state.metric);
   if (state.statuses.size !== STATUSES.length) params.set("estado", STATUSES.filter((s) => state.statuses.has(s)).join(","));
+  if (state.technologies.size !== TECHNOLOGIES.length) params.set("tecnologia", TECHNOLOGIES.filter((t) => state.technologies.has(t)).join(","));
+  if (state.natura) params.set("natura", "1");
+  if (state.sensitivity !== "ninguna") params.set("sensibilidad", SENSITIVITY_PARAM[state.sensitivity]);
+  if (state.province) params.set("provincia", provinceSlug(state.province));
   if (state.selected) params.set("m", state.selected);
   return params.toString();
 }
