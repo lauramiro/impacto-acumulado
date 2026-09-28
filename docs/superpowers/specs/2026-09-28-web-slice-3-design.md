@@ -22,6 +22,10 @@ approval and every milestone.
   `projects_for_aggregates` view, the `matching`/`splitBy` split, the
   site-count cross-check, and "Potencia evacuada" on the project page.
   Nothing implemented yet.
+- 2026-09-28: Task 1 done (migration 003 adds the projects_for_aggregates
+  view, mw_count, protected_area_stats technology split, and empty
+  province_stats/monthly_events; 010/030/040 rewritten to read the view).
+  Next: Task 2, province stats and monthly events aggregates.
 
 ## The data this is designed against
 
