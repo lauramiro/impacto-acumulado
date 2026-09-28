@@ -3,7 +3,10 @@
 -- their extracted verdict, or 'sin_veredicto' when it is no_aplica, null, or
 -- the extraction row is missing. modificacion, caducidad and otro are not
 -- decisions and are left out. Province rows count a document once per
--- province of its project; 'Andalucía' rows count it once.
+-- province of its project; 'Andalucía' rows count each document once per
+-- technology, even when it is linked to more than one project of that
+-- technology (a document linked to projects of different technologies still
+-- counts once under each technology).
 DELETE FROM monthly_events;
 WITH events AS (
   SELECT d.id AS document_id,
@@ -29,6 +32,6 @@ FROM (
   JOIN project_municipalities pm ON pm.project_id = ev.project_id
   JOIN municipalities m ON m.ine_code = pm.ine_code
   UNION ALL
-  SELECT 'Andalucía', document_id, month, technology, event FROM events
+  SELECT DISTINCT 'Andalucía', document_id, month, technology, event FROM events
 ) scoped
 GROUP BY month, scope, technology, event;

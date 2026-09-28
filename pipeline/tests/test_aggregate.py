@@ -275,3 +275,23 @@ def test_monthly_events_counts_a_two_province_document_in_each_province_once_in_
     # p4 has no municipality: its consulta counts regionally only.
     feb = _rows(db, "SELECT scope FROM monthly_events WHERE month = '2023-02-01'")
     assert feb == [{"scope": "Andalucía"}]
+
+
+def test_monthly_events_counts_a_document_shared_by_two_projects_once(db, fixtures_dir):
+    seed_slice3(db, fixtures_dir)
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = 'd3'")
+        d3_id = cur.fetchone()["id"]
+        # d3 already links to p3 (aau, solar_fv). Link it to p1 too (also
+        # solar_fv): one document, two projects, same technology, same event.
+        cur.execute(
+            "INSERT INTO project_documents (project_id, document_id, role, match_score, match_reason) "
+            "VALUES (1, %s, 'aau', 1.0, 'test')",
+            (d3_id,),
+        )
+    db.commit()
+    run_aggregate(db)
+    rows = _rows(db, "SELECT document_count FROM monthly_events "
+                     "WHERE month = '2023-06-01' AND scope = 'Andalucía' "
+                     "AND technology = 'solar_fv' AND event = 'sin_veredicto'")
+    assert rows == [{"document_count": 1}]
