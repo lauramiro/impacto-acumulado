@@ -3,6 +3,14 @@ import path from "node:path";
 import { parse } from "csv-parse/sync";
 import { expect, test } from "@playwright/test";
 
+type ProjectRow = { id: string; technology: string; ine_codes: string };
+
+// Reads the real export, so the test follows whatever the weekly data holds.
+function lineProjects(): ProjectRow[] {
+  const csv = readFileSync(path.join(__dirname, "..", "public", "data", "projects.csv"), "utf-8");
+  return (parse(csv, { columns: true, skip_empty_lines: true }) as ProjectRow[]).filter((r) => r.technology === "linea_evacuacion");
+}
+
 // Finds a real "desconocido" project id from the live export rather than
 // hardcoding one: status_document_id still names a real document for every
 // desconocido project (see web/src/lib/data/project-record.ts), so a test
@@ -65,4 +73,10 @@ test("no horizontal scroll on a phone", async ({ page }) => {
   await page.goto("/proyecto/1");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBe(false);
+});
+
+test("an evacuation line's capacity is labelled as evacuated", async ({ page }) => {
+  await page.goto(`/proyecto/${lineProjects()[0].id}`);
+  await expect(page.getByText("Potencia evacuada", { exact: true })).toBeVisible();
+  await expect(page.getByText("Potencia nominal", { exact: true })).toHaveCount(0);
 });

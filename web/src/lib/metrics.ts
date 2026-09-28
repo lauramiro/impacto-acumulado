@@ -1,18 +1,39 @@
-import type { Metric, MunicipalityStats, Status } from "./types";
+import type { Figures, Filters, Metric, StatsCell } from "./types";
 
-export function metricValue(
-  stats: MunicipalityStats | undefined,
-  metric: Metric,
-  statuses: ReadonlySet<Status>,
-): number {
-  if (!stats) return 0;
-  let total = 0;
-  for (const status of statuses) {
-    const f = stats.byStatus[status];
-    if (!f) continue;
-    total += metric === "mw" ? f.mwNominal : metric === "ha" ? f.hectares : f.projectCount;
-  }
-  return total;
+const ZERO: Figures = { projectCount: 0, mwNominal: 0, mwCount: 0, hectares: 0 };
+
+function add(a: Figures, c: Figures): Figures {
+  return {
+    projectCount: a.projectCount + c.projectCount,
+    mwNominal: a.mwNominal + c.mwNominal,
+    mwCount: a.mwCount + c.mwCount,
+    hectares: a.hectares + c.hectares,
+  };
+}
+
+export function matching(cells: readonly StatsCell[], f: Filters): StatsCell[] {
+  return cells.filter((c) => f.statuses.has(c.status) && f.technologies.has(c.technology));
+}
+
+export function sumFigures(cells: readonly StatsCell[]): Figures {
+  return cells.reduce(add, ZERO);
+}
+
+export function metricValue(cells: readonly StatsCell[] | undefined, metric: Metric, f: Filters): number {
+  const t = sumFigures(matching(cells ?? [], f));
+  return metric === "mw" ? t.mwNominal : metric === "ha" ? t.hectares : t.projectCount;
+}
+
+/** How many of the matching projects have an MW figure that is summed. */
+export function mwCoverage(cells: readonly StatsCell[] | undefined, f: Filters): { withMw: number; total: number } {
+  const t = sumFigures(matching(cells ?? [], f));
+  return { withMw: t.mwCount, total: t.projectCount };
+}
+
+export function splitBy<K extends "status" | "technology">(cells: readonly StatsCell[], key: K): Map<StatsCell[K], Figures> {
+  const out = new Map<StatsCell[K], Figures>();
+  for (const c of cells) out.set(c[key], add(out.get(c[key]) ?? ZERO, c));
+  return out;
 }
 
 /**

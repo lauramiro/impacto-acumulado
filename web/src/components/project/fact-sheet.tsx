@@ -12,7 +12,7 @@ export function FactSheet({ project, municipalities }: { project: Project; munic
     <section aria-labelledby="ficha" className={styles.section}>
       <h2 id="ficha">Ficha</h2>
       <dl className={styles.grid}>
-        <dt>Potencia nominal</dt>
+        <dt>{project.technology === "linea_evacuacion" ? "Potencia evacuada" : "Potencia nominal"}</dt>
         <dd>{cell(project.mwNominal, formatMw)}</dd>
         <dt>Superficie</dt>
         <dd>{cell(project.hectares, formatHa)}</dd>

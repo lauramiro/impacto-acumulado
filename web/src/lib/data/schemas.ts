@@ -1,28 +1,16 @@
 import { z } from "zod";
 import { DOCUMENT_ROLES, STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
 
-const StatusFiguresSchema = z.object({
-  project_count: z.number().int(),
+export const CellSchema = z.object({
+  status: z.enum(STATUSES),
+  technology: z.enum(TECHNOLOGIES),
+  project_count: z.number().int().nonnegative(),
   mw_nominal: z.number(),
-  hectares: z.number(),
-  turbines: z.number().int(),
-});
-
-const TechnologyFiguresSchema = z.object({
-  project_count: z.number().int(),
-  mw_nominal: z.number(),
+  mw_count: z.number().int().nonnegative(),
   hectares: z.number(),
 });
 
-export const StatsEntrySchema = z.object({
-  by_status: z.partialRecord(z.enum(STATUSES), StatusFiguresSchema),
-  by_technology: z.partialRecord(z.enum(TECHNOLOGIES), TechnologyFiguresSchema),
-  mw_total: z.number(),
-  ha_total: z.number(),
-  count_total: z.number().int(),
-});
-
-export const StatsFileSchema = z.record(z.string(), StatsEntrySchema);
+export const StatsFileSchema = z.record(z.string(), z.object({ cells: z.array(CellSchema) }));
 
 export const MunicipalityFeatureSchema = z.object({
   properties: z.object({

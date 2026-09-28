@@ -32,3 +32,7 @@
   font-size: var(--texto-pie);
   margin-top: 0.75rem;
 }
+
+.cobertura {
+  font-size: 0.8125rem;
+}

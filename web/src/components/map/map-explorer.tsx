@@ -9,7 +9,7 @@ import { formatNumber } from "@/lib/format";
 import { METRIC_UNITS } from "@/lib/labels";
 import { DEFAULT_STATE, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricValue } from "@/lib/metrics";
-import type { MapMunicipality, Metric, MunicipalityStats, Status } from "@/lib/types";
+import { TECHNOLOGIES, type MapMunicipality, type Metric, type MunicipalityStats, type Status } from "@/lib/types";
 import type { MuniProps, ProvProps } from "./choropleth";
 import { Controls } from "./controls";
 import { Panel } from "./panel";
@@ -80,11 +80,14 @@ export function MapExplorer({ municipalities, stats }: Props) {
 
   const byIne = useMemo(() => new Map(municipalities.map((m) => [m.ine, m])), [municipalities]);
 
+  // Task 10 replaces this fixed technology set with state.
+  const filters = useMemo(() => ({ statuses: state.statuses, technologies: new Set(TECHNOLOGIES) }), [state.statuses]);
+
   const values = useMemo(() => {
     const out = new Map<string, number>();
-    for (const m of municipalities) out.set(m.ine, metricValue(stats[m.ine], state.metric, state.statuses));
+    for (const m of municipalities) out.set(m.ine, metricValue(stats[m.ine]?.cells, state.metric, filters));
     return out;
-  }, [municipalities, stats, state.metric, state.statuses]);
+  }, [municipalities, stats, state.metric, filters]);
 
   const thresholds = useMemo(() => classify([...values.values()], 5), [values]);
   const decimals = state.metric === "proyectos" ? 0 : 1;
@@ -142,6 +145,7 @@ export function MapExplorer({ municipalities, stats }: Props) {
           municipality={selected}
           stats={selected ? stats[selected.ine] : undefined}
           metric={state.metric}
+          filters={filters}
           thresholds={thresholds}
           anyStatus={state.statuses.size > 0}
           onClose={() => select(null)}

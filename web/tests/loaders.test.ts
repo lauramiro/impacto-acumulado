@@ -16,12 +16,17 @@ describe("loaders", () => {
     expect(munis[1].sensitivityHighShare).toBeCloseTo(0.4812);
   });
 
-  it("reads municipality stats keyed by INE", async () => {
+  it("reads municipality stats as cells keyed by INE", async () => {
     const stats = await loadMunicipalityStats();
-    const ronda = stats.get("29084")!;
-    expect(ronda.mwTotal).toBe(93);
-    expect(ronda.byStatus.favorable_condicionada?.projectCount).toBe(1);
-    expect(ronda.byTechnology.solar_fv?.mwNominal).toBe(93);
+    expect(stats.get("29084")!.cells).toEqual([
+      { status: "favorable_condicionada", technology: "solar_fv", projectCount: 1, mwNominal: 93, mwCount: 1, hectares: 140.1 },
+      { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwNominal: 0, mwCount: 0, hectares: 0 },
+    ]);
+  });
+
+  it("rejects a stats cell with an unknown technology", () => {
+    const bad = { "29084": { cells: [{ status: "favorable", technology: "nuclear", project_count: 1, mw_nominal: 1, mw_count: 1, hectares: 0, turbines: 0 }] } };
+    expect(StatsFileSchema.safeParse(bad).success).toBe(false);
   });
 
   it("reads protected areas per municipality including empty lists", async () => {
@@ -95,10 +100,14 @@ describe("loaders", () => {
   });
 
   it("rejects an unknown status with the field named", () => {
-    const bad = { "29084": { by_status: { aprobado: { project_count: 1, mw_nominal: 1, hectares: 0, turbines: 0 } }, by_technology: {}, mw_total: 1, ha_total: 0, count_total: 1 } };
+    // Unlike the old by_status shape (where the invalid status was a record
+    // key and so appeared in the issue's path), zod's enum mismatch here
+    // names the field via the path ("status") but does not echo the
+    // received value in the message; assert on the field instead.
+    const bad = { "29084": { cells: [{ status: "aprobado", technology: "solar_fv", project_count: 1, mw_nominal: 1, mw_count: 1, hectares: 0 }] } };
     const result = StatsFileSchema.safeParse(bad);
     expect(result.success).toBe(false);
-    expect(JSON.stringify(result.error?.issues)).toContain("aprobado");
+    expect(result.error?.issues[0]?.path).toContain("status");
   });
 
   it("loadMapData returns municipalities and a stats record that agree", async () => {

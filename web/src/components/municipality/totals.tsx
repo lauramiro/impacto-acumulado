@@ -1,12 +1,17 @@
 import { Figure } from "@/components/figure";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { formatHa, formatInt, formatMw } from "@/lib/format";
+import { formatCoverage, formatHa, formatInt, formatMw } from "@/lib/format";
+import { splitBy, sumFigures } from "@/lib/metrics";
 import { STATUSES, TECHNOLOGIES, type MunicipalityStats } from "@/lib/types";
 import styles from "./totals.module.css";
 
 export function Totals({ stats }: { stats: MunicipalityStats }) {
-  const rows = STATUSES.filter((s) => (stats.byStatus[s]?.projectCount ?? 0) > 0);
-  const techs = TECHNOLOGIES.filter((t) => (stats.byTechnology[t]?.projectCount ?? 0) > 0);
+  const figuresByStatus = splitBy(stats.cells, "status");
+  const byTech = splitBy(stats.cells, "technology");
+  const total = sumFigures(stats.cells);
+  const rows = STATUSES.filter((s) => (figuresByStatus.get(s)?.projectCount ?? 0) > 0);
+  const techs = TECHNOLOGIES.filter((t) => t !== "linea_evacuacion" && (byTech.get(t)?.projectCount ?? 0) > 0);
+  const lines = byTech.get("linea_evacuacion");
   return (
     <section aria-labelledby="totales" className={styles.section}>
       <h2 id="totales">Totales</h2>
@@ -21,7 +26,7 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
         </thead>
         <tbody>
           {rows.map((s) => {
-            const f = stats.byStatus[s]!;
+            const f = figuresByStatus.get(s)!;
             return (
               <tr key={s}>
                 <th scope="row">{STATUS_LABELS[s]}</th>
@@ -42,13 +47,13 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
           <tr>
             <th scope="row">Total</th>
             <td className={styles.num}>
-              <Figure value={formatInt(stats.countTotal)} />
+              <Figure value={formatInt(total.projectCount)} />
             </td>
             <td className={styles.num}>
-              <Figure value={formatMw(stats.mwTotal)} />
+              <Figure value={formatMw(total.mwNominal)} />
             </td>
             <td className={styles.num}>
-              <Figure value={formatHa(stats.haTotal)} />
+              <Figure value={formatHa(total.hectares)} />
             </td>
           </tr>
         </tfoot>
@@ -56,7 +61,7 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
       <p className={styles.tech}>
         Por tecnología:{" "}
         {techs.map((t, i) => {
-          const f = stats.byTechnology[t]!;
+          const f = byTech.get(t)!;
           return (
             <span key={t}>
               {i > 0 ? " · " : ""}
@@ -65,6 +70,13 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
           );
         })}
       </p>
+      <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.mwCount, total.projectCount)}</p>
+      {lines ? (
+        <p className={styles.tech}>
+          Línea de evacuación: <Figure value={formatInt(lines.projectCount)} unit={lines.projectCount === 1 ? "proyecto" : "proyectos"} />,
+          potencia no sumada (ya contada en las plantas que evacúa).
+        </p>
+      ) : null}
     </section>
   );
 }

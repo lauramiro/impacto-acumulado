@@ -11,6 +11,7 @@ import { loadProjects } from "@/lib/data/projects";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
 import { formatInt, formatMw } from "@/lib/format";
+import { sumFigures } from "@/lib/metrics";
 import styles from "./page.module.css";
 
 type Params = { ine: string };
@@ -32,8 +33,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const [muni, stats] = await Promise.all([findMunicipality(ine), loadMunicipalityStats()]);
   if (!muni) return { title: "Municipio no encontrado · Impacto Acumulado" };
   const s = stats.get(ine);
-  const description = s
-    ? `${formatMw(s.mwTotal)} en ${formatInt(s.countTotal)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA.`
+  const t = s ? sumFigures(s.cells) : null;
+  const description = t
+    ? `${formatMw(t.mwNominal)} en ${formatInt(t.projectCount)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA.`
     : `Ningún proyecto renovable registrado en los boletines para ${muni.name} (${muni.province}).`;
   return { title: `${muni.name} · Impacto Acumulado`, description };
 }

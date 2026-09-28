@@ -35,16 +35,10 @@ export type Municipality = {
 /** The subset of Municipality the map explorer needs: no per-request weight from unused figures. */
 export type MapMunicipality = Pick<Municipality, "ine" | "name" | "province">;
 
-export type StatusFigures = { projectCount: number; mwNominal: number; hectares: number; turbines: number };
-export type TechnologyFigures = { projectCount: number; mwNominal: number; hectares: number };
-
-export type MunicipalityStats = {
-  byStatus: Partial<Record<Status, StatusFigures>>;
-  byTechnology: Partial<Record<Technology, TechnologyFigures>>;
-  mwTotal: number;
-  haTotal: number;
-  countTotal: number;
-};
+export type Figures = { projectCount: number; mwNominal: number; mwCount: number; hectares: number };
+export type StatsCell = Figures & { status: Status; technology: Technology };
+export type MunicipalityStats = { cells: StatsCell[] };
+export type Filters = { statuses: ReadonlySet<Status>; technologies: ReadonlySet<Technology> };
 
 export type ProtectedAreaRef = { siteCode: string; name: string; type: string };
 
