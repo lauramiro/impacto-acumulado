@@ -225,3 +225,53 @@ def test_projects_for_aggregates_nulls_only_line_mw(db, fixtures_dir):
         {"id": 3, "technology": "solar_fv", "mw_nominal": None},
         {"id": 4, "technology": "eolica", "mw_nominal": 30.0},
     ]
+
+
+def test_province_stats_counts_multi_province_projects_once_in_andalucia(db, fixtures_dir):
+    seed_slice3(db, fixtures_dir)
+    run_aggregate(db)
+    rows = _rows(db, "SELECT scope, status, technology, project_count, mw_nominal, mw_count "
+                     "FROM province_stats ORDER BY scope, status, technology")
+    assert rows == [
+        {"scope": "Andalucía", "status": "desconocido", "technology": "solar_fv", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0},
+        {"scope": "Andalucía", "status": "en_consulta", "technology": "eolica", "project_count": 1, "mw_nominal": 30.0, "mw_count": 1},
+        {"scope": "Andalucía", "status": "favorable_condicionada", "technology": "linea_evacuacion", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0},
+        {"scope": "Andalucía", "status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1},
+        {"scope": "Málaga", "status": "desconocido", "technology": "solar_fv", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0},
+        {"scope": "Málaga", "status": "favorable_condicionada", "technology": "linea_evacuacion", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0},
+        {"scope": "Málaga", "status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1},
+        {"scope": "Sevilla", "status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1},
+    ]
+
+
+def test_monthly_events_maps_roles_to_events(db, fixtures_dir):
+    seed_slice3(db, fixtures_dir)
+    run_aggregate(db)
+    rows = _rows(db, "SELECT month, scope, technology, event, document_count FROM monthly_events "
+                     "WHERE scope = 'Andalucía' ORDER BY month, technology, event")
+    assert rows == [
+        {"month": date(2023, 1, 1), "scope": "Andalucía", "technology": "solar_fv", "event": "consulta", "document_count": 1},
+        {"month": date(2023, 2, 1), "scope": "Andalucía", "technology": "eolica", "event": "consulta", "document_count": 1},
+        {"month": date(2023, 6, 1), "scope": "Andalucía", "technology": "linea_evacuacion", "event": "favorable_condicionada", "document_count": 1},
+        {"month": date(2023, 6, 1), "scope": "Andalucía", "technology": "solar_fv", "event": "favorable_condicionada", "document_count": 1},
+        {"month": date(2023, 6, 1), "scope": "Andalucía", "technology": "solar_fv", "event": "sin_veredicto", "document_count": 1},
+        # d6 has no extraction row at all: still a decision document, verdict unread.
+        {"month": date(2023, 8, 1), "scope": "Andalucía", "technology": "solar_fv", "event": "sin_veredicto", "document_count": 1},
+    ]
+    # d4 (modificacion, 2023-07) is excluded everywhere.
+    assert _rows(db, "SELECT * FROM monthly_events WHERE month = '2023-07-01'") == []
+
+
+def test_monthly_events_counts_a_two_province_document_in_each_province_once_in_andalucia(db, fixtures_dir):
+    seed_slice3(db, fixtures_dir)
+    run_aggregate(db)
+    rows = _rows(db, "SELECT scope, document_count FROM monthly_events "
+                     "WHERE month = '2023-01-01' AND event = 'consulta' ORDER BY scope")
+    assert rows == [
+        {"scope": "Andalucía", "document_count": 1},
+        {"scope": "Málaga", "document_count": 1},
+        {"scope": "Sevilla", "document_count": 1},
+    ]
+    # p4 has no municipality: its consulta counts regionally only.
+    feb = _rows(db, "SELECT scope FROM monthly_events WHERE month = '2023-02-01'")
+    assert feb == [{"scope": "Andalucía"}]
