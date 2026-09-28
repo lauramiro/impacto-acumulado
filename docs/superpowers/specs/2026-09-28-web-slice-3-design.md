@@ -32,6 +32,10 @@ approval and every milestone.
 - 2026-09-28: Task 3 done (municipality_stats.json and protected_area_stats.json
   rewritten to per-cell shape, province_stats.json and monthly_events.csv
   exports added). Next: Task 4, export the sensitivity layers.
+- 2026-09-28: Task 4 done (export_sensitivity_geojson dissolves sensitivity_zones
+  per technology, clips to the municipalities, and is skipped unless
+  --refresh-sensitivity is passed). Next: Task 5, production run and data
+  commit (waits for the user).
 
 ## The data this is designed against
 
