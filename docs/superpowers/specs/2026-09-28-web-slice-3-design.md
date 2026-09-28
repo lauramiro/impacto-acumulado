@@ -29,6 +29,9 @@ approval and every milestone.
 - 2026-09-28: Task 2 done (050_province_stats.sql and 060_monthly_events.sql
   fill province_stats and monthly_events from projects_for_aggregates).
   Next: Task 3, export the new aggregate shapes.
+- 2026-09-28: Task 3 done (municipality_stats.json and protected_area_stats.json
+  rewritten to per-cell shape, province_stats.json and monthly_events.csv
+  exports added). Next: Task 4, export the sensitivity layers.
 
 ## The data this is designed against
 
