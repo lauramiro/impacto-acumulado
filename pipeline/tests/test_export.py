@@ -4,7 +4,7 @@ import json
 import pytest
 
 from evaluation.run_eval import LABELS_DIR
-from impacto.aggregate.export import export_all, export_evaluation
+from impacto.aggregate.export import export_all, export_evaluation, export_sensitivity_geojson
 from impacto.aggregate.run import run_aggregate
 from impacto.resolve.run import run_resolve
 from tests.test_aggregate import seed_slice3
@@ -33,6 +33,8 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "province_monthly.csv",
         "province_stats.json",
         "provinces.geojson",
+        "sensitivity_eol.geojson",
+        "sensitivity_ftv.geojson",
     ]
     with open(tmp_path / "projects.csv", encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
@@ -369,3 +371,52 @@ def test_municipality_stats_csv_carries_mw_count(db, fixtures_dir, tmp_path):
     with open(tmp_path / "municipality_stats.csv", encoding="utf-8", newline="") as f:
         header = next(csv.reader(f))
     assert header == ["ine_code", "status", "technology", "project_count", "mw_nominal", "hectares", "turbines", "mw_count", "name", "province"]
+
+
+def _seed_zones(db):
+    # One ftv zone half inside Ronda's square, one eol zone far outside every municipality.
+    with db.cursor() as cur:
+        cur.execute(
+            "INSERT INTO sensitivity_zones (klass, technology, geom) VALUES "
+            "('alta', 'ftv', ST_Multi(ST_GeomFromText('POLYGON((-5.25 36.7,-5.15 36.7,-5.15 36.8,-5.25 36.8,-5.25 36.7))', 4326))), "
+            "('maxima', 'eol', ST_Multi(ST_GeomFromText('POLYGON((-1.0 40.0,-0.9 40.0,-0.9 40.1,-1.0 40.1,-1.0 40.0))', 4326)))"
+        )
+    db.commit()
+
+
+def test_sensitivity_layer_is_one_clipped_feature(db, fixtures_dir, tmp_path):
+    seed_slice3(db, fixtures_dir)
+    _seed_zones(db)
+    path = export_sensitivity_geojson(db, tmp_path, "ftv", refresh=True)
+    assert path.name == "sensitivity_ftv.geojson"
+    geo = json.loads(path.read_text(encoding="utf-8"))
+    assert len(geo["features"]) == 1
+    feature = geo["features"][0]
+    assert feature["properties"] == {"technology": "ftv"}
+    assert feature["geometry"]["type"] == "MultiPolygon"
+    lons = [pt[0] for poly in feature["geometry"]["coordinates"] for ring in poly for pt in ring]
+    # Clipped to the municipalities: nothing west of Ronda's edge at -5.2.
+    assert min(lons) >= -5.2
+    assert _max_decimals(feature["geometry"]["coordinates"]) <= 4
+
+
+def test_sensitivity_layer_outside_the_region_is_empty(db, fixtures_dir, tmp_path):
+    seed_slice3(db, fixtures_dir)
+    _seed_zones(db)
+    geo = json.loads(export_sensitivity_geojson(db, tmp_path, "eol", refresh=True).read_text(encoding="utf-8"))
+    assert geo["features"][0]["geometry"] == {"type": "MultiPolygon", "coordinates": []}
+
+
+def test_sensitivity_layer_is_kept_unless_refreshed(db, fixtures_dir, tmp_path):
+    seed_slice3(db, fixtures_dir)
+    existing = tmp_path / "sensitivity_ftv.geojson"
+    existing.write_text('{"type": "FeatureCollection", "features": []}', encoding="utf-8")
+    assert export_sensitivity_geojson(db, tmp_path, "ftv") == existing
+    assert existing.read_text(encoding="utf-8") == '{"type": "FeatureCollection", "features": []}'
+
+
+def test_export_all_lists_the_sensitivity_layers(db, fixtures_dir, tmp_path):
+    seed_slice3(db, fixtures_dir)
+    run_aggregate(db)
+    names = {p.name for p in export_all(db, tmp_path)}
+    assert {"sensitivity_ftv.geojson", "sensitivity_eol.geojson"} <= names

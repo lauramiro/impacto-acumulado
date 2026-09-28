@@ -20,6 +20,15 @@ EVALUATION_DIR = Path(__file__).resolve().parents[2] / "evaluation"
 LAST_RUN = EVALUATION_DIR / "last_run.json"
 LABELS_DIR = EVALUATION_DIR / "labels"
 
+# Sensitivity layers: dissolved high-to-maximum zones per technology. The
+# tolerance and area floor are tuned against production so each file stays
+# under SENSITIVITY_MAX_BYTES (see docs/sources.md for the measured sizes).
+SENSITIVITY_FILES = {"ftv": "sensitivity_ftv.geojson", "eol": "sensitivity_eol.geojson"}
+SENSITIVITY_TOLERANCE = 0.002  # degrees, roughly 200 m, the same as the web map layer
+SENSITIVITY_MIN_AREA = 0.0  # square degrees; parts smaller than this are dropped
+SENSITIVITY_DECIMALS = 4  # about 10 m, below the zoning's 250 m cell
+SENSITIVITY_MAX_BYTES = 1_500_000
+
 
 def _write_csv(path: Path, rows: list[dict]) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -33,9 +42,9 @@ def _write_csv(path: Path, rows: list[dict]) -> Path:
     return path
 
 
-def _query(conn: psycopg.Connection, sql: str) -> list[dict]:
+def _query(conn: psycopg.Connection, sql: str, params: tuple = ()) -> list[dict]:
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(sql, params)
         return [dict(r) for r in cur.fetchall()]
 
 
@@ -247,6 +256,35 @@ def export_provinces_geojson(conn, out_dir: Path) -> Path:
     return _write_feature_collection(out_dir / "provinces.geojson", features)
 
 
+def export_sensitivity_geojson(conn, out_dir: Path, technology: str, refresh: bool = False) -> Path:
+    path = out_dir / SENSITIVITY_FILES[technology]
+    if path.exists() and not refresh:
+        return path
+    row = _query(
+        conn,
+        """
+        WITH region AS (SELECT ST_Union(geom) AS geom FROM municipalities),
+        zones AS (
+          SELECT ST_Union(z.geom) AS geom
+          FROM sensitivity_zones z, region r
+          WHERE z.technology = %s AND ST_Intersects(z.geom, r.geom)
+        ),
+        clipped AS (
+          SELECT ST_SimplifyPreserveTopology(ST_Intersection(zones.geom, region.geom), %s) AS geom
+          FROM zones, region
+        ),
+        parts AS (SELECT (ST_Dump(geom)).geom AS geom FROM clipped)
+        SELECT ST_AsGeoJSON(ST_Multi(ST_Union(geom)), %s) AS geom
+        FROM parts
+        WHERE ST_Dimension(geom) = 2 AND ST_Area(geom) >= %s
+        """,
+        (technology, SENSITIVITY_TOLERANCE, SENSITIVITY_DECIMALS, SENSITIVITY_MIN_AREA),
+    )[0]
+    geometry = json.loads(row["geom"]) if row["geom"] else {"type": "MultiPolygon", "coordinates": []}
+    feature = {"type": "Feature", "properties": {"technology": technology}, "geometry": geometry}
+    return _write_feature_collection(path, [feature])
+
+
 def _field_samples(labels_dir: Path, skipped: set[str]) -> dict[str, int]:
     # run_eval scores each field only over the labels that carry it (a label
     # with no `expediente` key, say, never enters that field's denominator),
@@ -305,7 +343,11 @@ def export_meta(conn, out_dir: Path, files: list[Path]) -> Path:
 
 
 def export_all(
-    conn: psycopg.Connection, out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR
+    conn: psycopg.Connection,
+    out_dir: Path,
+    last_run: Path = LAST_RUN,
+    labels_dir: Path = LABELS_DIR,
+    refresh_sensitivity: bool = False,
 ) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = [
@@ -322,6 +364,8 @@ def export_all(
         export_province_stats_json(conn, out_dir),
         export_municipality_protected_areas_json(conn, out_dir),
         export_provinces_geojson(conn, out_dir),
+        export_sensitivity_geojson(conn, out_dir, "ftv", refresh_sensitivity),
+        export_sensitivity_geojson(conn, out_dir, "eol", refresh_sensitivity),
         export_evaluation(out_dir, last_run, labels_dir),
     ]
     paths.append(export_meta(conn, out_dir, paths))
@@ -331,9 +375,10 @@ def export_all(
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="impacto export")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--refresh-sensitivity", action="store_true", help="rebuild the sensitivity layers even if present")
     args = parser.parse_args(argv)
     settings = load_settings()
     with connect(settings.db_dsn) as conn:
-        paths = export_all(conn, args.out)
+        paths = export_all(conn, args.out, refresh_sensitivity=args.refresh_sensitivity)
     print("\n".join(str(p) for p in paths))
     return 0
