@@ -53,6 +53,11 @@ approval and every milestone.
   consumer - map panel, municipality totals, fact sheet - to the new model).
   Next: Task 8, loaders for protected-area stats, province stats and monthly
   events.
+- 2026-09-28: Task 8 done (loadProtectedAreaStats, loadProvinceStats and
+  loadMonthlyEvents added with zod-validated schemas, and loadMapData
+  extended to assemble provinceStats/events/sites/lastMonth and cross-check
+  each site's municipality count against municipality_protected_areas.json).
+  Next: Task 9, map state for technology, overlays and province.
 
 ## The data this is designed against
 
