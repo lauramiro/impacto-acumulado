@@ -15,7 +15,13 @@ approval and every milestone.
 
 - 2026-09-28: brainstorming. Decisions 1 to 8 below taken. Sections 1 to 4
   of the design approved in chat (section 3 amended export 2 of section 1).
-  Spec written. Nothing implemented yet.
+  Spec written and reviewed by the user. Implementation plan written at
+  `docs/superpowers/plans/2026-09-28-web-slice-3.md` (16 tasks: aggregate
+  1-2, export 3-4, production data 5, web 6-15, merge and deploy 16).
+  Planning settled four details recorded above: the
+  `projects_for_aggregates` view, the `matching`/`splitBy` split, the
+  site-count cross-check, and "Potencia evacuada" on the project page.
+  Nothing implemented yet.
 
 ## The data this is designed against
 
@@ -119,13 +125,16 @@ New migration `db/migrations/003_slice3_aggregates.sql`:
 
 ### Aggregate rule for evacuation lines
 
-In every aggregate SQL file that sums MW (`010_municipality_stats.sql`,
-`030_protected_area_stats.sql`, `040_province_monthly.sql` and the new
-ones), MW is read as
-`CASE WHEN p.technology = 'linea_evacuacion' THEN NULL ELSE p.mw_nominal END`.
-The project still counts in `project_count`; it never counts in `mw_count`.
-`mw_count` is `count(` that expression `)`, so projects with no declared MW
-are not counted either. `province_monthly` is otherwise unchanged.
+Migration `003` creates a view `projects_for_aggregates` over `projects`
+that reads MW as
+`CASE WHEN technology = 'linea_evacuacion' THEN NULL ELSE mw_nominal END`
+and coalesces technology to `otra`. Every aggregate SQL file that sums MW
+(`010_municipality_stats.sql`, `030_protected_area_stats.sql`,
+`040_province_monthly.sql` and the new ones) reads the view, so the rule is
+written once. The project still counts in `project_count`; it never counts
+in `mw_count`. `mw_count` is `count(mw_nominal)` over the view, so projects
+with no declared MW are not counted either. `province_monthly` is otherwise
+unchanged.
 
 ### New aggregate SQL
 
@@ -207,10 +216,12 @@ Pure functions in `src/lib/metrics.ts`, unit-tested:
 
 - `metricValue(cells, metric, statuses, technologies)`: sum over cells
   matching both filters.
-- `mwCoverage(cells, statuses, technologies)`: `{ withMw, total }` from
-  `mw_count` and `project_count`.
-- `splitBy(cells, "status" | "technology", filters)`: the per-status or
-  per-technology figures the panel and the municipality page show today.
+- `mwCoverage(cells, filters)`: `{ withMw, total }` from `mw_count` and
+  `project_count`.
+- `matching(cells, filters)` and `splitBy(cells, "status" | "technology")`:
+  callers filter first, then split, giving the per-status or per-technology
+  figures the panel and the municipality page show today.
+- Filters are one value, `{ statuses, technologies }`.
 - `classify` and `classIndex` unchanged.
 
 `MunicipalityStats` in `types.ts` becomes `{ cells: StatsCell[] }`; the
@@ -272,6 +283,9 @@ New: the coverage line under the totals, and, when the municipality has
 evacuation-line projects, "Línea de evacuación: N proyectos, potencia no
 sumada (ya contada en las plantas que evacúa)". The page shows all
 technologies and ignores map state, as today.
+
+On the project page, an evacuation line's MW is labelled "Potencia evacuada"
+instead of "Potencia nominal" (the figure is shown, just never summed).
 
 ### Index
 
@@ -397,8 +411,11 @@ Test-driven throughout: each unit gets its failing test first.
     `protected_area_stats.json` and `municipality_stats.json` shapes; zod
     rejects an unknown `event`, technology or scope.
   - `catalog.ts` columns equal the fixture headers of `monthly_events.csv`.
-  - Fixtures extended with a line project, a two-province project and a
-    `sin_veredicto` document.
+  - The aggregate fixtures (`municipality_stats.json`,
+    `province_stats.json`, `monthly_events.csv`,
+    `protected_area_stats.json`) carry a line cell, a two-province project
+    and a `sin_veredicto` event. `projects.csv` and `documents.csv` fixtures
+    stay as they are, so the slice 2 tests are untouched.
 - Playwright:
   - Unticking "Solar fotovoltaica" changes the legend and writes
     `tecnologia=` to the URL.
@@ -423,7 +440,7 @@ Test-driven throughout: each unit gets its failing test first.
 |---|---|
 | New export missing or invalid at build | Build fails, previous deploy stays live (slice 1 policy) |
 | `province_stats` scope not one of the 8 provinces or `Andalucía` | Build fails (zod enum) |
-| Site in `protected_area_stats.json` absent from `municipality_protected_areas.json` | Build fails (cross-file refinement, as for INE codes) |
+| A site's `municipality_count` differs from the number of municipalities listing it in `municipality_protected_areas.json` | Build fails (cross-file check in `loadMapData`, as for INE codes) |
 | Overlay fetch fails in the browser | Inline message next to the control; everything else unaffected |
 | Sensitivity file over 1.5 MB at export | Tolerance raised and recorded; budget unchanged |
 | Unknown `tecnologia`, `sensibilidad` or `provincia` in the URL | Ignored, defaults used |
