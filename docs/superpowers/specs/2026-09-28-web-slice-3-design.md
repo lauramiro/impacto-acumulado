@@ -58,6 +58,9 @@ approval and every milestone.
   extended to assemble provinceStats/events/sites/lastMonth and cross-check
   each site's municipality count against municipality_protected_areas.json).
   Next: Task 9, map state for technology, overlays and province.
+- 2026-09-28: Task 9 done (map state carries technologies, Natura 2000,
+  sensitivity layer and province in the URL). Next: Task 10, technology
+  filter, legend coverage and panel filter line.
 
 ## The data this is designed against
 
