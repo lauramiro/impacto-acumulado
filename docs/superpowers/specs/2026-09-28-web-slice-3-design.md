@@ -48,6 +48,11 @@ approval and every milestone.
   labels, formatMonth/formatCoverage, and the timeline series model in
   timeline.ts; catalog.ts's municipality_stats.csv entry updated for
   mw_count). Next: Task 7, stats cells data model and its consumers.
+- 2026-09-28: Task 7 done (moved MunicipalityStats to a cells array with
+  matching/sumFigures/splitBy/mwCoverage in metrics.ts, and updated every
+  consumer - map panel, municipality totals, fact sheet - to the new model).
+  Next: Task 8, loaders for protected-area stats, province stats and monthly
+  events.
 
 ## The data this is designed against
 
