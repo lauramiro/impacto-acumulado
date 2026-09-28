@@ -11,6 +11,7 @@ const oneDecimal = new Intl.NumberFormat(LOCALE, {
 });
 const integer = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0, useGrouping: true });
 const longDate = new Intl.DateTimeFormat(LOCALE, { dateStyle: "long", timeZone: "UTC" });
+const monthYear = new Intl.DateTimeFormat(LOCALE, { month: "long", year: "numeric", timeZone: "UTC" });
 
 export function formatNumber(n: number, decimals: 0 | 1): string {
   return decimals === 0 ? integer.format(n) : oneDecimal.format(n);
@@ -39,6 +40,16 @@ export function formatDate(iso: string): string {
 
 export function formatLongDate(date: Date): string {
   return longDate.format(date);
+}
+
+/** "2023-06" to "junio de 2023". */
+export function formatMonth(month: string): string {
+  return monthYear.format(new Date(`${month}-01T00:00:00Z`));
+}
+
+/** The coverage note every MW total carries. */
+export function formatCoverage(withMw: number, total: number): string {
+  return `MW declarados en ${integer.format(withMw)} de ${integer.format(total)} ${total === 1 ? "proyecto" : "proyectos"}`;
 }
 
 const twoDecimals = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 });

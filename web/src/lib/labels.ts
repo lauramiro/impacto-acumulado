@@ -1,4 +1,5 @@
-import type { DocumentRole, Metric, Status, Technology, Verdict } from "./types";
+import { fold } from "./search";
+import { PROVINCES, type DocumentRole, type EventKind, type Metric, type Province, type SensitivityLayer, type Status, type Technology, type Verdict } from "./types";
 
 export const STATUS_LABELS: Record<Status, string> = {
   en_consulta: "En consulta",
@@ -46,3 +47,27 @@ export const METRIC_UNITS: Record<Metric, string> = {
   ha: "ha",
   proyectos: "proyectos",
 };
+
+export const EVENT_LABELS: Record<EventKind, string> = {
+  consulta: "Información pública",
+  favorable: "Favorable",
+  favorable_condicionada: "Favorable con condiciones",
+  desfavorable: "Desfavorable",
+  sin_veredicto: "Resolución sin veredicto leído",
+};
+
+export const SENSITIVITY_LABELS: Record<SensitivityLayer, string> = {
+  ninguna: "Ninguna",
+  ftv: "Fotovoltaica",
+  eol: "Eólica",
+};
+
+/** "Almería" to "almeria": the URL form of a province. */
+export function provinceSlug(p: Province): string {
+  return fold(p);
+}
+
+export function provinceFromSlug(slug: string | null): Province | null {
+  if (slug === null) return null;
+  return PROVINCES.find((p) => provinceSlug(p) === slug) ?? null;
+}

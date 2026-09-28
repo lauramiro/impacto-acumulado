@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatBytes, formatDate, formatHa, formatInt, formatLongDate, formatMw, formatPercent, formatScore } from "@/lib/format";
+import { formatBytes, formatCoverage, formatDate, formatHa, formatInt, formatLongDate, formatMonth, formatMw, formatPercent, formatScore } from "@/lib/format";
 
 describe("format (es-ES)", () => {
   it("formats MW and hectares with one decimal and thousands separators", () => {
@@ -23,5 +23,20 @@ describe("format (es-ES)", () => {
     expect(formatBytes(999)).toBe("999 B");
     expect(formatBytes(8793)).toBe("8,8 KB");
     expect(formatBytes(1_997_358)).toBe("2,0 MB");
+  });
+});
+
+describe("formatMonth", () => {
+  it("formats a year-month in Spanish", () => {
+    expect(formatMonth("2023-06")).toBe("junio de 2023");
+    expect(formatMonth("2022-01")).toBe("enero de 2022");
+  });
+});
+
+describe("formatCoverage", () => {
+  it("states how many projects the MW figure covers", () => {
+    expect(formatCoverage(167, 433)).toBe("MW declarados en 167 de 433 proyectos");
+    expect(formatCoverage(1, 1)).toBe("MW declarados en 1 de 1 proyecto");
+    expect(formatCoverage(1200, 1500)).toBe("MW declarados en 1.200 de 1.500 proyectos");
   });
 });

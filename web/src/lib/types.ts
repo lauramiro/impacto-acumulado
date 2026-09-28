@@ -13,6 +13,17 @@ export type Verdict = (typeof VERDICTS)[number];
 export const METRICS = ["mw", "ha", "proyectos"] as const;
 export type Metric = (typeof METRICS)[number];
 
+export const PROVINCES = ["Almería", "Cádiz", "Córdoba", "Granada", "Huelva", "Jaén", "Málaga", "Sevilla"] as const;
+export type Province = (typeof PROVINCES)[number];
+export const REGION = "Andalucía" as const;
+export const SCOPES = [...PROVINCES, REGION] as const;
+export type Scope = (typeof SCOPES)[number];
+export const EVENTS = ["consulta", "favorable", "favorable_condicionada", "desfavorable", "sin_veredicto"] as const;
+export type EventKind = (typeof EVENTS)[number];
+export const SENSITIVITY_LAYERS = ["ninguna", "ftv", "eol"] as const;
+export type SensitivityLayer = (typeof SENSITIVITY_LAYERS)[number];
+export type MonthlyEvent = { month: string; scope: Scope; technology: Technology; event: EventKind; count: number }; // month "YYYY-MM"
+
 export type Municipality = {
   ine: string;
   name: string;
