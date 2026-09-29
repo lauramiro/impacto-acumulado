@@ -75,6 +75,10 @@ approval and every milestone.
 - 2026-09-28: Task 13 done (ProvinceTable shows the 8 provinces and the
   Andalucía total per active status, with province selection wired into
   MapState via the province query param). Next: Task 14, monthly timeline.
+- 2026-09-29: Task 14 done (Timeline draws a hand-drawn SVG small-multiples
+  chart of documents per month by event, scoped by province and technology,
+  with a data table fallback). Next: Task 15, /datos, /metodologia and
+  README.
 
 ## The data this is designed against
 
