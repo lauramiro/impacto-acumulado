@@ -65,6 +65,10 @@ approval and every milestone.
   map-explorer and Panel, with MW coverage shown in the legend and per
   municipality, and empty-state copy when no status or technology is
   selected). Next: Task 11, Natura 2000 and sensitivity overlays.
+- 2026-09-28: Task 11 done (Red Natura 2000 and sensitivity overlays fetched
+  on demand via useLayers, drawn on the choropleth with a hatched pattern,
+  and surfaced in Controls, the legend and inline errors). Next: Task 12,
+  shared lookup table and the Natura 2000 table.
 
 ## The data this is designed against
 
