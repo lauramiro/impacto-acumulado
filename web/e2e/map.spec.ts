@@ -31,3 +31,29 @@ test("no horizontal scroll on a phone", async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBe(false);
 });
+
+test("technology filter updates the legend coverage and the URL", async ({ page }) => {
+  await page.goto("/");
+  const coverage = page.getByTestId("cobertura-mapa");
+  await expect(coverage).toHaveText(/^MW declarados en [\d.]+ de [\d.]+ proyectos$/);
+  const before = await coverage.textContent();
+  await page.getByRole("checkbox", { name: "Solar fotovoltaica", exact: true }).uncheck();
+  await expect(page).toHaveURL(/tecnologia=/);
+  await expect(coverage).not.toHaveText(before ?? "");
+});
+
+test("coverage line only shows for MW", async ({ page }) => {
+  await page.goto("/?metrica=proyectos");
+  await expect(page.getByTestId("cobertura-mapa")).toHaveCount(0);
+});
+
+test("with no technology selected the legend says so", async ({ page }) => {
+  await page.goto("/?tecnologia=");
+  await expect(page.getByText("Ninguna tecnología seleccionada.")).toBeVisible();
+  await expect(page.getByTestId("cobertura-mapa")).toHaveCount(0);
+});
+
+test("the panel names the active technology filter", async ({ page }) => {
+  await page.goto("/?tecnologia=solar_fv&m=11020");
+  await expect(page.getByText("Filtrado por tecnología: Solar fotovoltaica")).toBeVisible();
+});

@@ -26,3 +26,8 @@
 .nota {
   font-size: var(--texto-pie);
 }
+
+.cobertura {
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+}

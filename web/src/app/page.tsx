@@ -5,11 +5,18 @@ import { loadMapData } from "@/lib/data/map-data";
 export default async function HomePage() {
   preload("/data/municipalities_map.geojson", { as: "fetch", crossOrigin: "anonymous" });
   preload("/data/provinces.geojson", { as: "fetch", crossOrigin: "anonymous" });
-  const { municipalities, stats } = await loadMapData();
+  const { municipalities, stats, provinceStats, events, sites, lastMonth } = await loadMapData();
   return (
     <>
       <h1 className="visually-hidden">Mapa de capacidad renovable acumulada por municipio</h1>
-      <MapExplorer municipalities={municipalities.map(({ ine, name, province }) => ({ ine, name, province }))} stats={stats} />
+      <MapExplorer
+        municipalities={municipalities.map(({ ine, name, province }) => ({ ine, name, province }))}
+        stats={stats}
+        provinceStats={provinceStats}
+        events={events}
+        sites={sites}
+        lastMonth={lastMonth}
+      />
     </>
   );
 }

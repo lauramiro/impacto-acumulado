@@ -8,8 +8,8 @@ import { MunicipalityIndex, type IndexRow } from "@/components/municipality-inde
 import { formatNumber } from "@/lib/format";
 import { METRIC_UNITS } from "@/lib/labels";
 import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
-import { classIndex, classify, metricValue } from "@/lib/metrics";
-import { TECHNOLOGIES, type MapMunicipality, type Metric, type MunicipalityStats, type Status } from "@/lib/types";
+import { classIndex, classify, metricValue, mwCoverage } from "@/lib/metrics";
+import type { Filters, MapMunicipality, Metric, MonthlyEvent, MunicipalityStats, ProtectedAreaStats, ProvinceStats, Status, Technology } from "@/lib/types";
 import type { MuniProps, ProvProps } from "./choropleth";
 import { Controls } from "./controls";
 import { Panel } from "./panel";
@@ -25,7 +25,14 @@ type Geo = {
   provinces: FeatureCollection<Geometry, ProvProps>;
 };
 
-type Props = { municipalities: MapMunicipality[]; stats: Record<string, MunicipalityStats> };
+type Props = {
+  municipalities: MapMunicipality[];
+  stats: Record<string, MunicipalityStats>;
+  provinceStats: ProvinceStats;
+  events: MonthlyEvent[];
+  sites: ProtectedAreaStats[];
+  lastMonth: string;
+};
 
 async function fetchJson<T>(url: string): Promise<T> {
   const r = await fetch(url);
@@ -33,7 +40,7 @@ async function fetchJson<T>(url: string): Promise<T> {
   return (await r.json()) as T;
 }
 
-export function MapExplorer({ municipalities, stats }: Props) {
+export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
   const router = useRouter();
   const [state, setState] = useState<MapState>(defaultState);
   const [geo, setGeo] = useState<Geo | "error" | null>(null);
@@ -80,8 +87,16 @@ export function MapExplorer({ municipalities, stats }: Props) {
 
   const byIne = useMemo(() => new Map(municipalities.map((m) => [m.ine, m])), [municipalities]);
 
-  // Task 10 replaces this fixed technology set with state.
-  const filters = useMemo(() => ({ statuses: state.statuses, technologies: new Set(TECHNOLOGIES) }), [state.statuses]);
+  const filters = useMemo<Filters>(
+    () => ({ statuses: state.statuses, technologies: state.technologies }),
+    [state.statuses, state.technologies],
+  );
+
+  const coverage = useMemo(() => {
+    if (state.metric !== "mw") return null;
+    const c = mwCoverage(provinceStats["Andalucía"], filters);
+    return c.total > 0 ? c : null;
+  }, [state.metric, provinceStats, filters]);
 
   const values = useMemo(() => {
     const out = new Map<string, number>();
@@ -114,12 +129,19 @@ export function MapExplorer({ municipalities, stats }: Props) {
       <Controls
         metric={state.metric}
         statuses={state.statuses}
+        technologies={state.technologies}
         onMetric={(metric: Metric) => update({ ...state, metric })}
         onToggleStatus={(s: Status) => {
           const statuses = new Set(state.statuses);
           if (statuses.has(s)) statuses.delete(s);
           else statuses.add(s);
           update({ ...state, statuses });
+        }}
+        onToggleTechnology={(t: Technology) => {
+          const technologies = new Set(state.technologies);
+          if (technologies.has(t)) technologies.delete(t);
+          else technologies.add(t);
+          update({ ...state, technologies });
         }}
       />
       <div className={styles.layout}>
@@ -148,6 +170,8 @@ export function MapExplorer({ municipalities, stats }: Props) {
           filters={filters}
           thresholds={thresholds}
           anyStatus={state.statuses.size > 0}
+          anyTechnology={state.technologies.size > 0}
+          coverage={coverage}
           onClose={() => select(null)}
         />
       </div>
