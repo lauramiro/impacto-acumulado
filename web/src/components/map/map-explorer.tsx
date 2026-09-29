@@ -5,14 +5,28 @@ import { useRouter } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
+import { fetchJson } from "@/lib/fetch-json";
 import { formatNumber } from "@/lib/format";
 import { METRIC_UNITS } from "@/lib/labels";
 import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricValue, mwCoverage } from "@/lib/metrics";
-import type { Filters, MapMunicipality, Metric, MonthlyEvent, MunicipalityStats, ProtectedAreaStats, ProvinceStats, Status, Technology } from "@/lib/types";
-import type { MuniProps, ProvProps } from "./choropleth";
+import type {
+  Filters,
+  MapMunicipality,
+  Metric,
+  MonthlyEvent,
+  MunicipalityStats,
+  ProtectedAreaStats,
+  ProvinceStats,
+  SensitivityLayer,
+  Status,
+  Technology,
+} from "@/lib/types";
+import type { MuniProps, ProvProps, SiteProps } from "./choropleth";
 import { Controls } from "./controls";
+import { OverlayKey } from "./legend";
 import { Panel } from "./panel";
+import { useLayers, type LayerData } from "./use-layers";
 import styles from "./map-explorer.module.css";
 
 const Choropleth = dynamic(() => import("./choropleth").then((m) => m.Choropleth), {
@@ -34,31 +48,37 @@ type Props = {
   lastMonth: string;
 };
 
-async function fetchJson<T>(url: string): Promise<T> {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`${url}: ${r.status}`);
-  return (await r.json()) as T;
-}
-
 export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
   const router = useRouter();
   const [state, setState] = useState<MapState>(defaultState);
   const [geo, setGeo] = useState<Geo | "error" | null>(null);
+  const { layers, ensure } = useLayers();
+  const ensureFor = useCallback(
+    (s: MapState) => {
+      if (s.natura) ensure("natura");
+      if (s.sensitivity !== "ninguna") ensure(s.sensitivity);
+    },
+    [ensure],
+  );
 
   useEffect(() => {
     // Hydrate from the URL after mount: window.location is not available
     // during prerendering, and reading it via useSearchParams would bail
     // this whole subtree out of static generation (see page.tsx).
+    const parsed = parseMapState(new URLSearchParams(window.location.search));
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setState(parseMapState(new URLSearchParams(window.location.search)));
+    setState(parsed);
+    ensureFor(parsed);
     function onPopState() {
-      setState(parseMapState(new URLSearchParams(window.location.search)));
+      const parsed = parseMapState(new URLSearchParams(window.location.search));
+      setState(parsed);
+      ensureFor(parsed);
     }
     window.addEventListener("popstate", onPopState);
     return () => {
       window.removeEventListener("popstate", onPopState);
     };
-  }, []);
+  }, [ensureFor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,13 +96,14 @@ export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
 
   const update = useCallback(
     (next: MapState) => {
+      ensureFor(next);
       setState(next);
       startTransition(() => {
         const qs = serializeMapState(next);
         router.replace(qs ? `/?${qs}` : "/", { scroll: false });
       });
     },
-    [router],
+    [router, ensureFor],
   );
 
   const byIne = useMemo(() => new Map(municipalities.map((m) => [m.ine, m])), [municipalities]);
@@ -143,6 +164,14 @@ export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
           else technologies.add(t);
           update({ ...state, technologies });
         }}
+        natura={state.natura}
+        onNatura={(natura: boolean) => update({ ...state, natura })}
+        sensitivity={state.sensitivity}
+        onSensitivity={(sensitivity: SensitivityLayer) => update({ ...state, sensitivity })}
+        layerError={{
+          natura: state.natura && layers.natura.status === "error",
+          sensitivity: state.sensitivity !== "ninguna" && layers[state.sensitivity].status === "error",
+        }}
       />
       <div className={styles.layout}>
         <div className={styles.mapa}>
@@ -160,6 +189,12 @@ export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
               labelOf={labelOf}
               selected={state.selected}
               onSelect={select}
+              sites={state.natura && layers.natura.status === "loaded" ? (layers.natura.data as FeatureCollection<Geometry, SiteProps>) : null}
+              sensitivity={
+                state.sensitivity !== "ninguna" && layers[state.sensitivity].status === "loaded"
+                  ? { layer: state.sensitivity, data: (layers[state.sensitivity] as { data: LayerData }).data }
+                  : null
+              }
             />
           )}
         </div>
@@ -172,6 +207,7 @@ export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
           anyStatus={state.statuses.size > 0}
           anyTechnology={state.technologies.size > 0}
           coverage={coverage}
+          overlays={<OverlayKey natura={state.natura} sensitivity={state.sensitivity} />}
           onClose={() => select(null)}
         />
       </div>

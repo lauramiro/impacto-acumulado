@@ -30,3 +30,19 @@
   font-size: var(--texto-dato);
   cursor: pointer;
 }
+
+.subgroup {
+  border: 0;
+  padding: 0;
+  margin: 0.25rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.error {
+  color: var(--alerta);
+  font-size: 0.8125rem;
+  margin: 0.25rem 0 0;
+  flex-basis: 100%;
+}

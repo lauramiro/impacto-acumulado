@@ -31,3 +31,22 @@
   stroke-width: 1;
   pointer-events: none;
 }
+
+.rayado {
+  stroke: var(--alerta);
+  stroke-width: 1;
+}
+
+.sensibilidad {
+  fill: url(#rayado-sensibilidad);
+  stroke: none;
+  pointer-events: none;
+}
+
+.espacio {
+  fill: none;
+  stroke: var(--oficial);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: stroke;
+}

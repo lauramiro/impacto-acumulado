@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import { METRIC_UNITS } from "@/lib/labels";
+import { METRIC_UNITS, SENSITIVITY_LABELS } from "@/lib/labels";
 import { formatCoverage, formatNumber } from "@/lib/format";
-import type { Metric } from "@/lib/types";
+import type { Metric, SensitivityLayer } from "@/lib/types";
 import styles from "./legend.module.css";
 
 const CLASS_VARS = ["--regla", "--escala-1", "--escala-2", "--escala-3", "--escala-4", "--escala-5"];
@@ -46,5 +46,26 @@ export function Legend({ metric, thresholds, anyStatus, anyTechnology, coverage,
       ) : null}
       {overlays}
     </>
+  );
+}
+
+type OverlayKeyProps = { natura: boolean; sensitivity: SensitivityLayer };
+
+export function OverlayKey({ natura, sensitivity }: OverlayKeyProps) {
+  if (!natura && sensitivity === "ninguna") return null;
+  return (
+    <ul className={styles.capas} aria-label="Capas">
+      {natura ? (
+        <li>
+          <span className={styles.muestraNatura} aria-hidden="true" /> Red Natura 2000 (ZEC, ZEPA, LIC)
+        </li>
+      ) : null}
+      {sensitivity !== "ninguna" ? (
+        <li>
+          <span className={styles.muestraSensibilidad} aria-hidden="true" /> Zonificación del Ministerio, clases alta a máxima (
+          {SENSITIVITY_LABELS[sensitivity].toLowerCase()}). La ubicación de los proyectos dentro del municipio no se conoce.
+        </li>
+      ) : null}
+    </ul>
   );
 }

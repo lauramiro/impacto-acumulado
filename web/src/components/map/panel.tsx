@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
 import { formatCoverage, formatHa, formatInt, formatMw } from "@/lib/format";
@@ -17,10 +18,11 @@ type Props = {
   anyStatus: boolean;
   anyTechnology: boolean;
   coverage: { withMw: number; total: number } | null;
+  overlays?: ReactNode;
   onClose: () => void;
 };
 
-export function Panel({ municipality, stats, metric, filters, thresholds, anyStatus, anyTechnology, coverage, onClose }: Props) {
+export function Panel({ municipality, stats, metric, filters, thresholds, anyStatus, anyTechnology, coverage, overlays, onClose }: Props) {
   const shown = stats ? matching(stats.cells, filters) : [];
   const figuresByStatus = splitBy(shown, "status");
   const total = sumFigures(shown);
@@ -34,7 +36,14 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
             Cada municipio se colorea por la suma de los proyectos evaluados en los boletines con los estados
             seleccionados. Pulsa un municipio para ver sus totales, o usa el índice de abajo.
           </p>
-          <Legend metric={metric} thresholds={thresholds} anyStatus={anyStatus} anyTechnology={anyTechnology} coverage={coverage} />
+          <Legend
+            metric={metric}
+            thresholds={thresholds}
+            anyStatus={anyStatus}
+            anyTechnology={anyTechnology}
+            coverage={coverage}
+            overlays={overlays}
+          />
         </>
       ) : (
         <div aria-live="polite">
