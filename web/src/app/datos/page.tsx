@@ -6,9 +6,9 @@ import { CATALOG } from "@/lib/data/catalog";
 import { loadMeta } from "@/lib/data/meta";
 import { dataFile } from "@/lib/data/paths";
 import { formatBytes, formatInt, formatLongDate } from "@/lib/format";
-import { ROLE_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
+import { EVENT_LABELS, ROLE_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
 import { SITE_URL } from "@/lib/site";
-import { DOCUMENT_ROLES, STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
+import { DOCUMENT_ROLES, EVENTS, STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
 import styles from "./page.module.css";
 
 // Reused for the "Valores de las listas" glossary below: every enumeration a
@@ -19,6 +19,7 @@ const ENUMERATIONS = [
   { slug: "technology", title: "Tecnologías (technology)", values: TECHNOLOGIES, labels: TECHNOLOGY_LABELS },
   { slug: "verdict", title: "Resultado de la resolución (verdict)", values: VERDICTS, labels: VERDICT_LABELS },
   { slug: "role", title: "Tipos de documento (role)", values: DOCUMENT_ROLES, labels: ROLE_LABELS },
+  { slug: "event", title: "Acontecimientos (event)", values: EVENTS, labels: EVENT_LABELS },
 ] as const;
 
 export const metadata: Metadata = {

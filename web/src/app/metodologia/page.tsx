@@ -115,10 +115,33 @@ export default async function MethodologyPage() {
       <h2>Agregación</h2>
       <ul>
         <li>Los totales por municipio suman los proyectos con ese municipio entre sus emplazamientos.</li>
-        <li>Un proyecto situado en varios municipios cuenta íntegro en cada uno de ellos.</li>
+        <li>Un proyecto situado en varios municipios cuenta íntegro en cada uno de ellos. En el total de Andalucía cuenta una vez.</li>
         <li>
-          Los solapes con la Red Natura 2000 y la cuota de sensibilidad usan el límite municipal completo: son un filtro de
-          atención, no una evaluación de impacto. No hay geometría de parcela.
+          El sitio no suma la potencia de las líneas de evacuación: la potencia que declara una línea es la de las plantas que evacúa,
+          que ya cuentan por sí mismas. Las líneas sí cuentan como proyectos. El almacenamiento asociado a una planta puede duplicar
+          potencia de la misma forma; son tres proyectos y no se corrigen.
+        </li>
+        <li>
+          Muchos documentos no declaran potencia. Cada total de MW indica cuántos proyectos la declaran, con la forma «MW declarados en
+          167 de 433 proyectos». Las cifras de potencia llevan además el error de lectura medido arriba.
+        </li>
+        <li>
+          Los solapes con la Red Natura 2000 y la cuota de sensibilidad usan el límite municipal completo: son un filtro de atención, no
+          una evaluación de impacto. La tabla de espacios suma todos los proyectos de los municipios que tocan cada espacio y mide
+          cercanía, no afección.
+        </li>
+        <li>
+          La capa de sensibilidad del mapa es la zonificación ambiental del Ministerio para energías renovables, clases alta, muy alta y
+          máxima, sobre una malla de 250 m y simplificada para la web. La ubicación de cada proyecto dentro de su municipio no se conoce.
+        </li>
+        <li>
+          La serie mensual cuenta documentos: anuncios de información pública y resoluciones (declaraciones de impacto, autorizaciones
+          ambientales unificadas e informes) con su resultado. Las resoluciones cuyo resultado no se ha podido leer aparecen aparte. Las
+          modificaciones y caducidades no cuentan. Empieza en 2022.
+        </li>
+        <li>
+          Los municipios de un proyecto pueden incluir algunos por los que solo pasa la línea de evacuación: el extractor aún no los
+          distingue.
         </li>
         <li>El mapa clasifica los municipios con valor en cinco clases por cuantiles, recalculadas con cada filtro.</li>
       </ul>

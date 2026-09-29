@@ -17,3 +17,10 @@ test("methodology page publishes per-field accuracy with its sample size", async
   await expect(page.getByTestId("muestra")).toContainText("antes de corregir el extractor");
   await expect(page.getByRole("link", { name: /etiquetas/ })).toHaveAttribute("href", /github\.com/);
 });
+
+test("methodology explains the slice 3 aggregation rules", async ({ page }) => {
+  await page.goto("/metodologia");
+  await expect(page.getByText(/no suma la potencia de las líneas de evacuación/)).toBeVisible();
+  await expect(page.getByText(/MW declarados en/)).toBeVisible();
+  await expect(page.getByText(/malla de 250 m/)).toBeVisible();
+});

@@ -71,13 +71,27 @@ export const CATALOG: CatalogEntry[] = [
       { name: "month", type: "fecha", meaning: "Primer día del mes" },
       { name: "verdict", type: "texto", meaning: "Resultado de la resolución" },
       { name: "project_count", type: "entero", meaning: "Proyectos" },
-      { name: "mw_nominal", type: "decimal", meaning: "Suma de MW nominales" },
+      { name: "mw_nominal", type: "decimal", meaning: "Suma de MW nominales, sin líneas de evacuación" },
     ],
   },
-  { file: "protected_area_stats.json", description: "Por espacio de la Red Natura 2000 y estado: proyectos cuyo municipio intersecta el espacio (a nivel de municipio, no de parcela)." },
+  {
+    file: "monthly_events.csv",
+    description:
+      "Documentos por mes, provincia, tecnología y tipo de acontecimiento: información pública o resolución con su resultado. Un documento de un proyecto en varias provincias cuenta en cada una; en Andalucía, una vez.",
+    columns: [
+      { name: "month", type: "fecha", meaning: "Primer día del mes de publicación" },
+      { name: "scope", type: "texto", meaning: "Provincia, o Andalucía para el total regional" },
+      { name: "technology", type: "texto", meaning: TECH_NOTE },
+      { name: "event", type: "texto", meaning: "valor de la lista de acontecimientos" },
+      { name: "document_count", type: "entero", meaning: "Documentos" },
+    ],
+  },
+  { file: "protected_area_stats.json", description: "Por espacio de la Red Natura 2000: nombre, tipo, municipios que lo intersectan y proyectos de esos municipios por estado y tecnología (a nivel de municipio, no de parcela)." },
   { file: "municipality_protected_areas.json", description: "Por código INE, los espacios de la Red Natura 2000 que intersectan el término municipal." },
   { file: "municipalities.geojson", description: "Límites municipales (DERA) simplificados a unos 50 m, con superficie y cuota de sensibilidad alta o máxima." },
   { file: "protected_areas.geojson", description: "Espacios de la Red Natura 2000 en Andalucía, simplificados a unos 50 m." },
+  { file: "sensitivity_ftv.geojson", description: "Zonificación ambiental del Ministerio para fotovoltaica, clases alta, muy alta y máxima, disuelta y recortada a Andalucía." },
+  { file: "sensitivity_eol.geojson", description: "Zonificación ambiental del Ministerio para eólica, clases alta, muy alta y máxima, disuelta y recortada a Andalucía." },
   { file: "provinces.geojson", description: "Límites provinciales, unión de los municipios." },
   {
     file: "meta.json",
@@ -89,4 +103,6 @@ export const CATALOG: CatalogEntry[] = [
 // municipality_stats.json y municipalities_map.geojson quedan fuera a propósito: son
 // versiones internas, en forma apta para la web, de datos que ya están en esta lista
 // (municipality_stats.csv y municipalities.geojson respectivamente) y no aportan
-// información nueva. Ver docs/superpowers/specs/2026-09-22-web-slice-2-design.md.
+// información nueva. province_stats.json también es interno: una copia en forma
+// apta para la web de lo que ya dan projects.csv y municipalities.geojson juntos.
+// Ver docs/superpowers/specs/2026-09-22-web-slice-2-design.md.
