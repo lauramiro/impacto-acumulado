@@ -1,0 +1,63 @@
+.section {
+  margin-top: 2.5rem;
+}
+
+.scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  padding: 0.375rem 0.625rem;
+  border-bottom: 1px solid var(--regla);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table tbody th,
+.table tfoot th {
+  position: sticky;
+  left: 0;
+  background: var(--papel);
+}
+
+.table tfoot th,
+.table tfoot td {
+  border-top: 1px solid var(--tinta);
+  font-weight: 600;
+}
+
+.table .num {
+  text-align: right;
+}
+
+.provincia {
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--oficial);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.provincia[aria-pressed="true"] {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.seleccionada th,
+.seleccionada td {
+  background: var(--escala-1);
+}
+
+.nota {
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+}

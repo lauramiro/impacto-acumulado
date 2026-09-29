@@ -27,6 +27,7 @@ import { Controls } from "./controls";
 import { OverlayKey } from "./legend";
 import { NaturaTable } from "./natura-table";
 import { Panel } from "./panel";
+import { ProvinceTable } from "./province-table";
 import { useLayers, type LayerData } from "./use-layers";
 import styles from "./map-explorer.module.css";
 
@@ -212,6 +213,13 @@ export function MapExplorer({ municipalities, stats, provinceStats, sites }: Pro
           onClose={() => select(null)}
         />
       </div>
+      <ProvinceTable
+        stats={provinceStats}
+        metric={state.metric}
+        filters={filters}
+        selected={state.province}
+        onSelect={(province) => update({ ...state, province })}
+      />
       <MunicipalityIndex rows={rows} metric={state.metric} selected={state.selected} onSelect={select} />
       <NaturaTable sites={sites} metric={state.metric} filters={filters} />
     </div>

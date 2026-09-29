@@ -49,7 +49,7 @@ test("coverage line only shows for MW", async ({ page }) => {
 
 test("with no technology selected the legend says so", async ({ page }) => {
   await page.goto("/?tecnologia=");
-  await expect(page.getByText("Ninguna tecnología seleccionada.")).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Leyenda del mapa" }).getByText("Ninguna tecnología seleccionada.")).toBeVisible();
   await expect(page.getByTestId("cobertura-mapa")).toHaveCount(0);
 });
 
