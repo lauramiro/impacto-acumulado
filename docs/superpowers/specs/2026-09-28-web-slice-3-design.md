@@ -83,6 +83,9 @@ approval and every milestone.
   sensitivity_ftv.geojson and sensitivity_eol.geojson, /datos gained the
   event enumeration and /metodologia gained the slice 3 aggregation rules).
   Next: Task 16, accessibility sweep, merge, workflow and deploy check.
+- 2026-09-29: Task 16 Steps 1-2 done (axe on / with overlays, province and
+  timeline table; full local run green). Next: final review, then merge,
+  workflow re-enable and deploy checks with the user.
 
 ## The data this is designed against
 
