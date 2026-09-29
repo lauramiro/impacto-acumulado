@@ -69,6 +69,9 @@ approval and every milestone.
   on demand via useLayers, drawn on the choropleth with a hatched pattern,
   and surfaced in Controls, the legend and inline errors). Next: Task 12,
   shared lookup table and the Natura 2000 table.
+- 2026-09-28: Task 12 done (MunicipalityIndex rebuilt on a shared
+  LookupTable component; NaturaTable lists all 197 Natura 2000 sites under
+  the active filters). Next: Task 13, province table.
 
 ## The data this is designed against
 
