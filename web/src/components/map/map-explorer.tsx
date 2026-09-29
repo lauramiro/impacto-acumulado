@@ -25,6 +25,7 @@ import type {
 import type { MuniProps, ProvProps, SiteProps } from "./choropleth";
 import { Controls } from "./controls";
 import { OverlayKey } from "./legend";
+import { NaturaTable } from "./natura-table";
 import { Panel } from "./panel";
 import { useLayers, type LayerData } from "./use-layers";
 import styles from "./map-explorer.module.css";
@@ -48,7 +49,7 @@ type Props = {
   lastMonth: string;
 };
 
-export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
+export function MapExplorer({ municipalities, stats, provinceStats, sites }: Props) {
   const router = useRouter();
   const [state, setState] = useState<MapState>(defaultState);
   const [geo, setGeo] = useState<Geo | "error" | null>(null);
@@ -212,6 +213,7 @@ export function MapExplorer({ municipalities, stats, provinceStats }: Props) {
         />
       </div>
       <MunicipalityIndex rows={rows} metric={state.metric} selected={state.selected} onSelect={select} />
+      <NaturaTable sites={sites} metric={state.metric} filters={filters} />
     </div>
   );
 }

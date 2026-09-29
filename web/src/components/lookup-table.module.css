@@ -56,12 +56,12 @@
   font-size: var(--texto-dato);
 }
 
-.seleccionada th,
-.seleccionada td {
+:global(.seleccionada) th,
+:global(.seleccionada) td {
   background: color-mix(in srgb, var(--escala-1) 50%, var(--papel));
 }
 
-.ver {
+:global(.ver-en-mapa) {
   background: none;
   border: 0;
   padding: 0;
