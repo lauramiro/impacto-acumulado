@@ -61,6 +61,10 @@ approval and every milestone.
 - 2026-09-28: Task 9 done (map state carries technologies, Natura 2000,
   sensitivity layer and province in the URL). Next: Task 10, technology
   filter, legend coverage and panel filter line.
+- 2026-09-28: Task 10 done (technology checkbox filter wired into Controls,
+  map-explorer and Panel, with MW coverage shown in the legend and per
+  municipality, and empty-state copy when no status or technology is
+  selected). Next: Task 11, Natura 2000 and sensitivity overlays.
 
 ## The data this is designed against
 
