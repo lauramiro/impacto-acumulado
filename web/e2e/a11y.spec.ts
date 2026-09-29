@@ -26,3 +26,11 @@ test("no serious or critical axe violations on /datos at 375px (collapsed table)
   await page.goto("/datos");
   await checkAxe(page, "/datos@375px");
 });
+
+test("no serious or critical axe violations on / with overlays, a province and the timeline data open", async ({ page }) => {
+  await page.goto("/?natura=1&sensibilidad=fv&provincia=sevilla");
+  await expect(page.locator("path[data-site]")).toHaveCount(197);
+  await expect(page.locator('path[data-sensitivity="ftv"]')).toHaveCount(1);
+  await page.getByText("Ver los datos").click();
+  await checkAxe(page, "/ with overlays");
+});
