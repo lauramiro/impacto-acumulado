@@ -148,6 +148,12 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
   const selected = state.selected ? (byIne.get(state.selected) ?? null) : null;
   const select = useCallback((ine: string | null) => update({ ...state, selected: ine }), [state, update]);
 
+  const sensitivityLayer = state.sensitivity !== "ninguna" ? layers[state.sensitivity] : null;
+  const sensitivity = useMemo<{ layer: "ftv" | "eol"; data: LayerData } | null>(() => {
+    if (state.sensitivity === "ninguna" || !sensitivityLayer || sensitivityLayer.status !== "loaded") return null;
+    return { layer: state.sensitivity, data: sensitivityLayer.data };
+  }, [state.sensitivity, sensitivityLayer]);
+
   return (
     <div>
       <Controls
@@ -193,11 +199,7 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
               selected={state.selected}
               onSelect={select}
               sites={state.natura && layers.natura.status === "loaded" ? (layers.natura.data as FeatureCollection<Geometry, SiteProps>) : null}
-              sensitivity={
-                state.sensitivity !== "ninguna" && layers[state.sensitivity].status === "loaded"
-                  ? { layer: state.sensitivity, data: (layers[state.sensitivity] as { data: LayerData }).data }
-                  : null
-              }
+              sensitivity={sensitivity}
             />
           )}
         </div>
@@ -228,7 +230,7 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
         lastMonth={lastMonth}
         onClearProvince={() => update({ ...state, province: null })}
       />
-      <MunicipalityIndex rows={rows} metric={state.metric} selected={state.selected} onSelect={select} />
+      <MunicipalityIndex rows={rows} metric={state.metric} filters={filters} selected={state.selected} onSelect={select} />
       <NaturaTable sites={sites} metric={state.metric} filters={filters} />
     </div>
   );

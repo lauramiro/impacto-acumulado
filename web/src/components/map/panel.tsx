@@ -56,8 +56,10 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
             </p>
           ) : null}
           <h2 className={`display ${styles.nombre}`}>{municipality.name}</h2>
-          {total.projectCount === 0 ? (
+          {!stats || stats.cells.length === 0 ? (
             <p className={styles.texto}>Ningún proyecto registrado en los boletines desde 2019.</p>
+          ) : total.projectCount === 0 ? (
+            <p className={styles.texto}>Ningún proyecto con estos filtros.</p>
           ) : (
             <dl className={styles.totales}>
               {STATUSES.filter((s) => (figuresByStatus.get(s)?.projectCount ?? 0) > 0).map((s) => {

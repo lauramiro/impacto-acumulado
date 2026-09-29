@@ -10,6 +10,12 @@ type Props = { sites: readonly ProtectedAreaStats[]; metric: Metric; filters: Fi
 
 export function NaturaTable({ sites, metric, filters }: Props) {
   const decimals = metric === "proyectos" ? 0 : 1;
+  const notice =
+    filters.statuses.size === 0 ? (
+      <p>Ningún estado seleccionado.</p>
+    ) : filters.technologies.size === 0 ? (
+      <p>Ninguna tecnología seleccionada.</p>
+    ) : undefined;
   return (
     <LookupTable
       id="natura"
@@ -17,6 +23,7 @@ export function NaturaTable({ sites, metric, filters }: Props) {
       countText={`${formatInt(sites.length)} espacios`}
       countTestId="natura-recuento"
       intro={<p>Suma de todos los proyectos de los municipios que tocan el espacio. Mide cercanía a escala municipal, no afección al espacio.</p>}
+      notice={notice}
       searchLabel="Buscar espacio"
       rows={sites}
       rowKey={(s) => s.siteCode}

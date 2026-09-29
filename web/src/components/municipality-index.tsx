@@ -4,25 +4,33 @@ import Link from "next/link";
 import { LookupTable } from "@/components/lookup-table";
 import { formatInt, formatNumber } from "@/lib/format";
 import { METRIC_LABELS, METRIC_UNITS } from "@/lib/labels";
-import type { MapMunicipality, Metric } from "@/lib/types";
+import type { Filters, MapMunicipality, Metric } from "@/lib/types";
 
 export type IndexRow = MapMunicipality & { value: number };
 
 export type MunicipalityIndexProps = {
   rows: IndexRow[];
   metric: Metric;
+  filters: Filters;
   selected: string | null;
   onSelect: (ine: string | null) => void;
 };
 
-export function MunicipalityIndex({ rows, metric, selected, onSelect }: MunicipalityIndexProps) {
+export function MunicipalityIndex({ rows, metric, filters, selected, onSelect }: MunicipalityIndexProps) {
   const decimals = metric === "proyectos" ? 0 : 1;
+  const notice =
+    filters.statuses.size === 0 ? (
+      <p>Ningún estado seleccionado.</p>
+    ) : filters.technologies.size === 0 ? (
+      <p>Ninguna tecnología seleccionada.</p>
+    ) : undefined;
   return (
     <LookupTable
       id="indice"
       title="Índice de municipios"
       countText={`${formatInt(rows.length)} municipios con proyectos`}
       countTestId="indice-recuento"
+      notice={notice}
       searchLabel="Buscar municipio"
       rows={rows}
       rowKey={(r) => r.ine}

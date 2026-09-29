@@ -16,8 +16,20 @@ type Props = {
 };
 
 export function Legend({ metric, thresholds, anyStatus, anyTechnology, coverage, overlays }: Props) {
-  if (!anyStatus) return <p className={styles.nota}>Ningún estado seleccionado.</p>;
-  if (!anyTechnology) return <p className={styles.nota}>Ninguna tecnología seleccionada.</p>;
+  if (!anyStatus)
+    return (
+      <>
+        <p className={styles.nota}>Ningún estado seleccionado.</p>
+        {overlays}
+      </>
+    );
+  if (!anyTechnology)
+    return (
+      <>
+        <p className={styles.nota}>Ninguna tecnología seleccionada.</p>
+        {overlays}
+      </>
+    );
   const decimals = metric === "proyectos" ? 0 : 1;
   const unit = METRIC_UNITS[metric];
   const labels: string[] = ["Sin proyectos"];

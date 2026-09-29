@@ -12,6 +12,7 @@ export type LookupTableProps<R> = {
   countText: string;
   countTestId: string;
   intro?: ReactNode;
+  notice?: ReactNode;
   searchLabel: string;
   rows: readonly R[];
   rowKey: (r: R) => string;
@@ -34,6 +35,7 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
         </p>
       </div>
       {p.intro}
+      {p.notice}
       <label className={styles.buscar}>
         {p.searchLabel}
         <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" />
@@ -66,7 +68,7 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
           ))}
         </tbody>
       </table>
-      {visible.length === 0 ? <p className={styles.vacio}>{p.emptyText}</p> : null}
+      {visible.length === 0 && (!p.notice || deferredQuery.trim() !== "") ? <p className={styles.vacio}>{p.emptyText}</p> : null}
     </section>
   );
 }

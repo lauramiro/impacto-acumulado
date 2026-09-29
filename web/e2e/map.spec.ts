@@ -57,3 +57,10 @@ test("the panel names the active technology filter", async ({ page }) => {
   await page.goto("/?tecnologia=solar_fv&m=11020");
   await expect(page.getByText("Filtrado por tecnología: Solar fotovoltaica")).toBeVisible();
 });
+
+test("the panel distinguishes no projects from no projects under these filters", async ({ page }) => {
+  await page.goto("/?estado=&m=11020");
+  const panel = page.getByRole("complementary", { name: "Municipio seleccionado" });
+  await expect(panel.getByText("Ningún proyecto con estos filtros.")).toBeVisible();
+  await expect(panel.getByText("Ningún proyecto registrado en los boletines desde 2019.")).toHaveCount(0);
+});

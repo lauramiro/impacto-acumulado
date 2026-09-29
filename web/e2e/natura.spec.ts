@@ -18,3 +18,12 @@ test("the Natura 2000 table follows the filters", async ({ page }) => {
   await page.getByRole("checkbox", { name: "Favorable con condiciones", exact: true }).uncheck();
   await expect(row).not.toHaveText(before ?? "");
 });
+
+test("with no technology selected the index and the Natura table say so", async ({ page }) => {
+  await page.goto("/?tecnologia=");
+  const indice = page.getByRole("region", { name: "Índice de municipios" });
+  const natura = page.getByRole("region", { name: "Red Natura 2000" });
+  await expect(indice.getByText("Ninguna tecnología seleccionada.")).toBeVisible();
+  await expect(natura.getByText("Ninguna tecnología seleccionada.")).toBeVisible();
+  await expect(indice.getByText("Ningún municipio coincide con la búsqueda.")).toHaveCount(0);
+});

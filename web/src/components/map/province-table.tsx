@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCoverage, formatInt, formatNumber } from "@/lib/format";
+import { formatInt, formatNumber } from "@/lib/format";
 import { METRIC_UNITS, STATUS_LABELS } from "@/lib/labels";
 import { metricValue, mwCoverage } from "@/lib/metrics";
 import { PROVINCES, REGION, STATUSES, type Filters, type Metric, type Province, type ProvinceStats, type StatsCell } from "@/lib/types";
@@ -23,7 +23,6 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
     return c.total > 0 ? `${formatInt(c.withMw)} de ${formatInt(c.total)}` : "";
   };
   const region = stats[REGION];
-  const regionCoverage = mwCoverage(region, filters);
   return (
     <section aria-labelledby="provincias" className={styles.section}>
       <h2 id="provincias">Por provincia</h2>
@@ -83,9 +82,6 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
             Un proyecto en varias provincias cuenta en cada una; en el total de Andalucía cuenta una vez, también si no tiene municipio
             identificado.
           </p>
-          {metric === "mw" && regionCoverage.total > 0 ? (
-            <p className={`dato ${styles.nota}`}>{formatCoverage(regionCoverage.withMw, regionCoverage.total)}</p>
-          ) : null}
         </>
       )}
     </section>

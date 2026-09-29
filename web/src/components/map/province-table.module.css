@@ -20,6 +20,7 @@
   white-space: nowrap;
 }
 
+.table thead th:first-child,
 .table tbody th,
 .table tfoot th {
   position: sticky;
@@ -52,8 +53,8 @@
   text-decoration: none;
 }
 
-.seleccionada th,
-.seleccionada td {
+.table .seleccionada th,
+.table .seleccionada td {
   background: var(--escala-1);
 }
 
