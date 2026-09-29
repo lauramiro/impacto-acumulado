@@ -86,6 +86,10 @@ approval and every milestone.
 - 2026-09-29: Task 16 Steps 1-2 done (axe on / with overlays, province and
   timeline table; full local run green). Next: final review, then merge,
   workflow re-enable and deploy checks with the user.
+- 2026-09-29: final review fixes (panel and lookup-table empty states under
+  filters, overlay key kept, sensitivity path memoised, province table
+  highlight). Next: merge, workflow re-enable and deploy checks with the
+  user.
 
 ## The data this is designed against
 
