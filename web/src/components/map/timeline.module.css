@@ -1,0 +1,64 @@
+.section {
+  margin-top: 2.5rem;
+}
+
+.wrap {
+  position: relative;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.etiqueta {
+  font-family: var(--font-body), serif;
+  font-size: 13px;
+  fill: var(--tinta);
+}
+
+.eje {
+  font-family: var(--font-data), monospace;
+  font-size: 12px;
+  fill: var(--tinta);
+}
+
+.base {
+  stroke: var(--regla);
+  stroke-width: 1;
+}
+
+.toda {
+  font: inherit;
+  background: none;
+  border: 1px solid var(--regla);
+  padding: 0.25rem 0.625rem;
+  cursor: pointer;
+}
+
+.nota {
+  font-size: 0.8125rem;
+}
+
+.datos {
+  margin-top: 0.5rem;
+}
+
+.tabla {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.tabla th,
+.tabla td {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--regla);
+  white-space: nowrap;
+}
+
+.num {
+  text-align: right;
+}

@@ -28,6 +28,7 @@ import { OverlayKey } from "./legend";
 import { NaturaTable } from "./natura-table";
 import { Panel } from "./panel";
 import { ProvinceTable } from "./province-table";
+import { Timeline } from "./timeline";
 import { useLayers, type LayerData } from "./use-layers";
 import styles from "./map-explorer.module.css";
 
@@ -50,7 +51,7 @@ type Props = {
   lastMonth: string;
 };
 
-export function MapExplorer({ municipalities, stats, provinceStats, sites }: Props) {
+export function MapExplorer({ municipalities, stats, provinceStats, events, sites, lastMonth }: Props) {
   const router = useRouter();
   const [state, setState] = useState<MapState>(defaultState);
   const [geo, setGeo] = useState<Geo | "error" | null>(null);
@@ -219,6 +220,13 @@ export function MapExplorer({ municipalities, stats, provinceStats, sites }: Pro
         filters={filters}
         selected={state.province}
         onSelect={(province) => update({ ...state, province })}
+      />
+      <Timeline
+        events={events}
+        province={state.province}
+        technologies={state.technologies}
+        lastMonth={lastMonth}
+        onClearProvince={() => update({ ...state, province: null })}
       />
       <MunicipalityIndex rows={rows} metric={state.metric} selected={state.selected} onSelect={select} />
       <NaturaTable sites={sites} metric={state.metric} filters={filters} />
