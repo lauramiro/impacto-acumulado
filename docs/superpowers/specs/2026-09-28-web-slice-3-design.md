@@ -79,6 +79,10 @@ approval and every milestone.
   chart of documents per month by event, scoped by province and technology,
   with a data table fallback). Next: Task 15, /datos, /metodologia and
   README.
+- 2026-09-29: Task 15 done (catalogue now lists monthly_events.csv,
+  sensitivity_ftv.geojson and sensitivity_eol.geojson, /datos gained the
+  event enumeration and /metodologia gained the slice 3 aggregation rules).
+  Next: Task 16, accessibility sweep, merge, workflow and deploy check.
 
 ## The data this is designed against
 
