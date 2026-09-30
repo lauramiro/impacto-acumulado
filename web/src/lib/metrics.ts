@@ -44,13 +44,26 @@ export function splitBy<K extends "status" | "technology">(cells: readonly Stats
   return out;
 }
 
+/** Decimals a metric is shown with; class boundaries use the same precision. */
+export function metricDecimals(metric: Metric): 0 | 1 {
+  return metric === "proyectos" ? 0 : 1;
+}
+
+/** A value rounded as it is displayed, so class boundaries match the labels. */
+function shown(value: number, decimals: 0 | 1): number {
+  return Number(value.toFixed(decimals));
+}
+
 /**
- * Quantile thresholds over the positive values. Returns at most `classes - 1`
- * ascending, distinct thresholds below the maximum; fewer when the data has
- * fewer distinct values.
+ * Quantile thresholds over the positive values, rounded to `decimals`. Returns
+ * at most `classes - 1` ascending, distinct thresholds below the maximum; fewer
+ * when the data has fewer distinct values.
  */
-export function classify(values: number[], classes: number): number[] {
-  const positive = values.filter((v) => v > 0).sort((a, b) => a - b);
+export function classify(values: number[], classes: number, decimals: 0 | 1 = 0): number[] {
+  const positive = values
+    .map((v) => shown(v, decimals))
+    .filter((v) => v > 0)
+    .sort((a, b) => a - b);
   if (positive.length === 0) return [];
   const thresholds: number[] = [];
   for (let k = 1; k < classes; k++) {
@@ -62,10 +75,21 @@ export function classify(values: number[], classes: number): number[] {
   return thresholds.filter((t) => t < max);
 }
 
-/** 0 for zero or negative, otherwise 1 + number of thresholds strictly below the value. */
-export function classIndex(value: number, thresholds: number[]): number {
-  if (value <= 0) return 0;
+/** Map class for a municipality with no matching projects. */
+export const NO_PROJECTS_CLASS = 0;
+/** Map class for a municipality with projects but no declared MW (or ha). */
+export const NO_FIGURE_CLASS = -1;
+
+/**
+ * NO_PROJECTS_CLASS when there are no projects, NO_FIGURE_CLASS when there are
+ * projects but the value is zero, otherwise 1 + number of thresholds strictly
+ * below the value as displayed with `decimals`.
+ */
+export function classIndex(value: number, projects: number, thresholds: number[], decimals: 0 | 1 = 0): number {
+  if (projects <= 0) return NO_PROJECTS_CLASS;
+  if (value <= 0) return NO_FIGURE_CLASS;
+  const v = shown(value, decimals);
   let i = 0;
-  while (i < thresholds.length && value > thresholds[i]) i++;
+  while (i < thresholds.length && v > thresholds[i]) i++;
   return i + 1;
 }

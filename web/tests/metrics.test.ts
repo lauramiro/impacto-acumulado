@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { classIndex, classify, matching, metricCoverage, metricValue, mwCoverage, splitBy, sumFigures } from "@/lib/metrics";
+import {
+  classIndex,
+  classify,
+  matching,
+  metricCoverage,
+  metricDecimals,
+  metricValue,
+  mwCoverage,
+  NO_FIGURE_CLASS,
+  NO_PROJECTS_CLASS,
+  splitBy,
+  sumFigures,
+} from "@/lib/metrics";
 import { STATUSES, TECHNOLOGIES, type StatsCell } from "@/lib/types";
 
 const cells: StatsCell[] = [
@@ -65,16 +77,40 @@ describe("classify", () => {
     expect(classify([0, 0], 5)).toEqual([]);
     expect(classify([3, 9], 5)).toEqual([3]);
   });
+  it("rounds thresholds to the displayed precision", () => {
+    expect(classify([10.04, 29.74, 50.26, 70.1, 99.99], 5, 1)).toEqual([29.7, 50.3, 70.1]);
+    expect(classify([0.04, 0.02, 5], 5, 1)).toEqual([]);
+  });
+});
+
+describe("metricDecimals", () => {
+  it("shows project counts as integers and MW and ha with one decimal", () => {
+    expect(metricDecimals("proyectos")).toBe(0);
+    expect(metricDecimals("mw")).toBe(1);
+    expect(metricDecimals("ha")).toBe(1);
+  });
 });
 
 describe("classIndex", () => {
-  it("maps zero to class 0 and positive values to 1..n", () => {
+  it("separates no projects from projects without a figure", () => {
     const t = [10, 20, 30, 40];
-    expect(classIndex(0, t)).toBe(0);
-    expect(classIndex(5, t)).toBe(1);
-    expect(classIndex(10, t)).toBe(1);
-    expect(classIndex(25, t)).toBe(3);
-    expect(classIndex(999, t)).toBe(5);
-    expect(classIndex(7, [])).toBe(1);
+    expect(classIndex(0, 0, t)).toBe(NO_PROJECTS_CLASS);
+    expect(classIndex(0, 5, t)).toBe(NO_FIGURE_CLASS);
+    expect(NO_FIGURE_CLASS).not.toBe(NO_PROJECTS_CLASS);
+  });
+  it("maps positive values to 1..n, a value equal to a threshold in the lower class", () => {
+    const t = [10, 20, 30, 40];
+    expect(classIndex(5, 1, t)).toBe(1);
+    expect(classIndex(10, 1, t)).toBe(1);
+    expect(classIndex(11, 1, t)).toBe(2);
+    expect(classIndex(25, 1, t)).toBe(3);
+    expect(classIndex(999, 1, t)).toBe(5);
+    expect(classIndex(7, 1, [])).toBe(1);
+  });
+  it("compares values as displayed, so the class matches the legend", () => {
+    const t = [29.7, 59.8];
+    expect(classIndex(29.74, 1, t, 1)).toBe(1);
+    expect(classIndex(29.75, 1, t, 1)).toBe(2);
+    expect(classIndex(0.02, 1, t, 1)).toBe(1);
   });
 });

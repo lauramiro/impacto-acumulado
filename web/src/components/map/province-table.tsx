@@ -1,7 +1,7 @@
 "use client";
 
-import { formatCoverageCell, formatNumber, isUndeclared, NO_DATA } from "@/lib/format";
-import { METRIC_UNITS, STATUS_LABELS } from "@/lib/labels";
+import { formatCoverageCell, isUndeclared, NO_DATA } from "@/lib/format";
+import { formatMetric, STATUS_LABELS } from "@/lib/labels";
 import { metricCoverage, metricValue } from "@/lib/metrics";
 import { PROVINCES, REGION, STATUSES, type Filters, type Metric, type Province, type ProvinceStats, type StatsCell } from "@/lib/types";
 import styles from "./province-table.module.css";
@@ -16,12 +16,9 @@ type Props = {
 
 export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Props) {
   const statuses = STATUSES.filter((s) => filters.statuses.has(s));
-  const decimals = metric === "proyectos" ? 0 : 1;
   const value = (cells: StatsCell[], f: Filters) => {
     const c = metricCoverage(cells, metric, f);
-    return isUndeclared(c.declared, c.total)
-      ? NO_DATA
-      : `${formatNumber(metricValue(cells, metric, f), decimals)} ${METRIC_UNITS[metric]}`;
+    return isUndeclared(c.declared, c.total) ? NO_DATA : formatMetric(metricValue(cells, metric, f), metric);
   };
   const coverage = (cells: StatsCell[]) => {
     const c = metricCoverage(cells, metric, filters);

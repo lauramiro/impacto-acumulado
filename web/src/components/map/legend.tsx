@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
-import { METRIC_UNITS, SENSITIVITY_LABELS } from "@/lib/labels";
-import { formatCoverage, formatNumber } from "@/lib/format";
+import { classLabels, NO_FIGURE_LABELS, SENSITIVITY_LABELS } from "@/lib/labels";
+import { formatCoverage } from "@/lib/format";
 import type { Metric, SensitivityLayer } from "@/lib/types";
 import styles from "./legend.module.css";
 
-const CLASS_VARS = ["--regla", "--escala-1", "--escala-2", "--escala-3", "--escala-4", "--escala-5"];
+const SCALE_VARS = ["--escala-1", "--escala-2", "--escala-3", "--escala-4", "--escala-5"];
+/** Matches the #rayado-sin-dato pattern in choropleth.tsx. */
+const NO_FIGURE_SWATCH = "repeating-linear-gradient(45deg, var(--escala-3) 0 1px, var(--papel) 1px 4px)";
 
 type Props = {
   metric: Metric;
@@ -30,24 +32,18 @@ export function Legend({ metric, thresholds, anyStatus, anyTechnology, coverage,
         {overlays}
       </>
     );
-  const decimals = metric === "proyectos" ? 0 : 1;
-  const unit = METRIC_UNITS[metric];
-  const labels: string[] = ["Sin proyectos"];
-  for (let i = 0; i <= thresholds.length; i++) {
-    const lo = i === 0 ? null : thresholds[i - 1];
-    const hi = i < thresholds.length ? thresholds[i] : null;
-    if (hi === null && lo === null) labels.push("Con proyectos");
-    else if (hi === null) labels.push(`Más de ${formatNumber(lo!, decimals)} ${unit}`);
-    else if (lo === null) labels.push(`Hasta ${formatNumber(hi, decimals)} ${unit}`);
-    else labels.push(`${formatNumber(lo, decimals)} a ${formatNumber(hi, decimals)} ${unit}`);
-  }
+  const items: { label: string; fill: string }[] = [
+    { label: "Sin proyectos", fill: "var(--regla)" },
+    ...(metric === "proyectos" ? [] : [{ label: `Con proyectos, ${NO_FIGURE_LABELS[metric]}`, fill: NO_FIGURE_SWATCH }]),
+    ...classLabels(metric, thresholds).map((label, i) => ({ label, fill: `var(${SCALE_VARS[i]})` })),
+  ];
   return (
     <>
       <ol className={styles.legend} aria-label="Leyenda">
-        {labels.map((label, i) => (
-          <li key={i} className={styles.item}>
-            <span className={styles.swatch} style={{ background: `var(${CLASS_VARS[i]})` }} aria-hidden="true" />
-            <span className={`dato ${styles.valor}`}>{label}</span>
+        {items.map((item) => (
+          <li key={item.label} className={styles.item}>
+            <span className={styles.swatch} style={{ background: item.fill }} aria-hidden="true" />
+            <span className={`dato ${styles.valor}`}>{item.label}</span>
           </li>
         ))}
       </ol>

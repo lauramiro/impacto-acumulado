@@ -1,15 +1,14 @@
 "use client";
 
 import { LookupTable } from "@/components/lookup-table";
-import { formatCoverageCell, formatInt, formatNumber, isUndeclared, NO_DATA } from "@/lib/format";
-import { METRIC_LABELS, METRIC_UNITS } from "@/lib/labels";
+import { formatCoverageCell, formatInt, isUndeclared, NO_DATA } from "@/lib/format";
+import { formatMetric, METRIC_LABELS } from "@/lib/labels";
 import { metricCoverage, metricValue } from "@/lib/metrics";
 import type { Filters, Metric, ProtectedAreaStats } from "@/lib/types";
 
 type Props = { sites: readonly ProtectedAreaStats[]; metric: Metric; filters: Filters };
 
 export function NaturaTable({ sites, metric, filters }: Props) {
-  const decimals = metric === "proyectos" ? 0 : 1;
   const coverageHeader = metric === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
   const notice =
     filters.statuses.size === 0 ? (
@@ -40,9 +39,7 @@ export function NaturaTable({ sites, metric, filters }: Props) {
           numeric: true,
           cell: (s) => {
             const c = metricCoverage(s.cells, metric, filters);
-            return isUndeclared(c.declared, c.total)
-              ? NO_DATA
-              : `${formatNumber(metricValue(s.cells, metric, filters), decimals)} ${METRIC_UNITS[metric]}`;
+            return isUndeclared(c.declared, c.total) ? NO_DATA : formatMetric(metricValue(s.cells, metric, filters), metric);
           },
         },
         ...(coverageHeader

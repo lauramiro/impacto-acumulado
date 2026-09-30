@@ -6,10 +6,10 @@ import { startTransition, useCallback, useEffect, useMemo, useState } from "reac
 import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
 import { fetchJson } from "@/lib/fetch-json";
-import { formatCoverage, formatNumber } from "@/lib/format";
-import { METRIC_UNITS } from "@/lib/labels";
+import { formatCoverage } from "@/lib/format";
+import { formatMetric, NO_FIGURE_LABELS } from "@/lib/labels";
 import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
-import { classIndex, classify, metricValue, mwCoverage } from "@/lib/metrics";
+import { classIndex, classify, metricDecimals, metricValue, mwCoverage } from "@/lib/metrics";
 import type {
   Filters,
   MapMunicipality,
@@ -134,24 +134,32 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
     return out;
   }, [municipalities, stats, filters]);
 
-  const thresholds = useMemo(() => classify([...values.values()], 5), [values]);
-  const decimals = state.metric === "proyectos" ? 0 : 1;
+  const decimals = metricDecimals(state.metric);
+  const thresholds = useMemo(() => classify([...values.values()], 5, decimals), [values, decimals]);
   const labelOf = useCallback(
     (ine: string) => {
-      const label = `${formatNumber(values.get(ine) ?? 0, decimals)} ${METRIC_UNITS[state.metric]}`;
-      const c = coverages.get(ine);
-      return state.metric === "mw" && c && c.total > 0 ? `${label} (${formatCoverage(c.withMw, c.total)})` : label;
+      const value = values.get(ine) ?? 0;
+      const c = coverages.get(ine) ?? { withMw: 0, total: 0 };
+      if (c.total === 0) return "Sin proyectos";
+      if (state.metric !== "proyectos" && value <= 0) return `${formatMetric(c.total, "proyectos")}, ${NO_FIGURE_LABELS[state.metric]}`;
+      const label = formatMetric(value, state.metric);
+      return state.metric === "mw" ? `${label} (${formatCoverage(c.withMw, c.total)})` : label;
     },
-    [values, coverages, decimals, state.metric],
+    [values, coverages, state.metric],
   );
-  const classOf = useCallback((ine: string) => classIndex(values.get(ine) ?? 0, thresholds), [values, thresholds]);
+  const classOf = useCallback(
+    (ine: string) => classIndex(values.get(ine) ?? 0, coverages.get(ine)?.total ?? 0, thresholds, decimals),
+    [values, coverages, thresholds, decimals],
+  );
 
+  // Every municipality with a matching project, including those whose MW or ha
+  // figure is zero because none of its projects declares one.
   const rows: IndexRow[] = useMemo(
     () =>
       municipalities
         .map((m) => ({ ...m, value: values.get(m.ine) ?? 0, ...(coverages.get(m.ine) ?? { withMw: 0, total: 0 }) }))
-        .filter((r) => r.value > 0)
-        .sort((a, b) => b.value - a.value),
+        .filter((r) => r.total > 0)
+        .sort((a, b) => b.value - a.value || b.total - a.total),
     [municipalities, values, coverages],
   );
 

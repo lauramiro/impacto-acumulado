@@ -37,6 +37,15 @@
   stroke-width: 1;
 }
 
+.sinDatoFondo {
+  fill: var(--papel);
+}
+
+.sinDatoRaya {
+  stroke: var(--escala-3);
+  stroke-width: 1.5;
+}
+
 .sensibilidad {
   fill: url(#rayado-sensibilidad);
   stroke: none;

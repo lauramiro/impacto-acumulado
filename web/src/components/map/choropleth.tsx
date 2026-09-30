@@ -3,6 +3,7 @@
 import { geoConicConformal, geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
 import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { NO_FIGURE_CLASS } from "@/lib/metrics";
 import { Tooltip, type TooltipState } from "./tooltip";
 import styles from "./choropleth.module.css";
 
@@ -25,6 +26,10 @@ type Props = {
 };
 
 const CLASS_VARS = ["--regla", "--escala-1", "--escala-2", "--escala-3", "--escala-4", "--escala-5"];
+
+function fillOf(cls: number): string {
+  return cls === NO_FIGURE_CLASS ? "url(#rayado-sin-dato)" : `var(${CLASS_VARS[cls]})`;
+}
 
 type MuniItem = { ine: string; name: string; d: string; cls: number; label: string };
 
@@ -50,7 +55,7 @@ const MuniLayer = memo(function MuniLayer({ items, selected, onSelect, onHover }
           d={m.d}
           data-ine={m.ine}
           className={`${styles.muni} ${selected === m.ine ? styles.seleccionado : ""}`}
-          style={{ fill: `var(${CLASS_VARS[m.cls]})` }}
+          style={{ fill: fillOf(m.cls) }}
           onMouseMove={(e) => onHover(m.name, m.label, e.clientX, e.clientY)}
           onClick={() => onSelect(selected === m.ine ? null : m.ine)}
         >
@@ -101,6 +106,11 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
     <div className={styles.wrap} ref={wrapRef}>
       <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-label="Mapa de Andalucía por municipios">
         <defs>
+          {/* Projects but no declared MW or ha; the legend swatch draws the same hatching. */}
+          <pattern id="rayado-sin-dato" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+            <rect width="4" height="4" className={styles.sinDatoFondo} />
+            <line x1="0" y1="0" x2="0" y2="4" className={styles.sinDatoRaya} />
+          </pattern>
           <pattern id="rayado-sensibilidad" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
             <line x1="0" y1="0" x2="0" y2="6" className={styles.rayado} />
           </pattern>

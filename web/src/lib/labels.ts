@@ -1,3 +1,5 @@
+import { formatNumber } from "./format";
+import { metricDecimals } from "./metrics";
 import { fold } from "./search";
 import { PROVINCES, type DocumentRole, type EventKind, type Metric, type Province, type SensitivityLayer, type Status, type Technology, type Verdict } from "./types";
 
@@ -42,11 +44,63 @@ export const METRIC_LABELS: Record<Metric, string> = {
   proyectos: "Proyectos",
 };
 
-export const METRIC_UNITS: Record<Metric, string> = {
-  mw: "MW",
-  ha: "ha",
-  proyectos: "proyectos",
+const METRIC_UNITS: Record<Metric, { one: string; other: string }> = {
+  mw: { one: "MW", other: "MW" },
+  ha: { one: "ha", other: "ha" },
+  proyectos: { one: "proyecto", other: "proyectos" },
 };
+
+/** The unit that goes after `n` as displayed: "1 proyecto", "0 proyectos", "1,0 MW". */
+export function metricUnit(metric: Metric, n: number): string {
+  return Number(n.toFixed(metricDecimals(metric))) === 1 ? METRIC_UNITS[metric].one : METRIC_UNITS[metric].other;
+}
+
+/** A metric value with its unit: "120,3 MW", "1 proyecto", "12 proyectos". */
+export function formatMetric(value: number, metric: Metric): string {
+  return `${formatNumber(value, metricDecimals(metric))} ${metricUnit(metric, value)}`;
+}
+
+/** What is missing when a municipality has projects but a zero MW or ha figure. */
+export const NO_FIGURE_LABELS: Record<Exclude<Metric, "proyectos">, string> = {
+  mw: "sin MW declarado",
+  ha: "sin superficie declarada",
+};
+
+const SINGLE_CLASS_LABELS: Record<Metric, string> = {
+  mw: "Con MW declarado",
+  ha: "Con superficie declarada",
+  proyectos: "Con proyectos",
+};
+
+/**
+ * Legend labels for map classes 1..thresholds.length + 1. A class covers values
+ * above the previous threshold up to and including its own, compared as
+ * displayed, so integer classes read "2 a 3 proyectos" and decimal ones start
+ * one display step above the previous class's upper bound.
+ */
+export function classLabels(metric: Metric, thresholds: number[]): string[] {
+  if (thresholds.length === 0) return [SINGLE_CLASS_LABELS[metric]];
+  const decimals = metricDecimals(metric);
+  const step = decimals === 0 ? 1 : 0.1;
+  const num = (n: number) => formatNumber(n, decimals);
+  const labels: string[] = [];
+  for (let i = 0; i <= thresholds.length; i++) {
+    const prev = i === 0 ? null : thresholds[i - 1];
+    const hi = i < thresholds.length ? thresholds[i] : null;
+    if (hi === null) {
+      const lo = Number((prev! + step).toFixed(decimals));
+      labels.push(decimals === 0 ? `${num(lo)} o más ${metricUnit(metric, 2)}` : `Más de ${formatMetric(prev!, metric)}`);
+      continue;
+    }
+    if (prev === null && decimals > 0) {
+      labels.push(`Hasta ${formatMetric(hi, metric)}`);
+      continue;
+    }
+    const lo = prev === null ? 1 : Number((prev + step).toFixed(decimals));
+    labels.push(lo === hi ? formatMetric(hi, metric) : `${num(lo)} a ${formatMetric(hi, metric)}`);
+  }
+  return labels;
+}
 
 export const EVENT_LABELS: Record<EventKind, string> = {
   consulta: "Información pública",
