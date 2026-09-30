@@ -169,6 +169,16 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
           .map((p) => (
             <path key={p.province} d={p.d} data-province={p.province} className={styles.provinciaMarcada} aria-hidden="true" />
           ))}
+        {/* The selected municipality, redrawn on top: in the municipality layer its stroke
+            scaled with the viewBox and the neighbours painted after it covered half of it. */}
+        {paths.munis
+          .filter((m) => m.ine === selected)
+          .map((m) => (
+            <g key={m.ine} data-selected={m.ine} aria-hidden="true">
+              <path d={m.d} className={styles.marcoSeleccion} />
+              <path d={m.d} className={styles.muniMarcado} />
+            </g>
+          ))}
         <g onMouseLeave={handleLeave}>
           {sitePaths.map((s) => (
             <path

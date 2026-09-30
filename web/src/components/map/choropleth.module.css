@@ -43,6 +43,26 @@
   pointer-events: none;
 }
 
+/* Selected municipality, drawn above every layer: a paper halo keeps the ink
+   outline visible against the darkest classes. */
+.marcoSeleccion,
+.muniMarcado {
+  fill: none;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.marcoSeleccion {
+  stroke: var(--papel);
+  stroke-width: 5;
+}
+
+.muniMarcado {
+  stroke: var(--tinta);
+  stroke-width: 2.5;
+}
+
 .rayado {
   stroke: var(--alerta);
   stroke-width: 1;
