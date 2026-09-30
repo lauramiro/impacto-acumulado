@@ -20,6 +20,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="es" className={`${display.variable} ${body.variable} ${data.variable}`}>
       <body>
+        {/* Home page sections; globals.css hides each link on pages without its target. */}
+        <nav className="saltos" aria-label="Saltar a">
+          <a href="#mapa">Mapa</a>
+          <a href="#indice">Índice de municipios</a>
+          <a href="#natura">Red Natura 2000</a>
+        </nav>
         <header className="contenedor">
           <Masthead />
           <Dateline meta={meta} />

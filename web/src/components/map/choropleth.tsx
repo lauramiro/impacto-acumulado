@@ -138,7 +138,7 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
 
   return (
     <div className={styles.wrap} ref={wrapRef}>
-      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-label={province ? `Mapa de Andalucía por municipios, provincia de ${province} marcada` : "Mapa de Andalucía por municipios"}>
+      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-describedby="mapa-teclado" aria-label={province ? `Mapa de Andalucía por municipios, provincia de ${province} marcada` : "Mapa de Andalucía por municipios"}>
         <defs>
           {/* Projects but no declared MW or ha; the legend swatch draws the same hatching. */}
           <pattern id="rayado-sin-dato" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
@@ -175,6 +175,10 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
           ))}
         </g>
       </svg>
+      {/* The municipalities are mouse and touch targets only; the index is the keyboard path to the same selection. */}
+      <p id="mapa-teclado" className="visually-hidden">
+        Para elegir un municipio con el teclado, usa el índice de municipios, más abajo: su botón Ver en el mapa lo selecciona aquí.
+      </p>
       <Tooltip state={tooltip} />
     </div>
   );

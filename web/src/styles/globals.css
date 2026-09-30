@@ -88,6 +88,28 @@ input:focus-visible,
   white-space: nowrap;
 }
 
+/* Skip links: off-screen until one takes focus. */
+.saltos a {
+  position: absolute;
+  top: 0.5rem;
+  left: var(--gutter);
+  z-index: 10;
+  padding: 0.5rem 0.75rem;
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  transform: translateY(-200%);
+}
+
+.saltos a:focus {
+  transform: none;
+}
+
+body:not(:has(#mapa)) .saltos a[href="#mapa"],
+body:not(:has(#indice)) .saltos a[href="#indice"],
+body:not(:has(#natura)) .saltos a[href="#natura"] {
+  display: none;
+}
+
 hr {
   border: 0;
   border-top: 1px solid var(--regla);

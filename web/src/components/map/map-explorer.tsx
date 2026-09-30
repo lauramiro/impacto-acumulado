@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
 import { expandMapData, type CompactMapData } from "@/lib/compact";
@@ -16,7 +16,7 @@ import type { MuniProps, ProvProps, SiteProps } from "./choropleth";
 import { Controls } from "./controls";
 import { OverlayKey } from "./legend";
 import { NaturaTable } from "./natura-table";
-import { Panel } from "./panel";
+import { Panel, PANEL_HEADING_ID } from "./panel";
 import { ProvinceTable } from "./province-table";
 import { Timeline } from "./timeline";
 import { useLayers, type LayerData } from "./use-layers";
@@ -154,7 +154,29 @@ export function MapExplorer({ data, lastMonth }: Props) {
   );
 
   const selected = state.selected ? (byIne.get(state.selected) ?? null) : null;
-  const select = useCallback((ine: string | null) => update({ ...state, selected: ine }), [state, update]);
+  // Set by a user selection (map or index), not by URL hydration or back/forward,
+  // so only a deliberate pick moves the viewport and focus to the panel.
+  const revealPending = useRef(false);
+  const select = useCallback(
+    (ine: string | null) => {
+      revealPending.current = ine !== null;
+      update({ ...state, selected: ine });
+    },
+    [state, update],
+  );
+  useEffect(() => {
+    if (!revealPending.current || state.selected === null) return;
+    revealPending.current = false;
+    const heading = document.getElementById(PANEL_HEADING_ID);
+    if (!heading) return;
+    const rect = heading.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+      // Scroll the whole panel so the province and INE line above the name shows too.
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      (heading.closest("aside") ?? heading).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    }
+    heading.focus({ preventScroll: true });
+  }, [state.selected]);
   const clearProvince = useCallback(() => update({ ...state, province: null }), [state, update]);
 
   const sensitivityLayer = state.sensitivity !== "ninguna" ? layers[state.sensitivity] : null;
@@ -193,7 +215,7 @@ export function MapExplorer({ data, lastMonth }: Props) {
           sensitivity: state.sensitivity !== "ninguna" && layers[state.sensitivity].status === "error",
         }}
       />
-      <div className={styles.layout}>
+      <div className={styles.layout} id="mapa">
         <div className={styles.mapa}>
           {geo === "error" ? (
             <p role="alert" className={styles.error}>

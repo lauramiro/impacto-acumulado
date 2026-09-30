@@ -22,6 +22,9 @@ type Props = {
   onClose: () => void;
 };
 
+/** Target of the scroll and focus after a municipality is selected (see MapExplorer). */
+export const PANEL_HEADING_ID = "municipio-seleccionado";
+
 export function Panel({ municipality, stats, metric, filters, thresholds, anyStatus, anyTechnology, coverage, overlays, onClose }: Props) {
   const shown = stats ? matching(stats.cells, filters) : [];
   const figuresByStatus = splitBy(shown, "status");
@@ -55,7 +58,9 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
           <p className={`dato ${styles.eyebrow}`}>
             {municipality.province} · INE {municipality.ine}
           </p>
-          <h2 className={`display ${styles.nombre}`}>{municipality.name}</h2>
+          <h2 id={PANEL_HEADING_ID} tabIndex={-1} className={`display ${styles.nombre}`}>
+            {municipality.name}
+          </h2>
           {filters.technologies.size < TECHNOLOGIES.length && filters.technologies.size > 0 ? (
             <p className={`${styles.texto} ${styles.filtro}`}>
               Filtrado por tecnología: {TECHNOLOGIES.filter((t) => filters.technologies.has(t)).map((t) => TECHNOLOGY_LABELS[t]).join(", ")}
