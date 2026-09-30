@@ -57,11 +57,18 @@ input:focus-visible,
   outline-offset: 2px;
 }
 
+/* Page titles share the display face on every route; pages that need another
+   size (the home headline, record names) override it with a class. */
+h1,
 .display {
   font-family: var(--font-display), "Bodoni MT", serif;
   font-weight: 500;
   letter-spacing: 0.01em;
   line-height: 1.05;
+}
+
+h1 {
+  font-size: var(--texto-nombre);
 }
 
 .dato {
