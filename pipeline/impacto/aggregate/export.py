@@ -155,7 +155,7 @@ def export_municipalities_map_geojson(conn, out_dir: Path) -> Path:
     return _write_feature_collection(out_dir / "municipalities_map.geojson", features)
 
 
-CELL_KEYS = ("status", "technology", "project_count", "mw_nominal", "mw_count", "hectares")
+CELL_KEYS = ("status", "technology", "project_count", "mw_nominal", "mw_count", "hectares", "ha_count")
 
 
 def export_municipality_stats_json(conn, out_dir: Path) -> Path:
