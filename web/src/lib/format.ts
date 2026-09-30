@@ -52,6 +52,11 @@ export function formatCoverage(withMw: number, total: number): string {
   return `MW declarados en ${integer.format(withMw)} de ${integer.format(total)} ${total === 1 ? "proyecto" : "proyectos"}`;
 }
 
+/** The short form for a "Con MW declarado" table column: "3 de 5", or "" when there are no projects. */
+export function formatCoverageCell(withMw: number, total: number): string {
+  return total > 0 ? `${integer.format(withMw)} de ${integer.format(total)}` : "";
+}
+
 const twoDecimals = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /** A 0 to 1 score such as a match or confidence value: "0,82". */

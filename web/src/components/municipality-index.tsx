@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { LookupTable } from "@/components/lookup-table";
-import { formatInt, formatNumber } from "@/lib/format";
+import { formatCoverageCell, formatInt, formatNumber } from "@/lib/format";
 import { METRIC_LABELS, METRIC_UNITS } from "@/lib/labels";
 import type { Filters, MapMunicipality, Metric } from "@/lib/types";
 
-export type IndexRow = MapMunicipality & { value: number };
+/** `withMw`/`total`: MW coverage under the active filters, shown when the metric is MW. */
+export type IndexRow = MapMunicipality & { value: number; withMw: number; total: number };
 
 export type MunicipalityIndexProps = {
   rows: IndexRow[];
@@ -39,8 +40,9 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect }:
       rowClassName={(r) => (selected === r.ine ? "seleccionada" : undefined)}
       columns={[
         { header: "Municipio", rowHeader: true, cell: (r) => <Link href={`/municipio/${r.ine}`}>{r.name}</Link> },
-        { header: "Provincia", cell: (r) => r.province },
+        { header: "Provincia", hideOnPhone: true, cell: (r) => r.province },
         { header: METRIC_LABELS[metric], numeric: true, cell: (r) => `${formatNumber(r.value, decimals)} ${METRIC_UNITS[metric]}` },
+        ...(metric === "mw" ? [{ header: "Con MW declarado", numeric: true, cell: (r: IndexRow) => formatCoverageCell(r.withMw, r.total) }] : []),
         {
           header: "Acciones",
           hiddenHeader: true,

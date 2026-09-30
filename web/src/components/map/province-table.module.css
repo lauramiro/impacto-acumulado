@@ -20,6 +20,13 @@
   white-space: nowrap;
 }
 
+/* Status labels such as "Favorable condicionada" wrap so all columns fit the
+   content width at desktop sizes; figures stay on one line. */
+.table thead th {
+  white-space: normal;
+  vertical-align: bottom;
+}
+
 .table thead th:first-child,
 .table tbody th,
 .table tfoot th {

@@ -83,6 +83,35 @@ export default async function DataPage() {
           })}
         </tbody>
       </table>
+      <h2>Cambios</h2>
+      <section aria-labelledby="cambio-2026-09-28" className={styles.columnas}>
+        <h3 id="cambio-2026-09-28">
+          <time dateTime="2026-09-28">28 de septiembre de 2026</time>
+        </h3>
+        <ul>
+          <li>
+            <span className="dato">mw_nominal</span> ya no suma la potencia de las líneas de evacuación en los archivos agregados (
+            <span className="dato">municipality_stats</span>, <span className="dato">protected_area_stats</span>,{" "}
+            <span className="dato">province_monthly.csv</span>): esa potencia es la de las plantas que evacúan, que ya cuentan por sí
+            mismas. Las líneas siguen contando como proyectos. <span className="dato">projects.csv</span> no cambia.
+          </li>
+          <li>
+            <span className="dato">municipality_stats.csv</span> tiene una columna nueva, <span className="dato">mw_count</span>, entre{" "}
+            <span className="dato">turbines</span> y <span className="dato">name</span>. Si lees el archivo por posición de columna, pasa a
+            leerlo por nombre.
+          </li>
+          <li>
+            <span className="dato">municipality_stats.json</span> y <span className="dato">protected_area_stats.json</span> cambian de
+            forma: cada entrada lleva una lista <span className="dato">cells</span> con una fila por estado y tecnología, en lugar de
+            totales por estado. <span className="dato">protected_area_stats.json</span> incluye además todos los espacios, con{" "}
+            <span className="dato">name</span>, <span className="dato">type</span> y <span className="dato">municipality_count</span>.
+          </li>
+          <li>
+            Archivos nuevos: <span className="dato">province_stats.json</span>, <span className="dato">monthly_events.csv</span>,{" "}
+            <span className="dato">sensitivity_ftv.geojson</span> y <span className="dato">sensitivity_eol.geojson</span>.
+          </li>
+        </ul>
+      </section>
       <h2>Columnas</h2>
       {CATALOG.filter((e) => e.columns).map((entry) => (
         <section key={entry.file} aria-labelledby={`col-${entry.file}`} className={styles.columnas}>

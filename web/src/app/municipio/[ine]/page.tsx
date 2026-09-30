@@ -10,7 +10,7 @@ import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
-import { formatInt, formatMw } from "@/lib/format";
+import { formatCoverage, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
 import styles from "./page.module.css";
 
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const s = stats.get(ine);
   const t = s ? sumFigures(s.cells) : null;
   const description = t
-    ? `${formatMw(t.mwNominal)} en ${formatInt(t.projectCount)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA.`
+    ? `${formatMw(t.mwNominal)} en ${formatInt(t.projectCount)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount)}).`
     : `Ningún proyecto renovable registrado en los boletines para ${muni.name} (${muni.province}).`;
   return { title: `${muni.name} · Impacto Acumulado`, description };
 }

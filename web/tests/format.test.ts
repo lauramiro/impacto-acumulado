@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatBytes, formatCoverage, formatDate, formatHa, formatInt, formatLongDate, formatMonth, formatMw, formatPercent, formatScore } from "@/lib/format";
+import { formatBytes, formatCoverage, formatCoverageCell, formatDate, formatHa, formatInt, formatLongDate, formatMonth, formatMw, formatPercent, formatScore } from "@/lib/format";
 
 describe("format (es-ES)", () => {
   it("formats MW and hectares with one decimal and thousands separators", () => {
@@ -38,5 +38,13 @@ describe("formatCoverage", () => {
     expect(formatCoverage(167, 433)).toBe("MW declarados en 167 de 433 proyectos");
     expect(formatCoverage(1, 1)).toBe("MW declarados en 1 de 1 proyecto");
     expect(formatCoverage(1200, 1500)).toBe("MW declarados en 1.200 de 1.500 proyectos");
+  });
+});
+
+describe("formatCoverageCell", () => {
+  it("gives the short table form, empty when there are no projects", () => {
+    expect(formatCoverageCell(3, 5)).toBe("3 de 5");
+    expect(formatCoverageCell(1200, 1500)).toBe("1.200 de 1.500");
+    expect(formatCoverageCell(0, 0)).toBe("");
   });
 });

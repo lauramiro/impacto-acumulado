@@ -4,7 +4,19 @@ import { useDeferredValue, useState, type ReactNode } from "react";
 import { matches } from "@/lib/search";
 import styles from "./lookup-table.module.css";
 
-export type LookupColumn<R> = { header: string; cell: (r: R) => ReactNode; numeric?: boolean; rowHeader?: boolean; hiddenHeader?: boolean };
+/** `hideOnPhone`: drop the column below 768 px so the table fits without horizontal scroll. */
+export type LookupColumn<R> = {
+  header: string;
+  cell: (r: R) => ReactNode;
+  numeric?: boolean;
+  rowHeader?: boolean;
+  hiddenHeader?: boolean;
+  hideOnPhone?: boolean;
+};
+
+function cellClass(c: { numeric?: boolean; hideOnPhone?: boolean }, numericClass: string): string | undefined {
+  return [c.numeric ? numericClass : null, c.hideOnPhone ? styles.sinMovil : null].filter(Boolean).join(" ") || undefined;
+}
 
 export type LookupTableProps<R> = {
   id: string;
@@ -44,7 +56,7 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
         <thead>
           <tr>
             {p.columns.map((c) => (
-              <th key={c.header} scope="col" className={c.numeric ? styles.num : undefined}>
+              <th key={c.header} scope="col" className={cellClass(c, styles.num)}>
                 {c.hiddenHeader ? <span className="visually-hidden">{c.header}</span> : c.header}
               </th>
             ))}
@@ -55,11 +67,11 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
             <tr key={p.rowKey(r)} className={p.rowClassName?.(r)}>
               {p.columns.map((c) =>
                 c.rowHeader ? (
-                  <th key={c.header} scope="row">
+                  <th key={c.header} scope="row" className={cellClass(c, styles.num)}>
                     {c.cell(r)}
                   </th>
                 ) : (
-                  <td key={c.header} className={c.numeric ? `dato ${styles.num}` : undefined}>
+                  <td key={c.header} className={cellClass(c, `dato ${styles.num}`)}>
                     {c.cell(r)}
                   </td>
                 ),

@@ -53,6 +53,12 @@ Vercel project `impacto-acumulado` (team `lauramiros-projects`): root directory 
 
 Lighthouse 13.5 (mobile, Chrome headless, 2026-09-21): `/` performance 88, accessibility 100 (LCP 3.3 s; the map loads a 196 KB compressed `municipalities_map.geojson` simplified at 200 m, the first deploy scored 73 with the 531 KB full-fidelity file); `/municipio/11020` performance 99, accessibility 100 (LCP 2.0 s); `/proyecto/1` performance 99, accessibility 100 (2026-09-22).
 
+## Changes to the published data
+
+Also listed under "Cambios" on `/datos`; add new entries to both.
+
+- 2026-09-28: `mw_nominal` in the aggregate files (`municipality_stats`, `protected_area_stats`, `province_monthly.csv`) no longer includes evacuation-line MW; `projects.csv` is unchanged. `municipality_stats.csv` gains a `mw_count` column between `turbines` and `name`. `municipality_stats.json` and `protected_area_stats.json` switch to a `cells` list per status and technology, and `protected_area_stats.json` now lists every site with `name`, `type` and `municipality_count`. New files: `province_stats.json`, `monthly_events.csv`, `sensitivity_ftv.geojson`, `sensitivity_eol.geojson`.
+
 ## Continuous integration and the weekly run
 
 - `.github/workflows/ci.yml` runs `ruff check` and `pytest` against a PostGIS service container on every push to `main`, every pull request, and on manual dispatch.

@@ -119,10 +119,10 @@ export default async function MethodologyPage() {
         <li>
           El sitio no suma la potencia de las líneas de evacuación: la potencia que declara una línea es la de las plantas que evacúa,
           que ya cuentan por sí mismas. Las líneas sí cuentan como proyectos. El almacenamiento asociado a una planta puede duplicar
-          potencia de la misma forma; son tres proyectos y no se corrigen.
+          potencia de la misma forma; ese caso no se corrige.
         </li>
         <li>
-          Muchos documentos no declaran potencia. Cada total de MW indica cuántos proyectos la declaran, con la forma «MW declarados en
+          Muchos documentos no declaran potencia. Cada total de MW indica cuántos proyectos la declaran, por ejemplo «MW declarados en
           167 de 433 proyectos». Las cifras de potencia llevan además el error de lectura medido arriba.
         </li>
         <li>

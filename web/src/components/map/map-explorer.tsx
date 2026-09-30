@@ -6,7 +6,7 @@ import { startTransition, useCallback, useEffect, useMemo, useState } from "reac
 import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
 import { fetchJson } from "@/lib/fetch-json";
-import { formatNumber } from "@/lib/format";
+import { formatCoverage, formatNumber } from "@/lib/format";
 import { METRIC_UNITS } from "@/lib/labels";
 import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricValue, mwCoverage } from "@/lib/metrics";
@@ -128,21 +128,31 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
     return out;
   }, [municipalities, stats, state.metric, filters]);
 
+  const coverages = useMemo(() => {
+    const out = new Map<string, { withMw: number; total: number }>();
+    for (const m of municipalities) out.set(m.ine, mwCoverage(stats[m.ine]?.cells, filters));
+    return out;
+  }, [municipalities, stats, filters]);
+
   const thresholds = useMemo(() => classify([...values.values()], 5), [values]);
   const decimals = state.metric === "proyectos" ? 0 : 1;
   const labelOf = useCallback(
-    (ine: string) => `${formatNumber(values.get(ine) ?? 0, decimals)} ${METRIC_UNITS[state.metric]}`,
-    [values, decimals, state.metric],
+    (ine: string) => {
+      const label = `${formatNumber(values.get(ine) ?? 0, decimals)} ${METRIC_UNITS[state.metric]}`;
+      const c = coverages.get(ine);
+      return state.metric === "mw" && c && c.total > 0 ? `${label} (${formatCoverage(c.withMw, c.total)})` : label;
+    },
+    [values, coverages, decimals, state.metric],
   );
   const classOf = useCallback((ine: string) => classIndex(values.get(ine) ?? 0, thresholds), [values, thresholds]);
 
   const rows: IndexRow[] = useMemo(
     () =>
       municipalities
-        .map((m) => ({ ...m, value: values.get(m.ine) ?? 0 }))
+        .map((m) => ({ ...m, value: values.get(m.ine) ?? 0, ...(coverages.get(m.ine) ?? { withMw: 0, total: 0 }) }))
         .filter((r) => r.value > 0)
         .sort((a, b) => b.value - a.value),
-    [municipalities, values],
+    [municipalities, values, coverages],
   );
 
   const selected = state.selected ? (byIne.get(state.selected) ?? null) : null;

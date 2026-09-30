@@ -1,6 +1,6 @@
 "use client";
 
-import { formatInt, formatNumber } from "@/lib/format";
+import { formatCoverageCell, formatNumber } from "@/lib/format";
 import { METRIC_UNITS, STATUS_LABELS } from "@/lib/labels";
 import { metricValue, mwCoverage } from "@/lib/metrics";
 import { PROVINCES, REGION, STATUSES, type Filters, type Metric, type Province, type ProvinceStats, type StatsCell } from "@/lib/types";
@@ -20,7 +20,7 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
   const value = (cells: StatsCell[], f: Filters) => `${formatNumber(metricValue(cells, metric, f), decimals)} ${METRIC_UNITS[metric]}`;
   const coverage = (cells: StatsCell[]) => {
     const c = mwCoverage(cells, filters);
-    return c.total > 0 ? `${formatInt(c.withMw)} de ${formatInt(c.total)}` : "";
+    return formatCoverageCell(c.withMw, c.total);
   };
   const region = stats[REGION];
   return (

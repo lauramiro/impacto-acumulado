@@ -27,3 +27,14 @@ test("with no technology selected the index and the Natura table say so", async 
   await expect(natura.getByText("Ninguna tecnología seleccionada.")).toBeVisible();
   await expect(indice.getByText("Ningún municipio coincide con la búsqueda.")).toHaveCount(0);
 });
+
+test("with MW, the index and the Natura table state how many projects declare it", async ({ page }) => {
+  await page.goto("/");
+  for (const name of ["Índice de municipios", "Red Natura 2000"]) {
+    await expect(page.getByRole("region", { name }).getByRole("columnheader", { name: "Con MW declarado" })).toBeVisible();
+  }
+  await page.goto("/?metrica=ha");
+  for (const name of ["Índice de municipios", "Red Natura 2000"]) {
+    await expect(page.getByRole("region", { name }).getByRole("columnheader", { name: "Con MW declarado" })).toHaveCount(0);
+  }
+});

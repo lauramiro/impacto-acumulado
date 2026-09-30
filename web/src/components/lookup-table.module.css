@@ -52,6 +52,11 @@
   white-space: nowrap;
 }
 
+/* Headers such as "Con MW declarado" wrap so the table fits a phone; figures stay on one line. */
+.table thead th.num {
+  white-space: normal;
+}
+
 .table td.num {
   font-size: var(--texto-dato);
 }
@@ -77,8 +82,7 @@
 }
 
 @media (max-width: 767px) {
-  .table td:nth-child(2),
-  .table th:nth-child(2) {
+  .table .sinMovil {
     display: none;
   }
 }

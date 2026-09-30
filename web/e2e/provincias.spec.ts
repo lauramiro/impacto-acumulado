@@ -33,3 +33,11 @@ test("no horizontal page scroll on a phone with the province table", async ({ pa
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBe(false);
 });
+
+test("the province table fits the content width at desktop size", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  const scroller = page.getByRole("region", { name: "Por provincia" }).locator("table").locator("..");
+  const clipped = await scroller.evaluate((el) => el.scrollWidth > el.clientWidth);
+  expect(clipped).toBe(false);
+});
