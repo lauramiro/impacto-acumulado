@@ -47,12 +47,31 @@ export function formatMonth(month: string): string {
   return monthYear.format(new Date(`${month}-01T00:00:00Z`));
 }
 
-/** The coverage note every MW total carries. */
-export function formatCoverage(withMw: number, total: number): string {
-  return `MW declarados en ${integer.format(withMw)} de ${integer.format(total)} ${total === 1 ? "proyecto" : "proyectos"}`;
+const COVERAGE_SUBJECTS = { mw: "MW declarados", ha: "Superficie declarada" } as const;
+
+/** The coverage note every MW (or, with `figure` "ha", hectare) total carries. */
+export function formatCoverage(declared: number, total: number, figure: "mw" | "ha" = "mw"): string {
+  return `${COVERAGE_SUBJECTS[figure]} en ${integer.format(declared)} de ${integer.format(total)} ${total === 1 ? "proyecto" : "proyectos"}`;
 }
 
-/** The short form for a "Con MW declarado" table column: "3 de 5", or "" when there are no projects. */
+export const NO_DATA = "sin dato";
+
+/** True when there are projects but none declares the figure: a missing figure, not a measured zero. */
+export function isUndeclared(declared: number, total: number): boolean {
+  return total > 0 && declared === 0;
+}
+
+/** An MW sum, or "sin dato de MW" when none of the `total` projects declares MW. */
+export function formatMwDeclared(n: number, declared: number, total: number): string {
+  return isUndeclared(declared, total) ? `${NO_DATA} de MW` : formatMw(n);
+}
+
+/** A hectare sum, or "sin dato de ha" when none of the `total` projects declares a surface. */
+export function formatHaDeclared(n: number, declared: number, total: number): string {
+  return isUndeclared(declared, total) ? `${NO_DATA} de ha` : formatHa(n);
+}
+
+/** The short form for a "Con MW declarado" or "Con superficie declarada" table column: "3 de 5", or "" when there are no projects. */
 export function formatCoverageCell(withMw: number, total: number): string {
   return total > 0 ? `${integer.format(withMw)} de ${integer.format(total)}` : "";
 }

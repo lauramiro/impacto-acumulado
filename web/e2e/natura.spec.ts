@@ -38,3 +38,8 @@ test("with MW, the index and the Natura table state how many projects declare it
     await expect(page.getByRole("region", { name }).getByRole("columnheader", { name: "Con MW declarado" })).toHaveCount(0);
   }
 });
+
+test("with hectares, the Natura table states how many projects declare a surface", async ({ page }) => {
+  await page.goto("/?metrica=ha");
+  await expect(page.getByRole("region", { name: "Red Natura 2000" }).getByRole("columnheader", { name: "Con superficie declarada" })).toBeVisible();
+});

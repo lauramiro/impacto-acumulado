@@ -13,6 +13,7 @@ export function toCell(c: z.infer<typeof CellSchema>): StatsCell {
     mwNominal: c.mw_nominal,
     mwCount: c.mw_count,
     hectares: c.hectares,
+    haCount: c.ha_count,
   };
 }
 

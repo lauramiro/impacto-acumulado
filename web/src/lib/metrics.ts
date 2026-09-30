@@ -1,6 +1,6 @@
 import type { Figures, Filters, Metric, StatsCell } from "./types";
 
-const ZERO: Figures = { projectCount: 0, mwNominal: 0, mwCount: 0, hectares: 0 };
+const ZERO: Figures = { projectCount: 0, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 };
 
 function add(a: Figures, c: Figures): Figures {
   return {
@@ -8,6 +8,7 @@ function add(a: Figures, c: Figures): Figures {
     mwNominal: a.mwNominal + c.mwNominal,
     mwCount: a.mwCount + c.mwCount,
     hectares: a.hectares + c.hectares,
+    haCount: a.haCount + c.haCount,
   };
 }
 
@@ -28,6 +29,13 @@ export function metricValue(cells: readonly StatsCell[] | undefined, metric: Met
 export function mwCoverage(cells: readonly StatsCell[] | undefined, f: Filters): { withMw: number; total: number } {
   const t = sumFigures(matching(cells ?? [], f));
   return { withMw: t.mwCount, total: t.projectCount };
+}
+
+/** How many of the matching projects declare the metric's figure (every project for "proyectos"). */
+export function metricCoverage(cells: readonly StatsCell[] | undefined, metric: Metric, f: Filters): { declared: number; total: number } {
+  const t = sumFigures(matching(cells ?? [], f));
+  const declared = metric === "mw" ? t.mwCount : metric === "ha" ? t.haCount : t.projectCount;
+  return { declared, total: t.projectCount };
 }
 
 export function splitBy<K extends "status" | "technology">(cells: readonly StatsCell[], key: K): Map<StatsCell[K], Figures> {

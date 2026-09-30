@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { classIndex, classify, matching, metricValue, mwCoverage, splitBy, sumFigures } from "@/lib/metrics";
+import { classIndex, classify, matching, metricCoverage, metricValue, mwCoverage, splitBy, sumFigures } from "@/lib/metrics";
 import { STATUSES, TECHNOLOGIES, type StatsCell } from "@/lib/types";
 
 const cells: StatsCell[] = [
-  { status: "favorable_condicionada", technology: "solar_fv", projectCount: 2, mwNominal: 100, mwCount: 1, hectares: 300 },
-  { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwNominal: 0, mwCount: 0, hectares: 0 },
-  { status: "desfavorable", technology: "eolica", projectCount: 1, mwNominal: 40, mwCount: 1, hectares: 50 },
+  { status: "favorable_condicionada", technology: "solar_fv", projectCount: 2, mwNominal: 100, mwCount: 1, hectares: 300, haCount: 1 },
+  { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 },
+  { status: "desfavorable", technology: "eolica", projectCount: 1, mwNominal: 40, mwCount: 1, hectares: 50, haCount: 1 },
 ];
 const all = { statuses: new Set(STATUSES), technologies: new Set(TECHNOLOGIES) };
 
@@ -31,16 +31,26 @@ describe("mwCoverage", () => {
   });
 });
 
+describe("metricCoverage", () => {
+  it("counts the projects declaring the metric's figure", () => {
+    expect(metricCoverage(cells, "mw", all)).toEqual({ declared: 2, total: 4 });
+    expect(metricCoverage(cells, "ha", all)).toEqual({ declared: 2, total: 4 });
+    expect(metricCoverage(cells, "ha", { ...all, technologies: new Set(["linea_evacuacion"]) })).toEqual({ declared: 0, total: 1 });
+    expect(metricCoverage(cells, "proyectos", all)).toEqual({ declared: 4, total: 4 });
+    expect(metricCoverage(undefined, "ha", all)).toEqual({ declared: 0, total: 0 });
+  });
+});
+
 describe("splitBy and sumFigures", () => {
   it("groups figures by status or technology", () => {
     const byStatus = splitBy(cells, "status");
-    expect(byStatus.get("favorable_condicionada")).toEqual({ projectCount: 3, mwNominal: 100, mwCount: 1, hectares: 300 });
+    expect(byStatus.get("favorable_condicionada")).toEqual({ projectCount: 3, mwNominal: 100, mwCount: 1, hectares: 300, haCount: 1 });
     expect(byStatus.has("en_consulta")).toBe(false);
     expect(splitBy(cells, "technology").get("eolica")?.mwNominal).toBe(40);
   });
   it("sums everything, and nothing to zeros", () => {
-    expect(sumFigures(cells)).toEqual({ projectCount: 4, mwNominal: 140, mwCount: 2, hectares: 350 });
-    expect(sumFigures([])).toEqual({ projectCount: 0, mwNominal: 0, mwCount: 0, hectares: 0 });
+    expect(sumFigures(cells)).toEqual({ projectCount: 4, mwNominal: 140, mwCount: 2, hectares: 350, haCount: 2 });
+    expect(sumFigures([])).toEqual({ projectCount: 0, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 });
     expect(matching(cells, { ...all, statuses: new Set(["desfavorable"]) })).toHaveLength(1);
   });
 });

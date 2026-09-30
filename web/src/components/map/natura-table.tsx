@@ -1,15 +1,16 @@
 "use client";
 
 import { LookupTable } from "@/components/lookup-table";
-import { formatCoverageCell, formatInt, formatNumber } from "@/lib/format";
+import { formatCoverageCell, formatInt, formatNumber, isUndeclared, NO_DATA } from "@/lib/format";
 import { METRIC_LABELS, METRIC_UNITS } from "@/lib/labels";
-import { metricValue, mwCoverage } from "@/lib/metrics";
+import { metricCoverage, metricValue } from "@/lib/metrics";
 import type { Filters, Metric, ProtectedAreaStats } from "@/lib/types";
 
 type Props = { sites: readonly ProtectedAreaStats[]; metric: Metric; filters: Filters };
 
 export function NaturaTable({ sites, metric, filters }: Props) {
   const decimals = metric === "proyectos" ? 0 : 1;
+  const coverageHeader = metric === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
   const notice =
     filters.statuses.size === 0 ? (
       <p>Ningún estado seleccionado.</p>
@@ -37,16 +38,21 @@ export function NaturaTable({ sites, metric, filters }: Props) {
         {
           header: METRIC_LABELS[metric],
           numeric: true,
-          cell: (s) => `${formatNumber(metricValue(s.cells, metric, filters), decimals)} ${METRIC_UNITS[metric]}`,
+          cell: (s) => {
+            const c = metricCoverage(s.cells, metric, filters);
+            return isUndeclared(c.declared, c.total)
+              ? NO_DATA
+              : `${formatNumber(metricValue(s.cells, metric, filters), decimals)} ${METRIC_UNITS[metric]}`;
+          },
         },
-        ...(metric === "mw"
+        ...(coverageHeader
           ? [
               {
-                header: "Con MW declarado",
+                header: coverageHeader,
                 numeric: true,
                 cell: (s: ProtectedAreaStats) => {
-                  const c = mwCoverage(s.cells, filters);
-                  return formatCoverageCell(c.withMw, c.total);
+                  const c = metricCoverage(s.cells, metric, filters);
+                  return formatCoverageCell(c.declared, c.total);
                 },
               },
             ]

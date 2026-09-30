@@ -8,6 +8,7 @@ export const CellSchema = z.object({
   mw_nominal: z.number(),
   mw_count: z.number().int().nonnegative(),
   hectares: z.number(),
+  ha_count: z.number().int().nonnegative(),
 });
 
 export const StatsFileSchema = z.record(z.string(), z.object({ cells: z.array(CellSchema) }));

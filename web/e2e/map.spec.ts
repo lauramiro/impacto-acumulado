@@ -64,3 +64,19 @@ test("the panel distinguishes no projects from no projects under these filters",
   await expect(panel.getByText("Ningún proyecto con estos filtros.")).toBeVisible();
   await expect(panel.getByText("Ningún proyecto registrado en los boletines desde 2019.")).toHaveCount(0);
 });
+
+test("with hectares, the panel states how many projects declare a surface", async ({ page }) => {
+  await page.goto("/?metrica=ha&m=11020");
+  const panel = page.getByRole("complementary", { name: "Municipio seleccionado" });
+  await expect(panel.getByText(/^Superficie declarada en [\d.]+ de [\d.]+ proyectos?$/)).toBeVisible();
+  await expect(panel.getByText(/MW declarados en/)).toHaveCount(0);
+});
+
+test("the panel never shows a zero sum for a status whose projects declare no figure", async ({ page }) => {
+  await page.goto("/?m=11020");
+  const rows = page.getByRole("complementary", { name: "Municipio seleccionado" }).getByRole("definition");
+  await expect(rows.first()).toBeVisible();
+  for (const text of await rows.allTextContents()) {
+    expect(text).not.toMatch(/(^|· )0,0 (MW|ha)/);
+  }
+});
