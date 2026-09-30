@@ -38,8 +38,23 @@ export function buildSeries(
   return series;
 }
 
-export function seriesMax(series: Series): number {
-  return Math.max(0, ...EVENTS.flatMap((e) => series[e]));
+export type Peak = { value: number; index: number };
+
+/**
+ * Each row's highest month, for rows drawn on their own scale. A tie goes to
+ * the earliest month; an all-zero row gives value 0 at index 0.
+ */
+export function rowPeaks(series: Series): Record<EventKind, Peak> {
+  return Object.fromEntries(
+    EVENTS.map((e) => [e, series[e].reduce<Peak>((best, n, i) => (n > best.value ? { value: n, index: i } : best), { value: 0, index: 0 })]),
+  ) as Record<EventKind, Peak>;
+}
+
+const SHORT_MONTHS = ["ene.", "feb.", "mar.", "abr.", "may.", "jun.", "jul.", "ago.", "sept.", "oct.", "nov.", "dic."];
+
+/** "2023-03" -> "mar. 2023", short enough for a row label on a phone. */
+export function shortMonth(month: string): string {
+  return `${SHORT_MONTHS[Number(month.slice(5, 7)) - 1]} ${month.slice(0, 4)}`;
 }
 
 export function yearTotals(series: Series, months: readonly string[]): { year: string; counts: Record<EventKind, number> }[] {

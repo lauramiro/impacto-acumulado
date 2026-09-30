@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { formatInt, formatMonth } from "@/lib/format";
 import { EVENT_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { buildSeries, formatShortMonth, monthRange, seriesMax, TIMELINE_START, yearTotals } from "@/lib/timeline";
+import { buildSeries, formatShortMonth, monthRange, rowPeaks, shortMonth, TIMELINE_START, yearTotals } from "@/lib/timeline";
 import { EVENTS, REGION, TECHNOLOGIES, type EventKind, type MonthlyEvent, type Province, type Technology } from "@/lib/types";
 import { Tooltip, type TooltipState } from "./tooltip";
 import styles from "./timeline.module.css";
@@ -12,7 +12,7 @@ import styles from "./timeline.module.css";
 // rendered width so labels keep their pixel size on phones too.
 const DEFAULT_W = 1000;
 const ROW_H = 44;
-const BAR_H = 28;
+const BAR_H = 26;
 const AXIS_H = 20;
 const FILL: Record<EventKind, string> = {
   consulta: "var(--tinta)",
@@ -36,7 +36,7 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
   const [W, setW] = useState(DEFAULT_W);
   const months = useMemo(() => monthRange(TIMELINE_START, lastMonth), [lastMonth]);
   const series = useMemo(() => buildSeries(events, province ?? REGION, technologies, months), [events, province, technologies, months]);
-  const max = seriesMax(series);
+  const peaks = rowPeaks(series);
   const years = yearTotals(series, months);
   const band = W / months.length;
   const scope = province ? `Provincia de ${province}` : REGION;
@@ -50,7 +50,7 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
   const empty = EVENTS.filter((e) => sums[e] === 0);
   const totals = shown.map((e) => `${EVENT_LABELS[e]} ${formatInt(sums[e])}`).join(", ");
   const height = shown.length * ROW_H + AXIS_H;
-  const hasChart = max > 0;
+  const hasChart = shown.length > 0;
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -80,7 +80,7 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
           Toda Andalucía
         </button>
       ) : null}
-      {max === 0 ? (
+      {!hasChart ? (
         <p>Ningún documento con estos filtros.</p>
       ) : (
         <div className={styles.wrap} ref={wrapRef}>
@@ -90,10 +90,13 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
             <title>{`Documentos por mes desde ${formatMonth(TIMELINE_START)}: ${totals}`}</title>
             {shown.map((ev, row) => {
               const top = row * ROW_H;
+              // Each row has its own scale so small rows stay legible; the label states the peak.
+              const max = peaks[ev].value;
               return (
                 <g key={ev}>
                   <text x={0} y={top + 11} className={styles.etiqueta}>
                     {EVENT_LABELS[ev]}
+                    <tspan className={styles.pico}>{` · máx. ${formatInt(max)} (${shortMonth(months[peaks[ev].index])})`}</tspan>
                   </text>
                   <line x1={0} x2={W} y1={top + ROW_H - 2} y2={top + ROW_H - 2} className={styles.base} />
                   {series[ev].map((n, i) =>
@@ -124,8 +127,8 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
         </div>
       )}
       <p className={styles.nota}>
-        Cuenta documentos publicados (anuncios de información pública y resoluciones, por su veredicto), no proyectos por su estado actual: el filtro de estado no se aplica.
-        {empty.length > 0 && max > 0 ? ` Sin documentos con esta selección: ${empty.map((e) => EVENT_LABELS[e]).join(", ")}.` : null}
+        Cuenta documentos publicados (anuncios de información pública y resoluciones, por su veredicto), no proyectos por su estado actual: el filtro de estado no se aplica. Cada fila tiene su propia escala: la barra más alta es su máximo.
+        {empty.length > 0 && hasChart ? ` Sin documentos con esta selección: ${empty.map((e) => EVENT_LABELS[e]).join(", ")}.` : null}
       </p>
       <p className={styles.nota}>Entre 2019 y 2021 la colección solo contiene 5 documentos; la serie empieza en 2022.</p>
       {shown.length > 0 ? (

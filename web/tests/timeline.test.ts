@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSeries, formatShortMonth, monthRange, seriesMax, TIMELINE_START, yearTotals } from "@/lib/timeline";
+import { buildSeries, formatShortMonth, monthRange, rowPeaks, shortMonth, TIMELINE_START, yearTotals } from "@/lib/timeline";
 import { TECHNOLOGIES, type MonthlyEvent } from "@/lib/types";
 
 const ALL = new Set(TECHNOLOGIES);
@@ -37,7 +37,29 @@ describe("buildSeries", () => {
     expect(buildSeries(events, "Sevilla", ALL, months).desfavorable[2]).toBe(1);
   });
   it("gives zero everywhere when no technology is active", () => {
-    expect(seriesMax(buildSeries(events, "Andalucía", new Set(), months))).toBe(0);
+    const peaks = rowPeaks(buildSeries(events, "Andalucía", new Set(), months));
+    expect(Object.values(peaks).every((p) => p.value === 0)).toBe(true);
+  });
+});
+
+describe("rowPeaks", () => {
+  it("finds each row's own peak, the earliest month on a tie", () => {
+    const months = monthRange("2022-01", "2022-04");
+    const tied: MonthlyEvent[] = [
+      ...events,
+      { month: "2022-02", scope: "Andalucía", technology: "solar_fv", event: "desfavorable", count: 1 },
+    ];
+    const peaks = rowPeaks(buildSeries(tied, "Andalucía", ALL, months));
+    expect(peaks.consulta).toEqual({ value: 2, index: 0 });
+    expect(peaks.desfavorable).toEqual({ value: 1, index: 1 });
+    expect(peaks.favorable).toEqual({ value: 0, index: 0 });
+  });
+});
+
+describe("shortMonth", () => {
+  it("abbreviates the month in Spanish", () => {
+    expect(shortMonth("2023-03")).toBe("mar. 2023");
+    expect(shortMonth("2024-12")).toBe("dic. 2024");
   });
 });
 

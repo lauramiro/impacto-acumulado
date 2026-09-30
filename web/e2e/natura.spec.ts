@@ -59,6 +59,6 @@ test("Natura 2000 names are readable and not cut short", async ({ page }) => {
   await page.goto("/");
   const section = page.getByRole("region", { name: "Red Natura 2000" });
   await section.getByLabel("Buscar espacio").fill("ES6110006");
-  await expect(section.getByRole("rowheader", { name: "Ramblas de Gergal, Tabernas y Sur de Sierra Alhamilla" })).toBeVisible();
+  await expect(section.getByRole("rowheader", { name: "Ramblas de Gérgal, Tabernas y Sur de Sierra Alhamilla" })).toBeVisible();
   await expect(section.getByTestId("natura-recuento")).toHaveText("1 de 197 espacios");
 });

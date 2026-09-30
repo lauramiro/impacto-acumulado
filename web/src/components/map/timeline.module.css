@@ -18,6 +18,11 @@
   fill: var(--tinta);
 }
 
+.pico {
+  font-family: var(--font-data), monospace;
+  font-size: 12px;
+}
+
 .eje {
   font-family: var(--font-data), monospace;
   font-size: 12px;
