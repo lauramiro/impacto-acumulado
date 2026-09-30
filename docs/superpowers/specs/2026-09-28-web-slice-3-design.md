@@ -1,7 +1,7 @@
 # Web slice 3: technology filter, overlays, province table, monthly timeline
 
 Date: 2026-09-28
-Status: design approved in chat, spec under review, pre-implementation
+Status: implemented and deployed on 2026-09-30
 Parent design: [2026-09-18-impacto-acumulado-design.md](2026-09-18-impacto-acumulado-design.md)
 Previous slices: [2026-09-21-web-slice-1-design.md](2026-09-21-web-slice-1-design.md),
 [2026-09-22-web-slice-2-design.md](2026-09-22-web-slice-2-design.md)
@@ -90,6 +90,25 @@ approval and every milestone.
   filters, overlay key kept, sensitivity path memoised, province table
   highlight). Next: merge, workflow re-enable and deploy checks with the
   user.
+- 2026-09-30: slice 3 complete. Merged to `main` (fast-forward to
+  4e6c7e3) and pushed; CI run 36688726261 green; Vercel deployed. The
+  weekly workflow is re-enabled; run 36688743714 (`workflow_dispatch`,
+  `extract_limit=0`) succeeded: migrate applied nothing, aggregate and
+  export ran, sensitivity files were kept, and it committed b31213f (only
+  `meta.json` and `monthly_events.csv`, whose rows are identical: its line
+  endings went from LF to CRLF). Live checks on
+  impacto-acumulado.vercel.app: `/`, `/datos`, `/metodologia` and the new
+  data files return 200; `?natura=1&sensibilidad=fv&provincia=sevilla`
+  draws 197 site outlines and the hatched layer, highlights Sevilla and
+  titles the timeline "Provincia de Sevilla"; legend reads "MW declarados
+  en 167 de 433 proyectos". Lighthouse mobile on `/`: performance 88,
+  accessibility 100, best practices 96, SEO 100 (LCP 3.3 s, TBT 210 ms,
+  CLS 0.003). Sensitivity files: ftv 1 481 681 bytes, eol 1 030 382
+  (tolerance 0.004 degrees). Open follow-ups: coverage notes on the
+  remaining MW figures, a changelog line for the changed public files,
+  the static figures on `/metodologia`, the province table's last column
+  clipped at 1280 px, and CSV line endings differing between local and CI
+  exports.
 
 ## The data this is designed against
 
