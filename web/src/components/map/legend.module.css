@@ -59,7 +59,8 @@
   width: 1.25rem;
   height: 0.75rem;
   margin-top: 0.25em;
-  background: repeating-linear-gradient(45deg, var(--alerta) 0 1px, transparent 1px 5px);
+  /* Matches the #rayado-sensibilidad pattern in choropleth.tsx: the opposite angle to the no-figure swatch. */
+  background: repeating-linear-gradient(-45deg, var(--alerta) 0 1px, transparent 1px 5px);
 }
 
 .compacta {

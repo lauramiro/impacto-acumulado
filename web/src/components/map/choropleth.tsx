@@ -150,7 +150,8 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
             <rect width="4" height="4" className={styles.sinDatoFondo} />
             <line x1="0" y1="0" x2="0" y2="4" className={styles.sinDatoRaya} />
           </pattern>
-          <pattern id="rayado-sensibilidad" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+          {/* Opposite angle to #rayado-sin-dato, so a sensitive municipality with no declared figure reads as a cross-hatch rather than one hatch. */}
+          <pattern id="rayado-sensibilidad" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(-45)">
             <line x1="0" y1="0" x2="0" y2="6" className={styles.rayado} />
           </pattern>
         </defs>
