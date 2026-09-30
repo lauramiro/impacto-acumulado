@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatBytes, formatCoverage, formatCoverageCell, formatDate, formatHa, formatInt, formatLongDate, formatMonth, formatMw, formatPercent, formatScore } from "@/lib/format";
+import { formatBytes, formatCoverage, formatCoverageCell, formatDate, formatHa, formatHaDeclared, formatInt, formatLongDate, formatMonth, formatMw, formatMwDeclared, formatPercent, formatScore } from "@/lib/format";
 
 describe("format (es-ES)", () => {
   it("formats MW and hectares with one decimal and thousands separators", () => {
@@ -38,6 +38,25 @@ describe("formatCoverage", () => {
     expect(formatCoverage(167, 433)).toBe("MW declarados en 167 de 433 proyectos");
     expect(formatCoverage(1, 1)).toBe("MW declarados en 1 de 1 proyecto");
     expect(formatCoverage(1200, 1500)).toBe("MW declarados en 1.200 de 1.500 proyectos");
+  });
+});
+
+describe("formatCoverage for hectares", () => {
+  it("states how many projects declare a surface", () => {
+    expect(formatCoverage(3, 5, "ha")).toBe("Superficie declarada en 3 de 5 proyectos");
+    expect(formatCoverage(0, 1, "ha")).toBe("Superficie declarada en 0 de 1 proyecto");
+  });
+});
+
+describe("formatMwDeclared and formatHaDeclared", () => {
+  it("say sin dato when there are projects but none declares the figure", () => {
+    expect(formatMwDeclared(0, 0, 1)).toBe("sin dato de MW");
+    expect(formatHaDeclared(0, 0, 4)).toBe("sin dato de ha");
+  });
+  it("show the sum when any project declares it, and a zero when there are no projects", () => {
+    expect(formatMwDeclared(126.9, 3, 4)).toBe("126,9 MW");
+    expect(formatHaDeclared(0, 1, 4)).toBe("0,0 ha");
+    expect(formatHaDeclared(0, 0, 0)).toBe("0,0 ha");
   });
 });
 

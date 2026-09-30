@@ -1,8 +1,8 @@
 "use client";
 
-import { formatCoverageCell, formatNumber } from "@/lib/format";
+import { formatCoverageCell, formatNumber, isUndeclared, NO_DATA } from "@/lib/format";
 import { METRIC_UNITS, STATUS_LABELS } from "@/lib/labels";
-import { metricValue, mwCoverage } from "@/lib/metrics";
+import { metricCoverage, metricValue } from "@/lib/metrics";
 import { PROVINCES, REGION, STATUSES, type Filters, type Metric, type Province, type ProvinceStats, type StatsCell } from "@/lib/types";
 import styles from "./province-table.module.css";
 
@@ -17,11 +17,17 @@ type Props = {
 export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Props) {
   const statuses = STATUSES.filter((s) => filters.statuses.has(s));
   const decimals = metric === "proyectos" ? 0 : 1;
-  const value = (cells: StatsCell[], f: Filters) => `${formatNumber(metricValue(cells, metric, f), decimals)} ${METRIC_UNITS[metric]}`;
-  const coverage = (cells: StatsCell[]) => {
-    const c = mwCoverage(cells, filters);
-    return formatCoverageCell(c.withMw, c.total);
+  const value = (cells: StatsCell[], f: Filters) => {
+    const c = metricCoverage(cells, metric, f);
+    return isUndeclared(c.declared, c.total)
+      ? NO_DATA
+      : `${formatNumber(metricValue(cells, metric, f), decimals)} ${METRIC_UNITS[metric]}`;
   };
+  const coverage = (cells: StatsCell[]) => {
+    const c = metricCoverage(cells, metric, filters);
+    return formatCoverageCell(c.declared, c.total);
+  };
+  const coverageHeader = metric === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
   const region = stats[REGION];
   return (
     <section aria-labelledby="provincias" className={styles.section}>
@@ -43,7 +49,7 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
                     </th>
                   ))}
                   <th scope="col" className={styles.num}>Total</th>
-                  {metric === "mw" ? <th scope="col" className={styles.num}>Con MW declarado</th> : null}
+                  {coverageHeader ? <th scope="col" className={styles.num}>{coverageHeader}</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -60,7 +66,7 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
                       </td>
                     ))}
                     <td className={`dato ${styles.num}`}>{value(stats[p], filters)}</td>
-                    {metric === "mw" ? <td className={`dato ${styles.num}`}>{coverage(stats[p])}</td> : null}
+                    {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(stats[p])}</td> : null}
                   </tr>
                 ))}
               </tbody>
@@ -73,7 +79,7 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
                     </td>
                   ))}
                   <td className={`dato ${styles.num}`}>{value(region, filters)}</td>
-                  {metric === "mw" ? <td className={`dato ${styles.num}`}>{coverage(region)}</td> : null}
+                  {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(region)}</td> : null}
                 </tr>
               </tfoot>
             </table>

@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
-import { formatCoverage, formatHa, formatInt, formatMw } from "@/lib/format";
+import { formatCoverage, formatHaDeclared, formatInt, formatMwDeclared } from "@/lib/format";
 import { TECHNOLOGY_LABELS } from "@/lib/labels";
-import { matching, mwCoverage, splitBy, sumFigures } from "@/lib/metrics";
+import { matching, metricCoverage, splitBy, sumFigures } from "@/lib/metrics";
 import { STATUSES, TECHNOLOGIES, type Filters, type MapMunicipality, type Metric, type MunicipalityStats } from "@/lib/types";
 import { Legend } from "./legend";
 import styles from "./panel.module.css";
@@ -26,7 +26,7 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
   const shown = stats ? matching(stats.cells, filters) : [];
   const figuresByStatus = splitBy(shown, "status");
   const total = sumFigures(shown);
-  const muniCoverage = metric === "mw" ? mwCoverage(stats?.cells, filters) : null;
+  const muniCoverage = metric === "proyectos" ? null : metricCoverage(stats?.cells, metric, filters);
   return (
     <aside className={styles.panel} aria-label={municipality === null ? "Leyenda del mapa" : "Municipio seleccionado"}>
       {municipality === null ? (
@@ -71,7 +71,8 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
                     </dt>
                     <dd>
                       <Figure value={formatInt(f.projectCount)} unit={f.projectCount === 1 ? "proyecto" : "proyectos"} /> ·{" "}
-                      <Figure value={formatMw(f.mwNominal)} /> · <Figure value={formatHa(f.hectares)} />
+                      <Figure value={formatMwDeclared(f.mwNominal, f.mwCount, f.projectCount)} /> ·{" "}
+                      <Figure value={formatHaDeclared(f.hectares, f.haCount, f.projectCount)} />
                     </dd>
                   </div>
                 );
@@ -79,14 +80,14 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
               <div className={`${styles.fila} ${styles.total}`}>
                 <dt>Total</dt>
                 <dd>
-                  <Figure value={formatInt(total.projectCount)} unit="proyectos" /> · <Figure value={formatMw(total.mwNominal)} /> ·{" "}
-                  <Figure value={formatHa(total.hectares)} />
+                  <Figure value={formatInt(total.projectCount)} unit="proyectos" /> · <Figure value={formatMwDeclared(total.mwNominal, total.mwCount, total.projectCount)} /> ·{" "}
+                  <Figure value={formatHaDeclared(total.hectares, total.haCount, total.projectCount)} />
                 </dd>
               </div>
             </dl>
           )}
-          {metric === "mw" && muniCoverage && muniCoverage.total > 0 ? (
-            <p className={`dato ${styles.texto}`}>{formatCoverage(muniCoverage.withMw, muniCoverage.total)}</p>
+          {metric !== "proyectos" && muniCoverage && muniCoverage.total > 0 ? (
+            <p className={`dato ${styles.texto}`}>{formatCoverage(muniCoverage.declared, muniCoverage.total, metric)}</p>
           ) : null}
           <p className={styles.acciones}>
             <Link href={`/municipio/${municipality.ine}`}>Ver municipio</Link>

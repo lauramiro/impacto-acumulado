@@ -22,13 +22,18 @@ describe("loaders", () => {
   it("reads municipality stats as cells keyed by INE", async () => {
     const stats = await loadMunicipalityStats();
     expect(stats.get("29084")!.cells).toEqual([
-      { status: "favorable_condicionada", technology: "solar_fv", projectCount: 1, mwNominal: 93, mwCount: 1, hectares: 140.1 },
-      { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwNominal: 0, mwCount: 0, hectares: 0 },
+      { status: "favorable_condicionada", technology: "solar_fv", projectCount: 1, mwNominal: 93, mwCount: 1, hectares: 140.1, haCount: 1 },
+      { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 },
     ]);
   });
 
+  it("rejects a stats cell without ha_count", () => {
+    const bad = { "29084": { cells: [{ status: "favorable", technology: "solar_fv", project_count: 1, mw_nominal: 1, mw_count: 1, hectares: 0 }] } };
+    expect(StatsFileSchema.safeParse(bad).success).toBe(false);
+  });
+
   it("rejects a stats cell with an unknown technology", () => {
-    const bad = { "29084": { cells: [{ status: "favorable", technology: "nuclear", project_count: 1, mw_nominal: 1, mw_count: 1, hectares: 0, turbines: 0 }] } };
+    const bad = { "29084": { cells: [{ status: "favorable", technology: "nuclear", project_count: 1, mw_nominal: 1, mw_count: 1, hectares: 0, ha_count: 0, turbines: 0 }] } };
     expect(StatsFileSchema.safeParse(bad).success).toBe(false);
   });
 
@@ -107,7 +112,7 @@ describe("loaders", () => {
     // key and so appeared in the issue's path), zod's enum mismatch here
     // names the field via the path ("status") but does not echo the
     // received value in the message; assert on the field instead.
-    const bad = { "29084": { cells: [{ status: "aprobado", technology: "solar_fv", project_count: 1, mw_nominal: 1, mw_count: 1, hectares: 0 }] } };
+    const bad = { "29084": { cells: [{ status: "aprobado", technology: "solar_fv", project_count: 1, mw_nominal: 1, mw_count: 1, hectares: 0, ha_count: 0 }] } };
     const result = StatsFileSchema.safeParse(bad);
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.path).toContain("status");
@@ -125,7 +130,7 @@ describe("slice 3 loaders", () => {
     const sites = await loadProtectedAreaStats();
     expect(sites.map((s) => s.siteCode)).toEqual(["ES0000002", "ES0000001"]);
     expect(sites[0]).toEqual({ siteCode: "ES0000002", name: "LAGUNA", type: "ZEC", municipalityCount: 0, cells: [] });
-    expect(sites[1].cells[0]).toMatchObject({ technology: "solar_fv", mwNominal: 93, mwCount: 1 });
+    expect(sites[1].cells[0]).toMatchObject({ technology: "solar_fv", mwNominal: 93, mwCount: 1, hectares: 140.1, haCount: 1 });
   });
 
   it("reads province stats for every scope", async () => {

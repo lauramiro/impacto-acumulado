@@ -16,9 +16,17 @@ test("province table follows the status filter and selects a province", async ({
   await expect(page).not.toHaveURL(/provincia=/);
 });
 
-test("province table without MW has no coverage column", async ({ page }) => {
+test("province table with hectares has a surface coverage column instead of the MW one", async ({ page }) => {
   await page.goto("/?metrica=ha");
-  await expect(page.getByRole("region", { name: "Por provincia" }).getByRole("columnheader", { name: "Con MW declarado" })).toHaveCount(0);
+  const table = page.getByRole("region", { name: "Por provincia" });
+  await expect(table.getByRole("columnheader", { name: "Con MW declarado" })).toHaveCount(0);
+  await expect(table.getByRole("columnheader", { name: "Con superficie declarada" })).toBeVisible();
+});
+
+test("province table counting projects has no coverage column", async ({ page }) => {
+  await page.goto("/?metrica=proyectos");
+  const table = page.getByRole("region", { name: "Por provincia" });
+  await expect(table.getByRole("columnheader", { name: /^Con / })).toHaveCount(0);
 });
 
 test("province table with no status selected says so", async ({ page }) => {

@@ -59,6 +59,7 @@ export const CATALOG: CatalogEntry[] = [
       { name: "hectares", type: "decimal", meaning: "Suma de hectáreas" },
       { name: "turbines", type: "entero", meaning: "Suma de aerogeneradores" },
       { name: "mw_count", type: "entero", meaning: "Proyectos cuya potencia se suma: con MW declarado y que no son líneas de evacuación" },
+      { name: "ha_count", type: "entero", meaning: "Proyectos cuya superficie se suma: con hectáreas declaradas" },
       { name: "name", type: "texto", meaning: "Nombre del municipio" },
       { name: "province", type: "texto", meaning: "Provincia" },
     ],
