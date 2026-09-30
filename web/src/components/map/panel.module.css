@@ -63,3 +63,21 @@
   font: inherit;
   cursor: pointer;
 }
+
+.filtro {
+  margin: -0.5rem 0 0.75rem;
+}
+
+.leyenda {
+  margin-top: 1.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--regla);
+}
+
+.leyendaTitulo {
+  margin: 0;
+  font-size: var(--texto-pie);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

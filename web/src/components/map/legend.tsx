@@ -15,9 +15,11 @@ type Props = {
   anyTechnology: boolean;
   coverage: { withMw: number; total: number } | null;
   overlays?: ReactNode;
+  /** Denser two-column layout, shown under a selected municipality. */
+  compact?: boolean;
 };
 
-export function Legend({ metric, thresholds, anyStatus, anyTechnology, coverage, overlays }: Props) {
+export function Legend({ metric, thresholds, anyStatus, anyTechnology, coverage, overlays, compact = false }: Props) {
   if (!anyStatus)
     return (
       <>
@@ -39,7 +41,7 @@ export function Legend({ metric, thresholds, anyStatus, anyTechnology, coverage,
   ];
   return (
     <>
-      <ol className={styles.legend} aria-label="Leyenda">
+      <ol className={compact ? `${styles.legend} ${styles.compacta}` : styles.legend} aria-label="Leyenda">
         {items.map((item) => (
           <li key={item.label} className={styles.item}>
             <span className={styles.swatch} style={{ background: item.fill }} aria-hidden="true" />

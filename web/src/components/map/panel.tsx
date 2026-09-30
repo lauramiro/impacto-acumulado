@@ -27,6 +27,17 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
   const figuresByStatus = splitBy(shown, "status");
   const total = sumFigures(shown);
   const muniCoverage = metric === "proyectos" ? null : metricCoverage(stats?.cells, metric, filters);
+  const legend = (compact: boolean) => (
+    <Legend
+      metric={metric}
+      thresholds={thresholds}
+      anyStatus={anyStatus}
+      anyTechnology={anyTechnology}
+      coverage={coverage}
+      overlays={overlays}
+      compact={compact}
+    />
+  );
   return (
     <aside className={styles.panel} aria-label={municipality === null ? "Leyenda del mapa" : "Municipio seleccionado"}>
       {municipality === null ? (
@@ -34,28 +45,22 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
           <h2 className={styles.titulo}>Cómo leer el mapa</h2>
           <p className={styles.texto}>
             Cada municipio se colorea por la suma de los proyectos evaluados en los boletines con los estados
-            seleccionados. Pulsa un municipio para ver sus totales, o usa el índice de abajo.
+            seleccionados. Un proyecto en varios municipios cuenta en cada uno; en el total de Andalucía cuenta una vez. Pulsa un
+            municipio para ver sus totales, o usa el índice de abajo.
           </p>
-          <Legend
-            metric={metric}
-            thresholds={thresholds}
-            anyStatus={anyStatus}
-            anyTechnology={anyTechnology}
-            coverage={coverage}
-            overlays={overlays}
-          />
+          {legend(false)}
         </>
       ) : (
         <div aria-live="polite">
           <p className={`dato ${styles.eyebrow}`}>
             {municipality.province} · INE {municipality.ine}
           </p>
+          <h2 className={`display ${styles.nombre}`}>{municipality.name}</h2>
           {filters.technologies.size < TECHNOLOGIES.length && filters.technologies.size > 0 ? (
-            <p className={styles.texto}>
+            <p className={`${styles.texto} ${styles.filtro}`}>
               Filtrado por tecnología: {TECHNOLOGIES.filter((t) => filters.technologies.has(t)).map((t) => TECHNOLOGY_LABELS[t]).join(", ")}
             </p>
           ) : null}
-          <h2 className={`display ${styles.nombre}`}>{municipality.name}</h2>
           {!stats || stats.cells.length === 0 ? (
             <p className={styles.texto}>Ningún proyecto registrado en los boletines desde 2019.</p>
           ) : total.projectCount === 0 ? (
@@ -80,7 +85,8 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
               <div className={`${styles.fila} ${styles.total}`}>
                 <dt>Total</dt>
                 <dd>
-                  <Figure value={formatInt(total.projectCount)} unit="proyectos" /> · <Figure value={formatMwDeclared(total.mwNominal, total.mwCount, total.projectCount)} /> ·{" "}
+                  <Figure value={formatInt(total.projectCount)} unit={total.projectCount === 1 ? "proyecto" : "proyectos"} /> ·{" "}
+                  <Figure value={formatMwDeclared(total.mwNominal, total.mwCount, total.projectCount)} /> ·{" "}
                   <Figure value={formatHaDeclared(total.hectares, total.haCount, total.projectCount)} />
                 </dd>
               </div>
@@ -95,6 +101,12 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
               Cerrar
             </button>
           </p>
+        </div>
+      )}
+      {municipality === null ? null : (
+        <div className={styles.leyenda}>
+          <p className={styles.leyendaTitulo}>Leyenda del mapa</p>
+          {legend(true)}
         </div>
       )}
     </aside>

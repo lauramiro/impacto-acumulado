@@ -53,3 +53,23 @@
   vertical-align: middle;
   background: repeating-linear-gradient(45deg, var(--alerta) 0 1px, transparent 1px 5px);
 }
+
+.compacta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  column-gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.compacta .item {
+  padding: 0.1rem 0;
+}
+
+.compacta .swatch {
+  width: 1rem;
+  height: 0.75rem;
+}
+
+.compacta .valor {
+  font-size: var(--texto-pie);
+}

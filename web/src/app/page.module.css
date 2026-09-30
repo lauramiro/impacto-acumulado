@@ -1,0 +1,20 @@
+.entrada {
+  margin: 0.5rem 0 1.5rem;
+  max-width: 46rem;
+}
+
+.titular {
+  font-size: var(--texto-nombre);
+  margin: 0 0 0.6rem;
+}
+
+.dek {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.dek :global(.dato) {
+  font-size: 0.95em;
+  white-space: nowrap;
+}

@@ -8,6 +8,24 @@ test("map renders every municipality from the light geojson and the date line", 
   await expect(page.locator("path[data-ine]")).toHaveCount(785);
 });
 
+test("the page says what it is above the controls", async ({ page }) => {
+  await page.goto("/");
+  const h1 = page.getByRole("heading", { level: 1 });
+  await expect(h1).toBeVisible();
+  await expect(h1).toContainText("impacto acumulado");
+  const dek = h1.locator("xpath=following-sibling::p[1]");
+  await expect(dek).toContainText("BOE y el BOJA");
+  await expect(dek).toContainText(/[\d.]+,\d MW \(MW declarados en [\d.]+ de [\d.]+ proyectos\)/);
+  const dekBox = await dek.boundingBox();
+  const controlsBox = await page.getByLabel("Hectáreas").boundingBox();
+  expect(dekBox!.y).toBeLessThan(controlsBox!.y);
+});
+
+test("the map key explains that a multi-municipality project counts in each", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("complementary", { name: "Leyenda del mapa" })).toContainText("Un proyecto en varios municipios cuenta en cada uno");
+});
+
 test("switching metric updates the legend and the URL", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Hectáreas").check();
@@ -53,9 +71,27 @@ test("with no technology selected the legend says so", async ({ page }) => {
   await expect(page.getByTestId("cobertura-mapa")).toHaveCount(0);
 });
 
-test("the panel names the active technology filter", async ({ page }) => {
+test("the panel names the active technology filter below the municipality name", async ({ page }) => {
   await page.goto("/?tecnologia=solar_fv&m=11020");
-  await expect(page.getByText("Filtrado por tecnología: Solar fotovoltaica")).toBeVisible();
+  const filter = page.getByText("Filtrado por tecnología: Solar fotovoltaica");
+  await expect(filter).toBeVisible();
+  const heading = await page.getByRole("heading", { level: 2, name: "Jerez de la Frontera" }).boundingBox();
+  expect((await filter.boundingBox())!.y).toBeGreaterThan(heading!.y);
+});
+
+test("the panel total uses the singular for one project", async ({ page }) => {
+  await page.goto("/?tecnologia=solar_fv&m=18051");
+  const total = page.getByRole("complementary", { name: "Municipio seleccionado" }).locator("dd").last();
+  await expect(total).toContainText("1 proyecto");
+  await expect(total).not.toContainText("proyectos");
+});
+
+test("the legend stays visible while a municipality is selected", async ({ page }) => {
+  await page.goto("/?m=11020");
+  const panel = page.getByRole("complementary", { name: "Municipio seleccionado" });
+  await expect(panel.getByRole("heading", { level: 2, name: "Jerez de la Frontera" })).toBeVisible();
+  await expect(panel.getByRole("list", { name: "Leyenda" })).toBeVisible();
+  await expect(panel.getByTestId("cobertura-mapa")).toBeVisible();
 });
 
 test("the panel distinguishes no projects from no projects under these filters", async ({ page }) => {
