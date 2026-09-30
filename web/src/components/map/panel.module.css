@@ -81,3 +81,19 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
+/* On a phone the municipalities are too small to tap reliably, so the instruction
+   leads with the index; wider screens lead with the map. */
+.instruccionMovil {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .instruccionMovil {
+    display: inline;
+  }
+
+  .instruccionAncha {
+    display: none;
+  }
+}

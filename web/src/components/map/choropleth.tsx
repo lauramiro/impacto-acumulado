@@ -21,7 +21,7 @@ type Props = {
   labelOf: (ine: string) => string;
   selected: string | null;
   onSelect: (ine: string | null) => void;
-  /** Province picked in the province table, outlined over the municipalities. */
+  /** Province picked in the province table: the map zooms to it and outlines it. */
   province: string | null;
   sites: FeatureCollection<Geometry, SiteProps> | null;
   sensitivity: { layer: "ftv" | "eol"; data: FeatureCollection } | null;
@@ -92,6 +92,11 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
+  // A picked province refits the projection to it, at every width: fitted to the whole
+  // mainland, a phone draws most municipalities under 10px, too small to tap. Neighbours
+  // stay visible at the edges and the viewBox clips the rest.
+  const provinceFeature = useMemo(() => (province ? provinces.features.find((f) => f.properties.province === province) : undefined), [province, provinces]);
+
   const projection = useMemo(
     () =>
       geoConicConformal()
@@ -101,9 +106,9 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
             [FIT_PAD, FIT_PAD],
             [VIEW_W - FIT_PAD, VIEW_H - FIT_PAD],
           ],
-          mainland(municipalities),
+          provinceFeature ? mainland({ type: "FeatureCollection", features: [provinceFeature] }) : mainland(municipalities),
         ),
-    [municipalities],
+    [municipalities, provinceFeature],
   );
 
   const paths = useMemo(() => {
@@ -138,7 +143,7 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
 
   return (
     <div className={styles.wrap} ref={wrapRef}>
-      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-describedby="mapa-teclado" aria-label={province ? `Mapa de Andalucía por municipios, provincia de ${province} marcada` : "Mapa de Andalucía por municipios"}>
+      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-describedby="mapa-teclado" aria-label={province ? `Mapa de Andalucía por municipios, ampliado a la provincia de ${province}` : "Mapa de Andalucía por municipios"}>
         <defs>
           {/* Projects but no declared MW or ha; the legend swatch draws the same hatching. */}
           <pattern id="rayado-sin-dato" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">

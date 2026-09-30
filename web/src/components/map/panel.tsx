@@ -48,8 +48,11 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
           <h2 className={styles.titulo}>Cómo leer el mapa</h2>
           <p className={styles.texto}>
             Cada municipio se colorea por la suma de los proyectos evaluados en los boletines con los estados
-            seleccionados. Un proyecto en varios municipios cuenta en cada uno; en el total de Andalucía cuenta una vez. Pulsa un
-            municipio para ver sus totales, o usa el índice de abajo.
+            seleccionados. Un proyecto en varios municipios cuenta en cada uno; en el total de Andalucía cuenta una vez.{" "}
+            <span className={styles.instruccionAncha}>Pulsa un municipio para ver sus totales, o usa el índice de abajo.</span>
+            <span className={styles.instruccionMovil}>
+              Usa el índice de abajo para ver los totales de un municipio, o púlsalo en el mapa. Elige una provincia en la tabla para ampliar el mapa.
+            </span>
           </p>
           {legend(false)}
         </>
