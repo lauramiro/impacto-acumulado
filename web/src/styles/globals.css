@@ -49,6 +49,12 @@ a {
   text-underline-offset: 0.15em;
 }
 
+/* Native checkboxes and radios take the site's link colour, not the OS blue. */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--oficial);
+}
+
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,

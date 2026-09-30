@@ -88,6 +88,8 @@
   border: 1px solid var(--regla);
   border-radius: 2px;
   padding: 0.0625rem 0.5rem;
+  /* WCAG 2.2 target size: the 1px padding alone left it about 20px tall. */
+  min-height: 1.5rem;
   cursor: pointer;
 }
 
