@@ -49,3 +49,26 @@ test("the province table fits the content width at desktop size", async ({ page 
   const clipped = await scroller.evaluate((el) => el.scrollWidth > el.clientWidth);
   expect(clipped).toBe(false);
 });
+
+test("selecting a province outlines it on the map and limits the municipality index", async ({ page }) => {
+  await page.goto("/");
+  const count = page.getByTestId("indice-recuento");
+  await expect(count).not.toContainText("provincia");
+  await page.getByRole("region", { name: "Por provincia" }).getByRole("button", { name: "Cádiz" }).click();
+  await expect(page.locator('[data-province="Cádiz"]')).toHaveCount(1);
+  await expect(count).toContainText("en la provincia de Cádiz");
+  const index = page.getByRole("region", { name: "Índice de municipios" });
+  await expect(index.getByRole("cell", { name: "Sevilla", exact: true })).toHaveCount(0);
+  await index.getByRole("button", { name: "Toda Andalucía" }).click();
+  await expect(page).not.toHaveURL(/provincia=/);
+  await expect(page.locator("[data-province]")).toHaveCount(0);
+  await expect(count).not.toContainText("provincia");
+});
+
+test("province table leaves out status columns that are empty everywhere and names them", async ({ page }) => {
+  await page.goto("/");
+  const table = page.getByRole("region", { name: "Por provincia" });
+  await expect(table.getByRole("columnheader", { name: "Favorable con condiciones" })).toBeVisible();
+  await expect(table.getByRole("columnheader", { name: "Favorable", exact: true })).toHaveCount(0);
+  await expect(table.getByText(/Estados sin columna por estar vacíos en toda Andalucía: Favorable \(ningún proyecto\)/)).toBeVisible();
+});

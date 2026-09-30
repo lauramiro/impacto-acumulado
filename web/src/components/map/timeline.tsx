@@ -41,8 +41,12 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
     technologies.size > 0 && technologies.size < TECHNOLOGIES.length
       ? ` · ${TECHNOLOGIES.filter((t) => technologies.has(t)).map((t) => TECHNOLOGY_LABELS[t]).join(", ")}`
       : "";
-  const totals = EVENTS.map((e) => `${EVENT_LABELS[e]} ${formatInt(series[e].reduce((a, b) => a + b, 0))}`).join(", ");
-  const height = EVENTS.length * ROW_H + AXIS_H;
+  const sums = Object.fromEntries(EVENTS.map((e) => [e, series[e].reduce((a, b) => a + b, 0)])) as Record<EventKind, number>;
+  // Rows with no document in this scope are left out and named in a note.
+  const shown = EVENTS.filter((e) => sums[e] > 0);
+  const empty = EVENTS.filter((e) => sums[e] === 0);
+  const totals = shown.map((e) => `${EVENT_LABELS[e]} ${formatInt(sums[e])}`).join(", ");
+  const height = shown.length * ROW_H + AXIS_H;
 
   function hover(e: MouseEvent, ev: EventKind, i: number) {
     const rect = wrapRef.current?.getBoundingClientRect();
@@ -69,7 +73,7 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
               event names in the summary against the status checkboxes' labels. */}
           <svg viewBox={`0 0 ${W} ${height}`} className={styles.svg} role="img" onMouseLeave={() => setTooltip(null)}>
             <title>{`Resoluciones por mes desde ${formatMonth(TIMELINE_START)}: ${totals}`}</title>
-            {EVENTS.map((ev, row) => {
+            {shown.map((ev, row) => {
               const top = row * ROW_H;
               return (
                 <g key={ev}>
@@ -104,36 +108,42 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
           <Tooltip state={tooltip} />
         </div>
       )}
+      <p className={styles.nota}>
+        Cuenta documentos publicados (anuncios de información pública y resoluciones, por su veredicto), no proyectos por su estado actual: el filtro de estado no se aplica.
+        {empty.length > 0 && max > 0 ? ` Sin documentos con esta selección: ${empty.map((e) => EVENT_LABELS[e]).join(", ")}.` : null}
+      </p>
       <p className={styles.nota}>Entre 2019 y 2021 la colección solo contiene 5 documentos; la serie empieza en 2022.</p>
-      <details className={styles.datos}>
-        <summary>Ver los datos</summary>
-        <table className={styles.tabla}>
-          <thead>
-            <tr>
-              <th scope="col">Año</th>
-              {EVENTS.map((e) => (
-                <th key={e} scope="col" className={styles.num}>
-                  {EVENT_LABELS[e]}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {years.map((y) => (
-              <tr key={y.year}>
-                <th scope="row" className="dato">
-                  {y.year}
-                </th>
-                {EVENTS.map((e) => (
-                  <td key={e} className={`dato ${styles.num}`}>
-                    {formatInt(y.counts[e])}
-                  </td>
+      {shown.length > 0 ? (
+        <details className={styles.datos}>
+          <summary>Ver los datos</summary>
+          <table className={styles.tabla}>
+            <thead>
+              <tr>
+                <th scope="col">Año</th>
+                {shown.map((e) => (
+                  <th key={e} scope="col" className={styles.num}>
+                    {EVENT_LABELS[e]}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </details>
+            </thead>
+            <tbody>
+              {years.map((y) => (
+                <tr key={y.year}>
+                  <th scope="row" className="dato">
+                    {y.year}
+                  </th>
+                  {shown.map((e) => (
+                    <td key={e} className={`dato ${styles.num}`}>
+                      {formatInt(y.counts[e])}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+      ) : null}
     </section>
   );
 }

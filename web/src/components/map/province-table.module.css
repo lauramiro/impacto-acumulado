@@ -45,19 +45,27 @@
   text-align: right;
 }
 
+/* A toggle, not a link: selecting a province marks it on the map and scopes
+   the timeline and the municipality index to it. */
 .provincia {
   font: inherit;
+  color: var(--tinta);
   background: none;
-  border: 0;
-  padding: 0;
-  color: var(--oficial);
-  text-decoration: underline;
+  border: 1px solid var(--regla);
+  border-radius: 2px;
+  padding: 0.0625rem 0.5rem;
   cursor: pointer;
+}
+
+.provincia:hover {
+  border-color: var(--tinta);
 }
 
 .provincia[aria-pressed="true"] {
   font-weight: 600;
-  text-decoration: none;
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: var(--papel);
 }
 
 .table .seleccionada th,

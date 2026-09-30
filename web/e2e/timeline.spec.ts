@@ -10,7 +10,7 @@ test("timeline title follows province and technology, and the data table opens",
   await page.getByRole("checkbox", { name: "Eólica", exact: true }).uncheck();
   await expect(section.getByRole("heading", { level: 2 })).toContainText("Solar fotovoltaica");
   await section.getByText("Ver los datos").click();
-  await expect(section.getByRole("columnheader", { name: "Resolución sin veredicto leído" })).toBeVisible();
+  await expect(section.getByRole("columnheader", { name: "Sin veredicto leído" })).toBeVisible();
   await section.getByRole("button", { name: "Toda Andalucía" }).click();
   await expect(page).not.toHaveURL(/provincia=/);
 });
@@ -23,4 +23,14 @@ test("the timeline summary does not collide with the status filter label", async
 test("timeline empty state", async ({ page }) => {
   await page.goto("/?tecnologia=");
   await expect(page.getByRole("region", { name: /Resoluciones por mes/ }).getByText("Ninguna resolución con estos filtros.")).toBeVisible();
+});
+
+test("timeline leaves out empty rows and says the status filter does not apply", async ({ page }) => {
+  await page.goto("/");
+  const section = page.getByRole("region", { name: /Resoluciones por mes/ });
+  await expect(section.getByText(/el filtro de estado no se aplica/)).toBeVisible();
+  await expect(section.getByText(/Sin documentos con esta selección: Favorable\./)).toBeVisible();
+  await section.getByText("Ver los datos").click();
+  await expect(section.getByRole("columnheader", { name: "Favorable con condiciones" })).toBeVisible();
+  await expect(section.getByRole("columnheader", { name: "Favorable", exact: true })).toHaveCount(0);
 });

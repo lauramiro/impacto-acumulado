@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LookupTable } from "@/components/lookup-table";
 import { formatCoverageCell, formatInt } from "@/lib/format";
 import { formatMetric, METRIC_LABELS } from "@/lib/labels";
-import type { Filters, MapMunicipality, Metric } from "@/lib/types";
+import type { Filters, MapMunicipality, Metric, Province } from "@/lib/types";
 
 /** `withMw`/`total`: MW coverage under the active filters, shown when the metric is MW. */
 export type IndexRow = MapMunicipality & { value: number; withMw: number; total: number };
@@ -15,9 +15,12 @@ export type MunicipalityIndexProps = {
   filters: Filters;
   selected: string | null;
   onSelect: (ine: string | null) => void;
+  /** Province the rows are limited to, picked in the province table. */
+  province: Province | null;
+  onClearProvince: () => void;
 };
 
-export function MunicipalityIndex({ rows, metric, filters, selected, onSelect }: MunicipalityIndexProps) {
+export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, province, onClearProvince }: MunicipalityIndexProps) {
   const notice =
     filters.statuses.size === 0 ? (
       <p>Ningún estado seleccionado.</p>
@@ -28,8 +31,17 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect }:
     <LookupTable
       id="indice"
       title="Índice de municipios"
-      countText={`${formatInt(rows.length)} municipios con proyectos`}
+      countText={`${formatInt(rows.length)} municipios con proyectos${province ? ` en la provincia de ${province}` : ""}`}
       countTestId="indice-recuento"
+      intro={
+        province ? (
+          <p>
+            <button type="button" className="ver-en-mapa" onClick={onClearProvince}>
+              Toda Andalucía
+            </button>
+          </p>
+        ) : undefined
+      }
       notice={notice}
       searchLabel="Buscar municipio"
       rows={rows}

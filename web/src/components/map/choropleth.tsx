@@ -21,6 +21,8 @@ type Props = {
   labelOf: (ine: string) => string;
   selected: string | null;
   onSelect: (ine: string | null) => void;
+  /** Province picked in the province table, outlined over the municipalities. */
+  province: string | null;
   sites: FeatureCollection<Geometry, SiteProps> | null;
   sensitivity: { layer: "ftv" | "eol"; data: FeatureCollection } | null;
 };
@@ -66,7 +68,7 @@ const MuniLayer = memo(function MuniLayer({ items, selected, onSelect, onHover }
   );
 });
 
-export function Choropleth({ municipalities, provinces, classOf, labelOf, selected, onSelect, sites, sensitivity }: Props) {
+export function Choropleth({ municipalities, provinces, classOf, labelOf, selected, onSelect, province, sites, sensitivity }: Props) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +106,7 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
 
   return (
     <div className={styles.wrap} ref={wrapRef}>
-      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-label="Mapa de Andalucía por municipios">
+      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-label={province ? `Mapa de Andalucía por municipios, provincia de ${province} marcada` : "Mapa de Andalucía por municipios"}>
         <defs>
           {/* Projects but no declared MW or ha; the legend swatch draws the same hatching. */}
           <pattern id="rayado-sin-dato" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
@@ -124,6 +126,11 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
             <path key={p.province} d={p.d} />
           ))}
         </g>
+        {paths.provs
+          .filter((p) => p.province === province)
+          .map((p) => (
+            <path key={p.province} d={p.d} data-province={p.province} className={styles.provinciaMarcada} aria-hidden="true" />
+          ))}
         <g onMouseLeave={handleLeave}>
           {sitePaths.map((s) => (
             <path

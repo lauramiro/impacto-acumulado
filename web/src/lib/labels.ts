@@ -4,12 +4,12 @@ import { fold } from "./search";
 import { PROVINCES, type DocumentRole, type EventKind, type Metric, type Province, type SensitivityLayer, type Status, type Technology, type Verdict } from "./types";
 
 export const STATUS_LABELS: Record<Status, string> = {
-  en_consulta: "En consulta",
+  en_consulta: "Información pública",
   favorable: "Favorable",
   favorable_condicionada: "Favorable con condiciones",
   desfavorable: "Desfavorable",
   caducado: "Caducado",
-  desconocido: "Sin determinar",
+  desconocido: "Sin veredicto leído",
 };
 
 export const TECHNOLOGY_LABELS: Record<Technology, string> = {
@@ -102,12 +102,17 @@ export function classLabels(metric: Metric, thresholds: number[]): string[] {
   return labels;
 }
 
+/**
+ * Timeline rows. They count documents by the verdict each one states, not
+ * projects by current status, but use the same words as STATUS_LABELS so a
+ * row reads as the status that document would give.
+ */
 export const EVENT_LABELS: Record<EventKind, string> = {
   consulta: "Información pública",
   favorable: "Favorable",
   favorable_condicionada: "Favorable con condiciones",
   desfavorable: "Desfavorable",
-  sin_veredicto: "Resolución sin veredicto leído",
+  sin_veredicto: "Sin veredicto leído",
 };
 
 export const SENSITIVITY_LABELS: Record<SensitivityLayer, string> = {

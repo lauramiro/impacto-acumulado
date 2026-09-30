@@ -153,18 +153,21 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
   );
 
   // Every municipality with a matching project, including those whose MW or ha
-  // figure is zero because none of its projects declares one.
+  // figure is zero because none of its projects declares one, limited to the
+  // province picked in the province table.
   const rows: IndexRow[] = useMemo(
     () =>
       municipalities
+        .filter((m) => state.province === null || m.province === state.province)
         .map((m) => ({ ...m, value: values.get(m.ine) ?? 0, ...(coverages.get(m.ine) ?? { withMw: 0, total: 0 }) }))
         .filter((r) => r.total > 0)
         .sort((a, b) => b.value - a.value || b.total - a.total),
-    [municipalities, values, coverages],
+    [municipalities, values, coverages, state.province],
   );
 
   const selected = state.selected ? (byIne.get(state.selected) ?? null) : null;
   const select = useCallback((ine: string | null) => update({ ...state, selected: ine }), [state, update]);
+  const clearProvince = useCallback(() => update({ ...state, province: null }), [state, update]);
 
   const sensitivityLayer = state.sensitivity !== "ninguna" ? layers[state.sensitivity] : null;
   const sensitivity = useMemo<{ layer: "ftv" | "eol"; data: LayerData } | null>(() => {
@@ -216,6 +219,7 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
               labelOf={labelOf}
               selected={state.selected}
               onSelect={select}
+              province={state.province}
               sites={state.natura && layers.natura.status === "loaded" ? (layers.natura.data as FeatureCollection<Geometry, SiteProps>) : null}
               sensitivity={sensitivity}
             />
@@ -246,9 +250,17 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
         province={state.province}
         technologies={state.technologies}
         lastMonth={lastMonth}
-        onClearProvince={() => update({ ...state, province: null })}
+        onClearProvince={clearProvince}
       />
-      <MunicipalityIndex rows={rows} metric={state.metric} filters={filters} selected={state.selected} onSelect={select} />
+      <MunicipalityIndex
+        rows={rows}
+        metric={state.metric}
+        filters={filters}
+        selected={state.selected}
+        onSelect={select}
+        province={state.province}
+        onClearProvince={clearProvince}
+      />
       <NaturaTable sites={sites} metric={state.metric} filters={filters} />
     </div>
   );

@@ -8,7 +8,8 @@ it("has a Spanish label for every enum value", () => {
   for (const r of DOCUMENT_ROLES) expect(ROLE_LABELS[r]).toMatch(/^[A-ZÁÉÍÓÚ]/);
   for (const v of VERDICTS) expect(VERDICT_LABELS[v]).toMatch(/^[A-ZÁÉÍÓÚ]/);
   for (const m of METRICS) expect(METRIC_LABELS[m]).toMatch(/^[A-ZÁÉÍÓÚ]/);
-  expect(STATUS_LABELS.desconocido).toBe("Sin determinar");
+  expect(STATUS_LABELS.desconocido).toBe("Sin veredicto leído");
+  expect(STATUS_LABELS.en_consulta).toBe("Información pública");
   expect(STATUS_LABELS.favorable_condicionada).toBe("Favorable con condiciones");
 });
 
@@ -25,14 +26,19 @@ describe("province slugs", () => {
 });
 
 describe("event labels", () => {
-  it("labels every event", () => {
+  it("labels every event with the words of the matching status", () => {
     expect(EVENTS.map((e) => EVENT_LABELS[e])).toEqual([
       "Información pública",
       "Favorable",
       "Favorable con condiciones",
       "Desfavorable",
-      "Resolución sin veredicto leído",
+      "Sin veredicto leído",
     ]);
+  });
+  it("uses the status words for the events that match a status", () => {
+    expect(EVENT_LABELS.consulta).toBe(STATUS_LABELS.en_consulta);
+    expect(EVENT_LABELS.sin_veredicto).toBe(STATUS_LABELS.desconocido);
+    expect(EVENT_LABELS.favorable_condicionada).toBe(STATUS_LABELS.favorable_condicionada);
   });
 });
 
