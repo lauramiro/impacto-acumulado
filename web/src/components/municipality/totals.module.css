@@ -2,8 +2,11 @@
   margin: 2rem 0;
 }
 
+/* Four short columns: at the full 1200px width each figure sat 400 to 800px
+   from its row label. */
 .table {
   width: 100%;
+  max-width: 44rem;
   border-collapse: collapse;
   border-top: 1px solid var(--tinta);
   border-bottom: 1px solid var(--tinta);
