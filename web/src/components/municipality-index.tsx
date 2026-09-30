@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LookupTable } from "@/components/lookup-table";
-import { formatCoverageCell, formatInt } from "@/lib/format";
+import { formatCoverageCell, formatInt, isUndeclared, NO_DATA } from "@/lib/format";
 import { formatMetric, METRIC_LABELS } from "@/lib/labels";
 import type { Filters, MapMunicipality, Metric, Province } from "@/lib/types";
 
@@ -27,6 +27,8 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, p
     ) : filters.technologies.size === 0 ? (
       <p>Ninguna tecnología seleccionada.</p>
     ) : undefined;
+  // Only MW coverage is known here; with hectares a zero stays a zero.
+  const undeclared = (r: IndexRow) => metric === "mw" && isUndeclared(r.withMw, r.total);
   return (
     <LookupTable
       id="indice"
@@ -49,11 +51,22 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, p
       searchText={(r) => r.name}
       emptyText="Ningún municipio coincide con la búsqueda."
       rowClassName={(r) => (selected === r.ine ? "seleccionada" : undefined)}
+      defaultSort={{ column: METRIC_LABELS[metric], direction: "descending" }}
       columns={[
-        { header: "Municipio", rowHeader: true, cell: (r) => <Link href={`/municipio/${r.ine}`}>{r.name}</Link> },
-        { header: "Provincia", hideOnPhone: true, cell: (r) => r.province },
-        { header: METRIC_LABELS[metric], numeric: true, cell: (r) => formatMetric(r.value, metric) },
-        ...(metric === "mw" ? [{ header: "Con MW declarado", numeric: true, cell: (r: IndexRow) => formatCoverageCell(r.withMw, r.total) }] : []),
+        { header: "Municipio", rowHeader: true, cell: (r) => <Link href={`/municipio/${r.ine}`}>{r.name}</Link>, sortValue: (r) => r.name },
+        { header: "Provincia", hideOnPhone: true, cell: (r) => r.province, sortValue: (r) => r.province },
+        {
+          header: METRIC_LABELS[metric],
+          numeric: true,
+          cell: (r) => (undeclared(r) ? NO_DATA : formatMetric(r.value, metric)),
+          sortValue: (r) => (undeclared(r) ? -1 : r.value),
+        },
+        ...(metric === "mw" ? [{
+              header: "Con MW declarado",
+              numeric: true,
+              cell: (r: IndexRow) => formatCoverageCell(r.withMw, r.total),
+              sortValue: (r: IndexRow) => r.withMw / r.total,
+            }] : []),
         {
           header: "Acciones",
           hiddenHeader: true,

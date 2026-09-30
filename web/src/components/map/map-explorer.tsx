@@ -5,23 +5,13 @@ import { useRouter } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
 import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
+import { expandMapData, type CompactMapData } from "@/lib/compact";
 import { fetchJson } from "@/lib/fetch-json";
 import { formatCoverage } from "@/lib/format";
 import { formatMetric, NO_FIGURE_LABELS } from "@/lib/labels";
 import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricDecimals, metricValue, mwCoverage } from "@/lib/metrics";
-import type {
-  Filters,
-  MapMunicipality,
-  Metric,
-  MonthlyEvent,
-  MunicipalityStats,
-  ProtectedAreaStats,
-  ProvinceStats,
-  SensitivityLayer,
-  Status,
-  Technology,
-} from "@/lib/types";
+import type { Filters, Metric, SensitivityLayer, Status, Technology } from "@/lib/types";
 import type { MuniProps, ProvProps, SiteProps } from "./choropleth";
 import { Controls } from "./controls";
 import { OverlayKey } from "./legend";
@@ -43,15 +33,13 @@ type Geo = {
 };
 
 type Props = {
-  municipalities: MapMunicipality[];
-  stats: Record<string, MunicipalityStats>;
-  provinceStats: ProvinceStats;
-  events: MonthlyEvent[];
-  sites: ProtectedAreaStats[];
+  /** Tuples rather than objects, to keep the RSC payload small; expanded once here. */
+  data: CompactMapData;
   lastMonth: string;
 };
 
-export function MapExplorer({ municipalities, stats, provinceStats, events, sites, lastMonth }: Props) {
+export function MapExplorer({ data, lastMonth }: Props) {
+  const { municipalities, stats, provinceStats, events, sites } = useMemo(() => expandMapData(data), [data]);
   const router = useRouter();
   const [state, setState] = useState<MapState>(defaultState);
   const [geo, setGeo] = useState<Geo | "error" | null>(null);

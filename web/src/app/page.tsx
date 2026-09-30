@@ -1,5 +1,6 @@
 import { preload } from "react-dom";
 import { MapExplorer } from "@/components/map/map-explorer";
+import { compactMapData } from "@/lib/compact";
 import { loadMapData } from "@/lib/data/map-data";
 import { formatCoverage, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
@@ -28,11 +29,13 @@ export default async function HomePage() {
         </p>
       </div>
       <MapExplorer
-        municipalities={municipalities.map(({ ine, name, province }) => ({ ine, name, province }))}
-        stats={stats}
-        provinceStats={provinceStats}
-        events={events}
-        sites={sites}
+        data={compactMapData({
+          municipalities: municipalities.map(({ ine, name, province }) => ({ ine, name, province })),
+          stats,
+          provinceStats,
+          events,
+          sites,
+        })}
         lastMonth={lastMonth}
       />
     </>

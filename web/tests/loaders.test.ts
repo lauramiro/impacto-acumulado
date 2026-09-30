@@ -39,7 +39,7 @@ describe("loaders", () => {
 
   it("reads protected areas per municipality including empty lists", async () => {
     const rel = await loadMunicipalityProtectedAreas();
-    expect(rel.get("29084")).toEqual([{ siteCode: "ES0000001", name: "SIERRA", type: "ZEPA" }]);
+    expect(rel.get("29084")).toEqual([{ siteCode: "ES0000001", name: "Sierra", type: "ZEPA" }]);
     expect(rel.get("29067")).toEqual([]);
   });
 
@@ -129,7 +129,7 @@ describe("slice 3 loaders", () => {
   it("reads every protected area sorted by name, with its municipality count", async () => {
     const sites = await loadProtectedAreaStats();
     expect(sites.map((s) => s.siteCode)).toEqual(["ES0000002", "ES0000001"]);
-    expect(sites[0]).toEqual({ siteCode: "ES0000002", name: "LAGUNA", type: "ZEC", municipalityCount: 0, cells: [] });
+    expect(sites[0]).toEqual({ siteCode: "ES0000002", name: "Laguna", type: "ZEC", municipalityCount: 0, cells: [] });
     expect(sites[1].cells[0]).toMatchObject({ technology: "solar_fv", mwNominal: 93, mwCount: 1, hectares: 140.1, haCount: 1 });
   });
 

@@ -125,3 +125,36 @@
     text-align: center;
   }
 }
+
+.ordenar {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.ordenar:hover {
+  text-decoration: underline;
+}
+
+.flecha {
+  font-size: 0.75em;
+  color: currentColor;
+}
+
+th:not([aria-sort]) .flecha {
+  opacity: 0.45;
+}
+
+.mas {
+  margin: 0.75rem 0 0;
+}
+
+.sinProyectos {
+  color: color-mix(in srgb, var(--tinta) 70%, var(--papel));
+  font-style: italic;
+}
