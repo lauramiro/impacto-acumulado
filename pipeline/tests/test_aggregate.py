@@ -244,6 +244,33 @@ def test_province_stats_counts_multi_province_projects_once_in_andalucia(db, fix
     ]
 
 
+def test_ha_count_counts_projects_with_declared_hectares(db, fixtures_dir):
+    # Only P1 declares hectares; P4 declares MW but no surface, so its cell has
+    # mw_count 1 and ha_count 0: a missing figure, not a measured zero.
+    seed_slice3(db, fixtures_dir)
+    run_aggregate(db)
+    ms = _rows(db, "SELECT ine_code, technology, hectares, ha_count FROM municipality_stats ORDER BY ine_code, status, technology")
+    assert ms == [
+        {"ine_code": "29067", "technology": "solar_fv", "hectares": 0.0, "ha_count": 0},
+        {"ine_code": "29084", "technology": "linea_evacuacion", "hectares": 0.0, "ha_count": 0},
+        {"ine_code": "29084", "technology": "solar_fv", "hectares": 200.0, "ha_count": 1},
+        {"ine_code": "41091", "technology": "solar_fv", "hectares": 200.0, "ha_count": 1},
+    ]
+    pa = _rows(db, "SELECT technology, hectares, ha_count FROM protected_area_stats ORDER BY site_code, technology")
+    assert pa == [
+        {"technology": "linea_evacuacion", "hectares": 0.0, "ha_count": 0},
+        {"technology": "solar_fv", "hectares": 200.0, "ha_count": 1},
+    ]
+    ps = _rows(db, "SELECT status, technology, hectares, mw_count, ha_count FROM province_stats "
+                   "WHERE scope = 'Andalucía' ORDER BY status, technology")
+    assert ps == [
+        {"status": "desconocido", "technology": "solar_fv", "hectares": 0.0, "mw_count": 0, "ha_count": 0},
+        {"status": "en_consulta", "technology": "eolica", "hectares": 0.0, "mw_count": 1, "ha_count": 0},
+        {"status": "favorable_condicionada", "technology": "linea_evacuacion", "hectares": 0.0, "mw_count": 0, "ha_count": 0},
+        {"status": "favorable_condicionada", "technology": "solar_fv", "hectares": 200.0, "mw_count": 1, "ha_count": 1},
+    ]
+
+
 def test_monthly_events_maps_roles_to_events(db, fixtures_dir):
     seed_slice3(db, fixtures_dir)
     run_aggregate(db)

@@ -3,8 +3,8 @@
 -- 'Andalucía' rows count every project exactly once, including projects with
 -- no identified municipality, so the regional total is not the sum of rows.
 DELETE FROM province_stats;
-INSERT INTO province_stats (scope, status, technology, project_count, mw_nominal, mw_count, hectares)
-SELECT scope, status, technology, count(*), COALESCE(sum(mw_nominal), 0), count(mw_nominal), COALESCE(sum(hectares), 0)
+INSERT INTO province_stats (scope, status, technology, project_count, mw_nominal, mw_count, hectares, ha_count)
+SELECT scope, status, technology, count(*), COALESCE(sum(mw_nominal), 0), count(mw_nominal), COALESCE(sum(hectares), 0), count(hectares)
 FROM (
   SELECT DISTINCT m.province AS scope, p.id, p.status, p.technology, p.mw_nominal, p.hectares
   FROM projects_for_aggregates p
