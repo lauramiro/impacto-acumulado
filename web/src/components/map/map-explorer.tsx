@@ -188,12 +188,14 @@ export function MapExplorer({ municipalities, stats, provinceStats, events, site
           else statuses.add(s);
           update({ ...state, statuses });
         }}
+        onStatuses={(statuses) => update({ ...state, statuses: new Set(statuses) })}
         onToggleTechnology={(t: Technology) => {
           const technologies = new Set(state.technologies);
           if (technologies.has(t)) technologies.delete(t);
           else technologies.add(t);
           update({ ...state, technologies });
         }}
+        onTechnologies={(technologies) => update({ ...state, technologies: new Set(technologies) })}
         natura={state.natura}
         onNatura={(natura: boolean) => update({ ...state, natura })}
         sensitivity={state.sensitivity}

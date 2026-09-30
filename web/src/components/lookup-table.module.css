@@ -66,23 +66,62 @@
   background: color-mix(in srgb, var(--escala-1) 50%, var(--papel));
 }
 
+/* A small outlined button, set apart from the figure before it (such as
+   "7 de 9") so the two do not read as one phrase; it never wraps. */
 :global(.ver-en-mapa) {
   background: none;
-  border: 0;
-  padding: 0;
+  border: 1px solid var(--regla);
+  border-radius: 2px;
+  padding: 0.125rem 0.5rem;
   font: inherit;
   font-size: var(--texto-pie);
   color: var(--oficial);
-  text-decoration: underline;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+:global(.ver-en-mapa):hover {
+  border-color: var(--oficial);
+}
+
+.table td > :global(.ver-en-mapa) {
+  margin-left: 1rem;
 }
 
 .vacio {
   font-size: var(--texto-dato);
 }
 
+/* No room on a phone for one line: a fixed width breaks it into exactly two,
+   "Ver en el / mapa", instead of one word per line; its border keeps it apart
+   from the figure before it. */
 @media (max-width: 767px) {
   .table .sinMovil {
     display: none;
+  }
+
+  /* Room for the button at 375px: tighter cells and figures, only in a table
+     that has one. */
+  .table:has(:global(.ver-en-mapa)) th,
+  .table:has(:global(.ver-en-mapa)) td {
+    padding-right: 0.25rem;
+  }
+
+  .table:has(:global(.ver-en-mapa)) td.num {
+    font-size: 0.875rem;
+  }
+
+  .table td:has(> :global(.ver-en-mapa)) {
+    padding-right: 0;
+  }
+
+  .table td > :global(.ver-en-mapa) {
+    margin-left: 0;
+    padding: 0.125rem 0.25rem;
+    width: 3.75rem;
+    font-size: 0.75rem;
+    white-space: normal;
+    line-height: 1.25;
+    text-align: center;
   }
 }

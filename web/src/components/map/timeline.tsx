@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { formatInt, formatMonth } from "@/lib/format";
 import { EVENT_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { buildSeries, monthRange, seriesMax, TIMELINE_START, yearTotals } from "@/lib/timeline";
@@ -8,7 +8,9 @@ import { EVENTS, REGION, TECHNOLOGIES, type EventKind, type MonthlyEvent, type P
 import { Tooltip, type TooltipState } from "./tooltip";
 import styles from "./timeline.module.css";
 
-const W = 1000;
+// Width before the container is measured; afterwards the viewBox matches the
+// rendered width so labels keep their pixel size on phones too.
+const DEFAULT_W = 1000;
 const ROW_H = 44;
 const BAR_H = 28;
 const AXIS_H = 20;
@@ -31,6 +33,7 @@ type Props = {
 export function Timeline({ events, province, technologies, lastMonth, onClearProvince }: Props) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(DEFAULT_W);
   const months = useMemo(() => monthRange(TIMELINE_START, lastMonth), [lastMonth]);
   const series = useMemo(() => buildSeries(events, province ?? REGION, technologies, months), [events, province, technologies, months]);
   const max = seriesMax(series);
@@ -47,6 +50,18 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
   const empty = EVENTS.filter((e) => sums[e] === 0);
   const totals = shown.map((e) => `${EVENT_LABELS[e]} ${formatInt(sums[e])}`).join(", ");
   const height = shown.length * ROW_H + AXIS_H;
+  const hasChart = max > 0;
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      const width = Math.round(entry.contentRect.width);
+      if (width > 0) setW(width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasChart]);
 
   function hover(e: MouseEvent, ev: EventKind, i: number) {
     const rect = wrapRef.current?.getBoundingClientRect();

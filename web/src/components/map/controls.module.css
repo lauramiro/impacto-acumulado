@@ -46,3 +46,97 @@
   margin: 0.25rem 0 0;
   flex-basis: 100%;
 }
+
+.atajos {
+  font-size: var(--texto-pie);
+  white-space: nowrap;
+}
+
+.atajo {
+  font: inherit;
+  color: var(--oficial);
+  background: none;
+  border: 0;
+  padding: 0.25rem 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.atajo:disabled {
+  color: var(--tinta);
+  opacity: 0.55;
+  text-decoration: none;
+  cursor: default;
+}
+
+/* The "Filtros" toggle only exists on phones. */
+.plegar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .filtros {
+    display: contents;
+  }
+}
+
+@media (max-width: 767px) {
+  .controls {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .plegar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    color: var(--tinta);
+    background: none;
+    border: 1px solid var(--regla);
+    padding: 0.5rem 2rem 0.5rem 0.625rem;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .plegar::after {
+    content: "";
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-70%) rotate(45deg);
+  }
+
+  .plegar[aria-expanded="true"]::after {
+    transform: translateY(-30%) rotate(-135deg);
+  }
+
+  .plegarTitulo {
+    font-size: var(--texto-pie);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .resumen {
+    font-size: var(--texto-dato);
+  }
+
+  .filtros {
+    display: none;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.25rem 0 0.5rem;
+  }
+
+  .filtros.abierto {
+    display: flex;
+  }
+}

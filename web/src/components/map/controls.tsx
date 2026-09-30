@@ -1,5 +1,6 @@
 "use client";
 
+import { useId, useState } from "react";
 import { METRIC_LABELS, SENSITIVITY_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { METRICS, SENSITIVITY_LAYERS, STATUSES, TECHNOLOGIES, type Metric, type SensitivityLayer, type Status, type Technology } from "@/lib/types";
 import styles from "./controls.module.css";
@@ -13,10 +14,44 @@ type Props = {
   layerError: { natura: boolean; sensitivity: boolean };
   onMetric: (m: Metric) => void;
   onToggleStatus: (s: Status) => void;
+  onStatuses: (s: ReadonlySet<Status>) => void;
   onToggleTechnology: (t: Technology) => void;
+  onTechnologies: (t: ReadonlySet<Technology>) => void;
   onNatura: (on: boolean) => void;
   onSensitivity: (s: SensitivityLayer) => void;
 };
+
+/** "Todos los estados", "Ningún estado", one label, or "3 de 6 estados". */
+function groupSummary<T extends string>(all: readonly T[], on: ReadonlySet<T>, labels: Record<T, string>, words: { all: string; none: string; some: string }) {
+  const picked = all.filter((v) => on.has(v));
+  if (picked.length === all.length) return words.all;
+  if (picked.length === 0) return words.none;
+  if (picked.length === 1) return labels[picked[0]];
+  return `${picked.length} de ${all.length} ${words.some}`;
+}
+
+export function filterSummary(statuses: ReadonlySet<Status>, technologies: ReadonlySet<Technology>, natura: boolean, sensitivity: SensitivityLayer) {
+  const layers = [natura ? "Red Natura 2000" : null, sensitivity !== "ninguna" ? `Sensibilidad ${SENSITIVITY_LABELS[sensitivity].toLowerCase()}` : null].filter(Boolean);
+  return [
+    groupSummary(STATUSES, statuses, STATUS_LABELS, { all: "Todos los estados", none: "Ningún estado", some: "estados" }),
+    groupSummary(TECHNOLOGIES, technologies, TECHNOLOGY_LABELS, { all: "Todas las tecnologías", none: "Ninguna tecnología", some: "tecnologías" }),
+    ...layers,
+  ].join(" · ");
+}
+
+function Shortcuts<T>({ all, on, onSet, label }: { all: readonly T[]; on: ReadonlySet<T>; onSet: (s: ReadonlySet<T>) => void; label: string }) {
+  return (
+    <span className={styles.atajos}>
+      <button type="button" className={styles.atajo} aria-label={`Marcar todos: ${label}`} disabled={on.size === all.length} onClick={() => onSet(new Set(all))}>
+        todos
+      </button>
+      {" / "}
+      <button type="button" className={styles.atajo} aria-label={`Desmarcar todos: ${label}`} disabled={on.size === 0} onClick={() => onSet(new Set())}>
+        ninguno
+      </button>
+    </span>
+  );
+}
 
 export function Controls({
   metric,
@@ -27,10 +62,18 @@ export function Controls({
   layerError,
   onMetric,
   onToggleStatus,
+  onStatuses,
   onToggleTechnology,
+  onTechnologies,
   onNatura,
   onSensitivity,
 }: Props) {
+  // Below 768px Estado, Tecnología and Capas fold behind this toggle so the map
+  // sits near the top of the first screen; wider screens always show them.
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  // A layer that failed to load keeps the panel open so its alert is seen.
+  const shown = open || layerError.natura || layerError.sensitivity;
   return (
     <div className={styles.controls}>
       <fieldset className={styles.group}>
@@ -42,50 +85,60 @@ export function Controls({
           </label>
         ))}
       </fieldset>
-      <fieldset className={styles.group}>
-        <legend>Estado</legend>
-        {STATUSES.map((s) => (
-          <label key={s} className={styles.option}>
-            <input type="checkbox" name="estado" value={s} checked={statuses.has(s)} onChange={() => onToggleStatus(s)} />
-            {STATUS_LABELS[s]}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset className={styles.group}>
-        <legend>Tecnología</legend>
-        {TECHNOLOGIES.map((t) => (
-          <label key={t} className={styles.option}>
-            <input type="checkbox" name="tecnologia" value={t} checked={technologies.has(t)} onChange={() => onToggleTechnology(t)} />
-            {TECHNOLOGY_LABELS[t]}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset className={styles.group}>
-        <legend>Capas</legend>
-        <label className={styles.option}>
-          <input type="checkbox" name="natura" checked={natura} onChange={(e) => onNatura(e.target.checked)} />
-          Red Natura 2000
-        </label>
-        {layerError.natura ? (
-          <p role="alert" className={styles.error}>
-            No se ha podido cargar la capa. Vuelve a intentarlo.
-          </p>
-        ) : null}
-        <fieldset className={styles.subgroup}>
-          <legend>Sensibilidad ambiental</legend>
-          {SENSITIVITY_LAYERS.map((s) => (
+      <button type="button" className={styles.plegar} aria-expanded={shown} aria-controls={panelId} onClick={() => setOpen(!shown)}>
+        <span className={styles.plegarTitulo}>Filtros</span>
+        <span className={styles.resumen} data-testid="resumen-filtros">
+          {filterSummary(statuses, technologies, natura, sensitivity)}
+        </span>
+      </button>
+      <div id={panelId} className={`${styles.filtros} ${shown ? styles.abierto : ""}`}>
+        <fieldset className={styles.group}>
+          <legend>Estado</legend>
+          {STATUSES.map((s) => (
             <label key={s} className={styles.option}>
-              <input type="radio" name="sensibilidad" value={s} checked={sensitivity === s} onChange={() => onSensitivity(s)} />
-              {SENSITIVITY_LABELS[s]}
+              <input type="checkbox" name="estado" value={s} checked={statuses.has(s)} onChange={() => onToggleStatus(s)} />
+              {STATUS_LABELS[s]}
             </label>
           ))}
+          <Shortcuts all={STATUSES} on={statuses} onSet={onStatuses} label="estados" />
         </fieldset>
-        {layerError.sensitivity ? (
-          <p role="alert" className={styles.error}>
-            No se ha podido cargar la capa. Vuelve a intentarlo.
-          </p>
-        ) : null}
-      </fieldset>
+        <fieldset className={styles.group}>
+          <legend>Tecnología</legend>
+          {TECHNOLOGIES.map((t) => (
+            <label key={t} className={styles.option}>
+              <input type="checkbox" name="tecnologia" value={t} checked={technologies.has(t)} onChange={() => onToggleTechnology(t)} />
+              {TECHNOLOGY_LABELS[t]}
+            </label>
+          ))}
+          <Shortcuts all={TECHNOLOGIES} on={technologies} onSet={onTechnologies} label="tecnologías" />
+        </fieldset>
+        <fieldset className={styles.group}>
+          <legend>Capas</legend>
+          <label className={styles.option}>
+            <input type="checkbox" name="natura" checked={natura} onChange={(e) => onNatura(e.target.checked)} />
+            Red Natura 2000
+          </label>
+          {layerError.natura ? (
+            <p role="alert" className={styles.error}>
+              No se ha podido cargar la capa. Vuelve a intentarlo.
+            </p>
+          ) : null}
+          <fieldset className={styles.subgroup}>
+            <legend>Sensibilidad ambiental</legend>
+            {SENSITIVITY_LAYERS.map((s) => (
+              <label key={s} className={styles.option}>
+                <input type="radio" name="sensibilidad" value={s} checked={sensitivity === s} onChange={() => onSensitivity(s)} />
+                {SENSITIVITY_LABELS[s]}
+              </label>
+            ))}
+          </fieldset>
+          {layerError.sensitivity ? (
+            <p role="alert" className={styles.error}>
+              No se ha podido cargar la capa. Vuelve a intentarlo.
+            </p>
+          ) : null}
+        </fieldset>
+      </div>
     </div>
   );
 }

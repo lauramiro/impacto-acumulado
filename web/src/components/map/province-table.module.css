@@ -2,9 +2,28 @@
   margin-top: 2.5rem;
 }
 
+/* Scroll shadows: the papel-coloured covers scroll with the content
+   (attachment local) and hide the shadows at each end; a shadow shows on the
+   right while more columns lie beyond the edge. The sticky first column
+   covers the left shadow. */
 .scroll {
   overflow-x: auto;
   max-width: 100%;
+  background:
+    linear-gradient(to left, var(--papel) 40%, transparent) right center / 2.5rem 100% no-repeat local,
+    linear-gradient(to left, rgb(0 0 0 / 0.14), transparent) right center / 1rem 100% no-repeat scroll;
+}
+
+@media (max-width: 767px) {
+  .table th,
+  .table td {
+    padding: 0.375rem 0.5rem;
+  }
+
+  /* Said in words as well as the shadow: on a phone the table always overflows. */
+  .nota:has(+ .scroll)::after {
+    content: " Desliza la tabla hacia la izquierda para ver todas las columnas.";
+  }
 }
 
 .table {

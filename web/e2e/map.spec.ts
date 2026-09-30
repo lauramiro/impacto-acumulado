@@ -116,3 +116,26 @@ test("the panel never shows a zero sum for a status whose projects declare no fi
     expect(text).not.toMatch(/(^|· )0,0 (MW|ha)/);
   }
 });
+
+test("on a phone the filters fold behind a toggle that summarises them", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto("/");
+  const toggle = page.getByRole("button", { name: /^Filtros/ });
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByTestId("resumen-filtros")).toHaveText("Todos los estados · Todas las tecnologías");
+  await expect(page.getByRole("checkbox", { name: "Favorable", exact: true })).toBeHidden();
+  await toggle.click();
+  await page.getByRole("checkbox", { name: "Favorable", exact: true }).uncheck();
+  await expect(page.getByTestId("resumen-filtros")).toHaveText("5 de 6 estados · Todas las tecnologías");
+});
+
+test("status and technology shortcuts select all or none in one click", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Desmarcar todos: estados", exact: true }).click();
+  await expect(page).toHaveURL(/estado=(&|$)/);
+  await expect(page.getByRole("region", { name: "Por provincia" }).getByText("Ningún estado seleccionado.")).toBeVisible();
+  await page.getByRole("button", { name: "Marcar todos: estados", exact: true }).click();
+  await expect(page).not.toHaveURL(/estado=/);
+  await page.getByRole("button", { name: "Desmarcar todos: tecnologías", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Por provincia" }).getByText("Ninguna tecnología seleccionada.")).toBeVisible();
+});
