@@ -1,0 +1,5 @@
+# CSV files are committed exactly as written: the exporter (Python's csv
+# module) ends lines with CRLF on every platform, and core.autocrlf on a
+# Windows checkout would otherwise turn new files into LF, so the weekly CI
+# export rewrote every line.
+*.csv -text
