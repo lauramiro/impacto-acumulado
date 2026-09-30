@@ -2,6 +2,8 @@
   --papel: #f1f2ee;
   --tinta: #1a1d1b;
   --regla: #b9bdb7;
+  /* Neutral data marks (timeline bars): 3.35:1 on papel, where --regla gives 1.69:1. */
+  --neutro: #80857e;
   --escala-1: #ead9b3;
   --escala-2: #d2a85c;
   --escala-3: #b8862b;

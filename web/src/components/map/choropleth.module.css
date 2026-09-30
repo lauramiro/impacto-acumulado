@@ -25,10 +25,13 @@
   stroke-width: 2;
 }
 
+/* One screen pixel at every width: scaled with the viewBox it fell to about
+   0.4px on a phone, and the light classes lost their edge against the paper. */
 .provincias path {
   fill: none;
   stroke: var(--tinta);
   stroke-width: 1;
+  vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
 

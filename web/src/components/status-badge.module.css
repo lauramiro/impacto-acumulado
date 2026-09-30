@@ -1,23 +1,32 @@
+/* A key, not a chip: a square in the status colour before a plain label, the
+   same mark as the map legend swatches. Each colour is 3:1 or more on papel. */
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
   font-size: var(--texto-pie);
-  border: 1px solid var(--regla);
-  border-left-width: 4px;
-  padding: 0.05rem 0.5rem;
   white-space: nowrap;
+}
+
+.badge::before {
+  content: "";
+  flex: none;
+  width: 0.6em;
+  height: 0.6em;
+  background: var(--color-estado);
 }
 
 .favorable,
 .favorable_condicionada {
-  border-left-color: var(--oficial);
+  --color-estado: var(--oficial);
 }
 
 .desfavorable,
 .caducado {
-  border-left-color: var(--alerta);
+  --color-estado: var(--alerta);
 }
 
 .en_consulta,
 .desconocido {
-  border-left-color: var(--regla);
+  --color-estado: var(--neutro);
 }

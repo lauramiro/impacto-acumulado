@@ -27,7 +27,27 @@ type Props = {
   sensitivity: { layer: "ftv" | "eol"; data: FeatureCollection } | null;
 };
 
-const CLASS_VARS = ["--regla", "--escala-1", "--escala-2", "--escala-3", "--escala-4", "--escala-5"];
+/** Keeps the outer outline's stroke inside the viewBox. */
+const FIT_PAD = 4;
+/**
+ * The mainland ends at 36.00N (Tarifa). The Isla de Alborán (35.94N), part of the
+ * municipality of Almería, lies some 90 km offshore: fitting it shrank the mainland
+ * and left a speck under the map, so the fit ignores it and it falls outside the frame.
+ */
+const MAINLAND_SOUTH = 35.97;
+
+function mainland<P>(fc: FeatureCollection<Geometry, P>): FeatureCollection<Geometry, P> {
+  return {
+    ...fc,
+    features: fc.features.map((f) =>
+      f.geometry.type === "MultiPolygon"
+        ? { ...f, geometry: { ...f.geometry, coordinates: f.geometry.coordinates.filter((poly) => poly[0].some(([, lat]) => lat >= MAINLAND_SOUTH)) } }
+        : f,
+    ),
+  };
+}
+
+const CLASS_VARS =["--regla", "--escala-1", "--escala-2", "--escala-3", "--escala-4", "--escala-5"];
 
 function fillOf(cls: number): string {
   return cls === NO_FIGURE_CLASS ? "url(#rayado-sin-dato)" : `var(${CLASS_VARS[cls]})`;
@@ -72,7 +92,19 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const projection = useMemo(() => geoConicConformal().parallels([36, 39]).fitSize([VIEW_W, VIEW_H], municipalities), [municipalities]);
+  const projection = useMemo(
+    () =>
+      geoConicConformal()
+        .parallels([36, 39])
+        .fitExtent(
+          [
+            [FIT_PAD, FIT_PAD],
+            [VIEW_W - FIT_PAD, VIEW_H - FIT_PAD],
+          ],
+          mainland(municipalities),
+        ),
+    [municipalities],
+  );
 
   const paths = useMemo(() => {
     const path = geoPath(projection);

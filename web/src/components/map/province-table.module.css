@@ -26,9 +26,21 @@
   }
 }
 
+/* Every column gets a set width, so the spare width is shared in proportion
+   and the status columns come out equal whatever their label length. On a
+   phone max-content keeps them at that width and the table scrolls. */
 .table {
   border-collapse: collapse;
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
+}
+
+.table thead th {
+  width: 8.5rem;
+}
+
+.table thead th:first-child {
+  width: 6.5rem;
 }
 
 .table th,

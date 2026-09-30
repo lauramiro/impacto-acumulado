@@ -39,18 +39,26 @@
   font-size: 0.8125rem;
 }
 
+/* Swatch beside the text, same gap as the class legend; wrapped lines align
+   with the text rather than running under the swatch. */
+.capas li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 .muestraNatura {
-  display: inline-block;
+  flex: none;
   width: 1.25rem;
-  vertical-align: middle;
+  margin-top: 0.75em;
   border-top: 1px dashed var(--oficial);
 }
 
 .muestraSensibilidad {
-  display: inline-block;
+  flex: none;
   width: 1.25rem;
   height: 0.75rem;
-  vertical-align: middle;
+  margin-top: 0.25em;
   background: repeating-linear-gradient(45deg, var(--alerta) 0 1px, transparent 1px 5px);
 }
 

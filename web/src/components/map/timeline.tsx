@@ -19,7 +19,7 @@ const FILL: Record<EventKind, string> = {
   favorable: "var(--tinta)",
   favorable_condicionada: "var(--tinta)",
   desfavorable: "var(--alerta)",
-  sin_veredicto: "var(--regla)",
+  sin_veredicto: "var(--neutro)",
 };
 
 type Props = {
