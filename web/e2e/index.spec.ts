@@ -75,3 +75,21 @@ test("with no status or no technology the index shows the notice, not a zero cou
   await expect(index.getByText("Ninguna tecnología seleccionada.")).toBeVisible();
   await expect(page.getByTestId("indice-recuento")).toBeEmpty();
 });
+
+test("under hectares the index marks undeclared surface as sin dato, with a coverage column", async ({ page }) => {
+  await page.goto("/?metrica=ha");
+  const index = page.getByRole("region", { name: "Índice de municipios" });
+  await expect(index.getByRole("columnheader", { name: /^Con superficie declarada/ })).toBeVisible();
+  const more = index.getByRole("button", { name: /^Ver todos \(\d+\)$/ });
+  const total = Number((await more.textContent())?.match(/\d+/)?.[0]);
+  await more.click();
+  const rows = index.locator("tbody tr");
+  await expect(rows).toHaveCount(total);
+  // The third cell is the hectare column (the municipality is the row header).
+  const cells = (await rows.locator(":scope > :nth-child(3)").allTextContents()).map((c) => c.trim());
+  expect(cells).not.toContain("0,0 ha");
+  const firstNoData = cells.indexOf("sin dato");
+  expect(firstNoData).toBeGreaterThan(0);
+  // Rows with a figure come before rows without one.
+  expect(cells.slice(firstNoData).every((c) => c === "sin dato")).toBe(true);
+});

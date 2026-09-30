@@ -4,13 +4,13 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
-import { MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
+import { indexRank, MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
 import { expandMapData, type CompactMapData } from "@/lib/compact";
 import { fetchJson } from "@/lib/fetch-json";
 import { formatCoverage } from "@/lib/format";
 import { formatMetric, NO_FIGURE_LABELS } from "@/lib/labels";
 import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
-import { classIndex, classify, metricDecimals, metricValue, mwCoverage } from "@/lib/metrics";
+import { classIndex, classify, metricCoverage, metricDecimals, metricValue, mwCoverage } from "@/lib/metrics";
 import type { Filters, Metric, SensitivityLayer, Status, Technology } from "@/lib/types";
 import type { MuniProps, ProvProps, SiteProps } from "./choropleth";
 import { Controls } from "./controls";
@@ -117,21 +117,21 @@ export function MapExplorer({ data, lastMonth }: Props) {
   }, [municipalities, stats, state.metric, filters]);
 
   const coverages = useMemo(() => {
-    const out = new Map<string, { withMw: number; total: number }>();
-    for (const m of municipalities) out.set(m.ine, mwCoverage(stats[m.ine]?.cells, filters));
+    const out = new Map<string, { declared: number; total: number }>();
+    for (const m of municipalities) out.set(m.ine, metricCoverage(stats[m.ine]?.cells, state.metric, filters));
     return out;
-  }, [municipalities, stats, filters]);
+  }, [municipalities, stats, state.metric, filters]);
 
   const decimals = metricDecimals(state.metric);
   const thresholds = useMemo(() => classify([...values.values()], 5, decimals), [values, decimals]);
   const labelOf = useCallback(
     (ine: string) => {
       const value = values.get(ine) ?? 0;
-      const c = coverages.get(ine) ?? { withMw: 0, total: 0 };
+      const c = coverages.get(ine) ?? { declared: 0, total: 0 };
       if (c.total === 0) return "Sin proyectos";
       if (state.metric !== "proyectos" && value <= 0) return `${formatMetric(c.total, "proyectos")}, ${NO_FIGURE_LABELS[state.metric]}`;
       const label = formatMetric(value, state.metric);
-      return state.metric === "mw" ? `${label} (${formatCoverage(c.withMw, c.total)})` : label;
+      return state.metric === "mw" ? `${label} (${formatCoverage(c.declared, c.total)})` : label;
     },
     [values, coverages, state.metric],
   );
@@ -147,9 +147,9 @@ export function MapExplorer({ data, lastMonth }: Props) {
     () =>
       municipalities
         .filter((m) => state.province === null || m.province === state.province)
-        .map((m) => ({ ...m, value: values.get(m.ine) ?? 0, ...(coverages.get(m.ine) ?? { withMw: 0, total: 0 }) }))
+        .map((m) => ({ ...m, value: values.get(m.ine) ?? 0, ...(coverages.get(m.ine) ?? { declared: 0, total: 0 }) }))
         .filter((r) => r.total > 0)
-        .sort((a, b) => b.value - a.value || b.total - a.total),
+        .sort((a, b) => indexRank(b) - indexRank(a) || b.total - a.total),
     [municipalities, values, coverages, state.province],
   );
 

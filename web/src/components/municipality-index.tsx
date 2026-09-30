@@ -6,8 +6,15 @@ import { formatCoverageCell, formatInt, isUndeclared, NO_DATA } from "@/lib/form
 import { formatMetric, METRIC_LABELS } from "@/lib/labels";
 import type { Filters, MapMunicipality, Metric, Province } from "@/lib/types";
 
-/** `withMw`/`total`: MW coverage under the active filters, shown when the metric is MW. */
-export type IndexRow = MapMunicipality & { value: number; withMw: number; total: number };
+/** `declared`/`total`: how many of the matching projects declare the metric's figure, shown for MW and ha. */
+export type IndexRow = MapMunicipality & { value: number; declared: number; total: number };
+
+/** Sort key for the metric column: figures first, then municipalities whose projects declare none ("sin dato"). */
+export function indexRank(r: IndexRow): number {
+  return isUndeclared(r.declared, r.total) ? -1 : r.value;
+}
+
+const COVERAGE_HEADERS: Partial<Record<Metric, string>> = { mw: "Con MW declarado", ha: "Con superficie declarada" };
 
 export type MunicipalityIndexProps = {
   rows: IndexRow[];
@@ -27,8 +34,7 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, p
     ) : filters.technologies.size === 0 ? (
       <p>Ninguna tecnología seleccionada.</p>
     ) : undefined;
-  // Only MW coverage is known here; with hectares a zero stays a zero.
-  const undeclared = (r: IndexRow) => metric === "mw" && isUndeclared(r.withMw, r.total);
+  const coverageHeader = COVERAGE_HEADERS[metric];
   return (
     <LookupTable
       id="indice"
@@ -59,14 +65,14 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, p
         {
           header: METRIC_LABELS[metric],
           numeric: true,
-          cell: (r) => (undeclared(r) ? NO_DATA : formatMetric(r.value, metric)),
-          sortValue: (r) => (undeclared(r) ? -1 : r.value),
+          cell: (r) => (isUndeclared(r.declared, r.total) ? NO_DATA : formatMetric(r.value, metric)),
+          sortValue: indexRank,
         },
-        ...(metric === "mw" ? [{
-              header: "Con MW declarado",
+        ...(coverageHeader ? [{
+              header: coverageHeader,
               numeric: true,
-              cell: (r: IndexRow) => formatCoverageCell(r.withMw, r.total),
-              sortValue: (r: IndexRow) => r.withMw / r.total,
+              cell: (r: IndexRow) => formatCoverageCell(r.declared, r.total),
+              sortValue: (r: IndexRow) => r.declared / r.total,
             }] : []),
         {
           header: "Acciones",
