@@ -51,3 +51,10 @@ export function yearTotals(series: Series, months: readonly string[]): { year: s
     return { year, counts };
   });
 }
+
+const shortMonthYear = new Intl.DateTimeFormat("es-ES", { month: "short", year: "numeric", timeZone: "UTC" });
+
+/** "2023-03" as "mar 2023", for the narrow month column of the data table. */
+export function formatShortMonth(month: string): string {
+  return shortMonthYear.format(new Date(`${month}-01T00:00:00Z`)).replace(".", "");
+}

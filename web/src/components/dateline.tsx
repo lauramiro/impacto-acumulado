@@ -7,7 +7,7 @@ export function Dateline({ meta }: { meta: Meta }) {
     "Andalucía",
     `Datos a ${formatLongDate(meta.generatedAt)}`,
     `${formatInt(meta.counts.projects)} proyectos`,
-    `${formatInt(meta.counts.raw_documents)} resoluciones`,
+    `${formatInt(meta.counts.raw_documents)} documentos`,
   ];
   return (
     <p className={`dato ${styles.dateline}`} data-testid="dateline">

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { formatInt, formatMonth } from "@/lib/format";
 import { EVENT_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { buildSeries, monthRange, seriesMax, TIMELINE_START, yearTotals } from "@/lib/timeline";
+import { buildSeries, formatShortMonth, monthRange, seriesMax, TIMELINE_START, yearTotals } from "@/lib/timeline";
 import { EVENTS, REGION, TECHNOLOGIES, type EventKind, type MonthlyEvent, type Province, type Technology } from "@/lib/types";
 import { Tooltip, type TooltipState } from "./tooltip";
 import styles from "./timeline.module.css";
@@ -72,7 +72,7 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
   return (
     <section aria-labelledby="evolucion" className={styles.section}>
       <h2 id="evolucion">
-        Resoluciones por mes · {scope}
+        Documentos por mes · {scope}
         {techNote}
       </h2>
       {province ? (
@@ -81,13 +81,13 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
         </button>
       ) : null}
       {max === 0 ? (
-        <p>Ninguna resolución con estos filtros.</p>
+        <p>Ningún documento con estos filtros.</p>
       ) : (
         <div className={styles.wrap} ref={wrapRef}>
           {/* An SVG <title>, not aria-label: Playwright's getByLabel would otherwise match the
               event names in the summary against the status checkboxes' labels. */}
           <svg viewBox={`0 0 ${W} ${height}`} className={styles.svg} role="img" onMouseLeave={() => setTooltip(null)}>
-            <title>{`Resoluciones por mes desde ${formatMonth(TIMELINE_START)}: ${totals}`}</title>
+            <title>{`Documentos por mes desde ${formatMonth(TIMELINE_START)}: ${totals}`}</title>
             {shown.map((ev, row) => {
               const top = row * ROW_H;
               return (
@@ -132,6 +132,7 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
         <details className={styles.datos}>
           <summary>Ver los datos</summary>
           <table className={styles.tabla}>
+            <caption>Por año</caption>
             <thead>
               <tr>
                 <th scope="col">Año</th>
@@ -151,6 +152,34 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
                   {shown.map((e) => (
                     <td key={e} className={`dato ${styles.num}`}>
                       {formatInt(y.counts[e])}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <table className={`${styles.tabla} ${styles.mensual}`}>
+            <caption>Por mes</caption>
+            <thead>
+              <tr>
+                <th scope="col">Mes</th>
+                {shown.map((e) => (
+                  <th key={e} scope="col" className={styles.num}>
+                    {EVENT_LABELS[e]}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {months.map((m, i) => (
+                <tr key={m}>
+                  <th scope="row" className="dato">
+                    <span aria-hidden="true">{formatShortMonth(m)}</span>
+                    <span className="visually-hidden">{formatMonth(m)}</span>
+                  </th>
+                  {shown.map((e) => (
+                    <td key={e} className={`dato ${styles.num}`}>
+                      {formatInt(series[e][i])}
                     </td>
                   ))}
                 </tr>

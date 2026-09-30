@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSeries, monthRange, seriesMax, TIMELINE_START, yearTotals } from "@/lib/timeline";
+import { buildSeries, formatShortMonth, monthRange, seriesMax, TIMELINE_START, yearTotals } from "@/lib/timeline";
 import { TECHNOLOGIES, type MonthlyEvent } from "@/lib/types";
 
 const ALL = new Set(TECHNOLOGIES);
@@ -48,5 +48,12 @@ describe("yearTotals", () => {
     expect(rows.map((r) => r.year)).toEqual(["2022", "2023"]);
     expect(rows[0].counts).toEqual({ consulta: 2, favorable: 0, favorable_condicionada: 0, desfavorable: 1, sin_veredicto: 0 });
     expect(rows[1].counts.sin_veredicto).toBe(4);
+  });
+});
+
+describe("formatShortMonth", () => {
+  it("abbreviates the month without a trailing period", () => {
+    expect(formatShortMonth("2023-03")).toBe("mar 2023");
+    expect(formatShortMonth("2022-09")).toBe("sept 2022");
   });
 });
