@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatBytes, formatCoverage, formatCoverageCell, formatDate, formatHa, formatHaDeclared, formatInt, formatLongDate, formatMonth, formatMw, formatMwDeclared, formatPercent, formatScore } from "@/lib/format";
+import { absenceMark, formatBytes, formatCoverage, formatCoverageCell, formatDate, formatHa, formatHaDeclared, formatInt, formatLongDate, formatMonth, formatMw, formatMwDeclared, formatPercent, formatScore, NO_DATA, NO_PROJECTS } from "@/lib/format";
 
 describe("format (es-ES)", () => {
   it("formats MW and hectares with one decimal and thousands separators", () => {
@@ -57,6 +57,19 @@ describe("formatMwDeclared and formatHaDeclared", () => {
     expect(formatMwDeclared(126.9, 3, 4)).toBe("126,9 MW");
     expect(formatHaDeclared(0, 1, 4)).toBe("0,0 ha");
     expect(formatHaDeclared(0, 0, 0)).toBe("0,0 ha");
+  });
+});
+
+describe("absenceMark", () => {
+  it("tells no projects apart from projects with no declared figure", () => {
+    expect(absenceMark(0, 0)).toBe(NO_PROJECTS);
+    expect(NO_PROJECTS).toBe("–");
+    expect(absenceMark(0, 3)).toBe(NO_DATA);
+    expect(NO_DATA).toBe("sin dato");
+  });
+  it("is null when any project declares the figure", () => {
+    expect(absenceMark(1, 3)).toBeNull();
+    expect(absenceMark(3, 3)).toBeNull();
   });
 });
 

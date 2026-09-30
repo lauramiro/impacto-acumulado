@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCoverageCell, isUndeclared, NO_DATA } from "@/lib/format";
+import { absenceMark, formatCoverageCell, formatInt, NO_DATA, NO_PROJECTS } from "@/lib/format";
 import { formatMetric, NO_FIGURE_LABELS, STATUS_LABELS } from "@/lib/labels";
 import { metricCoverage, metricValue } from "@/lib/metrics";
 import { PROVINCES, REGION, STATUSES, type Filters, type Metric, type Province, type ProvinceStats, type StatsCell, type Status } from "@/lib/types";
@@ -12,9 +12,23 @@ type Props = {
   filters: Filters;
   selected: Province | null;
   onSelect: (p: Province | null) => void;
+  /** Rows in the municipality index, already limited to `selected`. */
+  indexCount: number;
 };
 
-export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Props) {
+/** "–" read out as words: a screen reader may skip the dash or call it a punctuation mark. */
+function Mark({ mark }: { mark: string }) {
+  return mark === NO_PROJECTS ? (
+    <>
+      <span aria-hidden="true">{NO_PROJECTS}</span>
+      <span className="visually-hidden">ningún proyecto</span>
+    </>
+  ) : (
+    mark
+  );
+}
+
+export function ProvinceTable({ stats, metric, filters, selected, onSelect, indexCount }: Props) {
   const region = stats[REGION];
   const only = (s: Status): Filters => ({ ...filters, statuses: new Set([s]) });
   const checked = STATUSES.filter((s) => filters.statuses.has(s));
@@ -30,11 +44,12 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
     });
   const value = (cells: StatsCell[], f: Filters) => {
     const c = metricCoverage(cells, metric, f);
-    return isUndeclared(c.declared, c.total) ? NO_DATA : formatMetric(metricValue(cells, metric, f), metric);
+    const mark = absenceMark(c.declared, c.total);
+    return mark ? <Mark mark={mark} /> : formatMetric(metricValue(cells, metric, f), metric);
   };
   const coverage = (cells: StatsCell[]) => {
     const c = metricCoverage(cells, metric, filters);
-    return formatCoverageCell(c.declared, c.total);
+    return c.total === 0 ? <Mark mark={NO_PROJECTS} /> : formatCoverageCell(c.declared, c.total);
   };
   const coverageHeader = metric === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
   return (
@@ -93,9 +108,23 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect }: Pr
               </tfoot>
             </table>
           </div>
+          {/* On a phone the map, the timeline and the index are all off-screen when a
+              province is picked; this line says what the tap did. */}
+          <p role="status" className={styles.marcada}>
+            {selected ? (
+              <>
+                <strong>{selected}</strong> marcada en el mapa ·{" "}
+                <a href="#indice">
+                  {formatInt(indexCount)} {indexCount === 1 ? "municipio" : "municipios"} en el índice
+                </a>{" "}
+                · <a href="#mapa">Ver el mapa</a>
+              </>
+            ) : null}
+          </p>
           <p className={styles.nota}>
             Un proyecto en varias provincias cuenta en cada una; en el total de Andalucía cuenta una vez, también si no tiene municipio
-            identificado.
+            identificado. «{NO_PROJECTS}»: ningún proyecto.
+            {metric !== "proyectos" ? ` «${NO_DATA}»: hay proyectos, pero ninguno declara ${metric === "mw" ? "MW" : "superficie"}.` : null}
             {omitted.length > 0 ? ` Estados sin columna por estar vacíos en toda Andalucía: ${omitted.join("; ")}.` : null}
           </p>
         </>

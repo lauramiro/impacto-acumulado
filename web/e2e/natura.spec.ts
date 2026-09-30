@@ -15,7 +15,7 @@ test("the Natura 2000 table follows the filters", async ({ page }) => {
   await section.getByLabel("Buscar espacio").fill("donana");
   const row = section.getByRole("row", { name: /Doñana/ }).first();
   const before = await row.textContent();
-  await page.getByRole("checkbox", { name: "Favorable con condiciones", exact: true }).uncheck();
+  await page.getByRole("checkbox", { name: /^Favorable con condiciones \(/ }).uncheck();
   await expect(row).not.toHaveText(before ?? "");
 });
 

@@ -56,9 +56,17 @@ export function formatCoverage(declared: number, total: number, figure: "mw" | "
 
 export const NO_DATA = "sin dato";
 
+/** A table cell with no projects at all, kept apart from NO_DATA (projects, but no declared figure). */
+export const NO_PROJECTS = "–";
+
 /** True when there are projects but none declares the figure: a missing figure, not a measured zero. */
 export function isUndeclared(declared: number, total: number): boolean {
   return total > 0 && declared === 0;
+}
+
+/** NO_PROJECTS when there are no projects, NO_DATA when none of them declares the figure, otherwise null (show the figure). */
+export function absenceMark(declared: number, total: number): typeof NO_PROJECTS | typeof NO_DATA | null {
+  return total === 0 ? NO_PROJECTS : isUndeclared(declared, total) ? NO_DATA : null;
 }
 
 /** An MW sum, or "sin dato de MW" when none of the `total` projects declares MW. */

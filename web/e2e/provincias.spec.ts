@@ -6,7 +6,7 @@ test("province table follows the status filter and selects a province", async ({
   await expect(table.getByRole("columnheader", { name: "Desfavorable" })).toBeVisible();
   await expect(table.getByRole("rowheader", { name: "Andalucía" })).toBeVisible();
   await expect(table.getByRole("columnheader", { name: "Con MW declarado" })).toBeVisible();
-  await page.getByRole("checkbox", { name: "Desfavorable", exact: true }).uncheck();
+  await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).uncheck();
   await expect(table.getByRole("columnheader", { name: "Desfavorable" })).toHaveCount(0);
   const sevilla = table.getByRole("button", { name: "Sevilla" });
   await sevilla.click();
@@ -71,4 +71,29 @@ test("province table leaves out status columns that are empty everywhere and nam
   await expect(table.getByRole("columnheader", { name: "Favorable con condiciones" })).toBeVisible();
   await expect(table.getByRole("columnheader", { name: "Favorable", exact: true })).toHaveCount(0);
   await expect(table.getByText(/Estados sin columna por estar vacíos en toda Andalucía: Favorable \(ningún proyecto\)/)).toBeVisible();
+});
+
+test("on a phone, picking a province confirms it under the table with a link to the map", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const table = page.getByRole("region", { name: "Por provincia" });
+  const status = table.getByRole("status");
+  await expect(status).toBeEmpty();
+  await table.getByRole("button", { name: "Cádiz" }).click();
+  await expect(status).toBeInViewport();
+  await expect(status).toHaveText(/^Cádiz marcada en el mapa · [\d.]+ municipios? en el índice · Ver el mapa$/);
+  const count = (await page.getByTestId("indice-recuento").textContent())?.match(/^[\d.]+/)?.[0];
+  await expect(status).toContainText(`${count} municipio`);
+  await status.getByRole("link", { name: "Ver el mapa" }).click();
+  await expect(page.locator("#mapa")).toBeInViewport();
+  await table.getByRole("button", { name: "Cádiz" }).click();
+  await expect(status).toBeEmpty();
+});
+
+test("province table marks cells with no projects apart from sin dato and defines both", async ({ page }) => {
+  await page.goto("/");
+  const table = page.getByRole("region", { name: "Por provincia" });
+  await expect(table.getByRole("cell", { name: "ningún proyecto" }).first()).toBeVisible();
+  await expect(table.getByText("«–»: ningún proyecto.", { exact: false })).toBeVisible();
+  await expect(table.getByText("«sin dato»: hay proyectos, pero ninguno declara MW.", { exact: false })).toBeVisible();
 });

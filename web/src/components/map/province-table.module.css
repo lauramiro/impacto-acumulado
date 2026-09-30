@@ -7,6 +7,9 @@
    right while more columns lie beyond the edge. The sticky first column
    covers the left shadow. */
 .scroll {
+  /* Contains the absolutely positioned visually-hidden text in the cells, which
+     would otherwise widen the page beyond the scroller. */
+  position: relative;
   overflow-x: auto;
   max-width: 100%;
   background:
@@ -107,4 +110,18 @@
 .nota {
   font-size: 0.8125rem;
   margin-top: 0.5rem;
+}
+
+/* Confirms a province pick below the table; empty (but kept, so it is announced) otherwise. */
+.marcada {
+  font-size: var(--texto-dato);
+  margin-top: 0.75rem;
+  padding-left: 0.625rem;
+  border-left: 3px solid var(--tinta);
+}
+
+.marcada:empty {
+  margin: 0;
+  padding: 0;
+  border: 0;
 }

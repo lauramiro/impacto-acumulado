@@ -189,6 +189,7 @@ export function MapExplorer({ data, lastMonth }: Props) {
     <div>
       <Controls
         metric={state.metric}
+        regionCells={provinceStats["Andalucía"]}
         statuses={state.statuses}
         technologies={state.technologies}
         onMetric={(metric: Metric) => update({ ...state, metric })}
@@ -256,6 +257,7 @@ export function MapExplorer({ data, lastMonth }: Props) {
         filters={filters}
         selected={state.province}
         onSelect={(province) => update({ ...state, province })}
+        indexCount={rows.length}
       />
       <Timeline
         events={events}

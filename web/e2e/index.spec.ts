@@ -65,3 +65,13 @@ test("the index sorts by a column header and says so with aria-sort", async ({ p
   await name.getByRole("button").click();
   await expect(name).toHaveAttribute("aria-sort", "descending");
 });
+
+test("with no status or no technology the index shows the notice, not a zero count", async ({ page }) => {
+  const index = page.getByRole("region", { name: "Índice de municipios" });
+  await page.goto("/?estado=");
+  await expect(index.getByText("Ningún estado seleccionado.")).toBeVisible();
+  await expect(page.getByTestId("indice-recuento")).toBeEmpty();
+  await page.goto("/?tecnologia=");
+  await expect(index.getByText("Ninguna tecnología seleccionada.")).toBeVisible();
+  await expect(page.getByTestId("indice-recuento")).toBeEmpty();
+});

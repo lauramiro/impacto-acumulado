@@ -140,3 +140,8 @@
     display: flex;
   }
 }
+
+/* Projects per status, e.g. "Favorable (0)". */
+.recuento {
+  font-variant-numeric: tabular-nums;
+}

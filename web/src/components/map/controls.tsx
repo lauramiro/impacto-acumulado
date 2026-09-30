@@ -1,12 +1,16 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { formatInt } from "@/lib/format";
 import { METRIC_LABELS, SENSITIVITY_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { METRICS, SENSITIVITY_LAYERS, STATUSES, TECHNOLOGIES, type Metric, type SensitivityLayer, type Status, type Technology } from "@/lib/types";
+import { splitBy } from "@/lib/metrics";
+import { METRICS, SENSITIVITY_LAYERS, STATUSES, TECHNOLOGIES, type Metric, type SensitivityLayer, type StatsCell, type Status, type Technology } from "@/lib/types";
 import styles from "./controls.module.css";
 
 type Props = {
   metric: Metric;
+  /** Andalucía cells, each project counted once: the source of the per-status project counts. */
+  regionCells: readonly StatsCell[];
   statuses: ReadonlySet<Status>;
   technologies: ReadonlySet<Technology>;
   natura: boolean;
@@ -55,6 +59,7 @@ function Shortcuts<T>({ all, on, onSet, label }: { all: readonly T[]; on: Readon
 
 export function Controls({
   metric,
+  regionCells,
   statuses,
   technologies,
   natura,
@@ -74,6 +79,12 @@ export function Controls({
   const panelId = useId();
   // A layer that failed to load keeps the panel open so its alert is seen.
   const shown = open || layerError.natura || layerError.sensitivity;
+  // Projects per status across every technology, so a status with none (such as
+  // Favorable) says so on its checkbox instead of silently changing nothing.
+  const statusCounts = useMemo(() => {
+    const by = splitBy(regionCells, "status");
+    return new Map(STATUSES.map((s) => [s, by.get(s)?.projectCount ?? 0]));
+  }, [regionCells]);
   return (
     <div className={styles.controls}>
       <fieldset className={styles.group}>
@@ -97,7 +108,7 @@ export function Controls({
           {STATUSES.map((s) => (
             <label key={s} className={styles.option}>
               <input type="checkbox" name="estado" value={s} checked={statuses.has(s)} onChange={() => onToggleStatus(s)} />
-              {STATUS_LABELS[s]}
+              {STATUS_LABELS[s]} <span className={styles.recuento}>({formatInt(statusCounts.get(s) ?? 0)})</span>
             </label>
           ))}
           <Shortcuts all={STATUSES} on={statuses} onSet={onStatuses} label="estados" />

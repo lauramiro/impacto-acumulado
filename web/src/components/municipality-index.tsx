@@ -33,7 +33,8 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, p
     <LookupTable
       id="indice"
       title="Índice de municipios"
-      countText={`${formatInt(rows.length)} municipios con proyectos${province ? ` en la provincia de ${province}` : ""}`}
+      // With no status or technology the notice below says why the index is empty; a zero count would contradict it.
+      countText={notice ? "" : `${formatInt(rows.length)} municipios con proyectos${province ? ` en la provincia de ${province}` : ""}`}
       countTestId="indice-recuento"
       intro={
         province ? (
