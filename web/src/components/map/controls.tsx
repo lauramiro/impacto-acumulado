@@ -79,12 +79,14 @@ export function Controls({
   const panelId = useId();
   // A layer that failed to load keeps the panel open so its alert is seen.
   const shown = open || layerError.natura || layerError.sensitivity;
-  // Projects per status across every technology, so a status with none (such as
-  // Favorable) says so on its checkbox instead of silently changing nothing.
+  // Projects per status for the ticked technologies (whatever the ticked
+  // statuses), so a status with none (such as Favorable) says so on its
+  // checkbox instead of silently changing nothing, and an unticked one still
+  // shows what ticking it would add.
   const statusCounts = useMemo(() => {
-    const by = splitBy(regionCells, "status");
+    const by = splitBy(regionCells.filter((c) => technologies.has(c.technology)), "status");
     return new Map(STATUSES.map((s) => [s, by.get(s)?.projectCount ?? 0]));
-  }, [regionCells]);
+  }, [regionCells, technologies]);
   return (
     <div className={styles.controls}>
       <fieldset className={styles.group}>

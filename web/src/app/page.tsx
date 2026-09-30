@@ -25,7 +25,7 @@ export default async function HomePage() {
           Cada proyecto renovable se evalúa por separado; este mapa reúne las evaluaciones ambientales de{" "}
           {formatInt(region.projectCount)} proyectos publicadas en el BOE y el BOJA y suma lo que se acumula en cada municipio. En
           conjunto suman <span className="dato">{formatMw(region.mwNominal)}</span> ({formatCoverage(region.mwCount, region.projectCount)}),
-          con {leaders} a la cabeza.
+          con {leaders} a la cabeza en MW declarados.
         </p>
       </div>
       <MapExplorer

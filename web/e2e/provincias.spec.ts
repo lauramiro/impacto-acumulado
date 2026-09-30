@@ -97,3 +97,15 @@ test("province table marks cells with no projects apart from sin dato and define
   await expect(table.getByText("«–»: ningún proyecto.", { exact: false })).toBeVisible();
   await expect(table.getByText("«sin dato»: hay proyectos, pero ninguno declara MW.", { exact: false })).toBeVisible();
 });
+
+test("status checkbox counts follow the technology filter and match the province table total", async ({ page }) => {
+  await page.goto("/?tecnologia=eolica&metrica=proyectos");
+  const table = page.getByRole("region", { name: "Por provincia" });
+  const headers = await table.getByRole("columnheader").allTextContents();
+  const column = headers.indexOf("Favorable con condiciones");
+  expect(column).toBeGreaterThan(0);
+  const total = (await table.getByRole("row").last().getByRole("cell").nth(column - 1).textContent())?.match(/^[\d.]+/)?.[0];
+  await expect(page.getByRole("checkbox", { name: `Favorable con condiciones (${total})` })).toHaveCount(1);
+  await page.getByRole("button", { name: "Desmarcar todos: tecnologías" }).click();
+  await expect(page.getByRole("checkbox", { name: "Favorable con condiciones (0)" })).toHaveCount(1);
+});
