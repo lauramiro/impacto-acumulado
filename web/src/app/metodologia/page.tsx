@@ -123,7 +123,7 @@ export default async function MethodologyPage() {
         </li>
         <li>
           Muchos documentos no declaran potencia. Cada total de MW indica cuántos proyectos la declaran, por ejemplo «MW declarados en
-          167 de 433 proyectos». Las cifras de potencia llevan además el error de lectura medido arriba.
+          7 de 9 proyectos». Las cifras de potencia llevan además el error de lectura medido arriba.
         </li>
         <li>
           Los solapes con la Red Natura 2000 y la cuota de sensibilidad usan el límite municipal completo: son un filtro de atención, no
