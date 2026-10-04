@@ -128,15 +128,16 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11903,favorable_condicionada,solar_fv,3,64.0,0.0,0,2,0,San Martín del Tesorillo,Cádiz
 14005,desconocido,solar_fv,2,27.993,0.0,0,1,0,Almodóvar del Río,Córdoba
 14005,favorable_condicionada,solar_fv,2,0.0,97.0,0,0,1,Almodóvar del Río,Córdoba
-14012,desconocido,solar_fv,4,0.0,0.0,0,0,0,Bujalance,Córdoba
-14012,favorable_condicionada,solar_fv,2,198.99,671.36,0,2,2,Bujalance,Córdoba
+14012,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,Bujalance,Córdoba
+14012,desconocido,solar_fv,6,0.0,0.0,0,0,0,Bujalance,Córdoba
+14012,favorable_condicionada,solar_fv,4,279.68,671.36,0,2,2,Bujalance,Córdoba
 14013,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,Cabra,Córdoba
 14013,favorable_condicionada,solar_fv,4,358.0,1152.34,0,4,4,Cabra,Córdoba
-14018,favorable_condicionada,solar_fv,1,49.99,263.36,0,1,1,El Carpio,Córdoba
+14018,favorable_condicionada,solar_fv,2,130.68,263.36,0,1,1,El Carpio,Córdoba
 14019,favorable_condicionada,solar_fv,1,188.0,521.32,0,1,1,Castro del Río,Córdoba
-14021,desconocido,solar_fv,2,0.0,0.0,0,0,0,Córdoba,Córdoba
+14021,desconocido,solar_fv,4,0.0,0.0,0,0,0,Córdoba,Córdoba
 14021,desfavorable,solar_fv,1,0.0,201.18,0,0,1,Córdoba,Córdoba
-14021,favorable_condicionada,solar_fv,1,49.99,263.36,0,1,1,Córdoba,Córdoba
+14021,favorable_condicionada,solar_fv,3,130.68,263.36,0,1,1,Córdoba,Córdoba
 14025,favorable_condicionada,solar_fv,1,188.0,521.32,0,1,1,Espejo,Córdoba
 14030,favorable_condicionada,solar_fv,1,0.0,97.0,0,0,1,Fuente Palmera,Córdoba
 14033,desconocido,solar_fv,3,27.993,0.0,0,1,0,Guadalcázar,Córdoba
@@ -146,11 +147,13 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 14041,desfavorable,solar_fv,1,0.0,201.18,0,0,1,Montemayor,Córdoba
 14041,favorable_condicionada,solar_fv,1,188.0,521.32,0,1,1,Montemayor,Córdoba
 14042,desconocido,solar_fv,2,42.989998,0.0,0,2,0,Montilla,Córdoba
+14043,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,Montoro,Córdoba
 14043,desconocido,solar_fv,4,0.0,0.0,0,0,0,Montoro,Córdoba
-14043,favorable_condicionada,solar_fv,3,248.99,893.35,0,3,3,Montoro,Córdoba
+14043,favorable_condicionada,solar_fv,3,329.68,893.35,0,3,3,Montoro,Córdoba
 14049,desconocido,solar_fv,1,0.0,0.0,0,0,0,Palma del Río,Córdoba
 14056,en_consulta,solar_fv,1,0.2,0.0,0,1,0,Puente Genil,Córdoba
-14066,favorable_condicionada,solar_fv,2,198.99,671.36,0,2,2,Villa del Río,Córdoba
+14066,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,Villa del Río,Córdoba
+14066,favorable_condicionada,solar_fv,1,149.0,408.0,0,1,1,Villa del Río,Córdoba
 18001,favorable_condicionada,solar_fv,1,0.875,0.0,0,1,0,Agrón,Granada
 18003,desconocido,solar_fv,1,0.0,0.0,0,0,0,Albolote,Granada
 18003,favorable_condicionada,solar_fv,3,173.28,774.97,0,2,2,Albolote,Granada
@@ -283,7 +286,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 21079,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,Zufre,Huelva
 23002,en_consulta,hibrida,1,0.0,0.0,0,0,0,Alcalá la Real,Jaén
 23005,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,Andújar,Jaén
-23006,favorable_condicionada,solar_fv,3,99.98,263.36,0,2,1,Arjona,Jaén
+23006,favorable_condicionada,solar_fv,3,49.99,0.0,0,1,0,Arjona,Jaén
 23024,en_consulta,otra,1,0.0,0.0,0,0,0,La Carolina,Jaén
 23035,desconocido,solar_fv,1,0.0,0.0,0,0,0,Fuerte del Rey,Jaén
 23035,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,Fuerte del Rey,Jaén
@@ -291,9 +294,12 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 23050,desconocido,solar_fv,1,0.0,0.0,0,0,0,Jaén,Jaén
 23050,favorable_condicionada,solar_fv,1,3.3,6.78,0,1,1,Jaén,Jaén
 23055,en_consulta,otra,1,0.0,0.0,0,0,0,Linares,Jaén
-23056,favorable_condicionada,solar_fv,4,278.98,671.36,0,4,2,Lopera,Jaén
-23059,desconocido,solar_fv,1,0.0,0.0,0,0,0,Marmolejo,Jaén
-23059,favorable_condicionada,solar_fv,6,308.97998,671.36,0,5,2,Marmolejo,Jaén
+23056,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,Lopera,Jaén
+23056,favorable_condicionada,solar_fv,4,228.99,408.0,0,3,1,Lopera,Jaén
+23059,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,Marmolejo,Jaén
+23059,desconocido,solar_fv,2,0.0,0.0,0,0,0,Marmolejo,Jaén
+23059,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,Marmolejo,Jaén
+23059,favorable_condicionada,solar_fv,9,308.97998,408.0,0,5,1,Marmolejo,Jaén
 23061,en_consulta,solar_fv,1,2.0,0.0,0,1,0,Mengíbar,Jaén
 23086,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,Torredelcampo,Jaén
 29007,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,Alhaurín de la Torre,Málaga
