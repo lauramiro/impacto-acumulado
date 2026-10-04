@@ -21,8 +21,18 @@ export function sumFigures(cells: readonly StatsCell[]): Figures {
   return cells.reduce(add, ZERO);
 }
 
-export function metricValue(cells: readonly StatsCell[] | undefined, metric: Metric, f: Filters): number {
+/** The figure a metric reads from the cells: "densidad" reads MW and divides it by area. */
+export function baseMetric(metric: Metric): Exclude<Metric, "densidad"> {
+  return metric === "densidad" ? "mw" : metric;
+}
+
+/**
+ * The metric's value over the matching cells. "densidad" needs `areaHa`, the
+ * area of the municipality or province the cells belong to (MW / km²).
+ */
+export function metricValue(cells: readonly StatsCell[] | undefined, metric: Metric, f: Filters, areaHa?: number): number {
   const t = sumFigures(matching(cells ?? [], f));
+  if (metric === "densidad") return areaHa ? t.mwBest / (areaHa / 100) : 0;
   return metric === "mw" ? t.mwBest : metric === "ha" ? t.hectares : t.projectCount;
 }
 
@@ -39,8 +49,9 @@ export function metricCoverage(
   f: Filters,
 ): { declared: number; total: number; peak: number } {
   const t = sumFigures(matching(cells ?? [], f));
-  const declared = metric === "mw" ? t.mwCount : metric === "ha" ? t.haCount : t.projectCount;
-  return { declared, total: t.projectCount, peak: metric === "mw" ? t.mwPeakCount : 0 };
+  const base = baseMetric(metric);
+  const declared = base === "mw" ? t.mwCount : base === "ha" ? t.haCount : t.projectCount;
+  return { declared, total: t.projectCount, peak: base === "mw" ? t.mwPeakCount : 0 };
 }
 
 export function splitBy<K extends "status" | "technology">(cells: readonly StatsCell[], key: K): Map<StatsCell[K], Figures> {
@@ -50,12 +61,13 @@ export function splitBy<K extends "status" | "technology">(cells: readonly Stats
 }
 
 /** Decimals a metric is shown with; class boundaries use the same precision. */
-export function metricDecimals(metric: Metric): 0 | 1 {
-  return metric === "proyectos" ? 0 : 1;
+export function metricDecimals(metric: Metric): 0 | 1 | 2 {
+  // A typical density is a fraction of 1 MW/km²: one decimal would put most municipalities in one class.
+  return metric === "proyectos" ? 0 : metric === "densidad" ? 2 : 1;
 }
 
 /** A value rounded as it is displayed, so class boundaries match the labels. */
-function shown(value: number, decimals: 0 | 1): number {
+function shown(value: number, decimals: 0 | 1 | 2): number {
   return Number(value.toFixed(decimals));
 }
 
@@ -64,7 +76,7 @@ function shown(value: number, decimals: 0 | 1): number {
  * at most `classes - 1` ascending, distinct thresholds below the maximum; fewer
  * when the data has fewer distinct values.
  */
-export function classify(values: number[], classes: number, decimals: 0 | 1 = 0): number[] {
+export function classify(values: number[], classes: number, decimals: 0 | 1 | 2 = 0): number[] {
   const positive = values
     .map((v) => shown(v, decimals))
     .filter((v) => v > 0)
@@ -90,7 +102,7 @@ export const NO_FIGURE_CLASS = -1;
  * projects but the value is zero, otherwise 1 + number of thresholds strictly
  * below the value as displayed with `decimals`.
  */
-export function classIndex(value: number, projects: number, thresholds: number[], decimals: 0 | 1 = 0): number {
+export function classIndex(value: number, projects: number, thresholds: number[], decimals: 0 | 1 | 2 = 0): number {
   if (projects <= 0) return NO_PROJECTS_CLASS;
   if (value <= 0) return NO_FIGURE_CLASS;
   const v = shown(value, decimals);

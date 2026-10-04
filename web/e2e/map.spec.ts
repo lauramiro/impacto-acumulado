@@ -17,7 +17,7 @@ test("the page says what it is above the controls", async ({ page }) => {
   const dek = h1.locator("xpath=following-sibling::p[1]");
   await expect(dek).toContainText("BOE y el BOJA");
   await expect(dek).toContainText(/[\d.]+,\d MW \(MW declarados en [\d.]+ de [\d.]+ proyectos(; en [\d.]+ se usa la potencia pico)?\)/);
-  await expect(dek).toContainText(/con \S+ y \S+ a la cabeza en MW declarados\./);
+  await expect(dek).toContainText(/con \S+ y \S+ a la cabeza\. Denegados o caducados: [\d.]+,\d MW\./);
   const dekBox = await dek.boundingBox();
   const controlsBox = await page.getByLabel("Hectáreas").boundingBox();
   expect(dekBox!.y).toBeLessThan(controlsBox!.y);

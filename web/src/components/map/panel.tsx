@@ -101,7 +101,7 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
             </dl>
           )}
           {metric !== "proyectos" && muniCoverage && muniCoverage.total > 0 ? (
-            <p className={`dato ${styles.texto}`}>{formatCoverage(muniCoverage.declared, muniCoverage.total, metric, muniCoverage.peak)}</p>
+            <p className={`dato ${styles.texto}`}>{formatCoverage(muniCoverage.declared, muniCoverage.total, metric === "ha" ? "ha" : "mw", muniCoverage.peak)}</p>
           ) : null}
           <p className={styles.acciones}>
             <Link href={`/municipio/${municipality.ine}`}>Ver municipio</Link>

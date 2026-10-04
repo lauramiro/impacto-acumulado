@@ -2,8 +2,8 @@
 
 import { absenceMark, formatCoverageCell, formatInt, NO_DATA, NO_PROJECTS } from "@/lib/format";
 import { formatMetric, NO_FIGURE_LABELS, STATUS_LABELS } from "@/lib/labels";
-import { metricCoverage, metricValue } from "@/lib/metrics";
-import { PROVINCES, REGION, STATUSES, type Filters, type Metric, type Province, type ProvinceStats, type StatsCell, type Status } from "@/lib/types";
+import { baseMetric, metricCoverage, metricValue } from "@/lib/metrics";
+import { PROVINCES, REGION, STATUSES, type Filters, type Metric, type Province, type ProvinceStats, type Scope, type StatsCell, type Status } from "@/lib/types";
 import styles from "./province-table.module.css";
 
 type Props = {
@@ -14,6 +14,8 @@ type Props = {
   onSelect: (p: Province | null) => void;
   /** Rows in the municipality index, already limited to `selected`. */
   indexCount: number;
+  /** Hectares of each province and of Andalucía, for MW per km². */
+  areas: Record<Scope, number>;
 };
 
 /** "–" read out as words: a screen reader may skip the dash or call it a punctuation mark. */
@@ -28,13 +30,13 @@ function Mark({ mark }: { mark: string }) {
   );
 }
 
-export function ProvinceTable({ stats, metric, filters, selected, onSelect, indexCount }: Props) {
+export function ProvinceTable({ stats, metric, filters, selected, onSelect, indexCount, areas }: Props) {
   const region = stats[REGION];
   const only = (s: Status): Filters => ({ ...filters, statuses: new Set([s]) });
   const checked = STATUSES.filter((s) => filters.statuses.has(s));
   // A status column whose Andalucía total is zero is empty in every province;
   // it is left out and named in a note instead.
-  const statuses = checked.filter((s) => metricValue(region, metric, only(s)) > 0);
+  const statuses = checked.filter((s) => metricValue(region, baseMetric(metric), only(s)) > 0);
   const omitted = checked
     .filter((s) => !statuses.includes(s))
     .map((s) => {
@@ -42,16 +44,17 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
       const why = projects === 0 || metric === "proyectos" ? "ningún proyecto" : `${formatMetric(projects, "proyectos")}, ${NO_FIGURE_LABELS[metric]}`;
       return `${STATUS_LABELS[s]} (${why})`;
     });
-  const value = (cells: StatsCell[], f: Filters) => {
+  const value = (scope: Scope, f: Filters) => {
+    const cells = stats[scope];
     const c = metricCoverage(cells, metric, f);
     const mark = absenceMark(c.declared, c.total);
-    return mark ? <Mark mark={mark} /> : formatMetric(metricValue(cells, metric, f), metric);
+    return mark ? <Mark mark={mark} /> : formatMetric(metricValue(cells, metric, f, areas[scope]), metric);
   };
   const coverage = (cells: StatsCell[]) => {
     const c = metricCoverage(cells, metric, filters);
     return c.total === 0 ? <Mark mark={NO_PROJECTS} /> : formatCoverageCell(c.declared, c.total);
   };
-  const coverageHeader = metric === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
+  const coverageHeader = baseMetric(metric) === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
   return (
     <section aria-labelledby="provincias" className={styles.section}>
       <h2 id="provincias">Por provincia</h2>
@@ -84,10 +87,10 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
                         {p}
                       </button>
                     </th>
-                    <td className={`dato ${styles.num} ${styles.total}`}>{value(stats[p], filters)}</td>
+                    <td className={`dato ${styles.num} ${styles.total}`}>{value(p, filters)}</td>
                     {statuses.map((s) => (
                       <td key={s} className={`dato ${styles.num}`}>
-                        {value(stats[p], only(s))}
+                        {value(p, only(s))}
                       </td>
                     ))}
                     {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(stats[p])}</td> : null}
@@ -97,10 +100,10 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
               <tfoot>
                 <tr>
                   <th scope="row">{REGION}</th>
-                  <td className={`dato ${styles.num} ${styles.total}`}>{value(region, filters)}</td>
+                  <td className={`dato ${styles.num} ${styles.total}`}>{value(REGION, filters)}</td>
                   {statuses.map((s) => (
                     <td key={s} className={`dato ${styles.num}`}>
-                      {value(region, only(s))}
+                      {value(REGION, only(s))}
                     </td>
                   ))}
                   {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(region)}</td> : null}
@@ -124,7 +127,7 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
           <p className={styles.nota}>
             Un proyecto en varias provincias cuenta en cada una; en el total de Andalucía cuenta una vez, también si no tiene municipio
             identificado. «{NO_PROJECTS}»: ningún proyecto.
-            {metric !== "proyectos" ? ` «${NO_DATA}»: hay proyectos, pero ninguno declara ${metric === "mw" ? "MW" : "superficie"}.` : null}
+            {metric !== "proyectos" ? ` «${NO_DATA}»: hay proyectos, pero ninguno declara ${baseMetric(metric) === "mw" ? "MW" : "superficie"}.` : null}
             {omitted.length > 0 ? ` Estados sin columna por estar vacíos en toda Andalucía: ${omitted.join("; ")}.` : null}
           </p>
         </>

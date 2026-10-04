@@ -65,6 +65,8 @@ describe("classLabels", () => {
   it("starts each decimal class one display step above the previous one", () => {
     expect(classLabels("mw", [29.7, 59.8, 120])).toEqual(["Hasta 29,7 MW", "29,8 a 59,8 MW", "59,9 a 120,0 MW", "Más de 120,0 MW"]);
     expect(classLabels("ha", [0.1, 0.2])).toEqual(["Hasta 0,1 ha", "0,2 ha", "Más de 0,2 ha"]);
+    // MW per km² is shown with two decimals, so its step is 0,01.
+    expect(classLabels("densidad", [0.05, 0.4])).toEqual(["Hasta 0,05 MW/km²", "0,06 a 0,40 MW/km²", "Más de 0,40 MW/km²"]);
   });
   it("has a single class when there are no thresholds", () => {
     expect(classLabels("proyectos", [])).toEqual(["Con proyectos"]);

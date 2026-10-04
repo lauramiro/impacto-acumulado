@@ -9,12 +9,13 @@ const oneDecimal = new Intl.NumberFormat(LOCALE, {
   maximumFractionDigits: 1,
   useGrouping: true,
 });
+const twoDecimals = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true });
 const integer = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0, useGrouping: true });
 const longDate = new Intl.DateTimeFormat(LOCALE, { dateStyle: "long", timeZone: "UTC" });
 const monthYear = new Intl.DateTimeFormat(LOCALE, { month: "long", year: "numeric", timeZone: "UTC" });
 
-export function formatNumber(n: number, decimals: 0 | 1): string {
-  return decimals === 0 ? integer.format(n) : oneDecimal.format(n);
+export function formatNumber(n: number, decimals: 0 | 1 | 2): string {
+  return decimals === 0 ? integer.format(n) : decimals === 1 ? oneDecimal.format(n) : twoDecimals.format(n);
 }
 
 export function formatMw(n: number): string {
@@ -89,7 +90,6 @@ export function formatCoverageCell(withMw: number, total: number): string {
   return total > 0 ? `${integer.format(withMw)} de ${integer.format(total)}` : "";
 }
 
-const twoDecimals = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /** A 0 to 1 score such as a match or confidence value: "0,82". */
 export function formatScore(n: number): string {

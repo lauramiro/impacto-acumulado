@@ -11,7 +11,7 @@ import { formatCoverage } from "@/lib/format";
 import { formatMetric, NO_FIGURE_LABELS } from "@/lib/labels";
 import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricCoverage, metricDecimals, metricValue, mwCoverage } from "@/lib/metrics";
-import type { Filters, Metric, SensitivityLayer, Status, Technology } from "@/lib/types";
+import { PROVINCES, REGION, type Filters, type Metric, type Province, type Scope, type SensitivityLayer, type Status, type Technology } from "@/lib/types";
 import type { MuniProps, ProvProps, SiteProps } from "./choropleth";
 import { Controls } from "./controls";
 import { OverlayKey } from "./legend";
@@ -40,6 +40,15 @@ type Props = {
 
 export function MapExplorer({ data, lastMonth }: Props) {
   const { municipalities, stats, provinceStats, events, sites } = useMemo(() => expandMapData(data), [data]);
+  // Hectares per province and for Andalucía, the denominators of MW per km².
+  const areas = useMemo(() => {
+    const out = Object.fromEntries([...PROVINCES, REGION].map((s) => [s, 0])) as Record<Scope, number>;
+    for (const m of municipalities) {
+      out[m.province as Province] += m.areaHa;
+      out[REGION] += m.areaHa;
+    }
+    return out;
+  }, [municipalities]);
   const router = useRouter();
   const [state, setState] = useState<MapState>(defaultState);
   const [geo, setGeo] = useState<Geo | "error" | null>(null);
@@ -105,14 +114,14 @@ export function MapExplorer({ data, lastMonth }: Props) {
   );
 
   const coverage = useMemo(() => {
-    if (state.metric !== "mw") return null;
+    if (state.metric !== "mw" && state.metric !== "densidad") return null;
     const c = mwCoverage(provinceStats["Andalucía"], filters);
     return c.total > 0 ? c : null;
   }, [state.metric, provinceStats, filters]);
 
   const values = useMemo(() => {
     const out = new Map<string, number>();
-    for (const m of municipalities) out.set(m.ine, metricValue(stats[m.ine]?.cells, state.metric, filters));
+    for (const m of municipalities) out.set(m.ine, metricValue(stats[m.ine]?.cells, state.metric, filters, m.areaHa));
     return out;
   }, [municipalities, stats, state.metric, filters]);
 
@@ -131,7 +140,7 @@ export function MapExplorer({ data, lastMonth }: Props) {
       if (c.total === 0) return "Sin proyectos";
       if (state.metric !== "proyectos" && value <= 0) return `${formatMetric(c.total, "proyectos")}, ${NO_FIGURE_LABELS[state.metric]}`;
       const label = formatMetric(value, state.metric);
-      return state.metric === "mw" ? `${label} (${formatCoverage(c.declared, c.total, "mw", c.peak)})` : label;
+      return state.metric === "mw" || state.metric === "densidad" ? `${label} (${formatCoverage(c.declared, c.total, "mw", c.peak)})` : label;
     },
     [values, coverages, state.metric],
   );
@@ -258,6 +267,7 @@ export function MapExplorer({ data, lastMonth }: Props) {
         selected={state.province}
         onSelect={(province) => update({ ...state, province })}
         indexCount={rows.length}
+        areas={areas}
       />
       <Timeline
         events={events}

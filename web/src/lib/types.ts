@@ -1,6 +1,14 @@
 export const STATUSES = ["en_consulta", "favorable", "favorable_condicionada", "desfavorable", "caducado", "desconocido"] as const;
 export type Status = (typeof STATUSES)[number];
 
+/**
+ * The headline's two sums: what is accumulating (approved, or still in
+ * process) and what was refused or lapsed. Projects with no verdict in the
+ * gazette count with the first, and the headline says how many there are.
+ */
+export const APPROVED_OR_PENDING: readonly Status[] = ["favorable", "favorable_condicionada", "en_consulta", "desconocido"];
+export const REFUSED_OR_LAPSED: readonly Status[] = ["desfavorable", "caducado"];
+
 export const TECHNOLOGIES = ["solar_fv", "eolica", "hibrida", "almacenamiento", "linea_evacuacion", "otra"] as const;
 export type Technology = (typeof TECHNOLOGIES)[number];
 
@@ -10,7 +18,8 @@ export type DocumentRole = (typeof DOCUMENT_ROLES)[number];
 export const VERDICTS = ["favorable", "favorable_condicionada", "desfavorable", "no_aplica"] as const;
 export type Verdict = (typeof VERDICTS)[number];
 
-export const METRICS = ["mw", "ha", "proyectos"] as const;
+/** "densidad": MW per km² of the municipal (or provincial) area; it reads MW and divides by area. */
+export const METRICS = ["mw", "densidad", "ha", "proyectos"] as const;
 export type Metric = (typeof METRICS)[number];
 
 export const PROVINCES = ["Almería", "Cádiz", "Córdoba", "Granada", "Huelva", "Jaén", "Málaga", "Sevilla"] as const;
@@ -33,7 +42,7 @@ export type Municipality = {
 };
 
 /** The subset of Municipality the map explorer needs: no per-request weight from unused figures. */
-export type MapMunicipality = Pick<Municipality, "ine" | "name" | "province">;
+export type MapMunicipality = Pick<Municipality, "ine" | "name" | "province" | "areaHa">;
 
 /**
  * Sums over a set of cells. mwBest sums each project's nominal MW, or its peak (MWp)

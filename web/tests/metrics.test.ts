@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  baseMetric,
   classIndex,
   classify,
   matching,
@@ -125,5 +126,18 @@ describe("the peak fallback", () => {
     expect(mwCoverage(withPeak, all)).toEqual({ withMw: 2, total: 4, peak: 1 });
     expect(metricCoverage(withPeak, "mw", all)).toEqual({ declared: 2, total: 4, peak: 1 });
     expect(metricCoverage(withPeak, "ha", all)).toEqual({ declared: 0, total: 4, peak: 0 });
+  });
+});
+
+describe("MW per km²", () => {
+  const cells: StatsCell[] = [
+    { status: "favorable_condicionada", technology: "solar_fv", projectCount: 2, mwBest: 50, mwCount: 2, mwPeakCount: 1, hectares: 120, haCount: 1 },
+  ];
+  it("divides the MW by the area in km² and reads its coverage as MW", () => {
+    expect(metricValue(cells, "densidad", all, 10_000)).toBe(0.5);
+    expect(metricValue(cells, "densidad", all)).toBe(0);
+    expect(metricCoverage(cells, "densidad", all)).toEqual({ declared: 2, total: 2, peak: 1 });
+    expect(baseMetric("densidad")).toBe("mw");
+    expect(metricDecimals("densidad")).toBe(2);
   });
 });

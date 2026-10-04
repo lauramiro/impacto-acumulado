@@ -1,11 +1,15 @@
 import { Figure } from "@/components/figure";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { formatCoverage, formatInt, formatMw, formatNumber } from "@/lib/format";
+import { formatCoverage, formatHa, formatInt, formatMw, formatNumber } from "@/lib/format";
 import { splitBy, sumFigures } from "@/lib/metrics";
 import { STATUSES, TECHNOLOGIES, type MunicipalityStats } from "@/lib/types";
 import styles from "./totals.module.css";
 
-export function Totals({ stats }: { stats: MunicipalityStats }) {
+/** A coverage note read inside a sentence: "superficie declarada en 2 de 11 proyectos". */
+const midSentence = (note: string) => note.charAt(0).toLowerCase() + note.slice(1);
+
+/** `areaHa`: the municipality's area, for the share of it the declared hectares cover. */
+export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: number }) {
   const figuresByStatus = splitBy(stats.cells, "status");
   const byTech = splitBy(stats.cells, "technology");
   const total = sumFigures(stats.cells);
@@ -73,6 +77,14 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
         })}
       </p>
       <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.mwCount, total.projectCount, "mw", total.mwPeakCount)}</p>
+      {total.haCount > 0 && areaHa > 0 ? (
+        <p className={styles.tech} data-testid="cuota-termino">
+          Superficie declarada: <Figure value={formatHa(total.hectares)} />, el{" "}
+          <Figure value={`${formatNumber((total.hectares / areaHa) * 100, 1)} %`} /> del término municipal (
+          {midSentence(formatCoverage(total.haCount, total.projectCount, "ha"))}). Un proyecto en varios municipios cuenta aquí su superficie entera,
+          así que la cuota puede exagerar.
+        </p>
+      ) : null}
       {lines ? (
         <p className={styles.tech}>
           Línea de evacuación: <Figure value={formatInt(lines.projectCount)} unit={lines.projectCount === 1 ? "proyecto" : "proyectos"} />,

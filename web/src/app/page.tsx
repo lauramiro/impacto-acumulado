@@ -7,7 +7,7 @@ import { loadOpenConsultations } from "@/lib/data/consultations";
 import { loadMapData } from "@/lib/data/map-data";
 import { formatCoverage, formatDate, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
-import { PROVINCES, REGION } from "@/lib/types";
+import { APPROVED_OR_PENDING, PROVINCES, REFUSED_OR_LAPSED, REGION, type StatsCell, type Status } from "@/lib/types";
 import styles from "./page.module.css";
 
 export default async function HomePage() {
@@ -23,7 +23,12 @@ export default async function HomePage() {
   const names = new Map(municipalities.map((m) => [m.ine, m.name]));
   const firstDeadline = open.find((c) => c.deadline)?.deadline;
   const region = sumFigures(provinceStats[REGION]);
-  const leaders = PROVINCES.map((p) => ({ province: p, mw: sumFigures(provinceStats[p]).mwBest }))
+  const inGroup = (cells: StatsCell[], group: readonly Status[]) => sumFigures(cells.filter((c) => group.includes(c.status)));
+  const accumulating = inGroup(provinceStats[REGION], APPROVED_OR_PENDING);
+  const refused = inGroup(provinceStats[REGION], REFUSED_OR_LAPSED);
+  const noVerdict = inGroup(provinceStats[REGION], ["desconocido"]).projectCount;
+  // Ranked on what is accumulating: a province is not "ahead" on refused projects.
+  const leaders = PROVINCES.map((p) => ({ province: p, mw: inGroup(provinceStats[p], APPROVED_OR_PENDING).mwBest }))
     .sort((a, b) => b.mw - a.mw)
     .slice(0, 2)
     .map((r) => r.province)
@@ -33,10 +38,12 @@ export default async function HomePage() {
       <div className={styles.entrada}>
         <h1 className={`display ${styles.titular}`}>El impacto acumulado de las renovables, municipio a municipio</h1>
         <p className={styles.dek}>
-          Cada proyecto renovable se evalúa por separado; este mapa reúne las evaluaciones ambientales de{" "}
-          {formatInt(region.projectCount)} proyectos publicadas en el BOE y el BOJA y suma lo que se acumula en cada municipio. En
-          conjunto suman <span className="dato">{formatMw(region.mwBest)}</span> ({formatCoverage(region.mwCount, region.projectCount, "mw", region.mwPeakCount)}),
-          con {leaders} a la cabeza en MW declarados.
+          Cada proyecto renovable se evalúa por separado; este mapa suma lo que se acumula en cada municipio a partir de{" "}
+          {formatInt(region.projectCount)} proyectos publicados en el BOE y el BOJA. Aprobados o en trámite:{" "}
+          <span className="dato" data-testid="mw-acumulando">{formatMw(accumulating.mwBest)}</span> (
+          {formatCoverage(accumulating.mwCount, accumulating.projectCount, "mw", accumulating.mwPeakCount)}), {formatInt(noVerdict)}{" "}
+          de ellos sin veredicto en el boletín, con {leaders} a la cabeza. Denegados o caducados:{" "}
+          <span className="dato" data-testid="mw-denegados">{formatMw(refused.mwBest)}</span>.
         </p>
         {/* One line here keeps the map in the first screen; the list is below the map. */}
         <p className={styles.consultas}>
@@ -48,7 +55,7 @@ export default async function HomePage() {
       </div>
       <MapExplorer
         data={compactMapData({
-          municipalities: municipalities.map(({ ine, name, province }) => ({ ine, name, province })),
+          municipalities: municipalities.map(({ ine, name, province, areaHa }) => ({ ine, name, province, areaHa })),
           stats,
           provinceStats,
           events,

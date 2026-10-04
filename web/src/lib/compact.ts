@@ -19,7 +19,7 @@ import {
  * Enums travel as indexes into the constant lists in types.ts.
  */
 type Cell = [status: number, technology: number, projectCount: number, mwBest: number, mwCount: number, mwPeakCount: number, hectares: number, haCount: number];
-type Muni = [ine: string, name: string, province: number];
+type Muni = [ine: string, name: string, province: number, areaHa: number];
 type Event = [month: string, scope: number, technology: number, event: number, count: number];
 type Site = [siteCode: string, name: string, type: string, municipalityCount: number, cells: Cell[]];
 
@@ -69,7 +69,7 @@ const uncell = ([s, t, projectCount, mwBest, mwCount, mwPeakCount, hectares, haC
 
 export function compactMapData(d: MapExplorerData): CompactMapData {
   return {
-    municipalities: d.municipalities.map((m) => [m.ine, m.name, index<string>(PROVINCES, m.province)]),
+    municipalities: d.municipalities.map((m) => [m.ine, m.name, index<string>(PROVINCES, m.province), m.areaHa]),
     stats: Object.fromEntries(Object.entries(d.stats).map(([ine, s]) => [ine, s.cells.map(cell)])),
     provinceStats: SCOPES.map((scope) => d.provinceStats[scope].map(cell)),
     events: d.events.map((e) => [e.month, index(SCOPES, e.scope), index(TECHNOLOGIES, e.technology), index(EVENTS, e.event), e.count]),
@@ -79,7 +79,7 @@ export function compactMapData(d: MapExplorerData): CompactMapData {
 
 export function expandMapData(d: CompactMapData): MapExplorerData {
   return {
-    municipalities: d.municipalities.map(([ine, name, p]) => ({ ine, name, province: PROVINCES[p] })),
+    municipalities: d.municipalities.map(([ine, name, p, areaHa]) => ({ ine, name, province: PROVINCES[p], areaHa })),
     stats: Object.fromEntries(Object.entries(d.stats).map(([ine, cells]) => [ine, { cells: cells.map(uncell) }])),
     provinceStats: Object.fromEntries(SCOPES.map((scope, i) => [scope, d.provinceStats[i].map(uncell)])) as Record<Scope, StatsCell[]>,
     events: d.events.map(([month, scope, t, event, count]) => ({ month, scope: SCOPES[scope], technology: TECHNOLOGIES[t], event: EVENTS[event], count })),

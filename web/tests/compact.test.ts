@@ -5,7 +5,7 @@ import { SCOPES, type StatsCell } from "@/lib/types";
 const cell: StatsCell = { status: "favorable_condicionada", technology: "solar_fv", projectCount: 3, mwBest: 447.23, mwCount: 2, mwPeakCount: 0, hectares: 90.5, haCount: 1 };
 
 const data: MapExplorerData = {
-  municipalities: [{ ine: "29067", name: "Málaga", province: "Málaga" }],
+  municipalities: [{ ine: "29067", name: "Málaga", province: "Málaga", areaHa: 39_800 }],
   stats: { "29067": { cells: [cell] } },
   provinceStats: Object.fromEntries(SCOPES.map((s) => [s, s === "Málaga" ? [cell] : []])) as MapExplorerData["provinceStats"],
   events: [{ month: "2024-05", scope: "Andalucía", technology: "eolica", event: "consulta", count: 4 }],
@@ -22,6 +22,6 @@ describe("compact map data", () => {
   });
 
   it("refuses a value outside the known lists instead of guessing", () => {
-    expect(() => compactMapData({ ...data, municipalities: [{ ine: "28079", name: "Madrid", province: "Madrid" }] })).toThrow(/Madrid/);
+    expect(() => compactMapData({ ...data, municipalities: [{ ine: "28079", name: "Madrid", province: "Madrid", areaHa: 60_400 }] })).toThrow(/Madrid/);
   });
 });

@@ -4,7 +4,7 @@ import { Fragment, useMemo, type ReactNode } from "react";
 import { LookupNote, LookupTable } from "@/components/lookup-table";
 import { formatCoverageCell, formatInt, isUndeclared, NO_DATA } from "@/lib/format";
 import { formatMetric, METRIC_LABELS } from "@/lib/labels";
-import { metricCoverage, metricValue } from "@/lib/metrics";
+import { baseMetric, metricCoverage, metricValue } from "@/lib/metrics";
 import type { Filters, Metric, ProtectedAreaStats } from "@/lib/types";
 
 type Props = { sites: readonly ProtectedAreaStats[]; metric: Metric; filters: Filters };
@@ -35,7 +35,10 @@ function breakAfterSlash(name: string): ReactNode {
   ));
 }
 
-export function NaturaTable({ sites, metric, filters }: Props) {
+export function NaturaTable({ sites, metric: chosen, filters }: Props) {
+  // A site has no area of its own to divide by (its figures are those of the
+  // municipalities it touches), so MW per km² falls back to MW here.
+  const metric = baseMetric(chosen);
   const coverageHeader = metric === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
   const notice =
     filters.statuses.size === 0 ? (
@@ -58,7 +61,12 @@ export function NaturaTable({ sites, metric, filters }: Props) {
       title="Red Natura 2000"
       countText={`${formatInt(sites.length)} espacios`}
       countTestId="natura-recuento"
-      intro={<p>Suma de todos los proyectos de los municipios que tocan el espacio. Mide cercanía a escala municipal, no afección al espacio.</p>}
+      intro={
+        <p>
+          Suma de todos los proyectos de los municipios que tocan el espacio. Mide cercanía a escala municipal, no afección al espacio.
+          {chosen === "densidad" ? " Con «MW por km²» la tabla muestra MW: la densidad se calcula sobre el término municipal o la provincia." : null}
+        </p>
+      }
       notice={notice}
       searchLabel="Buscar espacio"
       rows={rows}

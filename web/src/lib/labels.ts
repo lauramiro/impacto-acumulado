@@ -43,12 +43,14 @@ export const VERDICT_LABELS: Record<Verdict, string> = {
 
 export const METRIC_LABELS: Record<Metric, string> = {
   mw: "MW",
+  densidad: "MW por km²",
   ha: "Hectáreas",
   proyectos: "Proyectos",
 };
 
 const METRIC_UNITS: Record<Metric, { one: string; other: string }> = {
   mw: { one: "MW", other: "MW" },
+  densidad: { one: "MW/km²", other: "MW/km²" },
   ha: { one: "ha", other: "ha" },
   proyectos: { one: "proyecto", other: "proyectos" },
 };
@@ -66,11 +68,13 @@ export function formatMetric(value: number, metric: Metric): string {
 /** What is missing when a municipality has projects but a zero MW or ha figure. */
 export const NO_FIGURE_LABELS: Record<Exclude<Metric, "proyectos">, string> = {
   mw: "sin MW declarado",
+  densidad: "sin MW declarado",
   ha: "sin superficie declarada",
 };
 
 const SINGLE_CLASS_LABELS: Record<Metric, string> = {
   mw: "Con MW declarado",
+  densidad: "Con MW declarado",
   ha: "Con superficie declarada",
   proyectos: "Con proyectos",
 };
@@ -84,7 +88,7 @@ const SINGLE_CLASS_LABELS: Record<Metric, string> = {
 export function classLabels(metric: Metric, thresholds: number[]): string[] {
   if (thresholds.length === 0) return [SINGLE_CLASS_LABELS[metric]];
   const decimals = metricDecimals(metric);
-  const step = decimals === 0 ? 1 : 0.1;
+  const step = 10 ** -decimals;
   const num = (n: number) => formatNumber(n, decimals);
   const labels: string[] = [];
   for (let i = 0; i <= thresholds.length; i++) {

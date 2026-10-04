@@ -70,7 +70,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
       <h1 className={`display ${styles.nombre}`}>{muni.name}</h1>
 
       {s ? (
-        <Totals stats={s} />
+        <Totals stats={s} areaHa={muni.areaHa} />
       ) : (
         <section aria-labelledby="totales" className={styles.vacio}>
           <h2 id="totales">Totales</h2>

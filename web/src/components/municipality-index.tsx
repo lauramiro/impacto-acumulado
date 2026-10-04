@@ -14,7 +14,7 @@ export function indexRank(r: IndexRow): number {
   return isUndeclared(r.declared, r.total) ? -1 : r.value;
 }
 
-const COVERAGE_HEADERS: Partial<Record<Metric, string>> = { mw: "Con MW declarado", ha: "Con superficie declarada" };
+const COVERAGE_HEADERS: Partial<Record<Metric, string>> = { mw: "Con MW declarado", densidad: "Con MW declarado", ha: "Con superficie declarada" };
 
 export type MunicipalityIndexProps = {
   rows: IndexRow[];
