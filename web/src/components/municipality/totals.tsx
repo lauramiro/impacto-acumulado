@@ -1,6 +1,6 @@
 import { Figure } from "@/components/figure";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { formatCoverage, formatHa, formatInt, formatMw } from "@/lib/format";
+import { formatCoverage, formatInt, formatMw, formatNumber } from "@/lib/format";
 import { splitBy, sumFigures } from "@/lib/metrics";
 import { STATUSES, TECHNOLOGIES, type MunicipalityStats } from "@/lib/types";
 import styles from "./totals.module.css";
@@ -15,6 +15,8 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
   return (
     <section aria-labelledby="totales" className={styles.section}>
       <h2 id="totales">Totales</h2>
+      {/* The column headers carry the units, so the cells give bare figures: with
+          the unit each figure broke over two lines on a phone. */}
       <table className={styles.table}>
         <thead>
           <tr>
@@ -34,10 +36,10 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
                   <Figure value={formatInt(f.projectCount)} />
                 </td>
                 <td className={styles.num}>
-                  <Figure value={formatMw(f.mwNominal)} />
+                  <Figure value={formatNumber(f.mwNominal, 1)} />
                 </td>
                 <td className={styles.num}>
-                  <Figure value={formatHa(f.hectares)} />
+                  <Figure value={formatNumber(f.hectares, 1)} />
                 </td>
               </tr>
             );
@@ -50,10 +52,10 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
               <Figure value={formatInt(total.projectCount)} />
             </td>
             <td className={styles.num}>
-              <Figure value={formatMw(total.mwNominal)} />
+              <Figure value={formatNumber(total.mwNominal, 1)} />
             </td>
             <td className={styles.num}>
-              <Figure value={formatHa(total.hectares)} />
+              <Figure value={formatNumber(total.hectares, 1)} />
             </td>
           </tr>
         </tfoot>
