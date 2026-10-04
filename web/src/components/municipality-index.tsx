@@ -71,6 +71,8 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, p
         ...(coverageHeader ? [{
               header: coverageHeader,
               numeric: true,
+              // On a phone the metric cell's "sin dato" carries the gist; the municipality page has the rest.
+              hideOnPhone: true,
               cell: (r: IndexRow) => formatCoverageCell(r.declared, r.total),
               sortValue: (r: IndexRow) => r.declared / r.total,
             }] : []),
@@ -78,8 +80,9 @@ export function MunicipalityIndex({ rows, metric, filters, selected, onSelect, p
           header: "Acciones",
           hiddenHeader: true,
           cell: (r) => (
-            <button type="button" className="ver-en-mapa" onClick={() => onSelect(r.ine)}>
-              Ver en el mapa
+            <button type="button" className="ver-en-mapa" aria-label={`Ver en el mapa: ${r.name}`} onClick={() => onSelect(r.ine)}>
+              <span className="ver-en-mapa-largo">Ver en el mapa</span>
+              <span className="ver-en-mapa-corto">Mapa</span>
             </button>
           ),
         },
