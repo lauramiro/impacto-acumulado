@@ -230,3 +230,57 @@ def test_fetch_boja_skips_query_on_server_error_and_continues(db, fixtures_dir, 
     assert n == 11
     warnings = [r.getMessage() for r in caplog.records if r.levelno == logging.WARNING]
     assert any("autorizacion ambiental unificada" in w and "skipping" in w for w in warnings)
+
+
+def _section_v_summary(items):
+    return {"data": {"sumario": {"diario": [{"seccion": [{
+        "nombre": "V. Anuncios",
+        "departamento": [{
+            "nombre": "MINISTERIO DE POLÍTICA TERRITORIAL Y MEMORIA DEMOCRÁTICA",
+            "epigrafe": [{"nombre": "Anuncios", "item": [
+                {"identificador": i, "titulo": t, "url_xml": f"https://www.boe.es/diario_boe/xml.php?id={i}"} for i, t in items
+            ]}],
+        }],
+    }]}]}}}
+
+
+def _announcement(identifier, title, paragraphs):
+    body = "".join(f"<p>{p}</p>" for p in paragraphs)
+    return (
+        f"<documento><metadatos><identificador>{identifier}</identificador><titulo>{title}</titulo>"
+        "<fecha_publicacion>20250922</fecha_publicacion><departamento>Ministerio de Política Territorial</departamento>"
+        f"</metadatos><texto>{body}</texto></documento>"
+    ).encode()
+
+
+def test_fetch_boe_stores_section_v_consultations_stripped_and_uncached(db, tmp_path):
+    title = "Anuncio de la Subdelegación del Gobierno en Cádiz por el que se somete a información pública el estudio de impacto ambiental del parque eólico Chiquera"
+    held_title = "Anuncio de la Subdelegación del Gobierno en Cádiz por el que se somete a información pública el estudio de impacto ambiental del parque eólico Chicuco"
+    kept = _announcement("BOE-B-2025-1", title, [
+        "Se somete a información pública durante el plazo de treinta días hábiles.",
+        "Relación concreta e individualizada de bienes y derechos afectados",
+        "Finca 1. Titular: Persona Ejemplo. DNI 12345678Z.",
+    ])
+    held = _announcement("BOE-B-2025-2", held_title, ["Información pública durante treinta días. Alegaciones de 87654321X."])
+    summary = _section_v_summary([("BOE-B-2025-1", title), ("BOE-B-2025-2", held_title)])
+
+    def handler(request):
+        url = str(request.url)
+        if url.endswith("/sumario/20250922"):
+            return httpx.Response(200, content=json.dumps(summary).encode("utf-8"))
+        if "id=BOE-B-2025-1" in url:
+            return httpx.Response(200, content=kept)
+        if "id=BOE-B-2025-2" in url:
+            return httpx.Response(200, content=held)
+        return httpx.Response(404)
+
+    client = CachedClient(tmp_path, rate_per_second=1000, transport=httpx.MockTransport(handler))
+    assert fetch_boe(client, db, date(2025, 9, 22), date(2025, 9, 22)) == 0  # off by default
+    assert fetch_boe(client, db, date(2025, 9, 22), date(2025, 9, 22), consultations=True) == 1
+    with db.cursor() as cur:
+        cur.execute("SELECT source_id, section, text FROM raw_documents WHERE source_id LIKE 'BOE-B-2025-%'")
+        rows = cur.fetchall()
+    assert [(r["source_id"], r["section"]) for r in rows] == [("BOE-B-2025-1", "V")]
+    assert "plazo de treinta" in rows[0]["text"] and "Titular" not in rows[0]["text"] and "12345678Z" not in rows[0]["text"]
+    # Only the daily summary is cached; the announcements never touch the disk.
+    assert len(list(tmp_path.iterdir())) == 1

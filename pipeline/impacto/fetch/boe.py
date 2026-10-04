@@ -120,6 +120,33 @@ def consulted_andalusian_authority(text: str) -> bool:
     return any(f"delegacion territorial en {p}" in n for p in ANDALUSIAN_PROVINCES)
 
 
+def select_consultation_items(items: list[SummaryItem]) -> list[SummaryItem]:
+    """Section V announcements that put a renewable project in Andalucía to consultation.
+
+    The State's industry and energy offices (and sometimes the Junta) publish
+    these; the ministry's decisions are in section III (select_items). Whether
+    the consultation covers the environmental assessment is decided on the
+    text, see assesses_environment.
+    """
+    return [
+        item
+        for item in items
+        if item.section == "V"
+        and "informacion publica" in normalize(item.title)
+        and _has_any(item.title, RENEWABLE_WORDS)
+        and mentions_andalusia(item.title)
+    ]
+
+
+_ENVIRONMENT_TITLE = ["impacto ambiental", "evaluacion ambiental", "estudio de impacto"]
+_ENVIRONMENT_BODY = ["estudio de impacto ambiental", "evaluacion de impacto ambiental", "declaracion de impacto ambiental"]
+
+
+def assesses_environment(title: str, body: str) -> bool:
+    """Whether a consultation covers the environmental assessment, not only the energy permit or expropriation."""
+    return _has_any(title, _ENVIRONMENT_TITLE) or _has_any(body, _ENVIRONMENT_BODY)
+
+
 def concerns_andalusia(title: str, body: str) -> bool:
     return mentions_andalusia(title) or consulted_andalusian_authority(body)
 

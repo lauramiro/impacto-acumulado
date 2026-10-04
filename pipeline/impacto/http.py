@@ -33,9 +33,13 @@ class CachedClient:
             time.sleep(wait)
         self._last_request = time.monotonic()
 
-    def get(self, url: str, headers: dict[str, str] | None = None) -> bytes:
+    def get(self, url: str, headers: dict[str, str] | None = None, cache: bool = True) -> bytes:
+        """The response body, from the cache when it is there. `cache=False` neither
+        reads nor writes the cache: for documents that may hold personal data
+        (impacto.privacy), which must not be kept on disk before they are stripped.
+        """
         path = self._cache_path(url)
-        if path.exists():
+        if cache and path.exists():
             return path.read_bytes()
         last_error: Exception | None = None
         for attempt in range(1, self.max_attempts + 1):
@@ -46,7 +50,8 @@ class CachedClient:
                 last_error = exc
             else:
                 if response.status_code < 400:
-                    path.write_bytes(response.content)
+                    if cache:
+                        path.write_bytes(response.content)
                     return response.content
                 if response.status_code not in RETRY_STATUSES:
                     response.raise_for_status()

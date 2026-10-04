@@ -58,3 +58,17 @@ def test_get_does_not_retry_404(tmp_path):
     with pytest.raises(httpx.HTTPStatusError):
         client.get("https://example.org/d")
     assert attempts["n"] == 1
+
+
+def test_get_without_cache_neither_reads_nor_writes_it(tmp_path):
+    calls = []
+
+    def handler(request):
+        calls.append(str(request.url))
+        return httpx.Response(200, content=b"owner list")
+
+    client = make_client(tmp_path, handler)
+    assert client.get("https://example.org/v", cache=False) == b"owner list"
+    assert client.get("https://example.org/v", cache=False) == b"owner list"
+    assert len(calls) == 2
+    assert not any(tmp_path.iterdir())

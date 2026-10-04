@@ -120,3 +120,21 @@ def test_concerns_andalusia_rejects_out_of_region_projects():
 
 def test_concerns_andalusia_keeps_matching_on_the_title_alone():
     assert concerns_andalusia("Plantas fotovoltaicas Ronda I, Ronda II y Ronda III (Cádiz y Málaga)", "")
+
+
+def test_consultation_items_are_section_v_renewable_andalusian_notices():
+    from impacto.fetch.boe import SummaryItem, assesses_environment, select_consultation_items
+
+    def item(section, title):
+        return SummaryItem("BOE-B-1", title, section, "MINISTERIO DE POLÍTICA TERRITORIAL", "u")
+
+    kept = item("V", "Anuncio de la Subdelegación del Gobierno en Cádiz por el que se somete a información pública el parque eólico Chiquera")
+    assert select_consultation_items([
+        kept,
+        item("III", kept.title),
+        item("V", "Anuncio ... información pública del parque eólico Cuenca (Castilla-La Mancha)"),
+        item("V", "Anuncio de la Subdelegación en Sevilla sobre información pública de una carretera"),
+    ]) == [kept]
+    assert assesses_environment("... información pública del estudio de impacto ambiental ...", "")
+    assert assesses_environment("Anuncio de información pública del parque", "Se somete a información pública el estudio de impacto ambiental.")
+    assert not assesses_environment("Anuncio de información pública del parque", "Solicitud de declaración de utilidad pública.")
