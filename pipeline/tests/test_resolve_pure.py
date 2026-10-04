@@ -3,7 +3,7 @@ from datetime import date
 from impacto.resolve.blocking import candidate_pairs, name_key
 from impacto.resolve.model import Record
 from impacto.resolve.run import resolve
-from impacto.resolve.scoring import THRESHOLD, phase_token, score_pair
+from impacto.resolve.scoring import THRESHOLD, conflict, phase_token, score_pair
 from impacto.resolve.status import derive_status
 from impacto.resolve.unionfind import UnionFind
 
@@ -117,10 +117,86 @@ def test_record_groups_on_the_generation_site_only():
 
 
 def test_resolve_never_merges_documents_with_different_override_keys():
-    # Sister plants: same size, same municipality, near-identical names, so every pair scores as a match.
-    ii_aau = rec(1, "Parque solar Guadame II y línea de evacuación", mw=49.99)
-    ii_ip = rec(2, "Parque solar Guadame II y línea aérea", mw=49.99, doc_type="informacion_publica", verdict="no_aplica")
-    iv_aau = rec(3, "Parque solar Guadame IV y línea de evacuación", mw=49.99)
-    assert sorted(sorted(r.document_id for r in g) for g in resolve([ii_aau, ii_ip, iv_aau], overrides={})) == [[1, 2, 3]]
-    groups = resolve([ii_aau, ii_ip, iv_aau], overrides={1: "guadame-ii", 2: "guadame-ii", 3: "guadame-iv"})
+    # Sister plants whose documents carry no phase marker or expediente: every pair scores as a match.
+    gallego_aau = rec(1, "Repotenciación P.E. El Gallego", mw=24.0)
+    gallego_ip = rec(2, "Repotenciación Parque Eólico El Gallego", mw=24.0, doc_type="informacion_publica", verdict="no_aplica")
+    gallego_fv = rec(3, "F.V. Hibridación P.E. El Gallego", mw=24.0)
+    assert sorted(sorted(r.document_id for r in g) for g in resolve([gallego_aau, gallego_ip, gallego_fv], overrides={})) == [[1, 2, 3]]
+    groups = resolve([gallego_aau, gallego_ip, gallego_fv], overrides={1: "gallego", 2: "gallego", 3: "gallego-fv"})
     assert sorted(sorted(r.document_id for r in g) for g in groups) == [[1, 2], [3]]
+
+
+def groups_of(records, overrides=None):
+    return sorted(sorted(r.document_id for r in g) for g in resolve(records, overrides=overrides or {}))
+
+
+def test_conflict_on_different_expediente_numbers_of_one_procedure_and_province():
+    assert conflict(rec(1, "A", exp="aau/ja/0073/20"), rec(2, "A", exp="aau/ja/0074/20")) == "expediente"
+    assert conflict(rec(1, "A", exp="aau/se/0092/2021/n"), rec(2, "A", exp="aau/se/0091/2021/n")) == "expediente"
+    assert conflict(rec(1, "A", exp="a1/76/1997/m1"), rec(2, "A", exp="a1/69/1996/m1")) == "expediente"
+    # A modification keeps the base number; leading zeros and the year's century do not matter.
+    assert conflict(rec(1, "A", exp="aau/ca/051/21"), rec(2, "A", exp="aau/ca/051/21/m1")) is None
+    assert conflict(rec(1, "A", exp="aau/se/0383/2009/m5"), rec(2, "A", exp="aau/se/383/2009/m5")) is None
+    assert conflict(rec(1, "A", exp="aau/gr/023/17 ms1"), rec(2, "A", exp="aau/gr/023/17")) is None
+    # Another province, another procedure type, or an unparsed format says nothing.
+    assert conflict(rec(1, "A", exp="aau/sc/003/22 (pa220135)"), rec(2, "A", exp="aau/ca/29/22")) is None
+    assert conflict(rec(1, "A", exp="aau/hu/008/22"), rec(2, "A", exp="aaus/hu/008/25")) is None
+    assert conflict(rec(1, "A", exp="pfot 365"), rec(2, "A", exp="pfot-365 ac")) is None
+
+
+def test_conflict_on_phase_markers_anywhere_in_the_name():
+    ii = rec(1, "Instalación de parque solar fotovoltaico 49.99 MWP Guadame II, Set Guadame II y línea aérea 132 KV")
+    iv = rec(2, "Parque Solar Fotovoltaico 49,99 Mwp Guadame IV, Set Guadame IV y línea aérea de evacuación")
+    assert conflict(ii, iv) == "phase"
+    assert conflict(rec(1, "El Descubrimiento 029"), rec(2, "Planta solar fotovoltaica el descubrimiento 90")) == "phase"
+    # A document naming several phases does not conflict with one of them; a capacity figure is not a phase.
+    assert conflict(rec(1, "Plantas fotovoltaicas Ronda I, Ronda II y Ronda III"), rec(2, "PSF Ronda 2 II")) is None
+    assert conflict(rec(1, "Parque Solar Fotovoltaico 49,99 MWp Guadame III"), rec(2, "Guadame III")) is None
+    assert conflict(rec(1, "Repotenciación P.E. El Gallego"), rec(2, "F.V. Hibridación P.E. El Gallego")) is None
+
+
+def test_resolve_keeps_conflicting_documents_apart_whatever_chains_them():
+    # Two plants and a common evacuation work naming both: the work scores as a
+    # match with each plant, but it may only join one of them.
+    almazara = rec(1, "PSF Almazara Solar", exp="aau/se/0110/2021/n")
+    garita = rec(2, "PSF Garita Solar", exp="aau/se/0100/2021/n")
+    common = rec(3, "Infraestructura común para la evacuación de las PSF Almazara y Garita")
+    assert score_pair(almazara, common)[0] >= THRESHOLD and score_pair(garita, common)[0] >= THRESHOLD
+    groups = groups_of([almazara, garita, common])
+    assert len(groups) == 2 and [1, 2] not in groups and any(3 in g for g in groups)
+
+
+def test_resolve_splits_numbered_sister_plants():
+    docs = [rec(i, f"Planta Solar Fotovoltaica «El Descubrimiento {n}»", exp=f"aau/se/0{20 + i}/2024/n") for i, n in enumerate(["027", "028", "029", "90", "91"], 1)]
+    assert groups_of(docs) == [[1], [2], [3], [4], [5]]
+
+
+def test_a_shared_override_key_joins_documents_despite_a_conflict():
+    first = rec(1, "Parque Solar Fotovoltaico 49,99 Mwp Guadame II", exp="aau/ja/0073/20")
+    second = rec(2, "Parque Solar Fotovoltaico 49,99 MWP Guadame II", exp="aau/ja/0011/23")
+    assert groups_of([first, second]) == [[1], [2]]
+    assert groups_of([first, second], {1: "guadame-ii", 2: "guadame-ii"}) == [[1, 2]]
+
+
+def test_a_document_conflicting_with_a_keyed_group_stays_out_unless_it_shares_an_expediente():
+    # Two documents of one hydrogen plant (AAU and AAI under one number) keyed
+    # together; another company's plant conflicts with the AAI only.
+    aau = rec(1, "Planta solar fotovoltaica y planta de hidrógeno verde", exp="aau/ca/089/24")
+    aai = rec(2, "Planta solar fotovoltaica y planta de hidrógeno verde", exp="aai/ca/089/24")
+    other = rec(3, "Planta de hidrógeno verde y planta solar fotovoltaica", exp="aai/ca/081/23")
+    assert groups_of([aau, aai, other], {1: "siroco-5", 2: "siroco-5"}) == [[1, 2], [3]]
+
+
+def test_a_modification_matches_its_original_procedure():
+    original = rec(1, "Planta solar fotovoltaica Marchenilla VIII 4", munis=("jimena",), exp="aau/ca/052/21")
+    modified = rec(2, "Instalación Planta Solar Fotovoltaica Marchenilla VIII", munis=("castellar",), mw=None, exp="aau/ca/052/21/m1")
+    assert (0, 1) in candidate_pairs([original, modified])
+    assert score_pair(original, modified) == (1.0, "expediente")
+    assert groups_of([original, modified]) == [[1, 2]]
+
+
+def test_the_kind_of_works_does_not_make_two_wind_farms_alike():
+    gallego = rec(1, "Repotenciación Parque Eólico El Gallego", munis=("tarifa",), mw=24.0)
+    herreria = rec(2, "Repotenciación Parque Eólico La Herrería", munis=("tarifa",), mw=24.0)
+    assert name_key(gallego.name) == "gallego"
+    assert score_pair(gallego, herreria)[0] < THRESHOLD

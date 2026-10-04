@@ -8,7 +8,7 @@ import psycopg
 from impacto.db.connect import connect
 from impacto.resolve.blocking import candidate_pairs
 from impacto.resolve.model import Record
-from impacto.resolve.scoring import THRESHOLD, score_pair
+from impacto.resolve.scoring import THRESHOLD, conflict, score_pair
 from impacto.resolve.status import derive_status
 from impacto.resolve.unionfind import UnionFind
 from impacto.settings import load_settings
@@ -29,25 +29,56 @@ ROLE_BY_TYPE = {
 def resolve(records: list[Record], overrides: dict[int, str]) -> list[list[Record]]:
     index = {r.document_id: i for i, r in enumerate(records)}
     isolated = {index[d] for d, key in overrides.items() if key == "new" and d in index}
-    uf = UnionFind(len(records))
     keyed = {index[d]: key for d, key in overrides.items() if key != "new" and d in index}
+    uf = UnionFind(len(records))
+    members = {i: [i] for i in range(len(records))}
+
+    def join(i: int, j: int) -> None:
+        ri, rj = uf.find(i), uf.find(j)
+        if ri != rj:
+            uf.union(ri, rj)
+            members[uf.find(ri)] = members.pop(ri) + members.pop(rj)
+
+    def apart(a: int, b: int) -> bool:
+        # Different keys mean different projects, however alike the documents
+        # score (sister plants share size, municipality and most of the name).
+        if a in keyed and b in keyed:
+            return keyed[a] != keyed[b]
+        if conflict(records[a], records[b]) is None:
+            return False
+        # A key may join documents that conflict (Ronda I and Ronda II as one
+        # project); a document that conflicts with one keyed member still
+        # belongs to the group if it shares an expediente with another.
+        if a in keyed or b in keyed:
+            k, other = (a, b) if a in keyed else (b, a)
+            exp = records[other].expediente
+            return not (exp and any(records[m].expediente == exp for m in by_key[keyed[k]]))
+        return True
+
+    # An override key is authoritative: its documents form one project first,
+    # even across a conflict (a plant re-authorised under a new number).
+    by_key: dict[str, list[int]] = {}
+    for i, key in keyed.items():
+        by_key.setdefault(key, []).append(i)
+    for idxs in by_key.values():
+        for other in idxs[1:]:
+            join(idxs[0], other)
+
+    # Then the strongest matches first; two groups merge only if no document
+    # of one conflicts with a document of the other, so a document matching
+    # two plants (a common substation) joins one and cannot chain them.
+    scored = []
     for i, j in candidate_pairs(records):
         if i in isolated or j in isolated:
             continue
-        # Different keys mean different projects, however alike the documents
-        # score (sister plants share size, municipality and most of the name).
-        if i in keyed and j in keyed and keyed[i] != keyed[j]:
-            continue
         score, _ = score_pair(records[i], records[j])
         if score >= THRESHOLD:
-            uf.union(i, j)
-    by_key: dict[str, list[int]] = {}
-    for d, key in overrides.items():
-        if key != "new" and d in index:
-            by_key.setdefault(key, []).append(index[d])
-    for idxs in by_key.values():
-        for other in idxs[1:]:
-            uf.union(idxs[0], other)
+            scored.append((-score, i, j))
+    for _, i, j in sorted(scored):
+        ri, rj = uf.find(i), uf.find(j)
+        if ri == rj or any(apart(a, b) for a in members[ri] for b in members[rj]):
+            continue
+        join(i, j)
     return [[records[i] for i in g] for g in uf.groups()]
 
 

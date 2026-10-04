@@ -10,11 +10,34 @@ GENERIC = {
     "parque", "planta", "plantas", "proyecto", "instalacion", "fotovoltaico", "fotovoltaica", "fotovoltaicos",
     "solar", "eolico", "eolica", "psfv", "pfv", "pe", "de", "la", "el", "los", "las", "del", "y", "e",
     "s", "l", "u", "a", "sl", "slu", "sa", "sau", "mw", "mwp", "mwn",
+    # The kind of works, not the plant: "Repotenciación P.E. El Gallego" and
+    # "Repotenciación P.E. La Herrería" share nothing that names them.
+    "repotenciacion", "hibridacion", "hibrida", "hibrido", "agrofotovoltaica", "fv", "psf", "hsf", "isf", "pvs",
+    "modificacion", "sustancial",
 }
 # A capacity figure ("50 MW", "90,5 MWp") describes a project, it does not
 # name it. Left in, its number becomes the last token and phase_token reads
 # it as a phase, which blocks two documents of one project from grouping.
 _CAPACITY = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:mwp|mwn|mwh|mw|kwp|kwn|kw|kv)\b")
+
+
+# Andalusian environmental procedures: type, province, number, year
+# ("aau/ja/0073/20", "aaus/se/070/2025/n"); wind farms authorised before the
+# AAU carry "a1/76/1997". A suffix such as "/m1", " ms1" or "/n" marks a
+# modification or the format, not another procedure, so it is not read.
+_PROCEDURE = re.compile(r"^(aaus|aaua|aaui|aau|aai)/([a-z]{2})/0*(\d+)/(?:19|20)?(\d{2})\b")
+_LEGACY_WIND = re.compile(r"^a1/0*(\d+)/(?:19|20)?(\d{2})\b")
+
+
+def procedure_key(expediente: str | None) -> tuple[str, str, str] | None:
+    """(type and province, number, year) of a regional procedure, or None for any other format."""
+    if not expediente:
+        return None
+    if m := _PROCEDURE.match(expediente):
+        return f"{m.group(1)}/{m.group(2)}", m.group(3), m.group(4)
+    if m := _LEGACY_WIND.match(expediente):
+        return "a1", m.group(1), m.group(2)
+    return None
 
 
 def name_key(name: str) -> str:
@@ -27,7 +50,8 @@ def candidate_pairs(records: list[Record]) -> set[tuple[int, int]]:
     by_token: dict[str, list[int]] = defaultdict(list)
     for i, r in enumerate(records):
         if r.expediente:
-            by_exp[r.expediente].append(i)
+            proc = procedure_key(r.expediente)
+            by_exp["/".join(proc) if proc else r.expediente].append(i)
         if r.name:
             for t in set(name_key(r.name).split()):
                 if len(t) >= 4:
