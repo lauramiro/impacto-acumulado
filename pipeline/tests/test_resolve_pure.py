@@ -114,3 +114,13 @@ def test_record_groups_on_the_generation_site_only():
                "evacuation_municipalities": [{"name": "Cortes de la Frontera", "role": "evacuacion"}]}
     r = Record.from_extraction(1, date(2023, 1, 1), payload)
     assert r.municipalities == frozenset({"ronda"})
+
+
+def test_resolve_never_merges_documents_with_different_override_keys():
+    # Sister plants: same size, same municipality, near-identical names, so every pair scores as a match.
+    ii_aau = rec(1, "Parque solar Guadame II y línea de evacuación", mw=49.99)
+    ii_ip = rec(2, "Parque solar Guadame II y línea aérea", mw=49.99, doc_type="informacion_publica", verdict="no_aplica")
+    iv_aau = rec(3, "Parque solar Guadame IV y línea de evacuación", mw=49.99)
+    assert sorted(sorted(r.document_id for r in g) for g in resolve([ii_aau, ii_ip, iv_aau], overrides={})) == [[1, 2, 3]]
+    groups = resolve([ii_aau, ii_ip, iv_aau], overrides={1: "guadame-ii", 2: "guadame-ii", 3: "guadame-iv"})
+    assert sorted(sorted(r.document_id for r in g) for g in groups) == [[1, 2], [3]]

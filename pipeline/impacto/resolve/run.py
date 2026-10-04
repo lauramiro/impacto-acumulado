@@ -30,8 +30,13 @@ def resolve(records: list[Record], overrides: dict[int, str]) -> list[list[Recor
     index = {r.document_id: i for i, r in enumerate(records)}
     isolated = {index[d] for d, key in overrides.items() if key == "new" and d in index}
     uf = UnionFind(len(records))
+    keyed = {index[d]: key for d, key in overrides.items() if key != "new" and d in index}
     for i, j in candidate_pairs(records):
         if i in isolated or j in isolated:
+            continue
+        # Different keys mean different projects, however alike the documents
+        # score (sister plants share size, municipality and most of the name).
+        if i in keyed and j in keyed and keyed[i] != keyed[j]:
             continue
         score, _ = score_pair(records[i], records[j])
         if score >= THRESHOLD:
