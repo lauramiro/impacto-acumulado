@@ -32,3 +32,9 @@
   padding: 0.15rem 0;
   font-size: var(--texto-dato);
 }
+
+/* Gazette reference after the label: kept for citing, quieter than the label. */
+.ref {
+  font-size: var(--texto-pie);
+  white-space: nowrap;
+}

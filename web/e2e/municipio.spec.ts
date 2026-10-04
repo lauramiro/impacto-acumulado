@@ -60,3 +60,13 @@ test("totals state MW coverage and that line capacity is not summed", async ({ p
   await expect(page.getByText(/MW declarados en \d+ de \d+ proyectos?/)).toBeVisible();
   await expect(page.getByText(/potencia no sumada \(ya contada en las plantas que evacúa\)/)).toBeVisible();
 });
+
+test("gazette links name the document, with its reference after the link", async ({ page }) => {
+  await page.goto("/municipio/11021");
+  const docs = page.locator('li:has(a[href*="boe.es"]), li:has(a[href*="juntadeandalucia.es"])');
+  await expect(docs.first()).toBeVisible();
+  for (const name of await docs.getByRole("link").allTextContents()) {
+    expect(name.trim()).not.toMatch(/^(disposition\.|BOE-)/);
+  }
+  await expect(docs.first()).toContainText(/(BOE|BOJA) \S+/);
+});

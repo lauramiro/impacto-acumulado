@@ -6,6 +6,8 @@ import { ROLE_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
 import type { GazetteDocument, Project } from "@/lib/types";
 import styles from "./project-record.module.css";
 
+const GAZETTE = { boe: "BOE", boja: "BOJA" } as const;
+
 export function ProjectRecord({ project, documents }: { project: Project; documents: GazetteDocument[] }) {
   const figures = [
     project.mwNominal !== null ? formatMw(project.mwNominal) : null,
@@ -34,10 +36,15 @@ export function ProjectRecord({ project, documents }: { project: Project; docume
       ) : null}
       <ul className={styles.docs}>
         {documents.map((d) => (
-          <li key={d.id} className="dato">
-            <a href={d.url} rel="noopener">{d.sourceId}</a> · {formatDate(d.publishedAt)}
-            {d.role ? ` · ${ROLE_LABELS[d.role]}` : ""}
-            {d.verdict && d.verdict !== "no_aplica" ? ` · ${VERDICT_LABELS[d.verdict]}` : ""}
+          // The link names what the document is; the gazette reference, for citing, follows it.
+          <li key={d.id}>
+            <a href={d.url} rel="noopener">
+              {d.role ? ROLE_LABELS[d.role] : "Documento"}
+            </a>
+            {d.verdict && d.verdict !== "no_aplica" ? ` · ${VERDICT_LABELS[d.verdict]}` : ""} · <span className="dato">{formatDate(d.publishedAt)}</span>{" "}
+            <span className={`dato ${styles.ref}`}>
+              {d.sourceId.startsWith(`${GAZETTE[d.source]}-`) ? d.sourceId : `${GAZETTE[d.source]} ${d.sourceId}`}
+            </span>
           </li>
         ))}
       </ul>
