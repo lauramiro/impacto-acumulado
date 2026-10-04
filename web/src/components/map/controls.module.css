@@ -145,3 +145,9 @@
 .recuento {
   font-variant-numeric: tabular-nums;
 }
+
+/* Statuses with no checkbox because no project in Andalucía has them. */
+.sinProyectos {
+  font-size: var(--texto-pie);
+  color: var(--tinta);
+}

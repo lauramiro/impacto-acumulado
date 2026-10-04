@@ -124,10 +124,10 @@ test("on a phone the filters fold behind a toggle that summarises them", async (
   const toggle = page.getByRole("button", { name: /^Filtros/ });
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByTestId("resumen-filtros")).toHaveText("Todos los estados · Todas las tecnologías");
-  await expect(page.getByRole("checkbox", { name: /^Favorable \(/ })).toBeHidden();
+  await expect(page.getByRole("checkbox", { name: /^Desfavorable \(/ })).toBeHidden();
   await toggle.click();
-  await page.getByRole("checkbox", { name: /^Favorable \(/ }).uncheck();
-  await expect(page.getByTestId("resumen-filtros")).toHaveText("5 de 6 estados · Todas las tecnologías");
+  await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).uncheck();
+  await expect(page.getByTestId("resumen-filtros")).toHaveText("4 de 5 estados · Todas las tecnologías");
 });
 
 test("status and technology shortcuts select all or none in one click", async ({ page }) => {
@@ -141,12 +141,13 @@ test("status and technology shortcuts select all or none in one click", async ({
   await expect(page.getByRole("region", { name: "Por provincia" }).getByText("Ninguna tecnología seleccionada.")).toBeVisible();
 });
 
-test("status checkboxes carry project counts, so an empty status reads (0)", async ({ page }) => {
+test("status checkboxes carry project counts; a status empty in all Andalucía gets a note, not a checkbox", async ({ page }) => {
   await page.goto("/");
   const statuses = page.getByRole("group", { name: "Estado" }).getByRole("checkbox");
-  await expect(statuses).toHaveCount(6);
+  await expect(statuses).toHaveCount(5);
   for (const name of await statuses.evaluateAll((els) => els.map((el) => el.closest("label")?.textContent ?? ""))) {
     expect(name).toMatch(/ \([\d.]+\)$/);
   }
-  await expect(page.getByRole("checkbox", { name: "Favorable (0)", exact: true })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: /^Favorable \(/ })).toHaveCount(0);
+  await expect(page.getByRole("group", { name: "Estado" }).getByText("Sin proyectos en Andalucía: Favorable")).toBeVisible();
 });

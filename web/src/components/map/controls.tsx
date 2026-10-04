@@ -34,10 +34,16 @@ function groupSummary<T extends string>(all: readonly T[], on: ReadonlySet<T>, l
   return `${picked.length} de ${all.length} ${words.some}`;
 }
 
-export function filterSummary(statuses: ReadonlySet<Status>, technologies: ReadonlySet<Technology>, natura: boolean, sensitivity: SensitivityLayer) {
+export function filterSummary(
+  statuses: ReadonlySet<Status>,
+  technologies: ReadonlySet<Technology>,
+  natura: boolean,
+  sensitivity: SensitivityLayer,
+  listed: readonly Status[] = STATUSES,
+) {
   const layers = [natura ? "Red Natura 2000" : null, sensitivity !== "ninguna" ? `Sensibilidad ${SENSITIVITY_LABELS[sensitivity].toLowerCase()}` : null].filter(Boolean);
   return [
-    groupSummary(STATUSES, statuses, STATUS_LABELS, { all: "Todos los estados", none: "Ningún estado", some: "estados" }),
+    groupSummary(listed, statuses, STATUS_LABELS, { all: "Todos los estados", none: "Ningún estado", some: "estados" }),
     groupSummary(TECHNOLOGIES, technologies, TECHNOLOGY_LABELS, { all: "Todas las tecnologías", none: "Ninguna tecnología", some: "tecnologías" }),
     ...layers,
   ].join(" · ");
@@ -87,6 +93,14 @@ export function Controls({
     const by = splitBy(regionCells.filter((c) => technologies.has(c.technology)), "status");
     return new Map(STATUSES.map((s) => [s, by.get(s)?.projectCount ?? 0]));
   }, [regionCells, technologies]);
+  // A status with no project anywhere in Andalucía (such as Favorable) cannot
+  // match anything, so it gets no checkbox; a note names it instead, as the
+  // province table does for its columns.
+  const [listedStatuses, emptyStatuses] = useMemo(() => {
+    const by = splitBy(regionCells, "status");
+    const has = (s: Status) => (by.get(s)?.projectCount ?? 0) > 0;
+    return [STATUSES.filter(has), STATUSES.filter((s) => !has(s))];
+  }, [regionCells]);
   return (
     <div className={styles.controls}>
       <fieldset className={styles.group}>
@@ -101,19 +115,22 @@ export function Controls({
       <button type="button" className={styles.plegar} aria-expanded={shown} aria-controls={panelId} onClick={() => setOpen(!shown)}>
         <span className={styles.plegarTitulo}>Filtros</span>
         <span className={styles.resumen} data-testid="resumen-filtros">
-          {filterSummary(statuses, technologies, natura, sensitivity)}
+          {filterSummary(statuses, technologies, natura, sensitivity, listedStatuses)}
         </span>
       </button>
       <div id={panelId} className={`${styles.filtros} ${shown ? styles.abierto : ""}`}>
         <fieldset className={styles.group}>
           <legend>Estado</legend>
-          {STATUSES.map((s) => (
+          {listedStatuses.map((s) => (
             <label key={s} className={styles.option}>
               <input type="checkbox" name="estado" value={s} checked={statuses.has(s)} onChange={() => onToggleStatus(s)} />
               {STATUS_LABELS[s]} <span className={styles.recuento}>({formatInt(statusCounts.get(s) ?? 0)})</span>
             </label>
           ))}
           <Shortcuts all={STATUSES} on={statuses} onSet={onStatuses} label="estados" />
+          {emptyStatuses.length > 0 ? (
+            <span className={styles.sinProyectos}>Sin proyectos en Andalucía: {emptyStatuses.map((s) => STATUS_LABELS[s]).join(", ")}</span>
+          ) : null}
         </fieldset>
         <fieldset className={styles.group}>
           <legend>Tecnología</legend>
