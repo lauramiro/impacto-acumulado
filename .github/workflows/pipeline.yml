@@ -27,13 +27,18 @@ concurrency:
   group: weekly-pipeline
   cancel-in-progress: false
 
+# Least privilege: each job asks for what it needs below.
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 340
+    permissions:
+      contents: write
+    outputs:
+      review_count: ${{ steps.check.outputs.count }}
     defaults:
       run:
         working-directory: pipeline
@@ -43,9 +48,9 @@ jobs:
       IMPACTO_MISTRAL_KEY: ${{ secrets.MISTRAL_KEY }}
       IMPACTO_HTTP_CACHE: ${{ github.workspace }}/pipeline/.cache
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: pipeline/.cache
           key: http-cache-${{ github.run_id }}
@@ -83,6 +88,21 @@ jobs:
           PROVIDER: ${{ inputs.provider || 'groq' }}
         run: uv run python -m impacto extract --limit "$EXTRACT_LIMIT" --provider "$PROVIDER"
       - run: uv run python -m impacto resolve
+      # Compares this run's groups with the last export before export
+      # overwrites it. Never blocks the run: a failure here only skips the report.
+      - name: resolve check
+        id: check
+        continue-on-error: true
+        run: |
+          uv run python -m impacto resolve-check --out "$RUNNER_TEMP/resolve-check.md" --count-out "$RUNNER_TEMP/resolve-check-count.txt"
+          cat "$RUNNER_TEMP/resolve-check.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "count=$(tr -cd '0-9' < "$RUNNER_TEMP/resolve-check-count.txt")" >> "$GITHUB_OUTPUT"
+      - name: keep the resolve check report
+        if: steps.check.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: resolve-check
+          path: ${{ runner.temp }}/resolve-check.md
       - run: uv run python -m impacto aggregate
       - run: uv run python -m impacto export
       - name: commit exports
