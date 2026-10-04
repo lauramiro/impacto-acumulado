@@ -191,3 +191,13 @@ def test_publication_of_a_resolution_that_modifies_an_aau_is_a_granted_modificat
     )
     hit = find_operative(notice)
     assert (hit.doc_type, hit.verdict) == ("modificacion", "favorable_condicionada")
+
+
+def test_publication_of_an_archived_aau_closes_the_procedure():
+    # disposition.2024.196.57 (SET Danae): the AAU procedure was archived, not decided.
+    notice = (
+        "Esta Delegación Territorial HA RESUELTO Primero. Dar publicidad en el BOJA a la resolución con la que se archiva la "
+        "autorización ambiental unificada a Danae Solar, S.L., para el proyecto «SET Danae 220/30 kV» (Expediente: AAU/CA/052/23)."
+    )
+    hit = find_operative(notice)
+    assert (hit.doc_type, hit.verdict) == ("caducidad", "no_aplica")

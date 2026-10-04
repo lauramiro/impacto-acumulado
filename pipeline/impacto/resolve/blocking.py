@@ -27,15 +27,16 @@ _CAPACITY = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:mwp|mwn|mwh|mw|kwp|kwn|kw|kv)\b"
 # modification or the format, not another procedure, so it is not read.
 _PROCEDURE = re.compile(r"^(aaus|aaua|aaui|aau|aai)[/_-]([a-z]{2})[/_-]0*(\d+)[/_-](?:19|20)?(\d{2})\b")
 # The ministry's files for state-authorised plants: "PFot-365", "PFOT 365",
-# "PEol-512"; a suffix such as " AC" is part of the same file.
-_STATE = re.compile(r"^(pfot|peol|phib)[\s_-]*0*(\d+)\b")
+# "PEol-512". A letter suffix names another file: "PFot-365 AC" (Natera and
+# Orla Solar) is not "PFOT 365" (Posets and Faballones Solar).
+_STATE = re.compile(r"^(pfot|peol|phib)[\s_-]*0*(\d+)(?:[\s_-]*([a-z]{1,3}))?\b")
 _LEGACY_WIND = re.compile(r"^a1/0*(\d+)/(?:19|20)?(\d{2})\b")
 
 
 def procedure_key(expediente: str | None) -> tuple[str, str, str] | None:
     """(type and province, number, year) of a regional or state procedure, or None for any other format.
 
-    A state file carries no year in its number, so its year is "".
+    A state file carries no year in its number; its third part is its letter suffix, or "".
     """
     if not expediente:
         return None
@@ -44,7 +45,7 @@ def procedure_key(expediente: str | None) -> tuple[str, str, str] | None:
     if m := _LEGACY_WIND.match(expediente):
         return "a1", m.group(1), m.group(2)
     if m := _STATE.match(expediente):
-        return m.group(1), m.group(2), ""
+        return m.group(1), m.group(2), m.group(3) or ""
     return None
 
 

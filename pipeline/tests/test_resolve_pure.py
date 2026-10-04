@@ -141,7 +141,6 @@ def test_conflict_on_different_expediente_numbers_of_one_procedure_and_province(
     # Another province, another procedure type, or an unparsed format says nothing.
     assert conflict(rec(1, "A", exp="aau/sc/003/22 (pa220135)"), rec(2, "A", exp="aau/ca/29/22")) is None
     assert conflict(rec(1, "A", exp="aau/hu/008/22"), rec(2, "A", exp="aaus/hu/008/25")) is None
-    assert conflict(rec(1, "A", exp="pfot 365"), rec(2, "A", exp="pfot-365 ac")) is None
 
 
 def test_conflict_on_phase_markers_anywhere_in_the_name():
@@ -223,7 +222,9 @@ def test_resolve_reapplies_the_operative_rule_to_stored_extractions():
 
 
 def test_procedure_key_reads_state_expedientes_and_other_separators():
-    assert procedure_key("pfot-365") == procedure_key("pfot 365") == procedure_key("pfot-365 ac") == ("pfot", "365", "")
+    assert procedure_key("pfot-365") == procedure_key("pfot 365") == ("pfot", "365", "")
+    # A letter suffix names another file: PFot-365 AC (Natera, Orla) is not PFOT 365 (Posets, Faballones).
+    assert procedure_key("pfot-365 ac") == ("pfot", "365", "ac")
     assert procedure_key("peol-512") == ("peol", "512", "")
     assert procedure_key("aau-gr-012-22") == procedure_key("aau_gr_012_22") == procedure_key("aau/gr/12/22")
     # A Junta expediente with no year is left unread rather than compared against one that has a year.
@@ -233,6 +234,7 @@ def test_procedure_key_reads_state_expedientes_and_other_separators():
 def test_state_expedientes_with_different_numbers_conflict():
     assert conflict(rec(1, "A", exp="pfot-365"), rec(2, "A", exp="pfot-479")) == "expediente"
     assert conflict(rec(1, "A", exp="pfot-365"), rec(2, "A", exp="peol-365")) is None
+    assert conflict(rec(1, "A", exp="pfot 365"), rec(2, "A", exp="pfot-365 ac")) == "expediente"
 
 
 def test_an_unkeyed_document_joins_a_keyed_plant_only_on_positive_evidence():

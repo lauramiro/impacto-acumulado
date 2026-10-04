@@ -32,8 +32,10 @@ Forms handled (matched on normalised text: lowercase, no accents):
   autorizacion ambiental unificada" -> aau, favorable_condicionada; "se otorga
   modificacion de" or "se modifica la autorizacion ambiental unificada" ->
   modificacion, favorable_condicionada; "se deniega la autorizacion ambiental
-  unificada" -> aau, desfavorable. Most of these notices state no verdict at all (the
-  full text is only on the department's website) and get none.
+  unificada" -> aau, desfavorable; "se archiva la autorizacion ambiental
+  unificada" -> caducidad (the procedure ended without a decision). Most of
+  these notices state no verdict at all (the full text is only on the
+  department's website) and get none.
 
 The publication forms are read only after a "dar publicidad" phrase, because a
 consultation on modifying an AAU also mentions "la autorizacion ambiental
@@ -78,6 +80,8 @@ _PUBLISHED_MODIFICATION = re.compile(
 _PUBLISHED_REFUSAL = re.compile(
     r"se deniega (?:la )?autorizacion ambiental unificada|autorizacion ambiental unificada (?:simplificada )?denegada"
 )
+# An archived procedure ended without a decision: the project lapses.
+_PUBLISHED_ARCHIVE = re.compile(r"se archiva (?:la )?autorizacion ambiental unificada")
 # A correction notice quotes the wrong text ("donde dice: ... se otorga ...")
 # before the right one ("debe decir: ... se deniega ..."); the wrong text never counts.
 _CORRECTED_TEXT = re.compile(r"donde dice.*?debe decir")
@@ -99,6 +103,7 @@ OVERRIDABLE_DOC_TYPES = {
     "aau": {"aau", "otro"},
     "informe_impacto": {"informe_impacto", "otro"},
     "modificacion": {"modificacion", "aau", "otro"},
+    "caducidad": {"caducidad", "aau", "otro"},
 }
 
 
@@ -170,6 +175,8 @@ def find_operative(text: str) -> OperativeHit | None:
             hits.append((publicity.start() + match.start(), OperativeHit("modificacion", "favorable_condicionada", match.group(0))))
         for match in _PUBLISHED_REFUSAL.finditer(after):
             hits.append((publicity.start() + match.start(), OperativeHit("aau", "desfavorable", match.group(0))))
+        for match in _PUBLISHED_ARCHIVE.finditer(after):
+            hits.append((publicity.start() + match.start(), OperativeHit("caducidad", "no_aplica", match.group(0))))
     if not hits:
         return None
     hits.sort(key=lambda pair: pair[0])
