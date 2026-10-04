@@ -67,12 +67,12 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
               <thead>
                 <tr>
                   <th scope="col">Provincia</th>
+                  <th scope="col" className={`${styles.num} ${styles.total}`}>Total</th>
                   {statuses.map((s) => (
                     <th key={s} scope="col" className={styles.num}>
                       {STATUS_LABELS[s]}
                     </th>
                   ))}
-                  <th scope="col" className={styles.num}>Total</th>
                   {coverageHeader ? <th scope="col" className={styles.num}>{coverageHeader}</th> : null}
                 </tr>
               </thead>
@@ -84,12 +84,12 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
                         {p}
                       </button>
                     </th>
+                    <td className={`dato ${styles.num} ${styles.total}`}>{value(stats[p], filters)}</td>
                     {statuses.map((s) => (
                       <td key={s} className={`dato ${styles.num}`}>
                         {value(stats[p], only(s))}
                       </td>
                     ))}
-                    <td className={`dato ${styles.num}`}>{value(stats[p], filters)}</td>
                     {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(stats[p])}</td> : null}
                   </tr>
                 ))}
@@ -97,12 +97,12 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
               <tfoot>
                 <tr>
                   <th scope="row">{REGION}</th>
+                  <td className={`dato ${styles.num} ${styles.total}`}>{value(region, filters)}</td>
                   {statuses.map((s) => (
                     <td key={s} className={`dato ${styles.num}`}>
                       {value(region, only(s))}
                     </td>
                   ))}
-                  <td className={`dato ${styles.num}`}>{value(region, filters)}</td>
                   {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(region)}</td> : null}
                 </tr>
               </tfoot>

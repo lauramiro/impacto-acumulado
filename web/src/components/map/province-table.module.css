@@ -127,3 +127,11 @@
   padding: 0;
   border: 0;
 }
+
+/* Total comes straight after the province, the figure people come for, so on
+   a phone it shows beside the sticky first column without scrolling. A rule
+   sets it apart from the per-status breakdown that follows. */
+.table .total {
+  font-weight: 600;
+  border-right: 1px solid var(--regla);
+}
