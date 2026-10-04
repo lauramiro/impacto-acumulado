@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openFilters } from "./filters";
 
 test("Natura 2000 loads only when ticked and draws every site", async ({ page }) => {
   let requested = false;
@@ -6,6 +7,7 @@ test("Natura 2000 loads only when ticked and draws every site", async ({ page })
     if (r.url().endsWith("/data/protected_areas.geojson")) requested = true;
   });
   await page.goto("/");
+  await openFilters(page);
   await page.locator("path[data-ine]").first().waitFor();
   expect(requested).toBe(false);
   await page.getByRole("checkbox", { name: "Red Natura 2000", exact: true }).check();
@@ -16,6 +18,7 @@ test("Natura 2000 loads only when ticked and draws every site", async ({ page })
 
 test("a sensitivity layer draws one hatched path and its caveat", async ({ page }) => {
   await page.goto("/");
+  await openFilters(page);
   await page.locator("path[data-ine]").first().waitFor();
   await page.getByRole("radio", { name: "Fotovoltaica", exact: true }).check();
   await expect(page).toHaveURL(/sensibilidad=fv/);
@@ -36,6 +39,7 @@ test("a failed layer shows an inline error and retries on re-tick", async ({ pag
   let fail = true;
   await page.route("**/data/protected_areas.geojson", (route) => (fail ? route.fulfill({ status: 500, body: "" }) : route.continue()));
   await page.goto("/");
+  await openFilters(page);
   await page.locator("path[data-ine]").first().waitFor();
   const box = page.getByRole("checkbox", { name: "Red Natura 2000", exact: true });
   await box.check();

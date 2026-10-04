@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openFilters } from "./filters";
 
 test("index is searchable and reachable by keyboard", async ({ page }) => {
   await page.goto("/");
@@ -17,6 +18,7 @@ test("index is searchable and reachable by keyboard", async ({ page }) => {
 
 test("index count follows the status filter", async ({ page }) => {
   await page.goto("/");
+  await openFilters(page);
   const count = page.getByTestId("indice-recuento");
   const before = await count.textContent();
   await page.getByLabel("Favorable con condiciones").uncheck();

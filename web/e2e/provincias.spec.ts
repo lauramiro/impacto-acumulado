@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { openFilters } from "./filters";
 
 test("province table follows the status filter and selects a province", async ({ page }) => {
   await page.goto("/");
+  await openFilters(page);
   const table = page.getByRole("region", { name: "Por provincia" });
   await expect(table.getByRole("columnheader", { name: "Desfavorable" })).toBeVisible();
   await expect(table.getByRole("rowheader", { name: "Andalucía" })).toBeVisible();
@@ -100,6 +102,7 @@ test("province table marks cells with no projects apart from sin dato and define
 
 test("status checkbox counts follow the technology filter and match the province table total", async ({ page }) => {
   await page.goto("/?tecnologia=eolica&metrica=proyectos");
+  await openFilters(page);
   const table = page.getByRole("region", { name: "Por provincia" });
   const headers = await table.getByRole("columnheader").allTextContents();
   const column = headers.indexOf("Favorable con condiciones");

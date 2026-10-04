@@ -79,8 +79,8 @@ export function Controls({
   onNatura,
   onSensitivity,
 }: Props) {
-  // Below 768px Estado, Tecnología and Capas fold behind this toggle so the map
-  // sits near the top of the first screen; wider screens always show them.
+  // Estado, Tecnología and Capas fold behind this toggle so the map sits in the
+  // first screen; the toggle's summary says what they are set to.
   const [open, setOpen] = useState(false);
   const panelId = useId();
   // A layer that failed to load keeps the panel open so its alert is seen.

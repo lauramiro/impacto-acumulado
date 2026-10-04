@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openFilters } from "./filters";
 
 test("the Natura 2000 table lists every site and finds one by name", async ({ page }) => {
   await page.goto("/");
@@ -11,6 +12,7 @@ test("the Natura 2000 table lists every site and finds one by name", async ({ pa
 
 test("the Natura 2000 table follows the filters", async ({ page }) => {
   await page.goto("/?metrica=proyectos");
+  await openFilters(page);
   const section = page.getByRole("region", { name: "Red Natura 2000" });
   await section.getByLabel("Buscar espacio").fill("donana");
   const row = section.getByRole("row", { name: /Doñana/ }).first();

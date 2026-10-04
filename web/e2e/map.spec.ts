@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { openFilters } from "./filters";
 
 test("map renders every municipality from the light geojson and the date line", async ({ page }) => {
   const geojson = page.waitForResponse((r) => r.url().endsWith("/data/municipalities_map.geojson") && r.ok());
@@ -53,6 +54,7 @@ test("no horizontal scroll on a phone", async ({ page }) => {
 
 test("technology filter updates the legend coverage and the URL", async ({ page }) => {
   await page.goto("/");
+  await openFilters(page);
   const coverage = page.getByTestId("cobertura-mapa");
   await expect(coverage).toHaveText(/^MW declarados en [\d.]+ de [\d.]+ proyectos$/);
   const before = await coverage.textContent();
@@ -132,6 +134,7 @@ test("on a phone the filters fold behind a toggle that summarises them", async (
 
 test("status and technology shortcuts select all or none in one click", async ({ page }) => {
   await page.goto("/");
+  await openFilters(page);
   await page.getByRole("button", { name: "Desmarcar todos: estados", exact: true }).click();
   await expect(page).toHaveURL(/estado=(&|$)/);
   await expect(page.getByRole("region", { name: "Por provincia" }).getByText("Ningún estado seleccionado.")).toBeVisible();
@@ -143,6 +146,7 @@ test("status and technology shortcuts select all or none in one click", async ({
 
 test("status checkboxes carry project counts; a status empty in all Andalucía gets a note, not a checkbox", async ({ page }) => {
   await page.goto("/");
+  await openFilters(page);
   const statuses = page.getByRole("group", { name: "Estado" }).getByRole("checkbox");
   await expect(statuses).toHaveCount(5);
   for (const name of await statuses.evaluateAll((els) => els.map((el) => el.closest("label")?.textContent ?? ""))) {
@@ -150,4 +154,13 @@ test("status checkboxes carry project counts; a status empty in all Andalucía g
   }
   await expect(page.getByRole("checkbox", { name: /^Favorable \(/ })).toHaveCount(0);
   await expect(page.getByRole("group", { name: "Estado" }).getByText("Sin proyectos en Andalucía: Favorable")).toBeVisible();
+});
+
+test("at desktop size the filters fold too, so most of the map is in the first screen", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: /^Filtros/ })).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByRole("checkbox", { name: "Eólica", exact: true })).toBeHidden();
+  const map = await page.locator("#mapa svg").first().boundingBox();
+  expect(map!.y).toBeLessThan(450);
 });

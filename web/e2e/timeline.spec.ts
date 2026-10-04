@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { openFilters } from "./filters";
 
 test("timeline title follows province and technology, and the data table opens", async ({ page }) => {
   await page.goto("/");
+  await openFilters(page);
   const section = page.getByRole("region", { name: /Documentos por mes/ });
   await expect(section.getByRole("heading", { level: 2 })).toHaveText("Documentos por mes · Andalucía");
   await expect(section.getByText("Entre 2019 y 2021 la colección solo contiene 5 documentos; la serie empieza en 2022.")).toBeVisible();
