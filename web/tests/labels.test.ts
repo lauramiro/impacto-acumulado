@@ -8,7 +8,7 @@ it("has a Spanish label for every enum value", () => {
   for (const r of DOCUMENT_ROLES) expect(ROLE_LABELS[r]).toMatch(/^[A-ZÁÉÍÓÚ]/);
   for (const v of VERDICTS) expect(VERDICT_LABELS[v]).toMatch(/^[A-ZÁÉÍÓÚ]/);
   for (const m of METRICS) expect(METRIC_LABELS[m]).toMatch(/^[A-ZÁÉÍÓÚ]/);
-  expect(STATUS_LABELS.desconocido).toBe("Sin veredicto leído");
+  expect(STATUS_LABELS.desconocido).toBe("Sin veredicto en el boletín");
   expect(STATUS_LABELS.en_consulta).toBe("Información pública");
   expect(STATUS_LABELS.favorable_condicionada).toBe("Favorable con condiciones");
 });
@@ -32,7 +32,7 @@ describe("event labels", () => {
       "Favorable",
       "Favorable con condiciones",
       "Desfavorable",
-      "Sin veredicto leído",
+      "Sin veredicto en el boletín",
     ]);
   });
   it("uses the status words for the events that match a status", () => {

@@ -113,6 +113,26 @@ export default async function MethodologyPage() {
         potencia, superficie o aerogeneradores admite un 2 por ciento de diferencia con el valor impreso.
       </p>
 
+      {ev.aauPublication ? (
+        <>
+          <h3>Proyectos sin veredicto en el boletín</h3>
+          <p>
+            Muchas autorizaciones ambientales unificadas se publican en el BOJA con un anuncio que solo dice que se da publicidad al
+            informe vinculante y remite al texto completo en la web de la Consejería: el boletín no dice si se concedió. Esos proyectos
+            figuran como «Sin veredicto en el boletín», no como un fallo de lectura. Cuando el anuncio sí lo dice («autorización
+            ambiental unificada otorgada», «se otorga», «se modifica», «se deniega») una regla lo lee y prevalece sobre el modelo; en una
+            corrección de errores solo cuenta el texto que «debe decir».
+          </p>
+          <p>
+            Hoy quedan {formatInt(ev.aauPublication.unknownProjects)} de {formatInt(ev.aauPublication.projects)} proyectos sin
+            veredicto en el boletín. La regla se comprobó a mano en {formatInt(ev.aauPublication.heldOut.labelled)} anuncios no usados
+            para escribirla: acertó en {formatInt(ev.aauPublication.heldOut.correct)}, y la forma que falló («se modifica») se añadió
+            después. Sobre los {formatInt(ev.aauPublication.live.labelled)} anuncios etiquetados acierta hoy en{" "}
+            {formatInt(ev.aauPublication.live.correct)}.
+          </p>
+        </>
+      ) : null}
+
       <h2>Agregación</h2>
       <ul>
         <li>Los totales por municipio suman los proyectos con ese municipio entre sus emplazamientos.</li>

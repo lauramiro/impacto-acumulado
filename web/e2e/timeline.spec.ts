@@ -12,7 +12,7 @@ test("timeline title follows province and technology, and the data table opens",
   await page.getByRole("checkbox", { name: "Eólica", exact: true }).uncheck();
   await expect(section.getByRole("heading", { level: 2 })).toContainText("Solar fotovoltaica");
   await section.getByText("Ver los datos").click();
-  await expect(section.getByRole("table", { name: "Por año" }).getByRole("columnheader", { name: "Sin veredicto leído" })).toBeVisible();
+  await expect(section.getByRole("table", { name: "Por año" }).getByRole("columnheader", { name: "Sin veredicto en el boletín" })).toBeVisible();
   await section.getByRole("button", { name: "Toda Andalucía" }).click();
   await expect(page).not.toHaveURL(/provincia=/);
 });

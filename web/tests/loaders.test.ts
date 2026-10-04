@@ -69,6 +69,12 @@ describe("loaders", () => {
     expect(ev.provider).toBe("mistral:ministral-14b-latest");
     expect(ev.accuracy["mw_nominal"]).toBe(0.8);
     expect(ev).toMatchObject({ nLabels: 20, nScored: 20, labelsCount: 20, skipped: [] });
+    expect(ev.aauPublication).toEqual({
+      heldOut: { measured: "2026-10-04", labelled: 15, correct: 14 },
+      live: { labelled: 35, correct: 35 },
+      unknownProjects: 137,
+      projects: 541,
+    });
     // field_samples carries each field's own denominator (e.g. developer is
     // scored over 18 labels, not the 20 every other field in this fixture
     // uses), distinct from the single n_scored figure.

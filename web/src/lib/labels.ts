@@ -9,7 +9,10 @@ export const STATUS_LABELS: Record<Status, string> = {
   favorable_condicionada: "Favorable con condiciones",
   desfavorable: "Desfavorable",
   caducado: "Caducado",
-  desconocido: "Sin veredicto leído",
+  // Most of these projects' last document is a BOJA notice that publishes the
+  // decision without stating it (the full text is on the department's site):
+  // the gazette has no verdict to read, which is not an extraction failure.
+  desconocido: "Sin veredicto en el boletín",
 };
 
 export const TECHNOLOGY_LABELS: Record<Technology, string> = {
@@ -112,7 +115,7 @@ export const EVENT_LABELS: Record<EventKind, string> = {
   favorable: "Favorable",
   favorable_condicionada: "Favorable con condiciones",
   desfavorable: "Desfavorable",
-  sin_veredicto: "Sin veredicto leído",
+  sin_veredicto: "Sin veredicto en el boletín",
 };
 
 export const SENSITIVITY_LABELS: Record<SensitivityLayer, string> = {

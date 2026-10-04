@@ -13,6 +13,14 @@ export const EvaluationSchema = z
     skipped: z.array(z.string()),
     labels_count: z.number().int().nonnegative(),
     field_samples: z.record(z.string(), z.number().int().nonnegative()),
+    aau_publication: z
+      .object({
+        held_out: z.object({ measured: z.string(), labelled: z.number().int().nonnegative(), correct: z.number().int().nonnegative() }),
+        live: z.object({ labelled: z.number().int().nonnegative(), correct: z.number().int().nonnegative() }),
+        unknown_projects: z.number().int().nonnegative(),
+        projects: z.number().int().nonnegative(),
+      })
+      .optional(),
   })
   .refine((e) => e.n_scored <= e.n_labels, { message: "n_scored exceeds n_labels" })
   // A field with an accuracy but no field_samples entry would fall back to
@@ -32,5 +40,13 @@ export async function loadEvaluation(): Promise<Evaluation> {
     skipped: raw.skipped,
     labelsCount: raw.labels_count,
     fieldSamples: raw.field_samples,
+    aauPublication: raw.aau_publication
+      ? {
+          heldOut: raw.aau_publication.held_out,
+          live: raw.aau_publication.live,
+          unknownProjects: raw.aau_publication.unknown_projects,
+          projects: raw.aau_publication.projects,
+        }
+      : null,
   };
 }

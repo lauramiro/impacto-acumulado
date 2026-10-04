@@ -90,4 +90,11 @@ export type Evaluation = {
   labelsCount: number;
   /** Per field, how many labels carry it under `expected` - each field's own denominator, not a single shared sample size. */
   fieldSamples: Record<string, number>;
+  /** How the operative rule reads AAU publication notices (T4), when the export carries it. */
+  aauPublication: {
+    heldOut: { measured: string; labelled: number; correct: number };
+    live: { labelled: number; correct: number };
+    unknownProjects: number;
+    projects: number;
+  } | null;
 };
