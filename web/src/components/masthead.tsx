@@ -7,6 +7,11 @@ export function Masthead() {
       <Link href="/" className={`display ${styles.titulo}`}>
         Impacto Acumulado
       </Link>
+      <nav className={styles.secciones} aria-label="Secciones">
+        <Link href="/">Mapa</Link>
+        <Link href="/metodologia">Metodología</Link>
+        <Link href="/datos">Datos</Link>
+      </nav>
     </div>
   );
 }

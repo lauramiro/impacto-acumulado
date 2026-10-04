@@ -1,4 +1,9 @@
 .masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 1.5rem;
   padding-top: 1.5rem;
   border-bottom: 2px solid var(--tinta);
 }
@@ -11,4 +16,16 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding-bottom: 0.35rem;
+}
+
+.secciones {
+  display: flex;
+  gap: 1.25rem;
+  padding-bottom: 0.5rem;
+  font-size: var(--texto-dato);
+}
+
+.secciones a {
+  display: inline-block;
+  min-height: 24px;
 }
