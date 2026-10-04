@@ -117,7 +117,7 @@ export function MapExplorer({ data, lastMonth }: Props) {
   }, [municipalities, stats, state.metric, filters]);
 
   const coverages = useMemo(() => {
-    const out = new Map<string, { declared: number; total: number }>();
+    const out = new Map<string, { declared: number; total: number; peak: number }>();
     for (const m of municipalities) out.set(m.ine, metricCoverage(stats[m.ine]?.cells, state.metric, filters));
     return out;
   }, [municipalities, stats, state.metric, filters]);
@@ -127,11 +127,11 @@ export function MapExplorer({ data, lastMonth }: Props) {
   const labelOf = useCallback(
     (ine: string) => {
       const value = values.get(ine) ?? 0;
-      const c = coverages.get(ine) ?? { declared: 0, total: 0 };
+      const c = coverages.get(ine) ?? { declared: 0, total: 0, peak: 0 };
       if (c.total === 0) return "Sin proyectos";
       if (state.metric !== "proyectos" && value <= 0) return `${formatMetric(c.total, "proyectos")}, ${NO_FIGURE_LABELS[state.metric]}`;
       const label = formatMetric(value, state.metric);
-      return state.metric === "mw" ? `${label} (${formatCoverage(c.declared, c.total)})` : label;
+      return state.metric === "mw" ? `${label} (${formatCoverage(c.declared, c.total, "mw", c.peak)})` : label;
     },
     [values, coverages, state.metric],
   );

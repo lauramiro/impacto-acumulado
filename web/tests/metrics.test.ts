@@ -15,9 +15,9 @@ import {
 import { STATUSES, TECHNOLOGIES, type StatsCell } from "@/lib/types";
 
 const cells: StatsCell[] = [
-  { status: "favorable_condicionada", technology: "solar_fv", projectCount: 2, mwNominal: 100, mwCount: 1, hectares: 300, haCount: 1 },
-  { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 },
-  { status: "desfavorable", technology: "eolica", projectCount: 1, mwNominal: 40, mwCount: 1, hectares: 50, haCount: 1 },
+  { status: "favorable_condicionada", technology: "solar_fv", projectCount: 2, mwBest: 100, mwCount: 1, mwPeakCount: 0, hectares: 300, haCount: 1 },
+  { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwBest: 0, mwCount: 0, mwPeakCount: 0, hectares: 0, haCount: 0 },
+  { status: "desfavorable", technology: "eolica", projectCount: 1, mwBest: 40, mwCount: 1, mwPeakCount: 0, hectares: 50, haCount: 1 },
 ];
 const all = { statuses: new Set(STATUSES), technologies: new Set(TECHNOLOGIES) };
 
@@ -37,32 +37,32 @@ describe("metricValue", () => {
 
 describe("mwCoverage", () => {
   it("counts lines and projects without MW in the total only", () => {
-    expect(mwCoverage(cells, all)).toEqual({ withMw: 2, total: 4 });
-    expect(mwCoverage(cells, { ...all, technologies: new Set(["linea_evacuacion"]) })).toEqual({ withMw: 0, total: 1 });
-    expect(mwCoverage(undefined, all)).toEqual({ withMw: 0, total: 0 });
+    expect(mwCoverage(cells, all)).toEqual({ withMw: 2, total: 4, peak: 0 });
+    expect(mwCoverage(cells, { ...all, technologies: new Set(["linea_evacuacion"]) })).toEqual({ withMw: 0, total: 1, peak: 0 });
+    expect(mwCoverage(undefined, all)).toEqual({ withMw: 0, total: 0, peak: 0 });
   });
 });
 
 describe("metricCoverage", () => {
   it("counts the projects declaring the metric's figure", () => {
-    expect(metricCoverage(cells, "mw", all)).toEqual({ declared: 2, total: 4 });
-    expect(metricCoverage(cells, "ha", all)).toEqual({ declared: 2, total: 4 });
-    expect(metricCoverage(cells, "ha", { ...all, technologies: new Set(["linea_evacuacion"]) })).toEqual({ declared: 0, total: 1 });
-    expect(metricCoverage(cells, "proyectos", all)).toEqual({ declared: 4, total: 4 });
-    expect(metricCoverage(undefined, "ha", all)).toEqual({ declared: 0, total: 0 });
+    expect(metricCoverage(cells, "mw", all)).toEqual({ declared: 2, total: 4, peak: 0 });
+    expect(metricCoverage(cells, "ha", all)).toEqual({ declared: 2, total: 4, peak: 0 });
+    expect(metricCoverage(cells, "ha", { ...all, technologies: new Set(["linea_evacuacion"]) })).toEqual({ declared: 0, total: 1, peak: 0 });
+    expect(metricCoverage(cells, "proyectos", all)).toEqual({ declared: 4, total: 4, peak: 0 });
+    expect(metricCoverage(undefined, "ha", all)).toEqual({ declared: 0, total: 0, peak: 0 });
   });
 });
 
 describe("splitBy and sumFigures", () => {
   it("groups figures by status or technology", () => {
     const byStatus = splitBy(cells, "status");
-    expect(byStatus.get("favorable_condicionada")).toEqual({ projectCount: 3, mwNominal: 100, mwCount: 1, hectares: 300, haCount: 1 });
+    expect(byStatus.get("favorable_condicionada")).toEqual({ projectCount: 3, mwBest: 100, mwCount: 1, mwPeakCount: 0, hectares: 300, haCount: 1 });
     expect(byStatus.has("en_consulta")).toBe(false);
-    expect(splitBy(cells, "technology").get("eolica")?.mwNominal).toBe(40);
+    expect(splitBy(cells, "technology").get("eolica")?.mwBest).toBe(40);
   });
   it("sums everything, and nothing to zeros", () => {
-    expect(sumFigures(cells)).toEqual({ projectCount: 4, mwNominal: 140, mwCount: 2, hectares: 350, haCount: 2 });
-    expect(sumFigures([])).toEqual({ projectCount: 0, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 });
+    expect(sumFigures(cells)).toEqual({ projectCount: 4, mwBest: 140, mwCount: 2, mwPeakCount: 0, hectares: 350, haCount: 2 });
+    expect(sumFigures([])).toEqual({ projectCount: 0, mwBest: 0, mwCount: 0, mwPeakCount: 0, hectares: 0, haCount: 0 });
     expect(matching(cells, { ...all, statuses: new Set(["desfavorable"]) })).toHaveLength(1);
   });
 });
@@ -112,5 +112,18 @@ describe("classIndex", () => {
     expect(classIndex(29.74, 1, t, 1)).toBe(1);
     expect(classIndex(29.75, 1, t, 1)).toBe(2);
     expect(classIndex(0.02, 1, t, 1)).toBe(1);
+  });
+});
+
+describe("the peak fallback", () => {
+  const withPeak: StatsCell[] = [
+    { status: "favorable_condicionada", technology: "solar_fv", projectCount: 3, mwBest: 160, mwCount: 2, mwPeakCount: 1, hectares: 0, haCount: 0 },
+    { status: "desfavorable", technology: "eolica", projectCount: 1, mwBest: 0, mwCount: 0, mwPeakCount: 0, hectares: 0, haCount: 0 },
+  ];
+  it("sums the best figure and says how many are the peak", () => {
+    expect(metricValue(withPeak, "mw", all)).toBe(160);
+    expect(mwCoverage(withPeak, all)).toEqual({ withMw: 2, total: 4, peak: 1 });
+    expect(metricCoverage(withPeak, "mw", all)).toEqual({ declared: 2, total: 4, peak: 1 });
+    expect(metricCoverage(withPeak, "ha", all)).toEqual({ declared: 0, total: 4, peak: 0 });
   });
 });

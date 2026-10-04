@@ -84,6 +84,28 @@ export default async function DataPage() {
         </tbody>
       </table>
       <h2>Cambios</h2>
+      <section aria-labelledby="cambio-2026-10-04" className={styles.columnas}>
+        <h3 id="cambio-2026-10-04">
+          <time dateTime="2026-10-04">4 de octubre de 2026</time>
+        </h3>
+        <ul>
+          <li>
+            Los archivos agregados (<span className="dato">municipality_stats</span>, <span className="dato">protected_area_stats</span>,{" "}
+            <span className="dato">province_stats.json</span>, <span className="dato">province_monthly.csv</span>) tienen dos campos
+            nuevos: <span className="dato">mw_best</span>, que suma la potencia nominal o, si un proyecto solo declara la pico, la pico; y{" "}
+            <span className="dato">mw_peak_fallback_count</span>, cuántos proyectos de la fila usan la pico. Las líneas de evacuación
+            siguen sin sumar potencia. <span className="dato">mw_nominal</span> y <span className="dato">mw_count</span> no cambian; en{" "}
+            <span className="dato">municipality_stats.csv</span> las dos columnas nuevas van tras <span className="dato">ha_count</span>.
+            Los totales de MW del sitio usan ahora <span className="dato">mw_best</span>.
+          </li>
+          <li>
+            La agrupación de documentos en proyectos ya no une plantas hermanas (números de expediente distintos del mismo
+            procedimiento y provincia, o fases distintas en el nombre). Se separaron 46 proyectos que reunían varias plantas, y{" "}
+            <span className="dato">projects.csv</span> pasa de 444 a 541 filas. Cada proyecto conserva como identificador el menor de
+            sus documentos, así que algunos identificadores nombran ahora otro proyecto.
+          </li>
+        </ul>
+      </section>
       <section aria-labelledby="cambio-2026-09-28" className={styles.columnas}>
         <h3 id="cambio-2026-09-28">
           <time dateTime="2026-09-28">28 de septiembre de 2026</time>

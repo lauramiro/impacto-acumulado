@@ -10,8 +10,12 @@ export function toCell(c: z.infer<typeof CellSchema>): StatsCell {
     status: c.status,
     technology: c.technology,
     projectCount: c.project_count,
-    mwNominal: c.mw_nominal,
-    mwCount: c.mw_count,
+    // The site sums the best figure: nominal MW, or the peak where only the
+    // peak is declared. mw_count counts nominal figures only, so the peak
+    // fallbacks are added to it.
+    mwBest: c.mw_best,
+    mwCount: c.mw_count + c.mw_peak_fallback_count,
+    mwPeakCount: c.mw_peak_fallback_count,
     hectares: c.hectares,
     haCount: c.ha_count,
   };

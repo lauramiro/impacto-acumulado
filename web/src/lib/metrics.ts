@@ -1,12 +1,13 @@
 import type { Figures, Filters, Metric, StatsCell } from "./types";
 
-const ZERO: Figures = { projectCount: 0, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 };
+const ZERO: Figures = { projectCount: 0, mwBest: 0, mwCount: 0, mwPeakCount: 0, hectares: 0, haCount: 0 };
 
 function add(a: Figures, c: Figures): Figures {
   return {
     projectCount: a.projectCount + c.projectCount,
-    mwNominal: a.mwNominal + c.mwNominal,
+    mwBest: a.mwBest + c.mwBest,
     mwCount: a.mwCount + c.mwCount,
+    mwPeakCount: a.mwPeakCount + c.mwPeakCount,
     hectares: a.hectares + c.hectares,
     haCount: a.haCount + c.haCount,
   };
@@ -22,20 +23,24 @@ export function sumFigures(cells: readonly StatsCell[]): Figures {
 
 export function metricValue(cells: readonly StatsCell[] | undefined, metric: Metric, f: Filters): number {
   const t = sumFigures(matching(cells ?? [], f));
-  return metric === "mw" ? t.mwNominal : metric === "ha" ? t.hectares : t.projectCount;
+  return metric === "mw" ? t.mwBest : metric === "ha" ? t.hectares : t.projectCount;
 }
 
-/** How many of the matching projects have an MW figure that is summed. */
-export function mwCoverage(cells: readonly StatsCell[] | undefined, f: Filters): { withMw: number; total: number } {
+/** How many of the matching projects have an MW figure that is summed, and in how many that figure is the peak. */
+export function mwCoverage(cells: readonly StatsCell[] | undefined, f: Filters): { withMw: number; total: number; peak: number } {
   const t = sumFigures(matching(cells ?? [], f));
-  return { withMw: t.mwCount, total: t.projectCount };
+  return { withMw: t.mwCount, total: t.projectCount, peak: t.mwPeakCount };
 }
 
 /** How many of the matching projects declare the metric's figure (every project for "proyectos"). */
-export function metricCoverage(cells: readonly StatsCell[] | undefined, metric: Metric, f: Filters): { declared: number; total: number } {
+export function metricCoverage(
+  cells: readonly StatsCell[] | undefined,
+  metric: Metric,
+  f: Filters,
+): { declared: number; total: number; peak: number } {
   const t = sumFigures(matching(cells ?? [], f));
   const declared = metric === "mw" ? t.mwCount : metric === "ha" ? t.haCount : t.projectCount;
-  return { declared, total: t.projectCount };
+  return { declared, total: t.projectCount, peak: metric === "mw" ? t.mwPeakCount : 0 };
 }
 
 export function splitBy<K extends "status" | "technology">(cells: readonly StatsCell[], key: K): Map<StatsCell[K], Figures> {

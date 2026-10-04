@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { compactMapData, expandMapData, type MapExplorerData } from "@/lib/compact";
 import { SCOPES, type StatsCell } from "@/lib/types";
 
-const cell: StatsCell = { status: "favorable_condicionada", technology: "solar_fv", projectCount: 3, mwNominal: 447.23, mwCount: 2, hectares: 90.5, haCount: 1 };
+const cell: StatsCell = { status: "favorable_condicionada", technology: "solar_fv", projectCount: 3, mwBest: 447.23, mwCount: 2, mwPeakCount: 0, hectares: 90.5, haCount: 1 };
 
 const data: MapExplorerData = {
   municipalities: [{ ine: "29067", name: "Málaga", province: "Málaga" }],

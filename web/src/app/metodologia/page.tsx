@@ -126,6 +126,12 @@ export default async function MethodologyPage() {
           7 de 9 proyectos». Las cifras de potencia llevan además el error de lectura medido arriba.
         </li>
         <li>
+          Los totales de MW suman la potencia nominal (MWn) de cada proyecto y, cuando un proyecto solo declara la potencia pico (MWp),
+          esa. En fotovoltaica la pico es mayor que la nominal, así que un total que la usa tira hacia arriba; la nota de cada total dice
+          en cuántos proyectos se usa, por ejemplo «MW declarados en 7 de 9 proyectos; en 2 se usa la potencia pico». La columna{" "}
+          <span className="dato">mw_nominal</span> de los datos descargables sigue sumando solo la nominal.
+        </li>
+        <li>
           Los solapes con la Red Natura 2000 y la cuota de sensibilidad usan el límite municipal completo: son un filtro de atención, no
           una evaluación de impacto. La tabla de espacios suma todos los proyectos de los municipios que tocan cada espacio y mide
           cercanía, no afección.

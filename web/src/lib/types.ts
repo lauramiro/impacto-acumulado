@@ -35,7 +35,12 @@ export type Municipality = {
 /** The subset of Municipality the map explorer needs: no per-request weight from unused figures. */
 export type MapMunicipality = Pick<Municipality, "ine" | "name" | "province">;
 
-export type Figures = { projectCount: number; mwNominal: number; mwCount: number; hectares: number; haCount: number };
+/**
+ * Sums over a set of cells. mwBest sums each project's nominal MW, or its peak (MWp)
+ * where only the peak is declared; mwCount counts the projects with either
+ * figure and mwPeakCount those whose figure is the peak.
+ */
+export type Figures = { projectCount: number; mwBest: number; mwCount: number; mwPeakCount: number; hectares: number; haCount: number };
 export type StatsCell = Figures & { status: Status; technology: Technology };
 export type MunicipalityStats = { cells: StatsCell[] };
 export type Filters = { statuses: ReadonlySet<Status>; technologies: ReadonlySet<Technology> };

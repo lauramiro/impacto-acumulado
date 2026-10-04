@@ -17,7 +17,7 @@ type Props = {
   thresholds: number[];
   anyStatus: boolean;
   anyTechnology: boolean;
-  coverage: { withMw: number; total: number } | null;
+  coverage: { withMw: number; total: number; peak: number } | null;
   overlays?: ReactNode;
   onClose: () => void;
 };
@@ -84,7 +84,7 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
                     </dt>
                     <dd>
                       <Figure value={formatInt(f.projectCount)} unit={f.projectCount === 1 ? "proyecto" : "proyectos"} />&nbsp;·{" "}
-                      <Figure value={formatMwDeclared(f.mwNominal, f.mwCount, f.projectCount)} />&nbsp;·{" "}
+                      <Figure value={formatMwDeclared(f.mwBest, f.mwCount, f.projectCount)} />&nbsp;·{" "}
                       <Figure value={formatHaDeclared(f.hectares, f.haCount, f.projectCount)} />
                     </dd>
                   </div>
@@ -94,14 +94,14 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
                 <dt>Total</dt>
                 <dd>
                   <Figure value={formatInt(total.projectCount)} unit={total.projectCount === 1 ? "proyecto" : "proyectos"} />&nbsp;·{" "}
-                  <Figure value={formatMwDeclared(total.mwNominal, total.mwCount, total.projectCount)} />&nbsp;·{" "}
+                  <Figure value={formatMwDeclared(total.mwBest, total.mwCount, total.projectCount)} />&nbsp;·{" "}
                   <Figure value={formatHaDeclared(total.hectares, total.haCount, total.projectCount)} />
                 </dd>
               </div>
             </dl>
           )}
           {metric !== "proyectos" && muniCoverage && muniCoverage.total > 0 ? (
-            <p className={`dato ${styles.texto}`}>{formatCoverage(muniCoverage.declared, muniCoverage.total, metric)}</p>
+            <p className={`dato ${styles.texto}`}>{formatCoverage(muniCoverage.declared, muniCoverage.total, metric, muniCoverage.peak)}</p>
           ) : null}
           <p className={styles.acciones}>
             <Link href={`/municipio/${municipality.ine}`}>Ver municipio</Link>

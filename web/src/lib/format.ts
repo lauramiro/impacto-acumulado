@@ -49,9 +49,14 @@ export function formatMonth(month: string): string {
 
 const COVERAGE_SUBJECTS = { mw: "MW declarados", ha: "Superficie declarada" } as const;
 
-/** The coverage note every MW (or, with `figure` "ha", hectare) total carries. */
-export function formatCoverage(declared: number, total: number, figure: "mw" | "ha" = "mw"): string {
-  return `${COVERAGE_SUBJECTS[figure]} en ${integer.format(declared)} de ${integer.format(total)} ${total === 1 ? "proyecto" : "proyectos"}`;
+/**
+ * The coverage note every MW (or, with `figure` "ha", hectare) total carries.
+ * `peak`: how many of the `declared` MW figures are the peak (MWp), used where
+ * a project declares no nominal MW; the note says so when there are any.
+ */
+export function formatCoverage(declared: number, total: number, figure: "mw" | "ha" = "mw", peak = 0): string {
+  const base = `${COVERAGE_SUBJECTS[figure]} en ${integer.format(declared)} de ${integer.format(total)} ${total === 1 ? "proyecto" : "proyectos"}`;
+  return figure === "mw" && peak > 0 ? `${base}; en ${integer.format(peak)} se usa la potencia pico` : base;
 }
 
 export const NO_DATA = "sin dato";

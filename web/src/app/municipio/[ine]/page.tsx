@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const s = stats.get(ine);
   const t = s ? sumFigures(s.cells) : null;
   const description = t
-    ? `${formatMw(t.mwNominal)} en ${formatInt(t.projectCount)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount)}).`
+    ? `${formatMw(t.mwBest)} en ${formatInt(t.projectCount)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount, "mw", t.mwPeakCount)}).`
     : `Ningún proyecto renovable registrado en los boletines para ${muni.name} (${muni.province}).`;
   return { title: `${muni.name} · Impacto Acumulado`, description };
 }

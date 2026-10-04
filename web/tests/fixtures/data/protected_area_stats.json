@@ -1,2 +1,2 @@
-{"ES0000001":{"name":"SIERRA","type":"ZEPA","municipality_count":1,"cells":[{"status":"favorable_condicionada","technology":"solar_fv","project_count":1,"mw_nominal":93.0,"mw_count":1,"hectares":140.1,"ha_count":1}]},
+{"ES0000001":{"name":"SIERRA","type":"ZEPA","municipality_count":1,"cells":[{"status":"favorable_condicionada","technology":"solar_fv","project_count":1,"mw_nominal":93.0,"mw_count":1,"hectares":140.1,"ha_count":1,"mw_best":93.0,"mw_peak_fallback_count":0}]},
 "ES0000002":{"name":"LAGUNA","type":"ZEC","municipality_count":0,"cells":[]}}

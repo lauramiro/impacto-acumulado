@@ -12,7 +12,7 @@ export default async function HomePage() {
   preload("/data/provinces.geojson", { as: "fetch", crossOrigin: "anonymous" });
   const { municipalities, stats, provinceStats, events, sites, lastMonth } = await loadMapData();
   const region = sumFigures(provinceStats[REGION]);
-  const leaders = PROVINCES.map((p) => ({ province: p, mw: sumFigures(provinceStats[p]).mwNominal }))
+  const leaders = PROVINCES.map((p) => ({ province: p, mw: sumFigures(provinceStats[p]).mwBest }))
     .sort((a, b) => b.mw - a.mw)
     .slice(0, 2)
     .map((r) => r.province)
@@ -24,7 +24,7 @@ export default async function HomePage() {
         <p className={styles.dek}>
           Cada proyecto renovable se evalúa por separado; este mapa reúne las evaluaciones ambientales de{" "}
           {formatInt(region.projectCount)} proyectos publicadas en el BOE y el BOJA y suma lo que se acumula en cada municipio. En
-          conjunto suman <span className="dato">{formatMw(region.mwNominal)}</span> ({formatCoverage(region.mwCount, region.projectCount)}),
+          conjunto suman <span className="dato">{formatMw(region.mwBest)}</span> ({formatCoverage(region.mwCount, region.projectCount, "mw", region.mwPeakCount)}),
           con {leaders} a la cabeza en MW declarados.
         </p>
       </div>

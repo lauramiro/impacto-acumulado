@@ -36,7 +36,7 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
                   <Figure value={formatInt(f.projectCount)} />
                 </td>
                 <td className={styles.num}>
-                  <Figure value={formatNumber(f.mwNominal, 1)} />
+                  <Figure value={formatNumber(f.mwBest, 1)} />
                 </td>
                 <td className={styles.num}>
                   <Figure value={formatNumber(f.hectares, 1)} />
@@ -52,7 +52,7 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
               <Figure value={formatInt(total.projectCount)} />
             </td>
             <td className={styles.num}>
-              <Figure value={formatNumber(total.mwNominal, 1)} />
+              <Figure value={formatNumber(total.mwBest, 1)} />
             </td>
             <td className={styles.num}>
               <Figure value={formatNumber(total.hectares, 1)} />
@@ -67,12 +67,12 @@ export function Totals({ stats }: { stats: MunicipalityStats }) {
           return (
             <span key={t}>
               {i > 0 ? " · " : ""}
-              {TECHNOLOGY_LABELS[t]} <Figure value={`${formatInt(f.projectCount)} · ${formatMw(f.mwNominal)}`} />
+              {TECHNOLOGY_LABELS[t]} <Figure value={`${formatInt(f.projectCount)} · ${formatMw(f.mwBest)}`} />
             </span>
           );
         })}
       </p>
-      <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.mwCount, total.projectCount)}</p>
+      <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.mwCount, total.projectCount, "mw", total.mwPeakCount)}</p>
       {lines ? (
         <p className={styles.tech}>
           Línea de evacuación: <Figure value={formatInt(lines.projectCount)} unit={lines.projectCount === 1 ? "proyecto" : "proyectos"} />,

@@ -21,6 +21,7 @@ test("methodology page publishes per-field accuracy with its sample size", async
 test("methodology explains the slice 3 aggregation rules", async ({ page }) => {
   await page.goto("/metodologia");
   await expect(page.getByText(/no suma la potencia de las líneas de evacuación/)).toBeVisible();
-  await expect(page.getByText(/MW declarados en/)).toBeVisible();
+  await expect(page.getByText(/Cada total de MW indica cuántos proyectos la declaran/)).toBeVisible();
+  await expect(page.getByText(/solo declara la potencia pico/)).toBeVisible();
   await expect(page.getByText(/malla de 250 m/)).toBeVisible();
 });

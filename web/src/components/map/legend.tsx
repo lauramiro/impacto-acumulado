@@ -13,7 +13,7 @@ type Props = {
   thresholds: number[];
   anyStatus: boolean;
   anyTechnology: boolean;
-  coverage: { withMw: number; total: number } | null;
+  coverage: { withMw: number; total: number; peak: number } | null;
   overlays?: ReactNode;
   /** Denser two-column layout, shown under a selected municipality. */
   compact?: boolean;
@@ -51,7 +51,7 @@ export function Legend({ metric, thresholds, anyStatus, anyTechnology, coverage,
       </ol>
       {coverage ? (
         <p className={`dato ${styles.cobertura}`} data-testid="cobertura-mapa">
-          {formatCoverage(coverage.withMw, coverage.total)}
+          {formatCoverage(coverage.withMw, coverage.total, "mw", coverage.peak)}
         </p>
       ) : null}
       {overlays}

@@ -60,6 +60,8 @@ export const CATALOG: CatalogEntry[] = [
       { name: "turbines", type: "entero", meaning: "Suma de aerogeneradores" },
       { name: "mw_count", type: "entero", meaning: "Proyectos cuya potencia se suma: con MW declarado y que no son líneas de evacuación" },
       { name: "ha_count", type: "entero", meaning: "Proyectos cuya superficie se suma: con hectáreas declaradas" },
+      { name: "mw_best", type: "decimal", meaning: "Suma de MW nominales, o de MW pico en los proyectos que solo declaran la pico; sin líneas de evacuación" },
+      { name: "mw_peak_fallback_count", type: "entero", meaning: "Proyectos cuya potencia sumada en mw_best es la pico" },
       { name: "name", type: "texto", meaning: "Nombre del municipio" },
       { name: "province", type: "texto", meaning: "Provincia" },
     ],
@@ -73,6 +75,8 @@ export const CATALOG: CatalogEntry[] = [
       { name: "verdict", type: "texto", meaning: "Resultado de la resolución" },
       { name: "project_count", type: "entero", meaning: "Proyectos" },
       { name: "mw_nominal", type: "decimal", meaning: "Suma de MW nominales, sin líneas de evacuación" },
+      { name: "mw_best", type: "decimal", meaning: "Suma de MW nominales, o de MW pico en los proyectos que solo declaran la pico; sin líneas de evacuación" },
+      { name: "mw_peak_fallback_count", type: "entero", meaning: "Proyectos cuya potencia sumada en mw_best es la pico" },
     ],
   },
   {

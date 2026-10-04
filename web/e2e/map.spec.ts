@@ -16,7 +16,7 @@ test("the page says what it is above the controls", async ({ page }) => {
   await expect(h1).toContainText("impacto acumulado");
   const dek = h1.locator("xpath=following-sibling::p[1]");
   await expect(dek).toContainText("BOE y el BOJA");
-  await expect(dek).toContainText(/[\d.]+,\d MW \(MW declarados en [\d.]+ de [\d.]+ proyectos\)/);
+  await expect(dek).toContainText(/[\d.]+,\d MW \(MW declarados en [\d.]+ de [\d.]+ proyectos(; en [\d.]+ se usa la potencia pico)?\)/);
   await expect(dek).toContainText(/con \S+ y \S+ a la cabeza en MW declarados\./);
   const dekBox = await dek.boundingBox();
   const controlsBox = await page.getByLabel("Hectáreas").boundingBox();
@@ -56,7 +56,7 @@ test("technology filter updates the legend coverage and the URL", async ({ page 
   await page.goto("/");
   await openFilters(page);
   const coverage = page.getByTestId("cobertura-mapa");
-  await expect(coverage).toHaveText(/^MW declarados en [\d.]+ de [\d.]+ proyectos$/);
+  await expect(coverage).toHaveText(/^MW declarados en [\d.]+ de [\d.]+ proyectos(; en [\d.]+ se usa la potencia pico)?$/);
   const before = await coverage.textContent();
   await page.getByRole("checkbox", { name: "Solar fotovoltaica", exact: true }).uncheck();
   await expect(page).toHaveURL(/tecnologia=/);
@@ -162,5 +162,6 @@ test("at desktop size the filters fold too, so most of the map is in the first s
   await expect(page.getByRole("button", { name: /^Filtros/ })).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByRole("checkbox", { name: "Eólica", exact: true })).toBeHidden();
   const map = await page.locator("#mapa svg").first().boundingBox();
-  expect(map!.y).toBeLessThan(450);
+  // The intro above runs to four or five lines depending on its figures.
+  expect(map!.y).toBeLessThan(500);
 });

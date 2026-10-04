@@ -8,6 +8,7 @@ import { loadProjects } from "@/lib/data/projects";
 import { loadProtectedAreaStats } from "@/lib/data/protected-area-stats";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadProvinceStats } from "@/lib/data/province-stats";
+import { toCell } from "@/lib/data/stats";
 import { MonthlyEventRowSchema, ProvinceStatsFileSchema, StatsFileSchema } from "@/lib/data/schemas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
 
@@ -22,8 +23,8 @@ describe("loaders", () => {
   it("reads municipality stats as cells keyed by INE", async () => {
     const stats = await loadMunicipalityStats();
     expect(stats.get("29084")!.cells).toEqual([
-      { status: "favorable_condicionada", technology: "solar_fv", projectCount: 1, mwNominal: 93, mwCount: 1, hectares: 140.1, haCount: 1 },
-      { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwNominal: 0, mwCount: 0, hectares: 0, haCount: 0 },
+      { status: "favorable_condicionada", technology: "solar_fv", projectCount: 1, mwBest: 93, mwCount: 1, mwPeakCount: 0, hectares: 140.1, haCount: 1 },
+      { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwBest: 0, mwCount: 0, mwPeakCount: 0, hectares: 0, haCount: 0 },
     ]);
   });
 
@@ -130,7 +131,7 @@ describe("slice 3 loaders", () => {
     const sites = await loadProtectedAreaStats();
     expect(sites.map((s) => s.siteCode)).toEqual(["ES0000002", "ES0000001"]);
     expect(sites[0]).toEqual({ siteCode: "ES0000002", name: "Laguna", type: "ZEC", municipalityCount: 0, cells: [] });
-    expect(sites[1].cells[0]).toMatchObject({ technology: "solar_fv", mwNominal: 93, mwCount: 1, hectares: 140.1, haCount: 1 });
+    expect(sites[1].cells[0]).toMatchObject({ technology: "solar_fv", mwBest: 93, mwCount: 1, mwPeakCount: 0, hectares: 140.1, haCount: 1 });
   });
 
   it("reads province stats for every scope", async () => {
@@ -166,5 +167,22 @@ describe("slice 3 loaders", () => {
     expect(data.sites).toHaveLength(2);
     expect(data.events).toHaveLength(9);
     expect(data.provinceStats["Málaga"]).toHaveLength(3);
+  });
+});
+
+describe("toCell", () => {
+  it("counts a peak fallback as a project with an MW figure, and keeps the fallback count", () => {
+    const cell = toCell({
+      status: "favorable_condicionada",
+      technology: "solar_fv",
+      project_count: 3,
+      mw_nominal: 100,
+      mw_count: 1,
+      hectares: 0,
+      ha_count: 0,
+      mw_best: 160,
+      mw_peak_fallback_count: 1,
+    });
+    expect(cell).toMatchObject({ projectCount: 3, mwBest: 160, mwCount: 2, mwPeakCount: 1 });
   });
 });

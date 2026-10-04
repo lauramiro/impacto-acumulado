@@ -18,7 +18,7 @@ import {
  * every key name for every cell, which made up most of the home page's HTML.
  * Enums travel as indexes into the constant lists in types.ts.
  */
-type Cell = [status: number, technology: number, projectCount: number, mwNominal: number, mwCount: number, hectares: number, haCount: number];
+type Cell = [status: number, technology: number, projectCount: number, mwBest: number, mwCount: number, mwPeakCount: number, hectares: number, haCount: number];
 type Muni = [ine: string, name: string, province: number];
 type Event = [month: string, scope: number, technology: number, event: number, count: number];
 type Site = [siteCode: string, name: string, type: string, municipalityCount: number, cells: Cell[]];
@@ -49,18 +49,20 @@ const cell = (c: StatsCell): Cell => [
   index(STATUSES, c.status),
   index(TECHNOLOGIES, c.technology),
   c.projectCount,
-  c.mwNominal,
+  c.mwBest,
   c.mwCount,
+  c.mwPeakCount,
   c.hectares,
   c.haCount,
 ];
 
-const uncell = ([s, t, projectCount, mwNominal, mwCount, hectares, haCount]: Cell): StatsCell => ({
+const uncell = ([s, t, projectCount, mwBest, mwCount, mwPeakCount, hectares, haCount]: Cell): StatsCell => ({
   status: STATUSES[s],
   technology: TECHNOLOGIES[t],
   projectCount,
-  mwNominal,
+  mwBest,
   mwCount,
+  mwPeakCount,
   hectares,
   haCount,
 });

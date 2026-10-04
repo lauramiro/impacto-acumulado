@@ -39,6 +39,12 @@ describe("formatCoverage", () => {
     expect(formatCoverage(1, 1)).toBe("MW declarados en 1 de 1 proyecto");
     expect(formatCoverage(1200, 1500)).toBe("MW declarados en 1.200 de 1.500 proyectos");
   });
+
+  it("says in how many the figure is the peak, only for MW and only when there are any", () => {
+    expect(formatCoverage(205, 541, "mw", 31)).toBe("MW declarados en 205 de 541 proyectos; en 31 se usa la potencia pico");
+    expect(formatCoverage(205, 541, "mw", 0)).toBe("MW declarados en 205 de 541 proyectos");
+    expect(formatCoverage(3, 5, "ha", 2)).toBe("Superficie declarada en 3 de 5 proyectos");
+  });
 });
 
 describe("formatCoverage for hectares", () => {
