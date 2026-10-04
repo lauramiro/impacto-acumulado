@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T19:33:05.989680+00:00",
+  "generated_at": "2026-10-04T19:47:07.174332+00:00",
   "counts": {
     "raw_documents": 638,
     "extractions": 638,
@@ -71,6 +71,10 @@
     "evaluation.json": {
       "rows": 1,
       "bytes": 536
+    },
+    "open_consultations.json": {
+      "rows": 0,
+      "bytes": 128
     }
   }
 }
