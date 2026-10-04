@@ -77,6 +77,12 @@ h1 {
   font-size: var(--texto-nombre);
 }
 
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
 .dato {
   font-family: var(--font-data), "Courier New", monospace;
   font-variant-numeric: tabular-nums;
