@@ -90,6 +90,11 @@ export default async function DataPage() {
         </h3>
         <ul>
           <li>
+            Archivo nuevo, <span className="dato">open_consultations.json</span>: los anuncios de información pública con plazo de
+            alegaciones abierto en la fecha de exportación, con el plazo leído del anuncio, la frase que lo dice y la fecha límite
+            calculada (festivos nacionales y andaluces, no locales).
+          </li>
+          <li>
             Los archivos agregados (<span className="dato">municipality_stats</span>, <span className="dato">protected_area_stats</span>,{" "}
             <span className="dato">province_stats.json</span>, <span className="dato">province_monthly.csv</span>) tienen dos campos
             nuevos: <span className="dato">mw_best</span>, que suma la potencia nominal o, si un proyecto solo declara la pico, la pico; y{" "}

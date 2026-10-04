@@ -1,0 +1,4 @@
+{"generated":"2026-08-15","evaluation":{"labelled":14,"correct":14,"with_period":10,"missing":0},"consultations":[
+{"document_id":190,"project_id":190,"project_name":"Repotenciación del Parque Eólico Cerradilla I","title":"Acuerdo de información pública","url":"https://example.org/190.pdf","source":"boja","source_id":"disposition.2026.142.31","published_at":"2026-07-24","period":{"amount":30,"unit":"habiles","evidence":"plazo de 30 días hábiles"},"deadline":"2026-09-04","ine_codes":["04083","04092"]},
+{"document_id":500,"project_id":500,"project_name":"PSFV sin plazo","title":"Anuncio","url":"https://example.org/500.pdf","source":"boja","source_id":"disposition.2026.150.1","published_at":"2026-08-05","period":null,"deadline":null,"ine_codes":[]}
+]}

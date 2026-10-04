@@ -18,3 +18,8 @@
   font-size: 0.95em;
   white-space: nowrap;
 }
+
+.consultas {
+  font-size: var(--texto-dato);
+  margin: 0.6rem 0 0;
+}

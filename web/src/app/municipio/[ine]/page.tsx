@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectRecord } from "@/components/municipality/project-record";
+import { OpenConsultations } from "@/components/open-consultations";
 import { ProtectedAreas } from "@/components/municipality/protected-areas";
 import { Sensitivity } from "@/components/municipality/sensitivity";
 import { Totals } from "@/components/municipality/totals";
+import { stillOpen } from "@/lib/consultations";
+import { loadOpenConsultations } from "@/lib/data/consultations";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
@@ -42,18 +45,22 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function MunicipalityPage({ params }: { params: Promise<Params> }) {
   const { ine } = await params;
-  const [muni, stats, areas, projects, documents] = await Promise.all([
+  const [muni, stats, areas, projects, documents, { consultations }] = await Promise.all([
     findMunicipality(ine),
     loadMunicipalityStats(),
     loadMunicipalityProtectedAreas(),
     loadProjects(),
     loadDocuments(),
+    loadOpenConsultations(),
   ]);
   if (!muni) notFound();
 
   const s = stats.get(ine);
   const here = projects.filter((p) => p.ineCodes.includes(ine)).sort((a, b) => b.lastSeen.localeCompare(a.lastSeen));
   const docsByProject = groupDocumentsByProject(documents);
+  // Build date: the page is static. Shown above the projects only when a notice here is open.
+  const today = new Date();
+  const openHere = stillOpen(consultations, today).filter((c) => c.ineCodes.includes(ine));
 
   return (
     <article>
@@ -73,6 +80,8 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
 
       <Sensitivity share={muni.sensitivityHighShare} />
       <ProtectedAreas areas={areas.get(ine) ?? []} />
+
+      {openHere.length > 0 ? <OpenConsultations items={openHere} today={today} /> : null}
 
       <section aria-labelledby="proyectos" className={styles.proyectos}>
         <h2 id="proyectos">Proyectos ({formatInt(here.length)})</h2>

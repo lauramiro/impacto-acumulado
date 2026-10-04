@@ -162,6 +162,7 @@ test("at desktop size the filters fold too, so most of the map is in the first s
   await expect(page.getByRole("button", { name: /^Filtros/ })).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByRole("checkbox", { name: "Eólica", exact: true })).toBeHidden();
   const map = await page.locator("#mapa svg").first().boundingBox();
-  // The intro above runs to four or five lines depending on its figures.
-  expect(map!.y).toBeLessThan(500);
+  // Above the map: the intro (four or five lines, depending on its figures),
+  // the one-line información pública status and the folded filter row.
+  expect(map!.y).toBeLessThan(520);
 });

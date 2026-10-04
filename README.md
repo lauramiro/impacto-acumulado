@@ -57,6 +57,7 @@ Lighthouse 13.5 (mobile, Chrome headless, 2026-09-21): `/` performance 88, acces
 
 Also listed under "Cambios" on `/datos`; add new entries to both.
 
+- 2026-10-04: new file `open_consultations.json`: información pública notices whose objection period is open on the export date, with the period read from the notice (`period.amount`, `period.unit` `habiles`/`naturales`/`meses`, `period.evidence`), the computed `deadline` (national and Andalusian holidays, not local ones), project, municipalities and gazette URL, plus `evaluation`, the period parser scored on hand labels (`pipeline/evaluation/periods.json`).
 - 2026-10-04: the aggregate files (`municipality_stats`, `protected_area_stats`, `province_stats.json`, `province_monthly.csv`) gain `mw_best` (`mw_nominal`, or the peak `mw_peak` where a project declares only the peak; evacuation lines still none) and `mw_peak_fallback_count` (projects in the row whose figure is the peak). `mw_nominal` and `mw_count` keep their meaning. In `municipality_stats.csv` the two columns follow `ha_count`.
 - 2026-10-04: project resolution no longer merges sister plants (different procedure numbers of one type and province, or different phase markers in the name). 46 projects that held several plants were split, and `projects.csv` went from 444 to 541 rows. A project keeps the lowest document id of its group as its id, so some ids now name a different project than before (for example 34 is Guadame Solar 5).
 

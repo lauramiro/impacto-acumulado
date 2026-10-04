@@ -9,6 +9,7 @@ import { loadProtectedAreaStats } from "@/lib/data/protected-area-stats";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadProvinceStats } from "@/lib/data/province-stats";
 import { toCell } from "@/lib/data/stats";
+import { loadOpenConsultations } from "@/lib/data/consultations";
 import { MonthlyEventRowSchema, ProvinceStatsFileSchema, StatsFileSchema } from "@/lib/data/schemas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
 
@@ -184,5 +185,19 @@ describe("toCell", () => {
       mw_peak_fallback_count: 1,
     });
     expect(cell).toMatchObject({ projectCount: 3, mwBest: 160, mwCount: 2, mwPeakCount: 1 });
+  });
+});
+
+describe("loadOpenConsultations", () => {
+  it("maps the export, period evidence and evaluation included", async () => {
+    const { consultations, evaluation } = await loadOpenConsultations();
+    expect(evaluation).toEqual({ labelled: 14, correct: 14, withPeriod: 10 });
+    expect(consultations[0]).toMatchObject({
+      documentId: 190,
+      deadline: "2026-09-04",
+      period: { amount: 30, unit: "habiles", evidence: "plazo de 30 días hábiles" },
+      ineCodes: ["04083", "04092"],
+    });
+    expect(consultations[1]).toMatchObject({ period: null, deadline: null, ineCodes: [] });
   });
 });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Figure } from "@/components/figure";
+import { loadOpenConsultations } from "@/lib/data/consultations";
 import { loadEvaluation } from "@/lib/data/evaluation";
 import { formatInt, formatPercent } from "@/lib/format";
 import { REPO_URL } from "@/lib/site";
@@ -31,7 +32,7 @@ const FIELD_LABELS: Record<string, string> = {
 const ALERT_BELOW = 0.9;
 
 export default async function MethodologyPage() {
-  const ev = await loadEvaluation();
+  const [ev, { evaluation: periods }] = await Promise.all([loadEvaluation(), loadOpenConsultations()]);
   const fields = Object.keys(ev.accuracy).sort((a, b) => (FIELD_LABELS[a] ?? a).localeCompare(FIELD_LABELS[b] ?? b, "es"));
   return (
     <article className={styles.page}>
@@ -150,6 +151,28 @@ export default async function MethodologyPage() {
           distingue.
         </li>
         <li>El mapa clasifica los municipios con valor en cinco clases por cuantiles, recalculadas con cada filtro.</li>
+      </ul>
+
+      <h2>Plazos de información pública</h2>
+      <ul>
+        <li>
+          El plazo de alegaciones se lee del texto del anuncio, no con el modelo de lenguaje: los anuncios de la Junta lo dicen con una
+          fórmula fija («durante el plazo de treinta (30) días hábiles»). Se guarda la frase leída. Si el anuncio no indica plazo no se
+          supone ninguno, y el plazo de un recurso no cuenta como plazo de alegaciones.
+        </li>
+        <li>
+          Lectura comprobada a mano en {formatInt(periods.labelled)} anuncios ({formatInt(periods.withPeriod)} con plazo): acierta en{" "}
+          {formatInt(periods.correct)}.
+        </li>
+        <li>
+          La fecha límite sigue el artículo 30 de la Ley 39/2015: se cuenta desde el día siguiente a la publicación; los días hábiles
+          excluyen sábados, domingos y festivos nacionales y andaluces; un plazo en días naturales o meses que acaba en día inhábil pasa
+          al siguiente hábil. No se cuentan los festivos locales, así que la fecha puede quedar uno o dos días antes de la real.
+        </li>
+        <li>
+          La lista es la de la fecha en que se generó el sitio, que se reconstruye cada semana: un anuncio publicado después no aparece
+          hasta la siguiente, y uno cuyo plazo ha vencido desaparece en ella.
+        </li>
       </ul>
 
       <h2>Lo que no cubre</h2>

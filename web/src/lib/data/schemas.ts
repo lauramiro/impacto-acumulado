@@ -96,3 +96,28 @@ export const MonthlyEventRowSchema = z.object({
   event: z.enum(EVENTS),
   document_count: z.coerce.number().int().positive(),
 });
+
+export const OpenConsultationsFileSchema = z.object({
+  generated: z.string(),
+  evaluation: z.object({
+    labelled: z.number().int().nonnegative(),
+    correct: z.number().int().nonnegative(),
+    with_period: z.number().int().nonnegative(),
+    missing: z.number().int().nonnegative(),
+  }),
+  consultations: z.array(
+    z.object({
+      document_id: z.number().int(),
+      project_id: z.number().int(),
+      project_name: z.string(),
+      title: z.string(),
+      url: z.string(),
+      source: z.enum(["boe", "boja"]),
+      source_id: z.string(),
+      published_at: z.string(),
+      period: z.object({ amount: z.number().int().positive(), unit: z.enum(["habiles", "naturales", "meses"]), evidence: z.string() }).nullable(),
+      deadline: z.string().nullable(),
+      ine_codes: z.array(z.string()),
+    }),
+  ),
+});

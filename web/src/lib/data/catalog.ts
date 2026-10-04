@@ -103,6 +103,11 @@ export const CATALOG: CatalogEntry[] = [
     description: "Manifiesto de la exportación: fecha de generación, recuentos por tabla y filas y tamaño de cada uno de los demás archivos.",
   },
   { file: "evaluation.json", description: "Precisión medida de la extracción, por campo, sobre el conjunto etiquetado a mano." },
+  {
+    file: "open_consultations.json",
+    description:
+      "Anuncios de información pública con plazo de alegaciones abierto en la fecha de exportación: proyecto, municipios, plazo leído del anuncio con la frase que lo dice, fecha límite calculada y enlace al boletín; y la precisión de la lectura del plazo sobre anuncios etiquetados a mano.",
+  },
 ];
 
 // municipality_stats.json y municipalities_map.geojson quedan fuera a propósito: son

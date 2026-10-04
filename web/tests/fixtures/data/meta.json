@@ -17,6 +17,6 @@
     "sensitivity_eol.geojson": { "rows": 1, "bytes": 5000 },
     "municipalities_map.geojson": { "rows": 2, "bytes": 800 },
     "municipality_stats.json": { "rows": 2, "bytes": 300 },
-    "evaluation.json": { "rows": 1, "bytes": 200 }
+    "evaluation.json": { "rows": 1, "bytes": 200 }, "open_consultations.json": {"rows": 2, "bytes": 900}
   }
 }
