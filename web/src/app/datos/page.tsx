@@ -45,12 +45,22 @@ export default async function DataPage() {
         : puedes reutilizarlos citando la fuente. Los textos de origen son del BOE y el BOJA; la extracción es automática y tiene errores, medidos en{" "}
         <Link href="/metodologia">Metodología</Link>.
       </p>
+      <p>
+        Los textos de origen se reutilizan conforme a la Ley 37/2007, de reutilización de la información del sector público, y a las
+        condiciones de reutilización del BOE y del BOJA: sin alterar su contenido, citando el boletín y el anuncio de cada dato, y con la
+        fecha de la última actualización, {formatLongDate(meta.generatedAt)}.
+      </p>
       <h2>Cómo citar</h2>
       <p className={`dato ${styles.cita}`} data-testid="cita">
         Impacto Acumulado ({year}). Resoluciones ambientales de proyectos renovables en Andalucía, 2019 a {year}. Datos a{" "}
         {formatLongDate(meta.generatedAt)}. {SITE_URL}/datos
       </p>
       <h2>Archivos</h2>
+      <p>
+        Los totales de MW del sitio suman la potencia nominal o, cuando un proyecto solo declara la pico, la pico (columna{" "}
+        <span className="dato">mw_best</span>). Para trabajar solo con la nominal, usa la columna{" "}
+        <span className="dato">mw_nominal</span>, que está en todos los archivos agregados.
+      </p>
       <table className={styles.tabla}>
         <thead>
           <tr>
@@ -83,6 +93,18 @@ export default async function DataPage() {
           })}
         </tbody>
       </table>
+      <h2 id="seguir">Seguir los cambios</h2>
+      <p>
+        Cada municipio y cada espacio de la Red Natura 2000 tiene un feed (RSS/Atom) con sus documentos más recientes, y hay uno para
+        toda Andalucía: <a href="/feeds/andalucia.xml">/feeds/andalucia.xml</a>, <span className="dato">/feeds/municipio/</span>código
+        INE<span className="dato">.xml</span> y <span className="dato">/feeds/natura/</span>código del espacio
+        <span className="dato">.xml</span>. Las páginas de cada municipio y la tabla de la Red Natura 2000 enlazan el suyo.
+      </p>
+      <p>
+        Un feed se lee con un lector de feeds, una aplicación o web que avisa cuando hay entradas nuevas. Si prefieres recibirlas por
+        correo, hay servicios gratuitos que convierten un feed en avisos por email: pega en ellos la dirección del feed. El sitio no
+        recomienda ninguno ni guarda direcciones de correo.
+      </p>
       <h2>Cambios</h2>
       <section aria-labelledby="cambio-2026-10-04" className={styles.columnas}>
         <h3 id="cambio-2026-10-04">

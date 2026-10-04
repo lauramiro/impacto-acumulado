@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { DocumentTimeline } from "@/components/project/document-timeline";
 import { FactSheet } from "@/components/project/fact-sheet";
 import { Provenance } from "@/components/project/provenance";
+import { ReportError } from "@/components/report-error";
 import { RecordHeader } from "@/components/project/record-header";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjectRecord } from "@/lib/data/project-record";
@@ -61,6 +62,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
       <p>
         <Link href="/">Volver al mapa</Link>
       </p>
+      <ReportError subject={`el proyecto ${record.project.id} (${record.project.name})`} path={`/proyecto/${record.project.id}`} />
     </article>
   );
 }

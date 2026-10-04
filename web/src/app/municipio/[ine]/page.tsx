@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectRecord } from "@/components/municipality/project-record";
 import { FeedLink } from "@/components/feed-link";
+import { ReportError } from "@/components/report-error";
 import { OpenConsultations } from "@/components/open-consultations";
 import { ProtectedAreas } from "@/components/municipality/protected-areas";
 import { Sensitivity } from "@/components/municipality/sensitivity";
@@ -100,6 +101,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
       <p>
         <Link href="/">Volver al mapa</Link>
       </p>
+      <ReportError subject={`${muni.name} (INE ${muni.ine})`} path={`/municipio/${muni.ine}`} />
     </article>
   );
 }

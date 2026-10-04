@@ -12,8 +12,8 @@ export function FeedLink({ href, label }: { href: string; label: string }) {
       </a>
       <span className={styles.ayuda}>
         {" "}
-        · Avisa de cada documento nuevo en un lector de feeds; si no usas ninguno, un servicio gratuito de feed a correo te lo envía por
-        email.
+        · Avisa de cada documento nuevo en un lector de feeds, o por correo con un servicio de feed a email.{" "}
+        <a href="/datos#seguir">Cómo seguirlo</a>.
       </span>
     </p>
   );
