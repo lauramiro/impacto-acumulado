@@ -1,5 +1,25 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { openFilters } from "./filters";
+
+// The statuses with projects in Andalucía, in the site's order, from the data
+// the build uses: the filter lists those and names the empty ones in a note.
+const STATUS_ORDER: [string, string][] = [
+  ["en_consulta", "Información pública"],
+  ["sin_resolucion", "Consulta sin resolución"],
+  ["favorable", "Favorable"],
+  ["favorable_condicionada", "Favorable con condiciones"],
+  ["desfavorable", "Desfavorable"],
+  ["caducado", "Caducado"],
+  ["desconocido", "Sin veredicto en el boletín"],
+];
+const regionCells: { status: string; project_count: number }[] = JSON.parse(
+  readFileSync(path.join(__dirname, "..", "public", "data", "province_stats.json"), "utf-8"),
+)["Andalucía"].cells;
+const withProjects = new Set(regionCells.filter((c) => c.project_count > 0).map((c) => c.status));
+const listed = STATUS_ORDER.filter(([s]) => withProjects.has(s));
+const empty = STATUS_ORDER.filter(([s]) => !withProjects.has(s)).map(([, label]) => label);
 
 test("map renders every municipality from the light geojson and the date line", async ({ page }) => {
   const geojson = page.waitForResponse((r) => r.url().endsWith("/data/municipalities_map.geojson") && r.ok());
@@ -129,7 +149,7 @@ test("on a phone the filters fold behind a toggle that summarises them", async (
   await expect(page.getByRole("checkbox", { name: /^Desfavorable \(/ })).toBeHidden();
   await toggle.click();
   await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).uncheck();
-  await expect(page.getByTestId("resumen-filtros")).toHaveText("4 de 5 estados · Todas las tecnologías");
+  await expect(page.getByTestId("resumen-filtros")).toHaveText(`${listed.length - 1} de ${listed.length} estados · Todas las tecnologías`);
 });
 
 test("status and technology shortcuts select all or none in one click", async ({ page }) => {
@@ -148,12 +168,12 @@ test("status checkboxes carry project counts; a status empty in all Andalucía g
   await page.goto("/");
   await openFilters(page);
   const statuses = page.getByRole("group", { name: "Estado" }).getByRole("checkbox");
-  await expect(statuses).toHaveCount(5);
+  await expect(statuses).toHaveCount(listed.length);
   for (const name of await statuses.evaluateAll((els) => els.map((el) => el.closest("label")?.textContent ?? ""))) {
     expect(name).toMatch(/ \([\d.]+\)$/);
   }
   await expect(page.getByRole("checkbox", { name: /^Favorable \(/ })).toHaveCount(0);
-  await expect(page.getByRole("group", { name: "Estado" }).getByText("Sin proyectos en Andalucía: Favorable")).toBeVisible();
+  await expect(page.getByRole("group", { name: "Estado" }).getByText(`Sin proyectos en Andalucía: ${empty.join(", ")}`)).toBeVisible();
 });
 
 test("at desktop size the filters fold too, so most of the map is in the first screen", async ({ page }) => {

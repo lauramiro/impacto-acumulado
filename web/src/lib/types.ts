@@ -1,4 +1,5 @@
-export const STATUSES = ["en_consulta", "favorable", "favorable_condicionada", "desfavorable", "caducado", "desconocido"] as const;
+/** "sin_resolucion": a consultation with no decision published 24 months later (pipeline/impacto/resolve/status.py). */
+export const STATUSES = ["en_consulta", "sin_resolucion", "favorable", "favorable_condicionada", "desfavorable", "caducado", "desconocido"] as const;
 export type Status = (typeof STATUSES)[number];
 
 /**
@@ -6,7 +7,7 @@ export type Status = (typeof STATUSES)[number];
  * process) and what was refused or lapsed. Projects with no verdict in the
  * gazette count with the first, and the headline says how many there are.
  */
-export const APPROVED_OR_PENDING: readonly Status[] = ["favorable", "favorable_condicionada", "en_consulta", "desconocido"];
+export const APPROVED_OR_PENDING: readonly Status[] = ["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion", "desconocido"];
 export const REFUSED_OR_LAPSED: readonly Status[] = ["desfavorable", "caducado"];
 
 export const TECHNOLOGIES = ["solar_fv", "eolica", "hibrida", "almacenamiento", "linea_evacuacion", "otra"] as const;

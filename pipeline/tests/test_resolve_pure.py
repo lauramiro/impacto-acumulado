@@ -250,3 +250,15 @@ def test_an_unkeyed_document_joins_a_keyed_plant_only_on_positive_evidence():
     assert groups_of([solar_2, modification], {1: "tabernas-solar-2"}) == [[1, 3]]
     renamed = rec(4, "Tabernas Solar 2", munis=("tabernas",), mw=None)
     assert groups_of([solar_2, renamed], {1: "tabernas-solar-2"}) == [[1, 4]]
+
+
+def test_a_consultation_with_no_decision_after_24_months_has_no_resolution():
+    consulta = rec(1, "R", doc_type="informacion_publica", verdict="no_aplica", day=date(2023, 3, 10))
+    assert derive_status([consulta]) == ("en_consulta", 1)
+    assert derive_status([consulta], date(2025, 3, 9)) == ("en_consulta", 1)
+    assert derive_status([consulta], date(2025, 3, 10)) == ("sin_resolucion", 1)
+    # A decision ends it whatever its age; a later consultation restarts the clock.
+    dia = rec(2, "R", doc_type="dia", verdict="favorable_condicionada", day=date(2023, 9, 1))
+    assert derive_status([consulta, dia], date(2026, 1, 1)) == ("favorable_condicionada", 2)
+    again = rec(3, "R", doc_type="informacion_publica", verdict="no_aplica", day=date(2025, 1, 15))
+    assert derive_status([consulta, again], date(2026, 1, 1)) == ("en_consulta", 3)

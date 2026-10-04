@@ -27,6 +27,7 @@
 }
 
 .en_consulta,
+.sin_resolucion,
 .desconocido {
   --color-estado: var(--neutro);
 }

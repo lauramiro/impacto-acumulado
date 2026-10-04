@@ -72,7 +72,8 @@ test("province table leaves out status columns that are empty everywhere and nam
   const table = page.getByRole("region", { name: "Por provincia" });
   await expect(table.getByRole("columnheader", { name: "Favorable con condiciones" })).toBeVisible();
   await expect(table.getByRole("columnheader", { name: "Favorable", exact: true })).toHaveCount(0);
-  await expect(table.getByText(/Estados sin columna por estar vacíos en toda Andalucía: Favorable \(ningún proyecto\)/)).toBeVisible();
+  // Other statuses may be empty too, depending on the data; Favorable always is.
+  await expect(table.getByText(/Estados sin columna por estar vacíos en toda Andalucía: (.*; )?Favorable \(ningún proyecto\)/)).toBeVisible();
 });
 
 test("on a phone, picking a province confirms it under the table with a link to the map", async ({ page }) => {

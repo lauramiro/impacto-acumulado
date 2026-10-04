@@ -106,6 +106,18 @@ export default async function DataPage() {
         recomienda ninguno ni guarda direcciones de correo.
       </p>
       <h2>Cambios</h2>
+      <section aria-labelledby="cambio-2026-10-05" className={styles.columnas}>
+        <h3 id="cambio-2026-10-05">
+          <time dateTime="2026-10-05">5 de octubre de 2026</time>
+        </h3>
+        <ul>
+          <li>
+            Un valor nuevo de <span className="dato">status</span>, <span className="dato">sin_resolucion</span>: proyectos cuya última
+            consulta pública tiene más de 24 meses y sin resolución publicada (antes, <span className="dato">en_consulta</span>). Se
+            calcula en cada actualización semanal, así que un proyecto puede pasar a este estado sin un documento nuevo.
+          </li>
+        </ul>
+      </section>
       <section aria-labelledby="cambio-2026-10-04" className={styles.columnas}>
         <h3 id="cambio-2026-10-04">
           <time dateTime="2026-10-04">4 de octubre de 2026</time>

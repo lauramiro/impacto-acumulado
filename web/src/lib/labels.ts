@@ -5,6 +5,7 @@ import { PROVINCES, type DocumentRole, type EventKind, type Metric, type Provinc
 
 export const STATUS_LABELS: Record<Status, string> = {
   en_consulta: "Información pública",
+  sin_resolucion: "Consulta sin resolución",
   favorable: "Favorable",
   favorable_condicionada: "Favorable con condiciones",
   desfavorable: "Desfavorable",

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+from datetime import UTC, date, datetime
 
 import psycopg
 
@@ -136,7 +137,7 @@ def _match_reason(group: list[Record], r: Record) -> tuple[float, str]:
     return best if len(group) > 1 else (1.0, "single")
 
 
-def write_projects(conn: psycopg.Connection, groups: list[list[Record]]) -> int:
+def write_projects(conn: psycopg.Connection, groups: list[list[Record]], today: date | None = None) -> int:
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT ine_code, name FROM municipalities")
@@ -145,7 +146,7 @@ def write_projects(conn: psycopg.Connection, groups: list[list[Record]]) -> int:
             cur.execute("DELETE FROM project_documents")
             cur.execute("DELETE FROM projects")
             for group in groups:
-                status, status_doc = derive_status(group)
+                status, status_doc = derive_status(group, today)
                 name = _latest_with(group, "name") or f"Proyecto sin nombre ({group[0].document_id})"
                 # The id is the group's minimum document id: document ids
                 # never change, so a project keeps its id across the weekly
@@ -197,10 +198,11 @@ def write_projects(conn: psycopg.Connection, groups: list[list[Record]]) -> int:
     return len(groups)
 
 
-def run_resolve(conn: psycopg.Connection) -> int:
+def run_resolve(conn: psycopg.Connection, today: date | None = None) -> int:
+    """`today` dates stale consultations (status.py); the run's date unless given."""
     records = load_records(conn)
     groups = resolve(records, load_overrides(conn))
-    n = write_projects(conn, groups)
+    n = write_projects(conn, groups, today or datetime.now(UTC).date())
     log.info("resolved %d document(s) into %d project(s)", len(records), n)
     return n
 

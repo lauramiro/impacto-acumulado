@@ -147,6 +147,11 @@ export default async function MethodologyPage() {
           7 de 9 proyectos». Las cifras de potencia llevan además el error de lectura medido arriba.
         </li>
         <li>
+          Un proyecto cuya última consulta pública tiene más de 24 meses y del que no se ha publicado ninguna resolución figura como
+          «Consulta sin resolución», no como «Información pública»: ya no está en consulta, y el boletín no dice si siguió adelante.
+          Cuenta con los aprobados o en trámite en el titular, como los proyectos sin veredicto en el boletín.
+        </li>
+        <li>
           «MW por km²» divide los MW del municipio, o de la provincia, entre su superficie. Como un proyecto en varios municipios cuenta
           entero en cada uno, la densidad de los municipios que comparte puede exagerar; la de la provincia cuenta cada proyecto una vez
           por provincia. La tabla de la Red Natura 2000 muestra MW con esta métrica: un espacio no tiene superficie propia en estos
