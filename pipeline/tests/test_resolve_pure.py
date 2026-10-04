@@ -1,6 +1,6 @@
 from datetime import date
 
-from impacto.resolve.blocking import candidate_pairs, name_key
+from impacto.resolve.blocking import candidate_pairs, name_key, procedure_key
 from impacto.resolve.model import Record
 from impacto.resolve.run import resolve, with_operative
 from impacto.resolve.scoring import THRESHOLD, conflict, phase_token, score_pair
@@ -220,3 +220,31 @@ def test_resolve_reapplies_the_operative_rule_to_stored_extractions():
     # A notice the model read as a consultation keeps what the model said.
     consultation = {"doc_type": "informacion_publica", "verdict": "no_aplica"}
     assert with_operative(consultation, notice) is consultation
+
+
+def test_procedure_key_reads_state_expedientes_and_other_separators():
+    assert procedure_key("pfot-365") == procedure_key("pfot 365") == procedure_key("pfot-365 ac") == ("pfot", "365", "")
+    assert procedure_key("peol-512") == ("peol", "512", "")
+    assert procedure_key("aau-gr-012-22") == procedure_key("aau_gr_012_22") == procedure_key("aau/gr/12/22")
+    # A Junta expediente with no year is left unread rather than compared against one that has a year.
+    assert procedure_key("aai/hu/123") is None
+
+
+def test_state_expedientes_with_different_numbers_conflict():
+    assert conflict(rec(1, "A", exp="pfot-365"), rec(2, "A", exp="pfot-479")) == "expediente"
+    assert conflict(rec(1, "A", exp="pfot-365"), rec(2, "A", exp="peol-365")) is None
+
+
+def test_an_unkeyed_document_joins_a_keyed_plant_only_on_positive_evidence():
+    # Tabernas 100 (no expediente) scored as a match with the keyed Tabernas Solar 2
+    # on a shared place name; it is not the same plant.
+    solar_2 = rec(1, "Tabernas Solar 2", munis=("tabernas",), mw=None, exp="aau/al/0021/20")
+    tabernas_100 = rec(2, "Parque fotovoltaico Tabernas 100", munis=("tabernas",), mw=None)
+    assert score_pair(solar_2, tabernas_100)[0] >= THRESHOLD
+    assert groups_of([solar_2, tabernas_100]) == [[1, 2]]
+    assert groups_of([solar_2, tabernas_100], {1: "tabernas-solar-2"}) == [[1], [2]]
+    # The same procedure, or a near-identical name, is positive evidence.
+    modification = rec(3, "Proyecto de parque fotovoltaico Tabernas Solar 2", munis=("tabernas",), mw=None, exp="aau/al/0021/20/m1")
+    assert groups_of([solar_2, modification], {1: "tabernas-solar-2"}) == [[1, 3]]
+    renamed = rec(4, "Tabernas Solar 2", munis=("tabernas",), mw=None)
+    assert groups_of([solar_2, renamed], {1: "tabernas-solar-2"}) == [[1, 4]]

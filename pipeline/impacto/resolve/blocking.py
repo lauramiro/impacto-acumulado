@@ -25,18 +25,26 @@ _CAPACITY = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:mwp|mwn|mwh|mw|kwp|kwn|kw|kv)\b"
 # ("aau/ja/0073/20", "aaus/se/070/2025/n"); wind farms authorised before the
 # AAU carry "a1/76/1997". A suffix such as "/m1", " ms1" or "/n" marks a
 # modification or the format, not another procedure, so it is not read.
-_PROCEDURE = re.compile(r"^(aaus|aaua|aaui|aau|aai)/([a-z]{2})/0*(\d+)/(?:19|20)?(\d{2})\b")
+_PROCEDURE = re.compile(r"^(aaus|aaua|aaui|aau|aai)[/_-]([a-z]{2})[/_-]0*(\d+)[/_-](?:19|20)?(\d{2})\b")
+# The ministry's files for state-authorised plants: "PFot-365", "PFOT 365",
+# "PEol-512"; a suffix such as " AC" is part of the same file.
+_STATE = re.compile(r"^(pfot|peol|phib)[\s_-]*0*(\d+)\b")
 _LEGACY_WIND = re.compile(r"^a1/0*(\d+)/(?:19|20)?(\d{2})\b")
 
 
 def procedure_key(expediente: str | None) -> tuple[str, str, str] | None:
-    """(type and province, number, year) of a regional procedure, or None for any other format."""
+    """(type and province, number, year) of a regional or state procedure, or None for any other format.
+
+    A state file carries no year in its number, so its year is "".
+    """
     if not expediente:
         return None
     if m := _PROCEDURE.match(expediente):
         return f"{m.group(1)}/{m.group(2)}", m.group(3), m.group(4)
     if m := _LEGACY_WIND.match(expediente):
         return "a1", m.group(1), m.group(2)
+    if m := _STATE.match(expediente):
+        return m.group(1), m.group(2), ""
     return None
 
 

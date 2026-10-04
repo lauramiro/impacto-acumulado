@@ -53,6 +53,21 @@ def conflict(a: Record, b: Record) -> str | None:
     return None
 
 
+SAME_NAME = 0.9
+
+
+def same_plant_evidence(a: Record, b: Record) -> bool:
+    """Positive evidence that two documents are one plant: the same procedure, or near-identical names."""
+    if a.expediente and b.expediente:
+        qa, qb = procedure_key(a.expediente), procedure_key(b.expediente)
+        if a.expediente == b.expediente or (qa is not None and qa == qb):
+            return True
+    if a.name and b.name:
+        ka, kb = name_key(a.name), name_key(b.name)
+        return bool(ka and kb) and fuzz.ratio(ka, kb) / 100.0 >= SAME_NAME
+    return False
+
+
 def score_pair(a: Record, b: Record) -> tuple[float, str]:
     # One procedure, also across its modifications ("aau/ca/051/21" and "aau/ca/051/21/m1").
     qa, qb = procedure_key(a.expediente), procedure_key(b.expediente)

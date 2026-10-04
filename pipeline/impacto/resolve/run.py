@@ -9,7 +9,7 @@ from impacto.db.connect import connect
 from impacto.extract.operative import operative_override
 from impacto.resolve.blocking import candidate_pairs
 from impacto.resolve.model import Record
-from impacto.resolve.scoring import THRESHOLD, conflict, score_pair
+from impacto.resolve.scoring import THRESHOLD, conflict, same_plant_evidence, score_pair
 from impacto.resolve.status import derive_status
 from impacto.resolve.unionfind import UnionFind
 from impacto.settings import load_settings
@@ -78,6 +78,14 @@ def resolve(records: list[Record], overrides: dict[int, str]) -> list[list[Recor
     for _, i, j in sorted(scored):
         ri, rj = uf.find(i), uf.find(j)
         if ri == rj or any(apart(a, b) for a in members[ri] for b in members[rj]):
+            continue
+        # A plant someone grouped by hand only takes in a new document on
+        # positive evidence (the same procedure, a near-identical name): a
+        # match on place name, size and municipality alone pulled other
+        # plants into hand-made groups (Tabernas 100 into Tabernas Solar 2).
+        keyed_i = any(m in keyed for m in members[ri])
+        keyed_j = any(m in keyed for m in members[rj])
+        if keyed_i != keyed_j and not same_plant_evidence(records[i], records[j]):
             continue
         join(i, j)
     return [[records[i] for i in g] for g in uf.groups()]
