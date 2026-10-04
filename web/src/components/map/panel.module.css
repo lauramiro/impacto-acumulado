@@ -43,6 +43,11 @@
   margin: 0;
 }
 
+/* Each metric stays on one line; the separator travels with the metric before it. */
+.fila dd .dato {
+  white-space: nowrap;
+}
+
 .total {
   border-bottom: 0;
   border-top: 1px solid var(--tinta);

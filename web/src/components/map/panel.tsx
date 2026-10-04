@@ -83,8 +83,8 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
                       <StatusBadge status={s} />
                     </dt>
                     <dd>
-                      <Figure value={formatInt(f.projectCount)} unit={f.projectCount === 1 ? "proyecto" : "proyectos"} /> ·{" "}
-                      <Figure value={formatMwDeclared(f.mwNominal, f.mwCount, f.projectCount)} /> ·{" "}
+                      <Figure value={formatInt(f.projectCount)} unit={f.projectCount === 1 ? "proyecto" : "proyectos"} />&nbsp;·{" "}
+                      <Figure value={formatMwDeclared(f.mwNominal, f.mwCount, f.projectCount)} />&nbsp;·{" "}
                       <Figure value={formatHaDeclared(f.hectares, f.haCount, f.projectCount)} />
                     </dd>
                   </div>
@@ -93,8 +93,8 @@ export function Panel({ municipality, stats, metric, filters, thresholds, anySta
               <div className={`${styles.fila} ${styles.total}`}>
                 <dt>Total</dt>
                 <dd>
-                  <Figure value={formatInt(total.projectCount)} unit={total.projectCount === 1 ? "proyecto" : "proyectos"} /> ·{" "}
-                  <Figure value={formatMwDeclared(total.mwNominal, total.mwCount, total.projectCount)} /> ·{" "}
+                  <Figure value={formatInt(total.projectCount)} unit={total.projectCount === 1 ? "proyecto" : "proyectos"} />&nbsp;·{" "}
+                  <Figure value={formatMwDeclared(total.mwNominal, total.mwCount, total.projectCount)} />&nbsp;·{" "}
                   <Figure value={formatHaDeclared(total.hectares, total.haCount, total.projectCount)} />
                 </dd>
               </div>
