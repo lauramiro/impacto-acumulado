@@ -3,11 +3,12 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import psycopg
 
+from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
 from impacto.settings import load_settings
 
@@ -19,6 +20,11 @@ GEOJSON_DECIMALS = 5  # about one metre; the default nine only inflates the file
 EVALUATION_DIR = Path(__file__).resolve().parents[2] / "evaluation"
 LAST_RUN = EVALUATION_DIR / "last_run.json"
 LABELS_DIR = EVALUATION_DIR / "labels"
+PERIODS_FILE = EVALUATION_DIR / "periods.json"
+
+# A notice that states no objection period stays listed this long after
+# publication, marked as such; one with a period stays until its deadline.
+UNSTATED_PERIOD_DAYS = 30
 
 # Sensitivity layers: dissolved high-to-maximum zones per technology. The
 # tolerance and area floor are tuned against production so each file stays
@@ -316,6 +322,74 @@ def export_evaluation(out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path
     return _write_json(out_dir / "evaluation.json", result)
 
 
+def _period_evaluation(conn, periods_file: Path) -> dict:
+    # Hand labels (evaluation/periods.json) scored against the parser on the
+    # stored notice text: a label counts as correct when amount and unit
+    # match, or when both say the notice states no period.
+    # A label whose notice is not stored (a fresh or test database) is
+    # counted as missing, not scored.
+    labels = json.loads(periods_file.read_text(encoding="utf-8"))["labels"]
+    scored = correct = with_period = missing = 0
+    for label in labels:
+        rows = _query(conn, "SELECT text FROM raw_documents WHERE source = %s AND source_id = %s", (label["source"], label["source_id"]))
+        if not rows:
+            missing += 1
+            continue
+        found = parse_period(rows[0]["text"])
+        got = {"amount": found.amount, "unit": found.unit} if found else None
+        scored += 1
+        correct += got == label["expected"]
+        with_period += label["expected"] is not None
+    return {"labelled": scored, "correct": correct, "with_period": with_period, "missing": missing}
+
+
+def export_open_consultations(conn, out_dir: Path, today: date | None = None, periods_file: Path = PERIODS_FILE) -> Path:
+    """Información pública notices still open on `today`, with their deadline.
+
+    The web drops items whose deadline has passed at its own build date, so a
+    notice listed here can still disappear before the next export.
+    """
+    today = today or datetime.now(UTC).date()
+    notices = _query(
+        conn,
+        """
+        SELECT d.id AS document_id, d.source, d.source_id, d.published_at, d.title, d.url, d.text,
+               p.id AS project_id, p.canonical_name AS project_name,
+               (SELECT array_agg(pm.ine_code ORDER BY pm.ine_code) FROM project_municipalities pm WHERE pm.project_id = p.id) AS ine_codes
+        FROM project_documents pd
+        JOIN raw_documents d ON d.id = pd.document_id
+        JOIN projects p ON p.id = pd.project_id
+        WHERE pd.role = 'consulta' AND d.published_at >= %s
+        ORDER BY d.published_at, d.id
+        """,
+        (today - timedelta(days=365),),
+    )
+    items = []
+    for n in notices:
+        period = parse_period(n["text"])
+        due = deadline(n["published_at"], period) if period else None
+        if (due is not None and due < today) or (due is None and n["published_at"] < today - timedelta(days=UNSTATED_PERIOD_DAYS)):
+            continue
+        items.append(
+            {
+                "document_id": n["document_id"],
+                "project_id": n["project_id"],
+                "project_name": n["project_name"],
+                "title": n["title"],
+                "url": n["url"],
+                "source": n["source"],
+                "source_id": n["source_id"],
+                "published_at": n["published_at"].isoformat(),
+                "period": {"amount": period.amount, "unit": period.unit, "evidence": period.evidence} if period else None,
+                "deadline": due.isoformat() if due else None,
+                "ine_codes": n["ine_codes"] or [],
+            }
+        )
+    items.sort(key=lambda i: (i["deadline"] or "9999-12-31", i["published_at"]))
+    payload = {"generated": today.isoformat(), "evaluation": _period_evaluation(conn, periods_file), "consultations": items}
+    return _write_json(out_dir / "open_consultations.json", payload)
+
+
 def _row_count(path: Path) -> int:
     # CSV: data rows. FeatureCollection: features. Other JSON object: keys.
     # Anything else (a single result object) counts as one row.
@@ -325,6 +399,8 @@ def _row_count(path: Path) -> int:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if isinstance(payload, dict) and payload.get("type") == "FeatureCollection":
         return len(payload["features"])
+    if isinstance(payload, dict) and "consultations" in payload:
+        return len(payload["consultations"])
     if isinstance(payload, dict) and "accuracy" not in payload:
         return len(payload)
     return 1
@@ -350,6 +426,7 @@ def export_all(
     last_run: Path = LAST_RUN,
     labels_dir: Path = LABELS_DIR,
     refresh_sensitivity: bool = False,
+    periods_file: Path = PERIODS_FILE,
 ) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = [
@@ -369,6 +446,7 @@ def export_all(
         export_sensitivity_geojson(conn, out_dir, "ftv", refresh_sensitivity),
         export_sensitivity_geojson(conn, out_dir, "eol", refresh_sensitivity),
         export_evaluation(out_dir, last_run, labels_dir),
+        export_open_consultations(conn, out_dir, periods_file=periods_file),
     ]
     paths.append(export_meta(conn, out_dir, paths))
     return paths

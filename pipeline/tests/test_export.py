@@ -1,10 +1,16 @@
 import csv
 import json
+from datetime import date
 
 import pytest
 
 from evaluation.run_eval import LABELS_DIR
-from impacto.aggregate.export import export_all, export_evaluation, export_sensitivity_geojson
+from impacto.aggregate.export import (
+    export_all,
+    export_evaluation,
+    export_open_consultations,
+    export_sensitivity_geojson,
+)
 from impacto.aggregate.run import run_aggregate
 from impacto.resolve.run import run_resolve
 from tests.test_aggregate import seed_slice3
@@ -27,6 +33,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "municipality_protected_areas.json",
         "municipality_stats.csv",
         "municipality_stats.json",
+        "open_consultations.json",
         "projects.csv",
         "protected_area_stats.json",
         "protected_areas.geojson",
@@ -420,3 +427,36 @@ def test_export_all_lists_the_sensitivity_layers(db, fixtures_dir, tmp_path):
     run_aggregate(db)
     names = {p.name for p in export_all(db, tmp_path)}
     assert {"sensitivity_ftv.geojson", "sensitivity_eol.geojson"} <= names
+
+
+def test_open_consultations_lists_notices_until_their_deadline(db, fixtures_dir, tmp_path):
+    # seed_slice3: d1 is p1's consulta (2023-01-10, Ronda and Sevilla), d7 is
+    # p4's (2023-02-14, no municipality). d1 states 30 business days, which
+    # end on 2023-02-21; d7 states no period.
+    d = seed_slice3(db, fixtures_dir)
+    with db.cursor() as cur:
+        cur.execute("UPDATE raw_documents SET text = %s WHERE id = %s",
+                    ("Se abre información pública durante el plazo de treinta (30) días hábiles, a contar desde el día siguiente.", d["d1"]))
+        cur.execute("UPDATE raw_documents SET text = %s WHERE id = %s", ("Se hace público el informe vinculante.", d["d7"]))
+    db.commit()
+    periods = tmp_path / "periods.json"
+    periods.write_text(json.dumps({"labels": [
+        {"source": "boe", "source_id": "d1", "expected": {"amount": 30, "unit": "habiles"}},
+        {"source": "boe", "source_id": "d7", "expected": None},
+        {"source": "boja", "source_id": "not-stored", "expected": None},
+    ]}), encoding="utf-8")
+
+    export_open_consultations(db, tmp_path, today=date(2023, 2, 20), periods_file=periods)
+    out = _json(tmp_path, "open_consultations.json")
+    assert out["generated"] == "2023-02-20"
+    assert out["evaluation"] == {"labelled": 2, "correct": 2, "with_period": 1, "missing": 1}
+    first, second = out["consultations"]
+    assert (first["document_id"], first["project_id"], first["deadline"], first["ine_codes"]) == (d["d1"], 1, "2023-02-21", ["29084", "41091"])
+    assert first["period"] == {"amount": 30, "unit": "habiles", "evidence": "plazo de treinta (30) días hábiles"}
+    assert (second["document_id"], second["period"], second["deadline"], second["ine_codes"]) == (d["d7"], None, None, [])
+
+    # The day after the deadline d1 drops off; d7 stays for 30 days after publication.
+    export_open_consultations(db, tmp_path, today=date(2023, 2, 22), periods_file=periods)
+    assert [c["document_id"] for c in _json(tmp_path, "open_consultations.json")["consultations"]] == [d["d7"]]
+    export_open_consultations(db, tmp_path, today=date(2023, 3, 20), periods_file=periods)
+    assert _json(tmp_path, "open_consultations.json")["consultations"] == []

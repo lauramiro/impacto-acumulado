@@ -16,6 +16,7 @@ dependencies = [
   "imagecodecs",
   "pyproj",
   "numpy",
+  "holidays>=0.105",
 ]
 
 [dependency-groups]
