@@ -6,6 +6,7 @@ import logging
 import psycopg
 
 from impacto.db.connect import connect
+from impacto.extract.operative import operative_override
 from impacto.resolve.blocking import candidate_pairs
 from impacto.resolve.model import Record
 from impacto.resolve.scoring import THRESHOLD, conflict, score_pair
@@ -85,10 +86,21 @@ def resolve(records: list[Record], overrides: dict[int, str]) -> list[list[Recor
 def load_records(conn: psycopg.Connection) -> list[Record]:
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT d.id, d.published_at, e.payload FROM extractions e JOIN raw_documents d ON d.id = e.document_id WHERE e.status = 'ok' ORDER BY d.published_at, d.id"
+            "SELECT d.id, d.published_at, d.text, e.payload FROM extractions e JOIN raw_documents d ON d.id = e.document_id "
+            "WHERE e.status = 'ok' ORDER BY d.published_at, d.id"
         )
         rows = cur.fetchall()
-    return [Record.from_extraction(r["id"], r["published_at"], r["payload"]) for r in rows]
+    return [Record.from_extraction(r["id"], r["published_at"], with_operative(r["payload"], r["text"])) for r in rows]
+
+
+def with_operative(payload: dict, text: str) -> dict:
+    """The payload with the operative-sentence rule applied as extraction applies it.
+
+    Re-applied on every resolve, so a rule added after a document was
+    extracted reaches it without a new (paid) model call.
+    """
+    hit = operative_override(payload.get("doc_type", "otro"), text)
+    return payload if hit is None else {**payload, "doc_type": hit.doc_type, "verdict": hit.verdict}
 
 
 def load_overrides(conn: psycopg.Connection) -> dict[int, str]:

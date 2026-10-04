@@ -10,6 +10,7 @@ import psycopg
 
 from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
+from impacto.resolve.run import with_operative
 from impacto.settings import load_settings
 
 DEFAULT_OUT = Path(__file__).resolve().parents[3] / "web" / "public" / "data"
@@ -21,6 +22,7 @@ EVALUATION_DIR = Path(__file__).resolve().parents[2] / "evaluation"
 LAST_RUN = EVALUATION_DIR / "last_run.json"
 LABELS_DIR = EVALUATION_DIR / "labels"
 PERIODS_FILE = EVALUATION_DIR / "periods.json"
+AAU_VERDICTS_FILE = EVALUATION_DIR / "aau_verdicts.json"
 
 # A notice that states no objection period stays listed this long after
 # publication, marked as such; one with a period stays until its deadline.
@@ -310,7 +312,30 @@ def _field_samples(labels_dir: Path, skipped: set[str]) -> dict[str, int]:
     return counts
 
 
-def export_evaluation(out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR) -> Path:
+def _aau_publication(conn, aau_file: Path) -> dict:
+    # T4: the verdict of AAU publication notices, read by the operative rule.
+    # held_out is frozen as measured; live re-scores every label (tuning and
+    # held out) with today's rule; unknown is the share it still leaves.
+    labels = json.loads(aau_file.read_text(encoding="utf-8"))
+    scored = correct = 0
+    for label in labels["tuning"] + labels["held_out"]:
+        rows = _query(
+            conn,
+            "SELECT d.text, e.payload FROM raw_documents d JOIN extractions e ON e.document_id = d.id "
+            "WHERE d.source = %s AND d.source_id = %s",
+            (label["source"], label["source_id"]),
+        )
+        if not rows:
+            continue
+        scored += 1
+        correct += with_operative(rows[0]["payload"], rows[0]["text"])["verdict"] == label["expected_verdict"]
+    counts = _query(conn, "SELECT count(*) FILTER (WHERE status = 'desconocido') AS unknown, count(*) AS total FROM projects")[0]
+    return {"held_out": labels["held_out_result"], "live": {"labelled": scored, "correct": correct}, "unknown_projects": counts["unknown"], "projects": counts["total"]}
+
+
+def export_evaluation(
+    out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR, conn=None, aau_file: Path = AAU_VERDICTS_FILE
+) -> Path:
     # The evaluation is run by hand after labelling, not weekly; the export
     # carries the last checked result to the site. A missing run is an error,
     # not an empty file: the methodology page must never quote nothing.
@@ -319,6 +344,8 @@ def export_evaluation(out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path
     result = json.loads(last_run.read_text(encoding="utf-8"))
     result["labels_count"] = len(list(labels_dir.glob("*.json")))
     result["field_samples"] = _field_samples(labels_dir, set(result.get("skipped", [])))
+    if conn is not None:
+        result["aau_publication"] = _aau_publication(conn, aau_file)
     return _write_json(out_dir / "evaluation.json", result)
 
 
@@ -445,7 +472,7 @@ def export_all(
         export_provinces_geojson(conn, out_dir),
         export_sensitivity_geojson(conn, out_dir, "ftv", refresh_sensitivity),
         export_sensitivity_geojson(conn, out_dir, "eol", refresh_sensitivity),
-        export_evaluation(out_dir, last_run, labels_dir),
+        export_evaluation(out_dir, last_run, labels_dir, conn),
         export_open_consultations(conn, out_dir, periods_file=periods_file),
     ]
     paths.append(export_meta(conn, out_dir, paths))

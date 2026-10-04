@@ -1,0 +1,192 @@
+{
+ "note": "Hand labels for the verdict of BOJA AAU publication notices (Ley 7/2007, art. 31.7), read from the notice text on 2026-10-04 for ticket T4. no_aplica: the notice states no verdict; the full report is only on the department's website. tuning: the notices the publication forms in impacto/extract/operative.py were written from. held_out: notices labelled before the rule was run on them; held_out_result is frozen as measured, before the 'se modifica' form was added for the one miss. Scored at export against the rule; the live score is published beside the frozen one.",
+ "held_out_result": {
+  "measured": "2026-10-04",
+  "labelled": 15,
+  "correct": 14
+ },
+ "tuning": [
+  {
+   "source": "boja",
+   "source_id": "disposition.2022.247.66",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.99.77",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2026.98.72",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.16.87",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2025.205.52",
+   "expected_verdict": "favorable_condicionada",
+   "note": "se otorga modificación de AAU"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.37.96",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2022.242.74",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.182.56",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.158.51",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.221.91",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.221.92",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.239.83",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.219.70",
+   "expected_verdict": "favorable_condicionada",
+   "note": "resolución de AAU otorgada (art. 31.3)"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2025.69.93",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.27.66",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.26.73",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.26.79",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2025.127.51",
+   "expected_verdict": "favorable_condicionada",
+   "note": "se otorga modificación de AAU"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.22.75",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.21.51",
+   "expected_verdict": "no_aplica"
+  }
+ ],
+ "held_out": [
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.58.73",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2022.244.67",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.224.72",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2022.221.91",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.33.106",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.10.45",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2022.236.106",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.7.78",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.109.39",
+   "expected_verdict": "favorable_condicionada"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2025.128.47",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.43.114",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.43.115",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2023.24.108",
+   "expected_verdict": "no_aplica"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.108.42",
+   "expected_verdict": "favorable_condicionada",
+   "note": "por la que se modifica la AAU; missed by the rule when held out, form added afterwards"
+  },
+  {
+   "source": "boja",
+   "source_id": "disposition.2024.106.96",
+   "expected_verdict": "favorable_condicionada",
+   "note": "resolución de modificación sobre la AAU otorgada"
+  }
+ ]
+}

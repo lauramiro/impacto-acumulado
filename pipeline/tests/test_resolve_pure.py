@@ -2,7 +2,7 @@ from datetime import date
 
 from impacto.resolve.blocking import candidate_pairs, name_key
 from impacto.resolve.model import Record
-from impacto.resolve.run import resolve
+from impacto.resolve.run import resolve, with_operative
 from impacto.resolve.scoring import THRESHOLD, conflict, phase_token, score_pair
 from impacto.resolve.status import derive_status
 from impacto.resolve.unionfind import UnionFind
@@ -200,3 +200,23 @@ def test_the_kind_of_works_does_not_make_two_wind_farms_alike():
     herreria = rec(2, "Repotenciación Parque Eólico La Herrería", munis=("tarifa",), mw=24.0)
     assert name_key(gallego.name) == "gallego"
     assert score_pair(gallego, herreria)[0] < THRESHOLD
+
+
+def test_a_granted_modification_fills_an_unknown_status_only():
+    aau = rec(1, "R", doc_type="aau", verdict="no_aplica", day=date(2022, 1, 1))
+    modification = rec(2, "R", doc_type="modificacion", verdict="favorable_condicionada", day=date(2024, 1, 1))
+    assert derive_status([aau, modification]) == ("favorable_condicionada", 2)
+    refused = rec(3, "R", doc_type="aau", verdict="desfavorable", day=date(2023, 1, 1))
+    assert derive_status([refused, modification]) == ("desfavorable", 3)
+
+
+def test_resolve_reapplies_the_operative_rule_to_stored_extractions():
+    notice = (
+        "De conformidad con el art. 31.7 de la Ley 7/2007, esta Delegación HA RESUELTO Primero. Dar publicidad en BOJA al "
+        "Informe Vinculante sobre la Autorización Ambiental Unificada otorgada por la Delegación Territorial en Sevilla."
+    )
+    payload = {"doc_type": "aau", "verdict": "no_aplica", "project_name": "X"}
+    assert with_operative(payload, notice) == {"doc_type": "aau", "verdict": "favorable_condicionada", "project_name": "X"}
+    # A notice the model read as a consultation keeps what the model said.
+    consultation = {"doc_type": "informacion_publica", "verdict": "no_aplica"}
+    assert with_operative(consultation, notice) is consultation

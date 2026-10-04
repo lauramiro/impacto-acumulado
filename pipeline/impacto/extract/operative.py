@@ -27,8 +27,17 @@ Forms handled (matched on normalised text: lowercase, no accents):
 - "es necesario el sometimiento ..." / "debe someterse a ... evaluacion ...
   ordinaria" -> informe_impacto, no_aplica (the report routes the procedure
   and says nothing about the project's effects)
+- publication notices (Ley 7/2007, art. 31.7: "dar publicidad al informe
+  vinculante ..."): "autorizacion ambiental unificada otorgada" or "se otorga
+  autorizacion ambiental unificada" -> aau, favorable_condicionada; "se otorga
+  modificacion de" or "se modifica la autorizacion ambiental unificada" ->
+  modificacion, favorable_condicionada; "se deniega la autorizacion ambiental
+  unificada" -> aau, desfavorable. Most of these notices state no verdict at all (the
+  full text is only on the department's website) and get none.
 
-AAU verbs and the simplified-evaluation forms are only read inside the resolving
+The publication forms are read only after a "dar publicidad" phrase, because a
+consultation on modifying an AAU also mentions "la autorizacion ambiental
+unificada otorgada por resolucion de ...". AAU verbs and the simplified-evaluation forms are only read inside the resolving
 part of the document (after the last "resuelve", "ha resuelto", "acuerda" or
 similar marker), because the same verbs appear in legal boilerplate of
 public-consultation notices. The simplified form's legal grounds quote both halves
@@ -59,6 +68,19 @@ _AAU_GRANT = re.compile(r"(?<!\bno )(?:otorgar|se otorga|conceder|se concede) (?
 _AAU_DENY = re.compile(
     r"(?:no otorgar|denegar|se deniega|desestimar) (?:la solicitud de )?(?:la )?autorizacion ambiental unificada"
 )
+_PUBLICITY = re.compile(r"\b(?:dar|da|se da|procede a dar) publicidad\b")
+_PUBLISHED_GRANT = re.compile(
+    r"autorizacion ambiental unificada (?:simplificada )?otorgada|se otorga (?:la )?autorizacion ambiental unificada"
+)
+_PUBLISHED_MODIFICATION = re.compile(
+    r"se otorga (?:la )?modificacion de (?:la )?autorizacion ambiental unificada|se modifica (?:la )?autorizacion ambiental unificada"
+)
+_PUBLISHED_REFUSAL = re.compile(
+    r"se deniega (?:la )?autorizacion ambiental unificada|autorizacion ambiental unificada (?:simplificada )?denegada"
+)
+# A correction notice quotes the wrong text ("donde dice: ... se otorga ...")
+# before the right one ("debe decir: ... se deniega ..."); the wrong text never counts.
+_CORRECTED_TEXT = re.compile(r"donde dice.*?debe decir")
 _IIA_NOT_NEEDED = re.compile(
     r"no es necesari[oa] (?:el sometimiento|someter(?:lo)?) (?:al procedimiento de |a )?"
     r"evaluacion (?:de impacto )?ambiental ordinaria"
@@ -67,6 +89,17 @@ _IIA_NEEDED = re.compile(
     r"(?<!\bno )(?:es necesari[oa] (?:el sometimiento|someter(?:lo)?)|debe someterse) "
     r"(?:al procedimiento de |a (?:una )?)?evaluacion (?:de impacto )?ambiental ordinaria"
 )
+
+
+# The doc_type the model must have given for the rule to win: the decision it
+# states, or nothing in particular. A notice the model read as a consultation
+# keeps its doc_type, since consultation boilerplate quotes decision verbs.
+OVERRIDABLE_DOC_TYPES = {
+    "dia": {"dia", "otro"},
+    "aau": {"aau", "otro"},
+    "informe_impacto": {"informe_impacto", "otro"},
+    "modificacion": {"modificacion", "aau", "otro"},
+}
 
 
 @dataclass(frozen=True)
@@ -102,9 +135,16 @@ def _resolving_part(n: str) -> tuple[int, str] | None:
     return last.start(), n[last.start() :]
 
 
+def operative_override(doc_type: str, text: str) -> OperativeHit | None:
+    """The rule's decision when it should replace a model's doc_type and verdict, else None."""
+    hit = find_operative(text)
+    return hit if hit is not None and doc_type in OVERRIDABLE_DOC_TYPES[hit.doc_type] else None
+
+
 def find_operative(text: str) -> OperativeHit | None:
     """Return the decision stated by the last operative sentence, if any."""
-    n = normalize(text)
+    # Blanked rather than removed, so offsets (and "last match wins") still hold.
+    n = _CORRECTED_TEXT.sub(lambda m: " " * len(m.group(0)), normalize(text))
     hits: list[tuple[int, OperativeHit]] = []
     for match in _DIA.finditer(n):
         hit = _dia_hit(match)
@@ -121,6 +161,15 @@ def find_operative(text: str) -> OperativeHit | None:
             hits.append((offset + match.start(), OperativeHit("informe_impacto", "favorable_condicionada", match.group(0))))
         for match in _IIA_NEEDED.finditer(part):
             hits.append((offset + match.start(), OperativeHit("informe_impacto", "no_aplica", match.group(0))))
+    publicity = _PUBLICITY.search(n)
+    if publicity is not None:
+        after = n[publicity.start() :]
+        for match in _PUBLISHED_GRANT.finditer(after):
+            hits.append((publicity.start() + match.start(), OperativeHit("aau", "favorable_condicionada", match.group(0))))
+        for match in _PUBLISHED_MODIFICATION.finditer(after):
+            hits.append((publicity.start() + match.start(), OperativeHit("modificacion", "favorable_condicionada", match.group(0))))
+        for match in _PUBLISHED_REFUSAL.finditer(after):
+            hits.append((publicity.start() + match.start(), OperativeHit("aau", "desfavorable", match.group(0))))
     if not hits:
         return None
     hits.sort(key=lambda pair: pair[0])

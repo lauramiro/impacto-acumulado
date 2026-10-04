@@ -11,7 +11,7 @@ import psycopg
 from impacto.db.connect import connect
 from impacto.db.documents import municipality_name_map, pending_for_extraction, save_extraction
 from impacto.extract.names import trim_project_name
-from impacto.extract.operative import find_operative
+from impacto.extract.operative import operative_override
 from impacto.extract.prompts import PROMPT_VERSION, SYSTEM_PROMPT, build_user_prompt
 from impacto.extract.schema import (
     ConditionCategory,
@@ -65,13 +65,6 @@ _JOINED_FIELDS = ("developer",)
 # Document types the operative-sentence rule may override. A model that
 # evidenced modificacion, caducidad or informacion_publica read a document
 # that merely quotes a decision, and the rule must not clobber it.
-_OVERRIDABLE_DOC_TYPES = {
-    "dia": {"dia", "otro"},
-    "aau": {"aau", "otro"},
-    "informe_impacto": {"informe_impacto", "otro"},
-}
-
-
 def _as_number(value):
     if isinstance(value, bool):
         return None
@@ -313,8 +306,8 @@ def extract_document(provider: Provider, title: str, text: str, municipality_nam
         data["project_name"] = trim_project_name(data["project_name"])
     data["doc_type"] = _decide_enum_field(parts, "doc_type", PLACEHOLDER_DOC_TYPE)
     data["verdict"] = _decide_enum_field(parts, "verdict", PLACEHOLDER_VERDICT)
-    operative = find_operative(text)
-    if operative is not None and data["doc_type"] in _OVERRIDABLE_DOC_TYPES[operative.doc_type]:
+    operative = operative_override(data["doc_type"], text)
+    if operative is not None:
         # The ministry's and the Junta's decision forms are fixed wording; the
         # rule is more reliable than a model reading them, so it wins for
         # documents the model read as that decision or as nothing in particular.

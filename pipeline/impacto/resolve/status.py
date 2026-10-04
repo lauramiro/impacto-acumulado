@@ -13,6 +13,10 @@ def derive_status(records: list[Record]) -> tuple[str, int]:
             status, doc_id = "caducado", r.document_id
         elif r.doc_type in VERDICT_TYPES and r.verdict != "no_aplica":
             status, doc_id = r.verdict, r.document_id
+        elif r.doc_type == "modificacion" and r.verdict != "no_aplica" and status in ("desconocido", "en_consulta"):
+            # A modification is granted only on an existing AAU: it tells a
+            # project with no verdict read that one was given, and no more.
+            status, doc_id = r.verdict, r.document_id
         elif r.doc_type == "informacion_publica" and status in ("desconocido", "en_consulta"):
             status, doc_id = "en_consulta", r.document_id
     return status, doc_id

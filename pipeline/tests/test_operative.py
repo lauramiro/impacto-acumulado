@@ -111,3 +111,83 @@ def test_simplified_evaluation_requiring_ordinary_procedure_has_no_verdict():
     needed = ("Esta Dirección General resuelve que es necesario el sometimiento al procedimiento de evaluación de "
               "impacto ambiental ordinaria del proyecto PSFV Sol.")
     assert (find_operative(needed).doc_type, find_operative(needed).verdict) == ("informe_impacto", "no_aplica")
+
+
+# Publication notices (Ley 7/2007, art. 31.7): the BOJA publishes that an AAU was
+# granted and points to the department's website for the full text. Wording
+# from disposition.2022.247.66, .2026.98.72, .2025.205.52 and .2023.99.77.
+SEVILLA_NOTICE = (
+    "De conformidad con lo establecido en el Art.31.7, de la Ley 7/2007, esta Delegación Territorial HA RESUELTO Primero. "
+    "Dar publicidad en BOJA al Informe Vinculante sobre la Autorización Ambiental Unificada otorgada por la Delegación "
+    "Territorial en Sevilla que se relaciona en el anexo. Segundo. El contenido íntegro se encuentra disponible en la página web."
+)
+MALAGA_SIMPLIFIED = (
+    "De conformidad con lo establecido en el artículo 32.6 de la Ley 7/2007, se procede a dar publicidad a la Resolución de la "
+    "Delegación Territorial en Málaga, por la que se otorga autorización ambiental unificada simplificada promovida por LDV Sierra "
+    "de Arcas, S.L., para el proyecto de planta solar fotovoltaica (AAUS/MA/36/24)."
+)
+MALAGA_MODIFICATION = (
+    "De conformidad con lo establecido en el artículo 31.7 de la Ley 7/2007, se procede a dar publicidad al Informe Vinculante de "
+    "la Delegación Territorial en Málaga por el que se otorga modificación de autorización ambiental unificada del Proyecto de "
+    "Planta Solar Fotovoltaica «PSF Ronda 2» (Expediente AAU/MA/11/21/M1)."
+)
+MALAGA_SILENT = (
+    "De conformidad con lo establecido en el artículo 31.7 de la Ley 7/2007, se procede a dar publicidad al informe vinculante de "
+    "la Delegación Territorial en Málaga, relativo a la solicitud de autorización ambiental unificada promovida por Mitralex "
+    "Energía, S.L. El contenido íntegro de la resolución se encuentra disponible en la página web."
+)
+
+
+def test_publication_notice_of_a_granted_aau():
+    for text in (SEVILLA_NOTICE, MALAGA_SIMPLIFIED):
+        hit = find_operative(text)
+        assert (hit.doc_type, hit.verdict) == ("aau", "favorable_condicionada"), text[:80]
+
+
+def test_publication_notice_of_a_granted_modification():
+    hit = find_operative(MALAGA_MODIFICATION)
+    assert (hit.doc_type, hit.verdict) == ("modificacion", "favorable_condicionada")
+
+
+def test_publication_notice_that_does_not_state_the_verdict_has_none():
+    assert find_operative(MALAGA_SILENT) is None
+
+
+def test_a_consultation_on_modifying_a_granted_aau_is_not_a_grant():
+    consultation = (
+        "Se abre un periodo de información pública sobre la modificación de la autorización ambiental unificada otorgada por "
+        "resolución de 12 de mayo de 2021 a la planta solar, durante el plazo de 30 días hábiles."
+    )
+    assert find_operative(consultation) is None
+
+
+def test_a_correction_counts_what_the_text_must_say_not_what_it_said():
+    # disposition.2023.144.67: the original notice said "se otorga" by mistake.
+    correction = (
+        "Detectado error en el anuncio del BOJA número 140, donde aparece la Resolución de 20 de enero de 2023, de la Delegación "
+        "Territorial en Cádiz, por la que se da publicidad del informe vinculante con el que se deniega autorización ambiental "
+        "unificada a Jarico Energía 1, S.L., se procede a la siguiente rectificación: En el anexo, donde dice: «Resolución por la que "
+        "se otorga autorización ambiental unificada a Jarico Energía 1, S.L.» Debe decir: «Resolución por la que se deniega la "
+        "autorización ambiental unificada a Jarico Energía 1, S.L.»"
+    )
+    hit = find_operative(correction)
+    assert (hit.doc_type, hit.verdict) == ("aau", "desfavorable")
+
+
+def test_publication_notice_of_a_refused_aau():
+    notice = (
+        "Se procede a dar publicidad al informe vinculante de la Delegación Territorial en Cádiz con el que se deniega "
+        "autorización ambiental unificada a la planta solar."
+    )
+    hit = find_operative(notice)
+    assert (hit.doc_type, hit.verdict) == ("aau", "desfavorable")
+
+
+def test_publication_of_a_resolution_that_modifies_an_aau_is_a_granted_modification():
+    # disposition.2024.108.42, the held-out miss of 2026-10-04.
+    notice = (
+        "Se procede a dar publicidad a la resolución de la Delegación Territorial en Málaga, por la que se modifica la "
+        "autorización ambiental unificada de la planta solar fotovoltaica «Archo II» (Expediente AAU/MA/54/20/m1)."
+    )
+    hit = find_operative(notice)
+    assert (hit.doc_type, hit.verdict) == ("modificacion", "favorable_condicionada")

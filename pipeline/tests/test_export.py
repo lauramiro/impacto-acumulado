@@ -460,3 +460,25 @@ def test_open_consultations_lists_notices_until_their_deadline(db, fixtures_dir,
     assert [c["document_id"] for c in _json(tmp_path, "open_consultations.json")["consultations"]] == [d["d7"]]
     export_open_consultations(db, tmp_path, today=date(2023, 3, 20), periods_file=periods)
     assert _json(tmp_path, "open_consultations.json")["consultations"] == []
+
+
+def test_evaluation_carries_the_aau_publication_verdicts(db, fixtures_dir, tmp_path):
+    d = seed_slice3(db, fixtures_dir)
+    with db.cursor() as cur:
+        # d3 is p3's aau with verdict no_aplica (p3 is desconocido); make it a publication of a granted AAU.
+        cur.execute(
+            "UPDATE raw_documents SET text = %s WHERE id = %s",
+            ("Se procede a dar publicidad al informe vinculante sobre la autorización ambiental unificada otorgada por la Delegación.", d["d3"]),
+        )
+        cur.execute("UPDATE extractions SET payload = payload || '{\"doc_type\": \"aau\"}' WHERE document_id = %s", (d["d3"],))
+    db.commit()
+    labels = tmp_path / "aau.json"
+    labels.write_text(json.dumps({
+        "held_out_result": {"measured": "2026-10-04", "labelled": 15, "correct": 14},
+        "tuning": [{"source": "boe", "source_id": "d3", "expected_verdict": "favorable_condicionada"}],
+        "held_out": [{"source": "boe", "source_id": "not-stored", "expected_verdict": "no_aplica"}],
+    }), encoding="utf-8")
+    path = export_evaluation(tmp_path / "out", conn=db, aau_file=labels)
+    block = json.loads(path.read_text(encoding="utf-8"))["aau_publication"]
+    assert block == {"held_out": {"measured": "2026-10-04", "labelled": 15, "correct": 14},
+                     "live": {"labelled": 1, "correct": 1}, "unknown_projects": 1, "projects": 4}
