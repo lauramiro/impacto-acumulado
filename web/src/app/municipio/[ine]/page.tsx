@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectRecord } from "@/components/municipality/project-record";
+import { FeedLink } from "@/components/feed-link";
 import { OpenConsultations } from "@/components/open-consultations";
 import { ProtectedAreas } from "@/components/municipality/protected-areas";
 import { Sensitivity } from "@/components/municipality/sensitivity";
@@ -15,6 +16,7 @@ import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
 import { formatCoverage, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
+import { SITE_URL } from "@/lib/site";
 import styles from "./page.module.css";
 
 type Params = { ine: string };
@@ -40,7 +42,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const description = t
     ? `${formatMw(t.mwBest)} en ${formatInt(t.projectCount)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount, "mw", t.mwPeakCount)}).`
     : `Ningún proyecto renovable registrado en los boletines para ${muni.name} (${muni.province}).`;
-  return { title: `${muni.name} · Impacto Acumulado`, description };
+  return {
+    title: `${muni.name} · Impacto Acumulado`,
+    description,
+    alternates: { types: { "application/atom+xml": [{ url: `${SITE_URL}/feeds/municipio/${ine}.xml`, title: `Documentos en ${muni.name}` }] } },
+  };
 }
 
 export default async function MunicipalityPage({ params }: { params: Promise<Params> }) {
@@ -68,6 +74,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
         Provincia de {muni.province} · INE {muni.ine}
       </p>
       <h1 className={`display ${styles.nombre}`}>{muni.name}</h1>
+      <FeedLink href={`/feeds/municipio/${muni.ine}.xml`} label="Seguir este municipio" />
 
       {s ? (
         <Totals stats={s} areaHa={muni.areaHa} />

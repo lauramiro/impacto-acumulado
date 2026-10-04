@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { preload } from "react-dom";
+import { FeedLink } from "@/components/feed-link";
 import { MapExplorer } from "@/components/map/map-explorer";
 import { OpenConsultations } from "@/components/open-consultations";
 import { compactMapData } from "@/lib/compact";
@@ -7,8 +9,13 @@ import { loadOpenConsultations } from "@/lib/data/consultations";
 import { loadMapData } from "@/lib/data/map-data";
 import { formatCoverage, formatDate, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
+import { SITE_URL } from "@/lib/site";
 import { APPROVED_OR_PENDING, PROVINCES, REFUSED_OR_LAPSED, REGION, type StatsCell, type Status } from "@/lib/types";
 import styles from "./page.module.css";
+
+export const metadata: Metadata = {
+  alternates: { types: { "application/atom+xml": [{ url: `${SITE_URL}/feeds/andalucia.xml`, title: "Documentos en Andalucía" }] } },
+};
 
 export default async function HomePage() {
   preload("/data/municipalities_map.geojson", { as: "fetch", crossOrigin: "anonymous" });
@@ -64,6 +71,7 @@ export default async function HomePage() {
         lastMonth={lastMonth}
       />
       <OpenConsultations items={open} today={today} names={names} />
+      <FeedLink href="/feeds/andalucia.xml" label="Seguir todos los documentos de Andalucía" />
     </>
   );
 }

@@ -96,6 +96,16 @@ export function NaturaTable({ sites, metric: chosen, filters }: Props) {
               },
             ]
           : []),
+        {
+          // Each site has an Atom feed of the documents in the municipalities it touches.
+          header: "Seguir",
+          hideOnPhone: true,
+          cell: (s) => (
+            <a href={`/feeds/natura/${s.siteCode}.xml`} type="application/atom+xml" aria-label={`Seguir ${s.name} (RSS)`}>
+              RSS
+            </a>
+          ),
+        },
       ]}
     />
   );

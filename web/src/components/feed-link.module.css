@@ -1,0 +1,8 @@
+.seguir {
+  font-size: var(--texto-pie);
+  margin: 0.5rem 0;
+}
+
+.ayuda {
+  color: var(--tinta);
+}
