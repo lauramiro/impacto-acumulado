@@ -332,8 +332,8 @@ def test_municipality_stats_json_is_a_list_of_cells(db, fixtures_dir, tmp_path):
     ronda = _json(tmp_path, "municipality_stats.json")["29084"]
     assert set(ronda) == {"cells"}
     assert sorted(ronda["cells"], key=lambda c: c["technology"]) == [
-        {"status": "favorable_condicionada", "technology": "linea_evacuacion", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0, "hectares": 0.0, "ha_count": 0, "turbines": 0},
-        {"status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1, "hectares": 200.0, "ha_count": 1, "turbines": 0},
+        {"status": "favorable_condicionada", "technology": "linea_evacuacion", "project_count": 1, "mw_nominal": 0.0, "mw_count": 0, "hectares": 0.0, "ha_count": 0, "mw_best": 0.0, "mw_peak_fallback_count": 0, "turbines": 0},
+        {"status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1, "hectares": 200.0, "ha_count": 1, "mw_best": 100.0, "mw_peak_fallback_count": 0, "turbines": 0},
     ]
 
 
@@ -346,7 +346,7 @@ def test_protected_area_stats_json_lists_every_site_with_name_type_and_municipal
     assert (sierra["name"], sierra["type"], sierra["municipality_count"]) == ("SIERRA", "ZEPA", 1)
     assert {c["technology"] for c in sierra["cells"]} == {"solar_fv", "linea_evacuacion"}
     for cell in sierra["cells"]:
-        assert set(cell) == {"status", "technology", "project_count", "mw_nominal", "mw_count", "hectares", "ha_count"}
+        assert set(cell) == {"status", "technology", "project_count", "mw_nominal", "mw_count", "hectares", "ha_count", "mw_best", "mw_peak_fallback_count"}
 
 
 def test_province_stats_json_has_every_province_and_andalucia(db, fixtures_dir, tmp_path):
@@ -354,7 +354,7 @@ def test_province_stats_json_has_every_province_and_andalucia(db, fixtures_dir, 
     scopes = _json(tmp_path, "province_stats.json")
     assert set(scopes) == {"Málaga", "Sevilla", "Andalucía"}
     solar = [c for c in scopes["Andalucía"]["cells"] if c["technology"] == "solar_fv" and c["status"] == "favorable_condicionada"]
-    assert solar == [{"status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1, "hectares": 200.0, "ha_count": 1}]
+    assert solar == [{"status": "favorable_condicionada", "technology": "solar_fv", "project_count": 1, "mw_nominal": 100.0, "mw_count": 1, "hectares": 200.0, "ha_count": 1, "mw_best": 100.0, "mw_peak_fallback_count": 0}]
 
 
 def test_monthly_events_csv(db, fixtures_dir, tmp_path):
@@ -370,7 +370,7 @@ def test_municipality_stats_csv_carries_mw_and_ha_count(db, fixtures_dir, tmp_pa
     _export_slice3(db, fixtures_dir, tmp_path)
     with open(tmp_path / "municipality_stats.csv", encoding="utf-8", newline="") as f:
         header = next(csv.reader(f))
-    assert header == ["ine_code", "status", "technology", "project_count", "mw_nominal", "hectares", "turbines", "mw_count", "ha_count", "name", "province"]
+    assert header == ["ine_code", "status", "technology", "project_count", "mw_nominal", "hectares", "turbines", "mw_count", "ha_count", "mw_best", "mw_peak_fallback_count", "name", "province"]
 
 
 def _seed_zones(db):

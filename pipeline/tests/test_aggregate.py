@@ -322,3 +322,35 @@ def test_monthly_events_counts_a_document_shared_by_two_projects_once(db, fixtur
                      "WHERE month = '2023-06-01' AND scope = 'Andalucía' "
                      "AND technology = 'solar_fv' AND event = 'sin_veredicto'")
     assert rows == [{"document_count": 1}]
+
+
+def test_mw_best_falls_back_to_peak_and_counts_the_fallback(db, fixtures_dir):
+    seed_slice3(db, fixtures_dir)
+    # p1 declares both (nominal wins), p3 only a peak (the fallback), p4 only
+    # nominal, and the line p2 a peak that, as a line, still sums no MW.
+    with db.cursor() as cur:
+        cur.execute("UPDATE projects SET mw_peak = 120 WHERE id = 1")
+        cur.execute("UPDATE projects SET mw_peak = 50 WHERE id = 2")
+        cur.execute("UPDATE projects SET mw_peak = 60 WHERE id = 3")
+    db.commit()
+    view = _rows(db, "SELECT id, mw_nominal, mw_best, mw_peak_fallback FROM projects_for_aggregates ORDER BY id")
+    assert view == [
+        {"id": 1, "mw_nominal": 100.0, "mw_best": 100.0, "mw_peak_fallback": False},
+        {"id": 2, "mw_nominal": None, "mw_best": None, "mw_peak_fallback": False},
+        {"id": 3, "mw_nominal": None, "mw_best": 60.0, "mw_peak_fallback": True},
+        {"id": 4, "mw_nominal": 30.0, "mw_best": 30.0, "mw_peak_fallback": False},
+    ]
+    run_aggregate(db)
+    ms = _rows(db, "SELECT ine_code, technology, mw_nominal, mw_count, mw_best, mw_peak_fallback_count "
+                   "FROM municipality_stats WHERE ine_code IN ('29067', '29084') ORDER BY ine_code, technology")
+    assert ms == [
+        {"ine_code": "29067", "technology": "solar_fv", "mw_nominal": 0.0, "mw_count": 0, "mw_best": 60.0, "mw_peak_fallback_count": 1},
+        {"ine_code": "29084", "technology": "linea_evacuacion", "mw_nominal": 0.0, "mw_count": 0, "mw_best": 0.0, "mw_peak_fallback_count": 0},
+        {"ine_code": "29084", "technology": "solar_fv", "mw_nominal": 100.0, "mw_count": 1, "mw_best": 100.0, "mw_peak_fallback_count": 0},
+    ]
+    region = _rows(db, "SELECT sum(mw_nominal) AS nominal, sum(mw_best) AS best, sum(mw_peak_fallback_count) AS fallback "
+                       "FROM province_stats WHERE scope = 'Andalucía'")
+    assert region == [{"nominal": 130.0, "best": 190.0, "fallback": 1}]
+    pm = _rows(db, "SELECT province, verdict, mw_nominal, mw_best, mw_peak_fallback_count FROM province_monthly "
+                   "WHERE verdict = 'desconocido'")
+    assert pm == [{"province": "Málaga", "verdict": "desconocido", "mw_nominal": 0.0, "mw_best": 60.0, "mw_peak_fallback_count": 1}]

@@ -4,14 +4,16 @@
 -- (province, month, verdict, project) row first, then aggregate.
 -- MW comes from projects_for_aggregates (evacuation lines contribute none).
 DELETE FROM province_monthly;
-INSERT INTO province_monthly (province, month, verdict, project_count, mw_nominal)
-SELECT province, month, verdict, count(*), COALESCE(sum(mw_nominal), 0)
+INSERT INTO province_monthly (province, month, verdict, project_count, mw_nominal, mw_best, mw_peak_fallback_count)
+SELECT province, month, verdict, count(*), COALESCE(sum(mw_nominal), 0), COALESCE(sum(mw_best), 0), count(*) FILTER (WHERE mw_peak_fallback)
 FROM (
   SELECT DISTINCT m.province,
          date_trunc('month', d.published_at)::date AS month,
          p.status AS verdict,
          p.id,
-         p.mw_nominal
+         p.mw_nominal,
+         p.mw_best,
+         p.mw_peak_fallback
   FROM projects_for_aggregates p
   JOIN raw_documents d ON d.id = p.status_document_id
   JOIN project_municipalities pm ON pm.project_id = p.id

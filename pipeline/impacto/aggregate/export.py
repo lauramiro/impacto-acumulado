@@ -155,7 +155,9 @@ def export_municipalities_map_geojson(conn, out_dir: Path) -> Path:
     return _write_feature_collection(out_dir / "municipalities_map.geojson", features)
 
 
-CELL_KEYS = ("status", "technology", "project_count", "mw_nominal", "mw_count", "hectares", "ha_count")
+# mw_best is mw_nominal, or the peak where only the peak is declared (migration 005);
+# mw_peak_fallback_count says in how many projects of the cell that happens.
+CELL_KEYS = ("status", "technology", "project_count", "mw_nominal", "mw_count", "hectares", "ha_count", "mw_best", "mw_peak_fallback_count")
 
 
 def export_municipality_stats_json(conn, out_dir: Path) -> Path:

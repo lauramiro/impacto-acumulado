@@ -57,6 +57,9 @@ Lighthouse 13.5 (mobile, Chrome headless, 2026-09-21): `/` performance 88, acces
 
 Also listed under "Cambios" on `/datos`; add new entries to both.
 
+- 2026-10-04: the aggregate files (`municipality_stats`, `protected_area_stats`, `province_stats.json`, `province_monthly.csv`) gain `mw_best` (`mw_nominal`, or the peak `mw_peak` where a project declares only the peak; evacuation lines still none) and `mw_peak_fallback_count` (projects in the row whose figure is the peak). `mw_nominal` and `mw_count` keep their meaning. In `municipality_stats.csv` the two columns follow `ha_count`.
+- 2026-10-04: project resolution no longer merges sister plants (different procedure numbers of one type and province, or different phase markers in the name). 46 projects that held several plants were split, and `projects.csv` went from 444 to 541 rows. A project keeps the lowest document id of its group as its id, so some ids now name a different project than before (for example 34 is Guadame Solar 5).
+
 - 2026-09-28: `mw_nominal` in the aggregate files (`municipality_stats`, `protected_area_stats`, `province_monthly.csv`) no longer includes evacuation-line MW; `projects.csv` is unchanged. `municipality_stats.csv` gains a `mw_count` column between `turbines` and `name`. `municipality_stats.json` and `protected_area_stats.json` switch to a `cells` list per status and technology, and `protected_area_stats.json` now lists every site with `name`, `type` and `municipality_count`. New files: `province_stats.json`, `monthly_events.csv`, `sensitivity_ftv.geojson`, `sensitivity_eol.geojson`.
 
 ## Continuous integration and the weekly run
