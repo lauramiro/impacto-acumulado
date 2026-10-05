@@ -1,0 +1,21 @@
+{
+  "source": "boe",
+  "source_id": "BOE-B-2021-16761",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "GREEN CAPITAL POWER, S.L.",
+    "technology": "eolica",
+    "mw_nominal": 63.08,
+    "turbines": 13,
+    "expediente": "PEol-268",
+    "project_name": "Parque Eólico Hinojosa",
+    "municipalities": [
+      {
+        "name": "Alcalá del Valle",
+        "province": "Cádiz"
+      }
+    ]
+  },
+  "note": "Consultation on the environmental impact study and prior authorisation. '13 aerogeneradores de 4,852 MW ... potencia total a instalar de 63,08 MW'. 'El Parque Eolico que se proyecta ... estara ubicado en el termino municipal de Alcala del Valle (Cadiz)'; Canete la Real, El Burgo and Casarabonela are crossed by the line."
+}

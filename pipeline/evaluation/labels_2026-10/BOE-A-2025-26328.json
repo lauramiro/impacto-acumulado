@@ -1,0 +1,19 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2025-26328",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "desfavorable",
+    "technology": "hibrida",
+    "mw_nominal": 38.74,
+    "hectares": 54.14,
+    "project_name": "Instalación Híbrida Fotovoltaica FV HIB Ferreira II",
+    "municipalities": [
+      {
+        "name": "Guadix",
+        "province": "Granada"
+      }
+    ]
+  },
+  "note": "Verdict: 'formula declaracion de impacto ambiental desfavorable'. A photovoltaic plant to hybridise the existing PE Ferreira II, named an 'Instalacion hibrida fotovoltaica', hence hibrida (as BOE-A-2026-3880, Cartuja). mw_nominal: 38,74 MW instalada for the new plant; the 49,5 MW wind farm exists and is not assessed. hectares: 'La superficie ocupada por la PSF es de 54,14 ha'. Municipality: 'planta solar fotovoltaica en el termino municipal de Guadix'; the line municipalities are excluded. developer omitted: the request came from the Direccion General de Politica Energetica y Minas and no promoter company is named."
+}

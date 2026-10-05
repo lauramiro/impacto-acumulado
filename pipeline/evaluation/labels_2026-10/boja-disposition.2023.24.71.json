@@ -1,0 +1,18 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2023.24.71",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "Solaner Dos, S.L.U.",
+    "mw_nominal": null,
+    "expediente": "AAI/SE/0561/2022/N",
+    "municipalities": [
+      {
+        "name": "Sevilla",
+        "province": "Sevilla"
+      }
+    ]
+  },
+  "note": "Consultation on the integrated environmental authorisation and the impact study of a 'Planta fotovoltaica en autoconsumo para produccion de hidrogeno renovable' in Sevilla. No capacity stated. technology omitted, as for the other hydrogen plants."
+}

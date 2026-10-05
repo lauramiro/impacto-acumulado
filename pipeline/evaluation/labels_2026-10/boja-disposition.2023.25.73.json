@@ -1,0 +1,22 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2023.25.73",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "no_aplica",
+    "technology": "eolica",
+    "mw_nominal": null,
+    "expediente": "AAU/MA/04/20",
+    "municipalities": [
+      {
+        "name": "Manilva",
+        "province": "Málaga"
+      },
+      {
+        "name": "Casares",
+        "province": "Málaga"
+      }
+    ]
+  },
+  "note": "Publicity of the binding report 'relativo a la autorizacion ambiental unificada' for the parque eolico El Cortijo; the notice does not say whether it was granted or refused, so no_aplica (the convention of evaluation/aau_verdicts.json). No capacity, no developer stated."
+}

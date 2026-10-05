@@ -1,0 +1,23 @@
+{
+  "source": "boe",
+  "source_id": "BOE-B-2020-49856",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "mw_peak": 250,
+    "expediente": "PFot-273 AC",
+    "municipalities": [
+      {
+        "name": "Gaucín",
+        "province": "Málaga"
+      },
+      {
+        "name": "Jimena de la Frontera",
+        "province": "Cádiz"
+      }
+    ]
+  },
+  "note": "Consultation on four plants of 62,5 MWp each (Anclote, Atolon, Lanuza II, Nuza I) and their common evacuation; no total printed, so mw_peak is the sum, 250; no nominal figure. Municipalities: the plants stand in Gaucin and Jimena de la Frontera; Casares is crossed by the 132 kV line only. developer omitted: four special-purpose promoters. project_name omitted: four plants."
+}

@@ -1,0 +1,15 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2022-11375",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Solar Castuera SL",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "mw_peak": 100,
+    "hectares": 204,
+    "project_name": "Parque solar fotovoltaico Lirios Solar PV"
+  },
+  "note": "Verdict: favourable form with conditions. Capacity printed only as peak, '100 MWp', so mw_nominal is null. hectares: 'superficie y perimetro vallados totales de 204 ha'. Municipalities omitted: the resolution names Chucena only for the collector substation and as a nearby town; the plant's municipality is not stated."
+}

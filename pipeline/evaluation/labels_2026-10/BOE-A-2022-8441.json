@@ -1,0 +1,25 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2022-8441",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Enel Green Power España, SL",
+    "technology": "solar_fv",
+    "mw_nominal": 69.6,
+    "mw_peak": 90.5,
+    "hectares": 212.7,
+    "project_name": "Planta Solar Fotovoltaica Aljarafe",
+    "municipalities": [
+      {
+        "name": "Salteras",
+        "province": "Sevilla"
+      },
+      {
+        "name": "Valencina de la Concepción",
+        "province": "Sevilla"
+      }
+    ]
+  },
+  "note": "Verdict: favourable form with conditions (the word 'desfavorable' appears elsewhere in the text, not in the operative part). 'PFV Aljarafe de 90,5 MWp y 69,6 MWn, ubicada en los terminos municipales de Salteras y Valencina de la Concepcion'; 'La planta fotovoltaica ocupa una superficie de 212,7 ha'."
+}

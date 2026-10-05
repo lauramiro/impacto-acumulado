@@ -1,0 +1,23 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2025.32.91",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "favorable_condicionada",
+    "developer": "Arena Green Power Ren 29, S.L.U.",
+    "technology": "solar_fv",
+    "mw_nominal": 5,
+    "expediente": "AAUS/HU/027/24",
+    "municipalities": [
+      {
+        "name": "Beas",
+        "province": "Huelva"
+      },
+      {
+        "name": "Trigueros",
+        "province": "Huelva"
+      }
+    ]
+  },
+  "note": "Publicity of the 'nueva autorizacion ambiental unificada simplificada otorgada': granted. 'PSF El Descubrimiento 40, de 5 MW de potencia instalada ... en los terminos municipales de Beas y Trigueros'; plant and line are not separated."
+}

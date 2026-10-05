@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import psycopg
@@ -17,12 +18,16 @@ from impacto.text import normalize
 
 log = logging.getLogger(__name__)
 
+# labels/ (2026-09-22) became a tuning set when the extractor was fixed
+# against it; labels_2026-10/ was written afterwards and is held out.
 LABELS_DIR = Path(__file__).resolve().parent / "labels"
+HELD_OUT_DIR = Path(__file__).resolve().parent / "labels_2026-10"
 LAST_RUN = Path(__file__).resolve().parent / "last_run.json"
 # last_run.json is the published baseline: export copies it to the site, and
 # it predates any tuning against the labels, so nothing may overwrite it.
 # Runs go to tuned_run.json unless --out says otherwise.
 TUNED_RUN = Path(__file__).resolve().parent / "tuned_run.json"
+
 NUMERIC = {"mw_peak", "mw_nominal", "hectares", "turbines"}
 EXACT = {"doc_type", "verdict", "technology"}
 
@@ -67,6 +72,7 @@ def run_eval(
     provider: Provider,
     labels_dir: Path = LABELS_DIR,
     out: Path = TUNED_RUN,
+    today: date | None = None,
 ) -> dict[str, float]:
     """Per-field accuracy over every label in labels_dir whose document is fetched.
 
@@ -112,6 +118,8 @@ def run_eval(
         print(f"{field:<22}{acc:>8.0%}  {len(hits[field])}")
     result = {
         "provider": provider.name,
+        "measured": (today or datetime.now(UTC).date()).isoformat(),
+        "labels": labels_dir.name,
         "accuracy": accuracy,
         "n_labels": len(label_paths),
         "n_scored": len(label_paths) - len(skipped),
@@ -126,6 +134,7 @@ def main(argv: list[str]) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     parser = argparse.ArgumentParser(prog="impacto eval")
     parser.add_argument("--provider", choices=PROVIDER_NAMES, default="groq")
+    parser.add_argument("--labels", type=Path, default=LABELS_DIR, help="label folder; the published figure uses labels_2026-10")
     parser.add_argument("--out", type=Path, default=TUNED_RUN, help="result file; its misses go beside it")
     args = parser.parse_args(argv)
     try:
@@ -135,5 +144,5 @@ def main(argv: list[str]) -> int:
     settings = load_settings()
     provider = build_provider(settings, args.provider)
     with connect(settings.db_dsn) as conn:
-        run_eval(conn, provider, out=args.out)
+        run_eval(conn, provider, args.labels, out=args.out)
     return 0

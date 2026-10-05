@@ -1,0 +1,15 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-16374",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Iberdrola Renovables Andalucía SA",
+    "technology": "hibrida",
+    "mw_nominal": 27.83,
+    "mw_peak": 33.39,
+    "hectares": 64.906,
+    "project_name": "Parque Fotovoltaico Valdefuentes"
+  },
+  "note": "Verdict: the favourable form, 'formula declaracion de impacto ambiental a la realizacion del proyecto ... en la que se establecen las condiciones'. technology hibrida: the plant is built 'para conseguir una instalacion hibrida solar-eolica con el Parque Eolico Valdefuentes' (same reading as Ferreira II). mw: 'potencia pico de 33,39 MWp y una potencia instalada en inversores de 27,83 MW'. hectares: 'superficie total vallada de 64,906 Ha'. Municipalities omitted: El Almendro is named as the wind farm's municipality, the photovoltaic plant's own municipality is not stated."
+}

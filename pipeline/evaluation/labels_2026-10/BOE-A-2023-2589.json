@@ -1,0 +1,20 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-2589",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "favorable_condicionada",
+    "developer": "Prosaego Energías Alternativas, SL",
+    "technology": "hibrida",
+    "mw_nominal": 98,
+    "expediente": "SOLTER-FV-001",
+    "project_name": "Planta Termosolar, Híbrido con Fotovoltaica, SOLGEST-1",
+    "municipalities": [
+      {
+        "name": "Fuentes de Andalucía",
+        "province": "Sevilla"
+      }
+    ]
+  },
+  "note": "Verdict: favourable form with conditions. A solar-thermal plant hybridised with photovoltaics: hibrida. mw_nominal: '150 MW instalados y 98 MW nominal'; mw_peak omitted, the 150 MW is installed capacity across both (110 MWp thermal, 40 MWp PV). Municipalities: both plants 'en termino municipal de Fuentes de Andalucia'; Carmona and La Campana are line-only. expediente: 'codigo de expediente del organo sustantivo SOLTER-FV-001'."
+}

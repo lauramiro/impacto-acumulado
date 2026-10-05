@@ -1,0 +1,24 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2025.120.35",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "Siroco Hydrogen, 1 S.L.",
+    "mw_nominal": 96.3,
+    "mw_peak": 114.94,
+    "hectares": 191.4,
+    "expediente": "AAI/CA/085/24",
+    "municipalities": [
+      {
+        "name": "San José del Valle",
+        "province": "Cádiz"
+      },
+      {
+        "name": "Jerez de la Frontera",
+        "province": "Cádiz"
+      }
+    ]
+  },
+  "note": "New consultation on a green-hydrogen plant (70 MW electrolysis) fed by a self-consumption photovoltaic plant, 'Planta solar fotovoltaica de 114,94 MWp. 96,3 MWn', 191,40 ha. technology omitted: a hydrogen plant with its own solar field fits none of the categories cleanly. Municipalities as printed in the title and the agreement; the description also places the hydrogen plant 'en el municipio de Villamartin', which contradicts them and is not labelled."
+}

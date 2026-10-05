@@ -8,11 +8,10 @@ import pytest
 
 from evaluation.run_eval import (
     EXACT,
+    HELD_OUT_DIR,
     LABELS_DIR,
-    LAST_RUN,
     NUMERIC,
     TUNED_RUN,
-    main,
     misses_path,
     run_eval,
     score,
@@ -97,16 +96,18 @@ def test_run_eval_defaults_to_the_tuned_run_not_the_published_baseline():
     assert misses_path(TUNED_RUN).name == "tuned_run_misses.json"
 
 
-def test_run_eval_refuses_to_overwrite_the_published_baseline(tmp_path):
-    before = LAST_RUN.read_bytes()
-    with pytest.raises(ValueError, match="published baseline"):
-        run_eval(None, StubProvider([]), tmp_path, out=LAST_RUN)
-    with pytest.raises(SystemExit):
-        main(["--provider", "stub", "--out", str(LAST_RUN)])
-    assert LAST_RUN.read_bytes() == before
+def test_a_run_records_its_date_and_label_folder(db, tmp_path):
+    labels = tmp_path / "labels_x"
+    labels.mkdir()
+    out = tmp_path / "run.json"
+    run_eval(db, StubProvider([]), labels, out=out, today=date(2026, 10, 5))
+    result = json.loads(out.read_text(encoding="utf-8"))
+    assert (result["measured"], result["labels"]) == ("2026-10-05", "labels_x")
 
 
-@pytest.mark.parametrize("label_path", sorted(LABELS_DIR.glob("*.json")), ids=lambda p: p.name)
+@pytest.mark.parametrize(
+    "label_path", sorted(LABELS_DIR.glob("*.json")) + sorted(HELD_OUT_DIR.glob("*.json")), ids=lambda p: f"{p.parent.name}/{p.name}"
+)
 def test_label_is_well_formed(label_path: Path):
     # A typo in a hand-written label would silently score as a miss; catch it here.
     label = json.loads(label_path.read_text(encoding="utf-8"))

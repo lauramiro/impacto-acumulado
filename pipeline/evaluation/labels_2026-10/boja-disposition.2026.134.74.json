@@ -1,0 +1,24 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2026.134.74",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "desfavorable",
+    "developer": "Crater Batteries II, S.L.",
+    "technology": "eolica",
+    "mw_nominal": 37,
+    "expediente": "AAU/AL/0013/25",
+    "project_name": "Parque Eólico El Poniente",
+    "municipalities": [
+      {
+        "name": "El Ejido",
+        "province": "Almería"
+      },
+      {
+        "name": "Dalías",
+        "province": "Almería"
+      }
+    ]
+  },
+  "note": "Publication of the 'Informe Vinculante desfavorable de la autorizacion ambiental unificada' for the 'Proyecto basico del Parque Eolico El Poniente, de 37 MW de potencia instalada, e infraestructura de evacuacion' in El Ejido and Dalias; park and line are not separated."
+}

@@ -1,0 +1,35 @@
+{
+  "source": "boe",
+  "source_id": "BOE-A-2023-9754",
+  "expected": {
+    "doc_type": "dia",
+    "verdict": "desfavorable",
+    "developer": "Desarrollos Renovables Eólicos y Solares, SL",
+    "technology": "eolica",
+    "mw_nominal": 216.6,
+    "turbines": 38,
+    "municipalities": [
+      {
+        "name": "San Martín del Tesorillo",
+        "province": "Cádiz"
+      },
+      {
+        "name": "Jimena de la Frontera",
+        "province": "Cádiz"
+      },
+      {
+        "name": "San Roque",
+        "province": "Cádiz"
+      },
+      {
+        "name": "Casares",
+        "province": "Málaga"
+      },
+      {
+        "name": "Gaucín",
+        "province": "Málaga"
+      }
+    ]
+  },
+  "note": "Verdict: 'formula declaracion de impacto ambiental desfavorable a la realizacion del proyecto'. Three wind farms: El Esparragal 62,7 MW (once aerogeneradores), El Juncal 91,2 MW (dieciseis), Las Milagrosas 62,7 MW (once); no total is printed, so mw_nominal is the sum, 216,6, and turbines the stated 'treinta y ocho aerogeneradores'. Municipalities: the union of the parks' sites as described ('situado en los municipios de ...'); the text places San Roque 'en Malaga' once, it is in Cadiz. project_name omitted: three parks under one resolution."
+}

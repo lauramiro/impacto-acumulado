@@ -1,0 +1,27 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2024.197.71",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "favorable_condicionada",
+    "developer": "Gandasolar 5, S.L.",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "expediente": "AAU/CA/019/22",
+    "municipalities": [
+      {
+        "name": "Los Barrios",
+        "province": "Cádiz"
+      },
+      {
+        "name": "San Roque",
+        "province": "Cádiz"
+      },
+      {
+        "name": "Castellar de la Frontera",
+        "province": "Cádiz"
+      }
+    ]
+  },
+  "note": "'resolucion con la que se otorga autorizacion ambiental unificada' for 'CSF El Puerto I' (central solar fotovoltaica). No capacity stated."
+}

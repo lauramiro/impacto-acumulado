@@ -1,0 +1,20 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2023.51.107",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "no_aplica",
+    "developer": "Ñerisa XXI, S.L.",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "mw_peak": 49.89,
+    "expediente": "AAUA/AL/0003/21",
+    "municipalities": [
+      {
+        "name": "Benahadux",
+        "province": "Almería"
+      }
+    ]
+  },
+  "note": "Publication of the 'informe vinculante de la autorizacion ambiental unificada' with no outcome stated: no_aplica. 'Planta Fotovoltaica El Capricho, de 49,89 MWp': peak only."
+}

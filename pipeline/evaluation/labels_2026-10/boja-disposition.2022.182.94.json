@@ -1,0 +1,23 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2022.182.94",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "favorable_condicionada",
+    "developer": "Anthophila Energía Renovables, S.L.",
+    "technology": "solar_fv",
+    "mw_nominal": 11,
+    "expediente": "AAU/SE/0123/2021/N",
+    "municipalities": [
+      {
+        "name": "Sevilla",
+        "province": "Sevilla"
+      },
+      {
+        "name": "La Rinconada",
+        "province": "Sevilla"
+      }
+    ]
+  },
+  "note": "'Informe Vinculante sobre la Autorizacion Ambiental Unificada otorgada': granted, so favorable_condicionada (an AAU carries conditions). 'Planta Solar Fotovoltaica CA1 de 11 MW'. Municipalities as printed for the whole action ('Termino municipal: Sevilla y La Rinconada'); plant and line are not separated. project_name omitted: 'HSF CA1' and 'CA1' both used."
+}

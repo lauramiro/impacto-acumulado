@@ -1,0 +1,20 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2023.133.80",
+  "expected": {
+    "doc_type": "aau",
+    "verdict": "desfavorable",
+    "developer": "Parque Eólico El Arenoso, S.L.",
+    "technology": "eolica",
+    "mw_nominal": null,
+    "expediente": "AAU/CA/006/21",
+    "project_name": "Parque Eólico El Arenoso",
+    "municipalities": [
+      {
+        "name": "Los Barrios",
+        "province": "Cádiz"
+      }
+    ]
+  },
+  "note": "'informe vinculante con la que se deniega la autorizacion ambiental unificada'. No capacity stated."
+}

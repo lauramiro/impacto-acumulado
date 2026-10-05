@@ -1,0 +1,14 @@
+{
+  "source": "boe",
+  "source_id": "BOE-B-2021-27541",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "IBERDROLA RENOVABLES ANDALUCÍA, S.A.U.",
+    "technology": "solar_fv",
+    "mw_nominal": 250,
+    "mw_peak": 329.79,
+    "hectares": 530.33
+  },
+  "note": "'Potencia instalada: 329,79 MWp ... Potencia nominal: 250,00 MW en POI'; 'Area total bajo el vallado: 530,33 ha'. Municipalities omitted: the nine listed are 'Municipios Afectados' by plant, substations and a 28 km line together, and the plant's own are not stated. project_name omitted: written CAPARACENA 330, FV CAPARACENA and Caparacena in the same text."
+}

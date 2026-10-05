@@ -1,0 +1,22 @@
+{
+  "source": "boe",
+  "source_id": "BOE-B-2021-19581",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "Ququima Energy, S.L.",
+    "technology": "solar_fv",
+    "mw_nominal": null,
+    "municipalities": [
+      {
+        "name": "Caniles",
+        "province": "Granada"
+      },
+      {
+        "name": "Baza",
+        "province": "Granada"
+      }
+    ]
+  },
+  "note": "Correction notice that republishes the affected-property list and opens a new 30-day objection period on the Ququima consultation, so informacion_publica. It states no plant capacity (the only figure corrects a module rating, 440 Wp), so mw_nominal is null. Municipalities: 'PFV Ququima y SET Ququima 220/30 kV, en los terminos municipales de Caniles y Baza'; plant and substation are not separated."
+}

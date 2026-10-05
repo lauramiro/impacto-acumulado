@@ -1,0 +1,21 @@
+{
+  "source": "boja",
+  "source_id": "disposition.2026.74.38",
+  "expected": {
+    "doc_type": "informacion_publica",
+    "verdict": "no_aplica",
+    "developer": "Apis Solar, S.L.",
+    "mw_nominal": 20,
+    "mw_peak": 25.2,
+    "hectares": 51,
+    "expediente": "AAI/CA/090/24",
+    "project_name": "Planta de Hidrógeno Verde Abadín",
+    "municipalities": [
+      {
+        "name": "Arcos de la Frontera",
+        "province": "Cádiz"
+      }
+    ]
+  },
+  "note": "Consultation on a 15 MW electrolysis plant 'alimentada por una planta solar fotovoltaica de autoconsumo de 20 MW (25,2 MWp)', 'superficie total aproximada de 51 ha'. technology omitted, as for San Jose del Valle H2."
+}
