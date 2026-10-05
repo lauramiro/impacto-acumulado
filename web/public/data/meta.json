@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T09:13:04.885866+00:00",
+  "generated_at": "2026-10-05T09:28:52.201177+00:00",
   "counts": {
     "raw_documents": 758,
     "extractions": 758,
@@ -10,7 +10,7 @@
   "files": {
     "projects.csv": {
       "rows": 585,
-      "bytes": 162488
+      "bytes": 162761
     },
     "documents.csv": {
       "rows": 758,
@@ -23,6 +23,10 @@
     "project_details.json": {
       "rows": 585,
       "bytes": 672458
+    },
+    "splitting_candidates.json": {
+      "rows": 25,
+      "bytes": 4829
     },
     "municipality_stats.csv": {
       "rows": 535,
