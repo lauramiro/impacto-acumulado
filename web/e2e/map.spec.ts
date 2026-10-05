@@ -20,6 +20,13 @@ const regionCells: { status: string; project_count: number }[] = JSON.parse(
 const withProjects = new Set(regionCells.filter((c) => c.project_count > 0).map((c) => c.status));
 const listed = STATUS_ORDER.filter(([s]) => withProjects.has(s));
 const empty = STATUS_ORDER.filter(([s]) => !withProjects.has(s)).map(([, label]) => label);
+// A municipality with exactly one solar project, from the data the build uses.
+const municipalityCells: Record<string, { cells: { technology: string; project_count: number }[] }> = JSON.parse(
+  readFileSync(path.join(__dirname, "..", "public", "data", "municipality_stats.json"), "utf-8"),
+);
+const oneSolar = Object.entries(municipalityCells).find(
+  ([, m]) => m.cells.filter((c) => c.technology === "solar_fv").reduce((a, c) => a + c.project_count, 0) === 1,
+)![0];
 
 test("map renders every municipality from the light geojson and the date line", async ({ page }) => {
   const geojson = page.waitForResponse((r) => r.url().endsWith("/data/municipalities_map.geojson") && r.ok());
@@ -103,7 +110,7 @@ test("the panel names the active technology filter below the municipality name",
 });
 
 test("the panel total uses the singular for one project", async ({ page }) => {
-  await page.goto("/?tecnologia=solar_fv&m=18051");
+  await page.goto(`/?tecnologia=solar_fv&m=${oneSolar}`);
   const total = page.getByRole("complementary", { name: "Municipio seleccionado" }).locator("dd").last();
   await expect(total).toContainText("1 proyecto");
   await expect(total).not.toContainText("proyectos");

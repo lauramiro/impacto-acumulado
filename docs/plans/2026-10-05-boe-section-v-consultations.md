@@ -1,6 +1,6 @@
 # Plan: BOE section V consultations (item 6)
 
-Date: 2026-10-05. Status: proposed, waiting for approval. Source of every figure below: the cached BOE daily summaries in `pipeline/.cache` (2019-01-01 to 2026-10-04), read without network requests.
+Date: 2026-10-05. Status: done 2026-10-05 (138 announcements stored after removing three Red Eléctrica grid works; storage modules resolved as projects of their own, commit 5f4dc0c). Source of every figure below: the cached BOE daily summaries in `pipeline/.cache` (2019-01-01 to 2026-10-04), read without network requests.
 
 ## What is missing today
 

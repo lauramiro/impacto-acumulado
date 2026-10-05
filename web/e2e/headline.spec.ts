@@ -12,7 +12,7 @@ const mw = (statuses: string[]) => {
 
 test("the headline never sums refused projects with the rest, and states both against province_stats.json", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("mw-acumulando")).toHaveText(mw(["favorable", "favorable_condicionada", "en_consulta", "desconocido"]));
+  await expect(page.getByTestId("mw-acumulando")).toHaveText(mw(["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion", "desconocido"]));
   await expect(page.getByTestId("mw-denegados")).toHaveText(mw(["desfavorable", "caducado"]));
   await expect(page.getByText(/[\d.]+ de ellos sin veredicto en el boletín, con \S+ y \S+ a la cabeza/)).toBeVisible();
 });

@@ -116,6 +116,13 @@ export default async function DataPage() {
             consulta pública tiene más de 24 meses y sin resolución publicada (antes, <span className="dato">en_consulta</span>). Se
             calcula en cada actualización semanal, así que un proyecto puede pasar a este estado sin un documento nuevo.
           </li>
+          <li>
+            Fuente nueva: los anuncios de información pública de la sección V del BOE sobre proyectos renovables en Andalucía que
+            someten a consulta la evaluación ambiental (138 anuncios desde 2019). Se guardan sin la relación de bienes y derechos
+            afectados, que lleva datos personales. La mayoría se suma a un proyecto ya publicado; los módulos de almacenamiento por
+            baterías de plantas existentes cuentan como proyectos propios. <span className="dato">projects.csv</span> pasa de 541 a
+            601 filas; seis de las nuevas son plantas que la agrupación unía con otras y ahora separa.
+          </li>
         </ul>
       </section>
       <section aria-labelledby="cambio-2026-10-04" className={styles.columnas}>
