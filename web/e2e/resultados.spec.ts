@@ -22,3 +22,26 @@ test("refusal rates give their cases, counted from projects.csv", async ({ page 
   }
   await expect(page.getByRole("table", { name: "Denegaciones por tecnología" })).toBeVisible();
 });
+
+test("a median under the minimum sample reads as few cases, with its count", async ({ page }) => {
+  await page.goto("/resultados");
+  await expect(page.getByText(/por debajo de 10 proyectos medidos/)).toBeVisible();
+  const rows = page.getByRole("table", { name: "Denegaciones y plazo por provincia" }).locator("tbody tr");
+  await expect(rows).toHaveCount(9);
+  for (const cell of await rows.locator("td:last-child").allInnerTexts()) {
+    const few = cell.match(/^pocos casos \((\d+)\)$/);
+    if (few) expect(Number(few[1])).toBeLessThan(10);
+    else expect(Number(cell.match(/\((\d+)\)$/)?.[1])).toBeGreaterThanOrEqual(10);
+  }
+});
+
+test("only the home page asks for the map files", async ({ page }) => {
+  const requested: string[] = [];
+  page.on("request", (r) => /geojson/.test(r.url()) && requested.push(r.url()));
+  await page.goto("/resultados");
+  await expect(page.locator("link[rel=preload][href*='geojson']")).toHaveCount(0);
+  await page.waitForLoadState("networkidle");
+  expect(requested).toEqual([]);
+  await page.goto("/");
+  await expect(page.locator("link[rel=preload][href*='municipalities_map.geojson']")).toHaveCount(1);
+});

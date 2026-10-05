@@ -129,3 +129,11 @@ test("a project in a possible-splitting group says so, neutrally, and links its 
   await expect(note).toContainText("Es un patrón en los datos, no una conclusión");
   await expect(note.getByRole("link")).toHaveCount(tayant.project_ids.length);
 });
+
+test("a protected site named in several spellings is listed once", async ({ page }) => {
+  await page.goto("/proyecto/43");
+  const region = page.getByRole("region", { name: "Especies y espacios citados" });
+  await expect(region.getByRole("heading", { name: /^Espacios y planes citados \(\d+\)$/ })).toBeVisible();
+  await expect(region.getByText(/Andévalo Occidental/).filter({ hasText: /ZEC|Zona Especial/ })).toHaveCount(1);
+  await expect(region.getByText("Plan de Conservación de aves necrófagas")).toHaveCount(1);
+});

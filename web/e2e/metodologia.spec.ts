@@ -42,3 +42,10 @@ test("the early-record caveat counts 2019 to 2021 from documents.csv", async ({ 
   await expect(page.getByTestId("registro-temprano")).toContainText(`${boja} documentos del BOJA y ${boe} del BOE de 2019 a 2021`);
   await expect(page.getByText(/el extractor aún no los distingue/)).toHaveCount(0);
 });
+
+test("the page does not scroll sideways on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/metodologia");
+  await expect(page.getByRole("columnheader", { name: "22 de septiembre de 2026" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});

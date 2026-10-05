@@ -1,5 +1,5 @@
 import { loadSplittingGroups } from "@/lib/data/splitting";
-import { distinctNames, loadProjectDetails } from "@/lib/data/project-details";
+import { distinctNames, loadProjectDetails, protectedAreaKey } from "@/lib/data/project-details";
 import { keysByPrintedName, loadDevelopers, relatedDevelopers } from "@/lib/data/developers";
 import { describe, expect, it } from "vitest";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
@@ -251,6 +251,16 @@ describe("loadProjectDetails", () => {
 
   it("joins names across documents once each, ignoring case", () => {
     expect(distinctNames([["Sisón", "Avutarda"], ["sisón", "Cernícalo"]])).toEqual(["Avutarda", "Cernícalo", "Sisón"]);
+  });
+});
+
+describe("protectedAreaKey", () => {
+  it("joins one site however it is spelled, and keeps different sites and plans apart", () => {
+    const zec = ["Red Natura 2000 (ZEC Andévalo Occidental)", "Zona Especial de Conservación (ZEC) Andévalo Occidental", "Zona de Especial Conservación Andévalo Occidental (ZEC)", "Zona Especial de Conservación (ZEC) Andévalo Occidental (ES6150010)"];
+    expect(new Set(zec.map(protectedAreaKey)).size).toBe(1);
+    expect(distinctNames([zec], protectedAreaKey)).toEqual(["Zona Especial de Conservación (ZEC) Andévalo Occidental (ES6150010)"]);
+    const other = ["Área Importante para la Conservación de las Aves (IBA) Andévalo Occidental", "ZIAE Andévalo Occidental", "Plan de Conservación de aves necrófagas", "Red Natura 2000"];
+    expect(new Set([...other, zec[0]!].map(protectedAreaKey)).size).toBe(5);
   });
 });
 

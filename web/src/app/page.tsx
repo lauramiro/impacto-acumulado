@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { preload } from "react-dom";
 import { FeedLink } from "@/components/feed-link";
 import { MapExplorer } from "@/components/map/map-explorer";
 import { OpenConsultations } from "@/components/open-consultations";
@@ -18,8 +17,6 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  preload("/data/municipalities_map.geojson", { as: "fetch", crossOrigin: "anonymous" });
-  preload("/data/provinces.geojson", { as: "fetch", crossOrigin: "anonymous" });
   const [{ municipalities, stats, provinceStats, events, sites, lastMonth }, { consultations }] = await Promise.all([
     loadMapData(),
     loadOpenConsultations(),

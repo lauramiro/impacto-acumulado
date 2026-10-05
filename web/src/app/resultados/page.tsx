@@ -5,7 +5,7 @@ import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { loadProjects } from "@/lib/data/projects";
 import { formatInt, formatPercent } from "@/lib/format";
 import { TECHNOLOGY_LABELS } from "@/lib/labels";
-import { daysToDecision, median, MIN_DECIDED_FOR_RATE, refusals, type Refusals } from "@/lib/outcomes";
+import { daysToDecision, MIN_CASES_FOR_MEDIAN, MIN_DECIDED_FOR_RATE, refusals, sampledMedian, type Refusals } from "@/lib/outcomes";
 import { PROVINCES, REGION, TECHNOLOGIES, type Project } from "@/lib/types";
 import styles from "./page.module.css";
 
@@ -47,7 +47,8 @@ export default async function OutcomesPage() {
         Cómo terminan los procedimientos que recogen los boletines: cuántos proyectos se deniegan y cuánto tarda la decisión. Un
         proyecto decidido es uno con resolución favorable, favorable con condiciones o desfavorable; los caducados, los que siguen en
         trámite y los que no tienen veredicto en el boletín no cuentan. Cada tasa lleva sus casos; con menos de{" "}
-        {formatInt(MIN_DECIDED_FOR_RATE)} decididos solo se dan los casos.
+        {formatInt(MIN_DECIDED_FOR_RATE)} decididos solo se dan los casos, y lo mismo con la mediana del plazo por debajo de{" "}
+        {formatInt(MIN_CASES_FOR_MEDIAN)} proyectos medidos.
       </p>
 
       <h2 id="provincias">Denegaciones y plazo por provincia</h2>
@@ -63,14 +64,19 @@ export default async function OutcomesPage() {
         <tbody>
           {scopes.map(({ label, projects: ps, total }) => {
             const d = ps.map((p) => days.get(p.id)).filter((v) => v !== undefined);
-            const m = median(d);
+            const { median: m, cases } = sampledMedian(d);
             return (
               <tr key={label} className={total ? styles.total : undefined}>
                 <th scope="row">{label}</th>
                 <RateCells r={refusals(ps)} />
                 <td className={styles.num}>
-                  {m === null ? "—" : <Figure value={formatInt(Math.round(m))} />}{" "}
-                  <span className="pie">({formatInt(d.length)})</span>
+                  {m === null ? (
+                    <span className="pie">pocos casos ({formatInt(cases)})</span>
+                  ) : (
+                    <>
+                      <Figure value={formatInt(Math.round(m))} /> <span className="pie">({formatInt(cases)})</span>
+                    </>
+                  )}
                 </td>
               </tr>
             );

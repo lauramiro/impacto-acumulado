@@ -3,6 +3,9 @@ import type { GazetteDocument, Project, Status } from "./types";
 /** Rates over fewer decided projects than this are shown as counts only. */
 export const MIN_DECIDED_FOR_RATE = 10;
 
+/** Medians over fewer cases than this are shown as counts only. */
+export const MIN_CASES_FOR_MEDIAN = 10;
+
 const GRANTED: readonly Status[] = ["favorable", "favorable_condicionada"];
 const DECISION_ROLES = new Set(["dia", "aau", "informe"]);
 const DECISION_VERDICTS = new Set(["favorable", "favorable_condicionada", "desfavorable"]);
@@ -40,4 +43,9 @@ export function median(values: readonly number[]): number | null {
   const s = [...values].sort((a, b) => a - b);
   const mid = Math.floor(s.length / 2);
   return s.length % 2 ? s[mid]! : (s[mid - 1]! + s[mid]!) / 2;
+}
+
+/** The median and how many values it came from; the median is null under MIN_CASES_FOR_MEDIAN values. */
+export function sampledMedian(values: readonly number[]): { median: number | null; cases: number } {
+  return { median: values.length >= MIN_CASES_FOR_MEDIAN ? median(values) : null, cases: values.length };
 }

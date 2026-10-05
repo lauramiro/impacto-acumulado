@@ -9,7 +9,7 @@ import { ReportError } from "@/components/report-error";
 import { RecordHeader } from "@/components/project/record-header";
 import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
 import { loadMunicipalities } from "@/lib/data/municipalities";
-import { distinctNames, loadProjectDetails } from "@/lib/data/project-details";
+import { distinctNames, loadProjectDetails, protectedAreaKey } from "@/lib/data/project-details";
 import { loadProjectRecord } from "@/lib/data/project-record";
 import { loadSplittingGroups } from "@/lib/data/splitting";
 import { SplittingNote } from "@/components/splitting-note";
@@ -81,7 +81,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
           <SplittingNote key={g.projectIds.join("-")} group={g} projects={projectsById} current={record.project.id} />
         ))}
       <Conditions details={details} documents={record.documents} />
-      <Mentions species={distinctNames(details.map((d) => d.species))} areas={distinctNames(details.map((d) => d.protectedAreas))} />
+      <Mentions species={distinctNames(details.map((d) => d.species))} areas={distinctNames(details.map((d) => d.protectedAreas), protectedAreaKey)} />
       {/* record.statusDocument, not record.project.statusDocumentId: loadProjectRecord
           already nulls it for a "desconocido" project (status_document_id still names
           a real document - the latest one - even though nothing resolved the status),

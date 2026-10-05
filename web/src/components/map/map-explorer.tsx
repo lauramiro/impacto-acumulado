@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { preload } from "react-dom";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FeatureCollection, Geometry } from "geojson";
 import { indexRank, MunicipalityIndex, type IndexRow } from "@/components/municipality-index";
@@ -39,6 +40,9 @@ type Props = {
 };
 
 export function MapExplorer({ data, lastMonth }: Props) {
+  // Here, not in the page: a hint issued in the server component travels in the RSC payload that every link to "/" prefetches.
+  preload("/data/municipalities_map.geojson", { as: "fetch", crossOrigin: "anonymous" });
+  preload("/data/provinces.geojson", { as: "fetch", crossOrigin: "anonymous" });
   const { municipalities, stats, provinceStats, events, sites } = useMemo(() => expandMapData(data), [data]);
   // Hectares per province and for Andalucía, the denominators of MW per km².
   const areas = useMemo(() => {

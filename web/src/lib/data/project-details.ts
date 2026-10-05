@@ -44,9 +44,58 @@ export function unquote(s: string): string {
   return s.replaceAll("**", "").replace(/^["'«“]+|["'»”]+$/g, "").trim();
 }
 
-/** Names once each across documents, ignoring case, in the first spelling seen, sorted. */
-export function distinctNames(lists: readonly string[][]): string[] {
+const caseless = (n: string) => n.toLocaleLowerCase("es");
+
+/**
+ * Names once each across documents, in the longest spelling seen (the first, between equals), sorted.
+ * Two names are the same when `key` gives the same string; by default, ignoring case.
+ */
+export function distinctNames(lists: readonly string[][], key: (name: string) => string = caseless): string[] {
   const seen = new Map<string, string>();
-  for (const list of lists) for (const n of list) if (!seen.has(n.toLocaleLowerCase("es"))) seen.set(n.toLocaleLowerCase("es"), n);
+  for (const list of lists) {
+    for (const n of list) {
+      const k = key(n);
+      const prev = seen.get(k);
+      if (prev === undefined || n.length > prev.length) seen.set(k, n);
+    }
+  }
   return [...seen.values()].sort((a, b) => a.localeCompare(b, "es"));
+}
+
+/** Natura 2000 and bird-area designations, spelled out or abbreviated, as the documents write them. */
+const DESIGNATIONS: [string, RegExp][] = [
+  ["zepa", /\bzona de especial proteccion para las aves\b|\bzepa\b/g],
+  ["zec", /\bzona (?:especial de|de especial) conservacion\b|\bzec\b/g],
+  ["lic", /\blugar de importancia comunitaria\b|\blic\b/g],
+  ["ziae", /\bzona de importancia para las aves esteparias(?: de andalucia)?\b|\bziae\b/g],
+  ["iba", /\barea importante para la conservacion de las aves(?: y la biodiversidad)?\b|\bimportant bird areas?\b|\bibas?\b/g],
+];
+
+const CONNECTORS = new Set(["y", "e", "de", "del", "la", "las", "los", "el", "n"]);
+
+/**
+ * Same site, however the document spells it: "Red Natura 2000 (ZEC Andévalo Occidental)" and
+ * "Zona Especial de Conservación (ZEC) Andévalo Occidental (ES6150010)" are one ZEC. Only names
+ * with a designation and a site name are matched this way; anything else falls back to ignoring case.
+ */
+export function protectedAreaKey(name: string): string {
+  let s = caseless(name).normalize("NFD").replace(/\p{M}/gu, "");
+  const kinds = new Set<string>();
+  for (const [kind, re] of DESIGNATIONS) {
+    s = s.replace(re, () => {
+      kinds.add(kind);
+      return " ";
+    });
+  }
+  const words = s
+    .replace(/\bred natura 2000\b/g, " ")
+    .replace(/\bes\d{5,}\b/g, " ")
+    .split(/[^\p{L}]+/u)
+    .filter(Boolean);
+  // What the designations leave around the name: "ZEC y ZEPA", "IBA n.º 264-".
+  while (words.length > 0 && CONNECTORS.has(words[0]!)) words.shift();
+  while (words.length > 0 && CONNECTORS.has(words.at(-1)!)) words.pop();
+  const site = words.join(" ");
+  if (kinds.size === 0 || site === "") return caseless(name);
+  return `${[...kinds].sort().join("+")}:${site}`;
 }

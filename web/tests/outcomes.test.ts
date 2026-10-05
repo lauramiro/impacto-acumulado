@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysToDecision, median, refusals } from "@/lib/outcomes";
+import { daysToDecision, median, MIN_CASES_FOR_MEDIAN, refusals, sampledMedian } from "@/lib/outcomes";
 import type { GazetteDocument, Project, Status } from "@/lib/types";
 
 const project = (status: Status): Project => ({
@@ -34,5 +34,14 @@ describe("median", () => {
     expect(median([5, 1, 3])).toBe(3);
     expect(median([4, 1, 3, 2])).toBe(2.5);
     expect(median([])).toBeNull();
+  });
+});
+
+describe("sampledMedian", () => {
+  it("withholds the median under the minimum sample but keeps the count", () => {
+    const few = Array.from({ length: MIN_CASES_FOR_MEDIAN - 1 }, (_, i) => i);
+    expect(sampledMedian(few)).toEqual({ median: null, cases: MIN_CASES_FOR_MEDIAN - 1 });
+    expect(sampledMedian([...few, 100])).toEqual({ median: median([...few, 100]), cases: MIN_CASES_FOR_MEDIAN });
+    expect(sampledMedian([])).toEqual({ median: null, cases: 0 });
   });
 });

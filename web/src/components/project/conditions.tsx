@@ -61,7 +61,7 @@ export function Mentions({ species, areas }: { species: string[]; areas: string[
       ) : null}
       {areas.length > 0 ? (
         <>
-          <h3>Espacios protegidos ({formatInt(areas.length)})</h3>
+          <h3>Espacios y planes citados ({formatInt(areas.length)})</h3>
           <ul className={styles.columnas}>
             {areas.map((s) => (
               <li key={s}>{s}</li>
