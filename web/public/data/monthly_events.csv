@@ -130,7 +130,6 @@ month,scope,technology,event,document_count
 2022-11-01,Huelva,solar_fv,favorable_condicionada,2
 2022-11-01,Huelva,solar_fv,sin_veredicto,1
 2022-11-01,Jaén,solar_fv,favorable_condicionada,1
-2022-11-01,Málaga,eolica,consulta,1
 2022-11-01,Sevilla,hibrida,consulta,1
 2022-11-01,Sevilla,solar_fv,favorable_condicionada,6
 2022-12-01,Almería,solar_fv,sin_veredicto,1
@@ -329,7 +328,6 @@ month,scope,technology,event,document_count
 2023-09-01,Huelva,solar_fv,favorable_condicionada,1
 2023-09-01,Huelva,solar_fv,sin_veredicto,1
 2023-09-01,Jaén,solar_fv,sin_veredicto,1
-2023-09-01,Málaga,eolica,desfavorable,1
 2023-09-01,Málaga,solar_fv,favorable_condicionada,1
 2023-09-01,Sevilla,solar_fv,consulta,1
 2023-10-01,Almería,solar_fv,sin_veredicto,1

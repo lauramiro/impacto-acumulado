@@ -56,6 +56,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11001,favorable_condicionada,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
 11001,favorable_condicionada,solar_fv,3,94.8,0.0,0,2,0,131.20001,1,Alcalá de los Gazules,Cádiz
 11002,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Alcalá del Valle,Cádiz
+11002,favorable_condicionada,eolica,1,63.08,0.0,11,1,0,63.08,0,Alcalá del Valle,Cádiz
 11002,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Alcalá del Valle,Cádiz
 11002,sin_resolucion,solar_fv,1,278.6,421.1887,0,1,1,278.6,0,Alcalá del Valle,Cádiz
 11004,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,29.98,1,Algeciras,Cádiz
@@ -399,18 +400,18 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29018,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Ardales,Málaga
 29018,en_consulta,eolica,1,99.0,0.0,18,1,0,99.0,0,Ardales,Málaga
 29020,caducado,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Arriate,Málaga
-29031,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,El Burgo,Málaga
+29031,favorable_condicionada,eolica,1,63.08,0.0,11,1,0,63.08,0,El Burgo,Málaga
 29032,favorable_condicionada,solar_fv,2,138.23,225.34,0,1,1,175.73999,1,Campillos,Málaga
 29035,desconocido,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Cañete la Real,Málaga
-29035,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Cañete la Real,Málaga
+29035,favorable_condicionada,eolica,1,63.08,0.0,11,1,0,63.08,0,Cañete la Real,Málaga
 29035,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Cañete la Real,Málaga
 29038,desconocido,solar_fv,2,0.0,90.0,0,0,1,50.0,1,Cártama,Málaga
 29038,favorable_condicionada,solar_fv,4,216.905,363.10703,0,3,3,216.905,0,Cártama,Málaga
 29038,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Cártama,Málaga
 29039,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Casabermeja,Málaga
 29040,desconocido,solar_fv,3,0.0,90.0,0,0,1,100.0,2,Casarabonela,Málaga
-29040,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Casarabonela,Málaga
 29040,desfavorable,solar_fv,1,62.5,94.75,0,1,1,62.5,0,Casarabonela,Málaga
+29040,favorable_condicionada,eolica,1,63.08,0.0,11,1,0,63.08,0,Casarabonela,Málaga
 29040,favorable_condicionada,solar_fv,3,216.905,363.10703,0,3,3,216.905,0,Casarabonela,Málaga
 29040,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Casarabonela,Málaga
 29041,desconocido,eolica,4,0.0,0.0,0,0,0,0.0,0,Casares,Málaga
@@ -453,9 +454,10 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29095,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villanueva de Algaidas,Málaga
 29098,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Villanueva de Tapia,Málaga
 29903,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Montecorto,Málaga
+41004,desconocido,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Alcalá de Guadaíra,Sevilla
 41004,favorable_condicionada,hibrida,1,24.04,1.6336,0,1,1,24.04,0,Alcalá de Guadaíra,Sevilla
 41004,favorable_condicionada,solar_fv,25,559.45996,1451.0499,0,8,4,1124.02,9,Alcalá de Guadaíra,Sevilla
-41004,sin_resolucion,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Alcalá de Guadaíra,Sevilla
+41004,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,250.0,1,Alcalá de Guadaíra,Sevilla
 41005,favorable_condicionada,linea_evacuacion,3,0.0,0.0,0,0,0,0.0,0,Alcalá del Río,Sevilla
 41005,favorable_condicionada,solar_fv,5,10.0,0.0,0,1,0,156.89,4,Alcalá del Río,Sevilla
 41007,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,50.0,1,La Algaba,Sevilla
@@ -523,8 +525,8 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41091,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Sevilla,Sevilla
 41091,favorable_condicionada,solar_fv,8,228.5,523.2076,0,4,2,420.872,4,Sevilla,Sevilla
 41091,sin_resolucion,solar_fv,3,114.95,184.56,0,1,1,114.95,0,Sevilla,Sevilla
+41095,desconocido,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Utrera,Sevilla
 41095,favorable_condicionada,solar_fv,2,372.8,990.45,0,2,2,372.8,0,Utrera,Sevilla
-41095,sin_resolucion,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Utrera,Sevilla
 41096,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Valencina de la Concepción,Sevilla
 41096,favorable_condicionada,solar_fv,3,126.635994,212.7,0,3,1,126.635994,0,Valencina de la Concepción,Sevilla
 41099,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Villanueva del Río y Minas,Sevilla
