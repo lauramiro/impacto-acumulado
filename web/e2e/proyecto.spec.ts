@@ -127,6 +127,9 @@ test("a project in a possible-splitting group says so, neutrally, and links its 
   await page.goto(`/proyecto/${tayant.project_ids[0]}`);
   const note = page.getByTestId("fraccionamiento");
   await expect(note).toContainText("Es un patrón en los datos, no una conclusión");
+  await expect(note.getByRole("heading", { level: 2 })).toHaveText("Posible fraccionamiento (1 grupo)");
+  await expect(note.getByRole("list", { name: /^Tayant Investment · 199,2 MW/ })).toBeVisible();
+  // The siblings, plus "cómo se detecta"; the project itself is not a link.
   await expect(note.getByRole("link")).toHaveCount(tayant.project_ids.length);
 });
 

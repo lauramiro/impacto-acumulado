@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import { Figure } from "@/components/figure";
 import { ProjectRecord } from "@/components/municipality/project-record";
 import { ReportError } from "@/components/report-error";
+import { SplittingNote } from "@/components/splitting-note";
 import { developerTotals, type DeveloperTotal } from "@/lib/developers";
 import { keysByPrintedName, loadDevelopers, relatedDevelopers } from "@/lib/data/developers";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
+import { loadSplittingGroups } from "@/lib/data/splitting";
 import { formatCoverage, formatInt, formatMw } from "@/lib/format";
 import styles from "./page.module.css";
 
@@ -56,11 +58,12 @@ function TotalLine({ label, t }: { label: string; t: DeveloperTotal }) {
 
 export default async function DeveloperPage({ params }: { params: Promise<Params> }) {
   const { key } = await params;
-  const [{ developers, developer }, projects, documents, munis] = await Promise.all([
+  const [{ developers, developer }, projects, documents, munis, splitting] = await Promise.all([
     findDeveloper(key),
     loadProjects(),
     loadDocuments(),
     loadMunicipalities(),
+    loadSplittingGroups(),
   ]);
   if (!developer) notFound();
 
@@ -76,6 +79,7 @@ export default async function DeveloperPage({ params }: { params: Promise<Params
     .filter((m) => projectsIn.has(m.ine))
     .sort((a, b) => projectsIn.get(b.ine)! - projectsIn.get(a.ine)! || a.name.localeCompare(b.name, "es"));
   const otherNames = developer.names.filter((n) => n !== developer.name);
+  const splittingHere = splitting.filter((g) => g.family === developer.family);
 
   return (
     <article>
@@ -131,6 +135,8 @@ export default async function DeveloperPage({ params }: { params: Promise<Params
           </ul>
         </section>
       ) : null}
+
+      <SplittingNote groups={splittingHere} projects={new Map(projects.map((p) => [p.id, p]))} developers={developers} />
 
       <section aria-labelledby="municipios" className={styles.seccion}>
         <h2 id="municipios">Municipios ({formatInt(places.length)})</h2>

@@ -36,3 +36,21 @@ test("the index lists every developer and finds one by any printing", async ({ p
   await section.getByLabel("Buscar promotor").fill("IBERDROLA RENOVABLES ANDALUCIA S.A.");
   await expect(section.getByRole("rowheader")).toHaveCount(1);
 });
+
+test("a developer page shows the possible-splitting groups of its family", async ({ page }) => {
+  const groups: { family: string; project_ids: number[] }[] = JSON.parse(
+    readFileSync(path.join(__dirname, "..", "public", "data", "splitting_candidates.json"), "utf-8"),
+  );
+  const tayant = developers.find((d) => d.key === "tayant-investment-12")!;
+  const mine = groups.filter((g) => g.family === tayant.family);
+  expect(mine.length).toBeGreaterThan(0);
+  await page.goto("/promotor/tayant-investment-12");
+  const note = page.getByTestId("fraccionamiento");
+  await expect(note).toHaveCount(1);
+  await expect(note.getByTestId("fraccionamiento-grupo")).toHaveCount(mine.length);
+  for (const id of mine[0].project_ids) await expect(note.locator(`a[href="/proyecto/${id}"]`)).toBeVisible();
+
+  const none = developers.find((d) => !groups.some((g) => g.family === d.family))!;
+  await page.goto(`/promotor/${none.key}`);
+  await expect(page.getByTestId("fraccionamiento")).toHaveCount(0);
+});

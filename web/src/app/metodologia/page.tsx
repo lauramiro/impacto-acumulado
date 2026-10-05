@@ -59,7 +59,9 @@ export default async function MethodologyPage() {
       <h2>Fuentes</h2>
       <p>
         Boletín Oficial del Estado, sección III, resoluciones del ministerio con competencias en transición ecológica sobre proyectos
-        renovables en Andalucía: declaraciones de impacto ambiental e informes. El BOE solo recoge proyectos de más de 50 MW.
+        renovables en Andalucía: declaraciones de impacto ambiental e informes. El BOE recoge los proyectos que evalúa el
+        Estado: la mayoría superan los 50 MW, pero también los hay de menos, como hibridaciones y ampliaciones de plantas
+        existentes.
       </p>
       <p>
         Boletín Oficial del Estado, sección V: anuncios de información pública de esos mismos proyectos, cuando lo que se somete a
@@ -244,11 +246,16 @@ export default async function MethodologyPage() {
       </p>
       <ul>
         <li>
-          sus promotores tienen el mismo nombre salvo el número final (Tayant Investment 12 a 15), o son la misma sociedad;
+          sus promotores tienen el mismo nombre salvo el número final (Tayant Investment 12 a 15), o son la misma sociedad, aunque
+          los boletines la escriban de forma distinta («Greenalia Solar Power Guadame» y «PowerGuadame»);
         </li>
         <li>son al menos dos, cada uno declara menos de 50 MW y juntos superan los 50 MW;</li>
         <li>cada uno comparte municipio, o linda, con otro del grupo;</li>
-        <li>sus primeros documentos caen dentro de 24 meses.</li>
+        <li>sus primeros documentos caen dentro de 24 meses;</li>
+        <li>
+          el Estado no evaluó ninguno: un proyecto con una declaración de impacto o un informe del Ministerio en el BOE (sección III)
+          queda fuera, porque el Estado ya lo revisó.
+        </li>
       </ul>
       <p>
         Es un patrón en los datos, no una conclusión: no dice que haya fraccionamiento ni que sea ilegal, y no comprueba si las

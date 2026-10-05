@@ -13,13 +13,19 @@ async function checkAxe(page: Page, label: string) {
   expect(severe, JSON.stringify(severe, null, 2)).toEqual([]);
 }
 
-for (const url of ["/", "/municipio/11020", "/municipio/29084", "/proyecto/1", "/datos", "/metodologia", "/promotores", "/promotor/tayant-investment-12", "/resultados"]) {
+for (const url of ["/", "/municipio/11020", "/municipio/29084", "/municipio/41024", "/proyecto/1", "/datos", "/metodologia", "/promotores", "/promotor/tayant-investment-12", "/resultados"]) {
   test(`no serious or critical axe violations on ${url}`, async ({ page }) => {
     await page.goto(url);
     if (url === "/") await page.locator("path[data-ine]").first().waitFor();
     await checkAxe(page, url);
   });
 }
+
+test("no axe violations of any impact on /municipio/41024, which has two possible-splitting groups", async ({ page }) => {
+  await page.goto("/municipio/41024");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
+});
 
 test("no serious or critical axe violations on /datos at 375px (collapsed table)", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });

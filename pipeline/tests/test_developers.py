@@ -4,6 +4,7 @@ from impacto.developers import (
     developer_key,
     family_key,
     load_groups,
+    resolved_family,
     split_names,
 )
 
@@ -114,3 +115,23 @@ def test_the_shipped_groups_file_parses():
     assert (
         groups["greenalia-solar-powerguadame"].name == groups["greenalia-solar-power-guadame"].name
     )
+
+
+def test_a_spelling_row_joins_families_and_a_corporate_row_does_not():
+    groups = load_groups()
+    three = developer_key("Greenalia Solar PowerGuadame III, S.L.")
+    five = developer_key("Greenalia Solar Power Guadame V, S.L.")
+    assert family_key(three) != family_key(five)
+    assert resolved_family(three, groups) == resolved_family(five, groups)
+    assert resolved_family(five, groups) == "greenalia-solar-power-guadame"
+    corporate = {"tayant-investment": Group("Grupo T", "Matriz SA", None)}
+    assert resolved_family("tayant-investment-12", corporate) == "tayant-investment"
+    assert resolved_family("olivento", {}) == "olivento"
+    devs = build_developers(
+        [
+            {"id": 1, "developer": "Greenalia Solar PowerGuadame III, S.L.", "status": "favorable", "mw_best": 49.99},
+            {"id": 2, "developer": "Greenalia Solar Power Guadame V, S.L.", "status": "favorable", "mw_best": 49.99},
+        ],
+        groups,
+    )
+    assert {d["family"] for d in devs} == {"greenalia-solar-power-guadame"}

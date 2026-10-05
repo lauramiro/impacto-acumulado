@@ -7,8 +7,12 @@ Splitting one plant into several under the threshold is a pattern objectors
 point to. This module flags the pattern; it is not a legal finding.
 
 A group is flagged when all hold:
-- its projects share a developer family (impacto.developers.family_key);
+- its projects share a developer family (impacto.developers.resolved_family);
 - there are at least two;
+- none was assessed by the State (a DIA or informe of the Ministry in the
+  BOE, section III): the Ministry's review is what the pattern would avoid,
+  so a project it assessed cannot be part of one. Hybridisations and
+  extensions under 50 MW often reach the Ministry this way;
 - each declares MW (mw_best) under 50, and together they exceed 50;
 - each is linked to another of the group by a shared or neighbouring
   municipality, and all their first documents fall within 24 months of the
@@ -19,7 +23,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from impacto.developers import developer_key, family_key, split_names
+from impacto.developers import Group, developer_key, load_groups, resolved_family, split_names
 
 THRESHOLD_MW = 50.0
 WINDOW_MONTHS = 24
@@ -44,17 +48,25 @@ def _find(parent: dict[int, int], i: int) -> int:
     return i
 
 
-def families(developer: str | None) -> set[str]:
-    return {family_key(k) for n in split_names(developer) if (k := developer_key(n))}
+def families(developer: str | None, groups: dict[str, Group]) -> set[str]:
+    return {resolved_family(k, groups) for n in split_names(developer) if (k := developer_key(n))}
 
 
-def splitting_candidates(projects: list[dict], adjacency: set[tuple[str, str]]) -> list[dict]:
-    """`projects`: dicts with id, developer, mw_best, first_seen, ine_codes (set). `adjacency`: pairs of neighbouring INE codes."""
+def splitting_candidates(
+    projects: list[dict],
+    adjacency: set[tuple[str, str]],
+    groups: dict[str, Group] | None = None,
+) -> list[dict]:
+    """`projects`: dicts with id, developer, mw_best, first_seen, ine_codes (set), state_assessed. `adjacency`: pairs of neighbouring INE codes. `groups`: developer_groups.csv rows (read from the file when None)."""
+    if groups is None:
+        groups = load_groups()
     by_family: dict[str, list[dict]] = {}
     for p in projects:
         if p["mw_best"] is None or not (0 < p["mw_best"] < THRESHOLD_MW) or not p["ine_codes"]:
             continue
-        for f in families(p["developer"]):
+        if p["state_assessed"]:
+            continue
+        for f in families(p["developer"], groups):
             by_family.setdefault(f, []).append(p)
     seen: set[frozenset[int]] = set()
     out = []

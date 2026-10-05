@@ -70,3 +70,22 @@ test("gazette links name the document, with its reference after the link", async
   }
   await expect(docs.first()).toContainText(/(BOE|BOJA) \S+/);
 });
+
+test("a municipality with several possible-splitting groups has one section that explains them once", async ({ page }) => {
+  const groups: { family: string; mw_total: number; ine_codes: string[] }[] = JSON.parse(
+    readFileSync(path.join(__dirname, "..", "public", "data", "splitting_candidates.json"), "utf-8"),
+  );
+  const count = new Map<string, number>();
+  for (const g of groups) for (const ine of g.ine_codes) count.set(ine, (count.get(ine) ?? 0) + 1);
+  const [ine, n] = [...count].sort((a, b) => b[1] - a[1])[0];
+  expect(n).toBeGreaterThan(1);
+  await page.goto(`/municipio/${ine}`);
+  const note = page.getByTestId("fraccionamiento");
+  await expect(note).toHaveCount(1);
+  await expect(page.locator("aside")).toHaveCount(0);
+  await expect(note.getByRole("heading", { level: 2 })).toHaveText(`Posible fraccionamiento (${n} grupos)`);
+  await expect(note.getByText("Es un patrón en los datos, no una conclusión")).toHaveCount(1);
+  await expect(note.getByTestId("fraccionamiento-grupo")).toHaveCount(n);
+  // Each group's list is labelled by its family and total MW.
+  for (const list of await note.getByRole("list").all()) await expect(list).toHaveAccessibleName(/ · \d[\d.]*(,\d)? MW/);
+});

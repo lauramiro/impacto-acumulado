@@ -98,9 +98,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
 
       {openHere.length > 0 ? <OpenConsultations items={openHere} today={today} /> : null}
 
-      {splitting.map((g) => (
-        <SplittingNote key={g.projectIds.join("-")} group={g} projects={projectsById} />
-      ))}
+      <SplittingNote groups={splitting} projects={projectsById} developers={developers} />
 
       <section aria-labelledby="proyectos" className={styles.proyectos}>
         <h2 id="proyectos">Proyectos ({formatInt(here.length)})</h2>

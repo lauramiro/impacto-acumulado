@@ -210,7 +210,13 @@ def export_splitting_candidates(conn, out_dir: Path) -> Path:
         conn,
         """
         SELECT p.id, p.developer, a.mw_best, p.first_seen,
-               COALESCE((SELECT array_agg(pm.ine_code) FROM project_municipalities pm WHERE pm.project_id = p.id), '{}') AS ine_codes
+               COALESCE((SELECT array_agg(pm.ine_code) FROM project_municipalities pm WHERE pm.project_id = p.id), '{}') AS ine_codes,
+               -- Assessed by the State: a DIA or informe of the Ministry (BOE section III, BOE-A-...).
+               EXISTS (
+                   SELECT 1 FROM project_documents pd JOIN raw_documents d ON d.id = pd.document_id
+                   WHERE pd.project_id = p.id AND d.source = 'boe' AND starts_with(d.source_id, 'BOE-A-')
+                     AND pd.role IN ('dia', 'informe')
+               ) AS state_assessed
         FROM projects p JOIN projects_for_aggregates a ON a.id = p.id
         """,
     )

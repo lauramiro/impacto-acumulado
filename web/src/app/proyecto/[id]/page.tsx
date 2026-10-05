@@ -75,11 +75,12 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
     <article className={styles.page}>
       <RecordHeader project={record.project} developerKeys={keysByPrintedName(developers)} />
       <FactSheet project={record.project} municipalities={here} evidence={evidence} expedientes={expedientes} />
-      {splitting
-        .filter((g) => g.projectIds.includes(record.project.id))
-        .map((g) => (
-          <SplittingNote key={g.projectIds.join("-")} group={g} projects={projectsById} current={record.project.id} />
-        ))}
+      <SplittingNote
+        groups={splitting.filter((g) => g.projectIds.includes(record.project.id))}
+        projects={projectsById}
+        developers={developers}
+        current={record.project.id}
+      />
       <Conditions details={details} documents={record.documents} />
       <Mentions species={distinctNames(details.map((d) => d.species))} areas={distinctNames(details.map((d) => d.protectedAreas), protectedAreaKey)} />
       {/* record.statusDocument, not record.project.statusDocumentId: loadProjectRecord

@@ -1,3 +1,7 @@
 .nota { margin: 1.5rem 0; padding: 0.75rem 1rem; border-left: 3px solid var(--oficial); background: color-mix(in srgb, var(--oficial) 6%, transparent); max-width: 44rem; }
+.nota h2 { margin: 0 0 0.5rem; }
 .nota p { margin: 0 0 0.5rem; }
 .nota ul { margin: 0; padding-left: 1.25rem; }
+.grupo + .grupo { margin-top: 0.75rem; }
+.grupo h3 { margin: 0 0 0.25rem; font-size: 1rem; overflow-wrap: anywhere; }
+.grupo li { overflow-wrap: anywhere; }

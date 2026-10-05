@@ -12,7 +12,8 @@ Power España, SL"), so:
   key, so "Tayant Investment 12" and "Tayant Investment 15" share a family.
   A family is a naming pattern, not a finding that the companies are related;
 - `pipeline/reference/developer_groups.csv` joins keys or families the rules
-  cannot: spelling slips, and corporate groups when a source says so.
+  cannot: spelling slips, and corporate groups when a source says so. A
+  spelling row also joins families (`resolved_family`).
 """
 
 from __future__ import annotations
@@ -110,6 +111,21 @@ class Group:
     source_url: str | None
 
 
+def resolved_family(key: str, groups: dict[str, Group]) -> str:
+    """The family of a key, joined across spellings by developer_groups.csv.
+
+    A row without a parent company joins spellings of one name ("Greenalia Solar
+    PowerGuadame III" and "Greenalia Solar Power Guadame I"), so its keys take the
+    family of the row's name. A row with a parent company is a corporate group, not
+    a spelling: it leaves the family alone.
+    """
+    family = family_key(key)
+    group = groups.get(key) or groups.get(family)
+    if group and group.parent_company is None and (name_key := developer_key(group.name)):
+        return family_key(name_key)
+    return family
+
+
 def load_groups(path: Path = GROUPS_FILE) -> dict[str, Group]:
     """Rows of developer_groups.csv by key; a row's key is a developer key or a family key."""
     if not path.exists():
@@ -145,8 +161,8 @@ def build_developers(projects: list[dict], groups: dict[str, Group]) -> list[dic
             project_ids[key].add(p["id"])
     out = []
     for key in sorted(printed):
-        family = family_key(key)
-        group = groups.get(key) or groups.get(family)
+        family = resolved_family(key, groups)
+        group = groups.get(key) or groups.get(family_key(key))
         ids = sorted(project_ids[key])
         mw_by_status: dict[str, float] = defaultdict(float)
         projects_by_status: Counter[str] = Counter()
