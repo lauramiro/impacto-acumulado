@@ -6,8 +6,9 @@ can split it with `resolution_overrides` (see docs/sources.md). The file is
 for review, not publication: it goes to tmp/review/ locally and to a
 workflow artifact in CI, and the weekly job summary carries the count.
 
-Groups whose documents are all keyed in `resolution_overrides` were already
-reviewed by hand; they are listed, marked as such, and left out of the count.
+Groups whose documents are all keyed in `resolution_overrides`, or acknowledged
+in `review_acknowledgements`, were already reviewed by hand; they are listed,
+marked as such, and left out of the count until a new document joins them.
 """
 
 from __future__ import annotations
@@ -119,6 +120,7 @@ class ReviewDoc:
     municipalities: tuple[str, ...]
     override_key: str | None
     mw_peak: float | None = None
+    acknowledged: bool = False
 
 
 @dataclass(frozen=True)
@@ -184,7 +186,8 @@ def rules(g: Group) -> list[str]:
 
 
 def reviewed(g: Group) -> bool:
-    return all(d.override_key for d in g.docs)
+    """Every document keyed in resolution_overrides or acknowledged in review_acknowledgements."""
+    return all(d.override_key or d.acknowledged for d in g.docs)
 
 
 def load_groups(conn) -> list[Group]:
@@ -192,7 +195,7 @@ def load_groups(conn) -> list[Group]:
         cur.execute(
             """
             SELECT p.id AS project_id, p.canonical_name, d.id AS document_id, d.published_at, d.title,
-                   e.payload, o.group_key,
+                   e.payload, o.group_key, (a.document_id IS NOT NULL) AS acknowledged,
                    (SELECT array_agg(m.name ORDER BY m.name) FROM project_municipalities pm
                     JOIN municipalities m ON m.ine_code = pm.ine_code WHERE pm.project_id = p.id) AS municipalities
             FROM projects p
@@ -200,6 +203,7 @@ def load_groups(conn) -> list[Group]:
             JOIN raw_documents d ON d.id = pd.document_id
             LEFT JOIN extractions e ON e.document_id = d.id
             LEFT JOIN resolution_overrides o ON o.document_id = d.id
+            LEFT JOIN review_acknowledgements a ON a.document_id = d.id
             ORDER BY p.id, d.published_at, d.id
             """
         )
@@ -224,6 +228,7 @@ def load_groups(conn) -> list[Group]:
                     mw_peak=p.get("mw_peak"),
                     municipalities=tuple(r["municipalities"] or ()),
                     override_key=r["group_key"],
+                    acknowledged=r["acknowledged"],
                 )
             )
         groups.append(Group(pid, rs[0]["canonical_name"], tuple(docs)))
@@ -275,7 +280,7 @@ def summary(rows: list[tuple[Group, list[str], bool]]) -> str:
     done = len(rows) - len(pending)
     return (
         f"Review queue: {len(pending)} project(s) to review ({line or 'none'}); "
-        f"{done} more already keyed in resolution_overrides. The list is in the review-clusters artifact.\n"
+        f"{done} more already reviewed. The list is in the review-clusters artifact.\n"
     )
 
 

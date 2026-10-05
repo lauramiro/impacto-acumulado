@@ -105,7 +105,7 @@ def test_keyed_groups_are_listed_as_reviewed_and_left_out_of_the_count():
     assert [(g.project_id, done) for g, _, done in rows] == [(1, True), (2, False)]
     assert reviewed(keyed) and not reviewed(open_)
     assert summary(rows).startswith(
-        "Review queue: 1 project(s) to review (generic_name 1); 1 more already keyed"
+        "Review queue: 1 project(s) to review (generic_name 1); 1 more already reviewed"
     )
 
 
@@ -165,3 +165,28 @@ def test_peak_and_nominal_are_compared_separately():
         3, date(2023, 3, 1), "t", "aau", "favorable", None, None, (), None, mw_peak=400
     )
     assert "mw_differs" in rules(Group(1, "Cabra 0", (one, three)))
+
+
+def test_an_acknowledged_group_leaves_the_count_until_a_new_document_joins():
+    def ack(d):
+        return ReviewDoc(**{**d.__dict__, "acknowledged": True})
+
+    read = Group(1, "Planta Solar Fotovoltaica", (ack(doc(1)), ack(doc(2))))
+    grown = Group(1, "Planta Solar Fotovoltaica", (ack(doc(1)), ack(doc(2)), doc(3)))
+    assert reviewed(read)
+    assert not reviewed(grown)
+
+
+def test_acknowledgements_are_read_from_the_database(db, fixtures_dir):
+    from impacto.resolve.review import load_groups
+    from impacto.resolve.run import run_resolve
+    from tests.test_resolve_run import seed
+
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    with db.cursor() as cur:
+        cur.execute(
+            "INSERT INTO review_acknowledgements (document_id, note) SELECT id, 'test' FROM raw_documents"
+        )
+    groups = load_groups(db)
+    assert all(reviewed(g) for g in groups)
