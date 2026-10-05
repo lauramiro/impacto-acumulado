@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T08:24:55.869181+00:00",
+  "generated_at": "2026-10-05T09:13:04.885866+00:00",
   "counts": {
     "raw_documents": 758,
     "extractions": 758,
@@ -19,6 +19,10 @@
     "developers.json": {
       "rows": 477,
       "bytes": 159603
+    },
+    "project_details.json": {
+      "rows": 585,
+      "bytes": 672458
     },
     "municipality_stats.csv": {
       "rows": 535,
