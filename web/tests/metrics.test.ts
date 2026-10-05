@@ -10,6 +10,7 @@ import {
   mwCoverage,
   NO_FIGURE_CLASS,
   NO_PROJECTS_CLASS,
+  sharedFigures,
   splitBy,
   sumFigures,
 } from "@/lib/metrics";
@@ -139,5 +140,22 @@ describe("MW per km²", () => {
     expect(metricCoverage(cells, "densidad", all)).toEqual({ declared: 2, total: 2, peak: 1 });
     expect(baseMetric("densidad")).toBe("mw");
     expect(metricDecimals("densidad")).toBe(2);
+  });
+});
+
+describe("sharedFigures", () => {
+  const site = (code: string, c: StatsCell[]) => ({ code, cells: c });
+  it("counts the other sites with the same matching cells, in any order", () => {
+    const sites = [site("A", cells), site("B", [...cells].reverse()), site("C", cells.slice(0, 1)), site("D", [])];
+    const shared = sharedFigures(sites, (s) => s.code, all);
+    expect(shared.get("A")).toBe(1);
+    expect(shared.get("B")).toBe(1);
+    expect(shared.has("C")).toBe(false);
+    expect(shared.has("D")).toBe(false);
+  });
+  it("compares only what the filters keep", () => {
+    const sites = [site("A", cells), site("C", cells.slice(0, 1))];
+    const solar = { ...all, technologies: new Set(["solar_fv"] as const) };
+    expect(sharedFigures(sites, (s) => s.code, solar).get("C")).toBe(1);
   });
 });

@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { parse } from "csv-parse/sync";
 
 test("methodology page publishes per-field accuracy with its sample size", async ({ page }) => {
   await page.goto("/metodologia");
@@ -25,4 +28,17 @@ test("methodology explains the slice 3 aggregation rules", async ({ page }) => {
   await expect(page.getByText(/Cada total de MW indica cuántos proyectos la declaran/)).toBeVisible();
   await expect(page.getByText(/solo declara la potencia pico/)).toBeVisible();
   await expect(page.getByText(/malla de 250 m/)).toBeVisible();
+});
+
+test("the early-record caveat counts 2019 to 2021 from documents.csv", async ({ page }) => {
+  const rows: { source: string; published_at: string }[] = parse(
+    readFileSync(path.join(__dirname, "..", "public", "data", "documents.csv"), "utf-8"),
+    { columns: true, bom: true },
+  );
+  const early = rows.filter((r) => r.published_at < "2022");
+  const boja = early.filter((r) => r.source === "boja").length;
+  const boe = early.filter((r) => r.source === "boe").length;
+  await page.goto("/metodologia");
+  await expect(page.getByTestId("registro-temprano")).toContainText(`${boja} documentos del BOJA y ${boe} del BOE de 2019 a 2021`);
+  await expect(page.getByText(/el extractor aún no los distingue/)).toHaveCount(0);
 });

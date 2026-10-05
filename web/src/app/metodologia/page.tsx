@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Figure } from "@/components/figure";
 import { loadOpenConsultations } from "@/lib/data/consultations";
+import { loadDocuments } from "@/lib/data/documents";
 import { loadEvaluation } from "@/lib/data/evaluation";
 import { formatDate, formatInt, formatPercent } from "@/lib/format";
 import { REPO_URL } from "@/lib/site";
+import type { GazetteDocument } from "@/lib/types";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -31,8 +33,24 @@ const FIELD_LABELS: Record<string, string> = {
 
 const ALERT_BELOW = 0.9;
 
+/** Documents from 2019 to 2021 by gazette, against the busiest year, read from the published data. */
+function earlyRecord(docs: readonly GazetteDocument[]) {
+  const early = docs.filter((d) => d.publishedAt < "2022");
+  const byYear = new Map<string, number>();
+  for (const d of docs) byYear.set(d.publishedAt.slice(0, 4), (byYear.get(d.publishedAt.slice(0, 4)) ?? 0) + 1);
+  const [referenceYear, reference] = [...byYear].reduce((a, b) => (b[1] > a[1] ? b : a), ["", 0]);
+  return {
+    boja: early.filter((d) => d.source === "boja").length,
+    boe: early.filter((d) => d.source === "boe").length,
+    consultasBoe: early.filter((d) => d.source === "boe" && d.role === "consulta").length,
+    referenceYear,
+    reference,
+  };
+}
+
 export default async function MethodologyPage() {
-  const [ev, { evaluation: periods }] = await Promise.all([loadEvaluation(), loadOpenConsultations()]);
+  const [ev, { evaluation: periods }, docs] = await Promise.all([loadEvaluation(), loadOpenConsultations(), loadDocuments()]);
+  const early = earlyRecord(docs);
   const fields = Object.keys(ev.accuracy).sort((a, b) => (FIELD_LABELS[a] ?? a).localeCompare(FIELD_LABELS[b] ?? b, "es"));
   return (
     <article className={styles.page}>
@@ -201,8 +219,9 @@ export default async function MethodologyPage() {
           modificaciones y caducidades no cuentan. Empieza en 2022.
         </li>
         <li>
-          Los municipios de un proyecto pueden incluir algunos por los que solo pasa la línea de evacuación: el extractor aún no los
-          distingue.
+          El extractor separa los municipios por los que solo pasa la línea de evacuación o donde solo está la subestación, y esos no
+          cuentan como emplazamiento del proyecto. Cuando no los separa, el proyecto cuenta también en ellos: la medida de arriba da
+          la frecuencia de ese fallo.
         </li>
         <li>El mapa clasifica los municipios con valor en cinco clases por cuantiles, recalculadas con cada filtro.</li>
       </ul>
@@ -233,11 +252,12 @@ export default async function MethodologyPage() {
       <ul>
         <li>Los boletines provinciales (BOP) y los proyectos de menos de 50 MW que no pasan por el BOJA.</li>
         <li>La geometría de las plantas: la localización es a nivel de municipio.</li>
-        <li>
-          El registro antes de 2022 es muy escaso: el backfill reúne <Figure value={formatInt(4)} /> documentos de 2019,{" "}
-          <Figure value={formatInt(1)} /> de 2020 y <Figure value={formatInt(0)} /> de 2021, frente a{" "}
-          <Figure value={formatInt(303)} /> solo en 2023. Un total por municipio o provincia que incluya esos años no debe
-          leerse como completo.
+        <li data-testid="registro-temprano">
+          El registro antes de 2022 es escaso, sobre todo en el BOJA: el backfill reúne{" "}
+          <Figure value={formatInt(early.boja)} /> documentos del BOJA y <Figure value={formatInt(early.boe)} /> del BOE de 2019 a
+          2021 (<Figure value={formatInt(early.consultasBoe)} /> de estos, anuncios de información pública), frente a{" "}
+          <Figure value={formatInt(early.reference)} /> solo en {early.referenceYear}. Un total por municipio o provincia que
+          incluya esos años no debe leerse como completo.
         </li>
         <li>
           Lo que el extractor no lee bien; la lista de problemas conocidos está en el{" "}

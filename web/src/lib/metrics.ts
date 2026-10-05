@@ -110,3 +110,31 @@ export function classIndex(value: number, projects: number, thresholds: number[]
   while (i < thresholds.length && v > thresholds[i]) i++;
   return i + 1;
 }
+
+/**
+ * For each site with matching projects, how many other sites hold exactly the
+ * same matching cells. Sites that touch the same municipalities with projects
+ * share their project set, so their figures repeat; identical cells stand in
+ * for an identical set, since the published stats carry no project ids.
+ */
+export function sharedFigures<T extends { cells: readonly StatsCell[] }>(
+  sites: readonly T[],
+  key: (s: T) => string,
+  f: Filters,
+): Map<string, number> {
+  const signature = (s: T) =>
+    JSON.stringify(
+      matching(s.cells, f)
+        .map((c) => [c.status, c.technology, c.projectCount, c.mwBest, c.mwCount, c.hectares, c.haCount])
+        .sort(),
+    );
+  const groups = new Map<string, string[]>();
+  for (const s of sites) {
+    if (matching(s.cells, f).length === 0) continue;
+    const sig = signature(s);
+    groups.set(sig, [...(groups.get(sig) ?? []), key(s)]);
+  }
+  const out = new Map<string, number>();
+  for (const members of groups.values()) for (const k of members) if (members.length > 1) out.set(k, members.length - 1);
+  return out;
+}

@@ -4,7 +4,7 @@ import { Fragment, useMemo, type ReactNode } from "react";
 import { LookupNote, LookupTable } from "@/components/lookup-table";
 import { formatCoverageCell, formatInt, isUndeclared, NO_DATA } from "@/lib/format";
 import { formatMetric, METRIC_LABELS } from "@/lib/labels";
-import { baseMetric, metricCoverage, metricValue } from "@/lib/metrics";
+import { baseMetric, metricCoverage, metricValue, sharedFigures } from "@/lib/metrics";
 import type { Filters, Metric, ProtectedAreaStats } from "@/lib/types";
 
 type Props = { sites: readonly ProtectedAreaStats[]; metric: Metric; filters: Filters };
@@ -54,6 +54,7 @@ export function NaturaTable({ sites, metric: chosen, filters }: Props) {
         .sort((a, b) => rank(b) - rank(a) || b.total - a.total),
     [sites, metric, filters],
   );
+  const shared = useMemo(() => sharedFigures(sites, (s) => s.siteCode, filters), [sites, filters]);
   const valueHeader = METRIC_LABELS[metric];
   return (
     <LookupTable
@@ -64,6 +65,9 @@ export function NaturaTable({ sites, metric: chosen, filters }: Props) {
       intro={
         <p>
           Suma de todos los proyectos de los municipios que tocan el espacio. Mide cercanía a escala municipal, no afección al espacio.
+          {shared.size > 0
+            ? ` Los espacios que tocan los mismos municipios con proyectos repiten las mismas cifras, y cada uno lo indica («mismas cifras que…»): el orden no clasifica espacios por afección.`
+            : null}
           {chosen === "densidad" ? " Con «MW por km²» la tabla muestra MW: la densidad se calcula sobre el término municipal o la provincia." : null}
         </p>
       }
@@ -76,7 +80,24 @@ export function NaturaTable({ sites, metric: chosen, filters }: Props) {
       defaultSort={{ column: valueHeader, direction: "descending" }}
       columns={[
         { header: "Código", hideOnPhone: true, cell: (s) => <span className="dato">{s.siteCode}</span> },
-        { header: "Espacio", rowHeader: true, cell: (s) => breakAfterSlash(s.name), sortValue: (s) => s.name },
+        {
+          header: "Espacio",
+          rowHeader: true,
+          sortValue: (s) => s.name,
+          cell: (s) => (
+            <>
+              {breakAfterSlash(s.name)}
+              {shared.has(s.siteCode) ? (
+                <>
+                  {" "}
+                  <LookupNote>
+                    mismas cifras que {formatInt(shared.get(s.siteCode)!)} {shared.get(s.siteCode) === 1 ? "espacio más" : "espacios más"}
+                  </LookupNote>
+                </>
+              ) : null}
+            </>
+          ),
+        },
         { header: "Tipo", hideOnPhone: true, cell: (s) => s.type, sortValue: (s) => s.type },
         { header: "Municipios", numeric: true, hideOnPhone: true, cell: (s) => formatInt(s.municipalityCount), sortValue: (s) => s.municipalityCount },
         {
