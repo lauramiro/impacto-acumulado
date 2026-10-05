@@ -108,3 +108,16 @@ def test_an_impact_declaration_names_the_project_over_later_notices(db, fixtures
     with db.cursor() as cur:
         cur.execute("SELECT canonical_name FROM projects p JOIN project_documents pd ON pd.project_id = p.id WHERE pd.document_id = %s", (doc_id,))
         assert cur.fetchone()["canonical_name"] == "Parque fotovoltaico Ronda I"
+
+
+def test_a_name_override_names_the_project(db, fixtures_dir):
+    seed(db, fixtures_dir)
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = 'A'")
+        doc_id = cur.fetchone()["id"]
+        cur.execute("INSERT INTO project_name_overrides (document_id, name, note) VALUES (%s, 'Ronda Uno', 'test')", (doc_id,))
+    db.commit()
+    run_resolve(db)
+    with db.cursor() as cur:
+        cur.execute("SELECT canonical_name FROM projects p JOIN project_documents pd ON pd.project_id = p.id WHERE pd.document_id = %s", (doc_id,))
+        assert cur.fetchone()["canonical_name"] == "Ronda Uno"

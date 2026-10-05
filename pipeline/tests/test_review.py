@@ -124,3 +124,44 @@ def test_review_clusters_reads_the_database(db, fixtures_dir, tmp_path):
     assert ronda.docs[0].municipalities == ("Ronda",)
     path = write_csv(queue(list(groups.values())), tmp_path / "clusters.csv")
     assert path.read_text(encoding="utf-8").startswith("project_id,name,rules,reviewed")
+
+
+def test_a_modification_of_the_same_procedure_is_not_flagged():
+    g = Group(
+        1,
+        "Marchenilla VIII",
+        (
+            doc(
+                1,
+                title="se otorga autorización ambiental unificada (PP. 1/2022)",
+                verdict="favorable",
+                expediente="AAU/CA/052/21",
+            ),
+            doc(
+                2,
+                title="información pública con el fin de obtener modificación sustancial (PP. 9/2024)",
+                doc_type="informacion_publica",
+                expediente="AAU/CA/052/21/M1",
+                mw=60,
+                day=date(2024, 3, 1),
+            ),
+        ),
+    )
+    assert rules(g) == []
+
+
+def test_a_state_file_and_a_junta_aau_for_one_plant_are_not_several_expedientes():
+    g = Group(
+        1, "Hipódromo", (doc(1, expediente="PFot-245"), doc(2, expediente="AAU/SE/0647/2021/N"))
+    )
+    assert "several_expedientes" not in rules(g)
+
+
+def test_peak_and_nominal_are_compared_separately():
+    one = ReviewDoc(1, date(2023, 1, 1), "t", "dia", "favorable", None, 188, (), None, mw_peak=250)
+    two = ReviewDoc(2, date(2023, 2, 1), "t", "aau", "favorable", None, 190, (), None, mw_peak=250)
+    assert "mw_differs" not in rules(Group(1, "Cabra 0", (one, two)))
+    three = ReviewDoc(
+        3, date(2023, 3, 1), "t", "aau", "favorable", None, None, (), None, mw_peak=400
+    )
+    assert "mw_differs" in rules(Group(1, "Cabra 0", (one, three)))

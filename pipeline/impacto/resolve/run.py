@@ -118,6 +118,12 @@ def load_overrides(conn: psycopg.Connection) -> dict[int, str]:
         return {r["document_id"]: r["group_key"] for r in cur.fetchall()}
 
 
+def load_name_overrides(conn: psycopg.Connection) -> dict[int, str]:
+    with conn.cursor() as cur:
+        cur.execute("SELECT document_id, name FROM project_name_overrides")
+        return {r["document_id"]: r["name"] for r in cur.fetchall()}
+
+
 def _latest_with(group: list[Record], attr: str):
     for r in sorted(group, key=lambda r: (r.published_at, r.document_id), reverse=True):
         value = getattr(r, attr)
@@ -137,7 +143,10 @@ def _match_reason(group: list[Record], r: Record) -> tuple[float, str]:
     return best if len(group) > 1 else (1.0, "single")
 
 
-def write_projects(conn: psycopg.Connection, groups: list[list[Record]], today: date | None = None) -> int:
+def write_projects(
+    conn: psycopg.Connection, groups: list[list[Record]], today: date | None = None, names: dict[int, str] | None = None
+) -> int:
+    names = names or {}
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT ine_code, name FROM municipalities")
@@ -150,8 +159,10 @@ def write_projects(conn: psycopg.Connection, groups: list[list[Record]], today: 
                 # An impact declaration names the project it assesses; later
                 # notices ("el proyecto que se cita") often carry a looser name.
                 declarations = [r for r in group if r.doc_type == "dia"]
+                named = sorted((r for r in group if r.document_id in names), key=lambda r: (r.published_at, r.document_id))
                 name = (
-                    _latest_with(declarations, "name")
+                    (names[named[-1].document_id] if named else None)
+                    or _latest_with(declarations, "name")
                     or _latest_with(group, "name")
                     or f"Proyecto sin nombre ({group[0].document_id})"
                 )
@@ -209,7 +220,7 @@ def run_resolve(conn: psycopg.Connection, today: date | None = None) -> int:
     """`today` dates stale consultations (status.py); the run's date unless given."""
     records = load_records(conn)
     groups = resolve(records, load_overrides(conn))
-    n = write_projects(conn, groups, today or datetime.now(UTC).date())
+    n = write_projects(conn, groups, today or datetime.now(UTC).date(), load_name_overrides(conn))
     log.info("resolved %d document(s) into %d project(s)", len(records), n)
     return n
 

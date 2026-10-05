@@ -21,7 +21,7 @@ from datetime import date
 from pathlib import Path
 
 from impacto.db.connect import connect
-from impacto.resolve.blocking import procedure_key
+from impacto.resolve.blocking import procedure_key, same_family
 from impacto.settings import load_settings
 from impacto.text import normalize, tokens
 
@@ -118,6 +118,7 @@ class ReviewDoc:
     mw: float | None
     municipalities: tuple[str, ...]
     override_key: str | None
+    mw_peak: float | None = None
 
 
 @dataclass(frozen=True)
@@ -143,20 +144,38 @@ def _procedure(expediente: str | None) -> str | None:
     return "/".join(key) if key else normalize(expediente)
 
 
+def is_modification(d: ReviewDoc) -> bool:
+    """A document about changing a plant already in the group: new PP number, new MW, a later consultation are expected."""
+    return d.doc_type == "modificacion" or "modificaci" in normalize(d.title)
+
+
+def _spread(values) -> bool:
+    v = sorted({round(x, 2) for x in values if x})
+    return len(v) > 1 and v[-1] > v[0] * (1 + MW_SPREAD)
+
+
 def rules(g: Group) -> list[str]:
     hit = []
+    originals = [d for d in g.docs if not is_modification(d)]
     if len(g.docs) > MANY_DOCUMENTS:
         hit.append("many_documents")
-    if len(pp_numbers(d.title for d in g.docs)) > 1:
+    # Several PP numbers are expected when every numbered document belongs to one procedure.
+    numbered = [d for d in g.docs if pp_numbers([d.title])]
+    if (
+        len(pp_numbers(d.title for d in numbered)) > 1
+        and len({_procedure(d.expediente) for d in numbered if d.expediente}) != 1
+    ):
         hit.append("several_pp_numbers")
-    mws = sorted({round(d.mw, 2) for d in g.docs if d.mw})
-    if len(mws) > 1 and mws[-1] > mws[0] * (1 + MW_SPREAD):
+    # Nominal against nominal, peak against peak; a modification may change either.
+    if _spread(d.mw for d in originals) or _spread(d.mw_peak for d in originals):
         hit.append("mw_differs")
-    if len({p for d in g.docs if (p := _procedure(d.expediente))}) > 1:
+    # A State file and a Junta AAU for one plant are normal; two files of one kind are not.
+    keys = {k for d in g.docs if d.expediente and (k := procedure_key(normalize(d.expediente)))}
+    if any(a != b and same_family(a[0], b[0]) for a in keys for b in keys):
         hit.append("several_expedientes")
     decided = [d.published_at for d in g.docs if d.doc_type in DECISIONS and d.verdict in VERDICTS]
     if decided and any(
-        d.doc_type == "informacion_publica" and d.published_at > min(decided) for d in g.docs
+        d.doc_type == "informacion_publica" and d.published_at > min(decided) for d in originals
     ):
         hit.append("consultation_after_decision")
     if is_generic(g.name):
@@ -201,7 +220,8 @@ def load_groups(conn) -> list[Group]:
                     doc_type=p.get("doc_type") or "otro",
                     verdict=p.get("verdict") or "no_aplica",
                     expediente=p.get("expediente"),
-                    mw=p.get("mw_nominal") or p.get("mw_peak"),
+                    mw=p.get("mw_nominal"),
+                    mw_peak=p.get("mw_peak"),
                     municipalities=tuple(r["municipalities"] or ()),
                     override_key=r["group_key"],
                 )
@@ -240,7 +260,7 @@ def write_csv(rows: list[tuple[Group, list[str], bool]], path: Path) -> Path:
                     "yes" if done else "",
                     " ".join(str(d.document_id) for d in g.docs),
                     " | ".join(d.title for d in g.docs),
-                    " ".join(sorted({f"{d.mw:g}" for d in g.docs if d.mw})),
+                    " ".join(sorted({f"{m:g}" for d in g.docs for m in (d.mw, d.mw_peak) if m})),
                     " ".join(sorted({d.expediente for d in g.docs if d.expediente})),
                     "; ".join(g.docs[0].municipalities),
                 ]

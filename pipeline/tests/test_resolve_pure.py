@@ -288,3 +288,10 @@ def test_a_consultation_with_no_decision_after_24_months_has_no_resolution():
     assert derive_status([consulta, dia], date(2026, 1, 1)) == ("favorable_condicionada", 2)
     again = rec(3, "R", doc_type="informacion_publica", verdict="no_aplica", day=date(2025, 1, 15))
     assert derive_status([consulta, again], date(2026, 1, 1)) == ("en_consulta", 3)
+
+
+def test_an_extension_file_is_another_procedure():
+    # PEol-268_AMPL (Hinojosa Ampliación, 25.12 MW) is not PEol-268 (Hinojosa, 63.08 MW): two declarations.
+    assert procedure_key("peol-268_ampl") == ("peol", "268", "ampl")
+    assert procedure_key("peol-268 ampl") == ("peol", "268", "ampl")
+    assert procedure_key("peol-268_ampl") != procedure_key("peol-268")

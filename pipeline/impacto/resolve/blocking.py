@@ -39,7 +39,7 @@ _PROCEDURE = re.compile(r"^(aaus|aaua|aaui|aau|aai)[/_-]([a-z]{2})[/_-]0*(\d+)[/
 # Storage and hybridisation are files of their own: "PFot-ALM-194" (a battery
 # module for an existing plant), "PEol-FV-252" (wind added to a solar plant),
 # "SolTer-ALM-12". The number can follow a gazette reference ("001/2019 PFOT 032").
-_STATE = re.compile(r"(?:^|[\s/(])(pfot|peol|phib|solter)(?:[\s_-]*(fv|alm))?[\s_-]*0*(\d+)(?:[\s_-]*([a-z]{1,3}))?\b")
+_STATE = re.compile(r"(?:^|[\s/(])(pfot|peol|phib|solter)(?:[\s_-]*(fv|alm))?[\s_-]*0*(\d+)(?:[\s_-]*(ampl|[a-z]{1,3}))?\b")
 _NOT_SUFFIX = {"y", "e", "o", "de", "del", "la", "el", "en"}
 _LEGACY_WIND = re.compile(r"^a1/0*(\d+)/(?:19|20)?(\d{2})\b")
 
