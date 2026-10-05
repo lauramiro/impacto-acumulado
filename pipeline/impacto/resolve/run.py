@@ -9,7 +9,7 @@ import psycopg
 from impacto.db.connect import connect
 from impacto.extract.capacity import with_capacity
 from impacto.extract.operative import operative_override
-from impacto.resolve.blocking import candidate_pairs
+from impacto.resolve.blocking import Notice, candidate_pairs, correction_targets
 from impacto.resolve.model import Record
 from impacto.resolve.scoring import THRESHOLD, conflict, same_plant_evidence, score_pair
 from impacto.resolve.status import derive_status
@@ -29,7 +29,10 @@ ROLE_BY_TYPE = {
 }
 
 
-def resolve(records: list[Record], overrides: dict[int, str]) -> list[list[Record]]:
+def resolve(
+    records: list[Record], overrides: dict[int, str], corrections: dict[int, int] | None = None
+) -> list[list[Record]]:
+    """`corrections`: correction document id -> the document it corrects (blocking.correction_targets)."""
     index = {r.document_id: i for i, r in enumerate(records)}
     isolated = {index[d] for d, key in overrides.items() if key == "new" and d in index}
     keyed = {index[d]: key for d, key in overrides.items() if key != "new" and d in index}
@@ -66,6 +69,18 @@ def resolve(records: list[Record], overrides: dict[int, str]) -> list[list[Recor
     for idxs in by_key.values():
         for other in idxs[1:]:
             join(idxs[0], other)
+
+    # A correction belongs to the document it corrects, whatever its own
+    # extraction says (a ministry correction often names no municipality or
+    # developer). Override keys still decide: a correction keyed apart from
+    # its target, or isolated by hand, stays where it was put.
+    for c, t in (corrections or {}).items():
+        if c not in index or t not in index:
+            continue
+        i, j = index[c], index[t]
+        if i in isolated or j in isolated or (i in keyed and j in keyed and keyed[i] != keyed[j]):
+            continue
+        join(i, j)
 
     # Then the strongest matches first; two groups merge only if no document
     # of one conflicts with a document of the other, so a document matching
@@ -108,6 +123,19 @@ def load_records(conn: psycopg.Connection) -> list[Record]:
         )
         for r in rows
     ]
+
+
+def load_corrections(conn: psycopg.Connection) -> dict[int, int]:
+    """Correction document id -> the document it corrects, among documents with an extraction."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT d.id, d.source, d.source_id, d.published_at, d.title, d.text FROM raw_documents d "
+            "JOIN extractions e ON e.document_id = d.id WHERE e.status = 'ok'"
+        )
+        rows = cur.fetchall()
+    return correction_targets(
+        [Notice(r["id"], r["source"], r["source_id"], r["published_at"], r["title"], r["text"] or "") for r in rows]
+    )
 
 
 def with_operative(payload: dict, text: str) -> dict:
@@ -166,6 +194,7 @@ def write_projects(
     groups: list[list[Record]],
     today: date | None = None,
     names: dict[int, str] | None = None,
+    corrections: dict[int, int] | None = None,
 ) -> int:
     names = names or {}
     try:
@@ -176,7 +205,7 @@ def write_projects(
             cur.execute("DELETE FROM project_documents")
             cur.execute("DELETE FROM projects")
             for group in groups:
-                status, status_doc = derive_status(group, today)
+                status, status_doc = derive_status(group, today, corrections)
                 # An impact declaration names the project it assesses; later
                 # notices ("el proyecto que se cita") often carry a looser name.
                 declarations = [r for r in group if r.doc_type == "dia"]
@@ -249,8 +278,9 @@ def write_projects(
 def run_resolve(conn: psycopg.Connection, today: date | None = None) -> int:
     """`today` dates stale consultations (status.py); the run's date unless given."""
     records = load_records(conn)
-    groups = resolve(records, load_overrides(conn))
-    n = write_projects(conn, groups, today or datetime.now(UTC).date(), load_name_overrides(conn))
+    corrections = load_corrections(conn)
+    groups = resolve(records, load_overrides(conn), corrections)
+    n = write_projects(conn, groups, today or datetime.now(UTC).date(), load_name_overrides(conn), corrections)
     log.info("resolved %d document(s) into %d project(s)", len(records), n)
     return n
 

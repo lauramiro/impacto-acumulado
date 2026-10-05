@@ -14,6 +14,7 @@ from impacto.aggregate.export import (
     project_details,
 )
 from impacto.aggregate.run import run_aggregate
+from impacto.db.documents import RawDocument, save_extraction, upsert_raw_document
 from impacto.resolve.run import run_resolve
 from tests.test_aggregate import seed_slice3
 from tests.test_resolve_run import seed
@@ -578,3 +579,49 @@ def test_project_details_keep_substance_and_drop_identity_numbers():
     assert second["species_mentioned"] == ["Aguilucho cenizo", "Sisón"]
     assert second["evidence"] == {"mw_nominal": "49,9 MW"}
     assert second["utm_coordinates"] == [{"x": 1.0, "y": 2.0, "zone": 30}]
+
+
+def _add_document(db, source_id, title, payload, text):
+    upsert_raw_document(db, RawDocument("boja", source_id, date(2023, 10, 4), title, "u", "III", "o", text))
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = %s", (source_id,))
+        doc_id = cur.fetchone()["id"]
+    save_extraction(db, doc_id, "stub", "v1", payload, 0.9, None)
+    return doc_id
+
+
+def test_documents_csv_carries_the_verdict_resolve_reads(db, fixtures_dir, tmp_path):
+    # disposition.2023.183.75 (project 43): the model read "no_aplica"; the
+    # notice publishes an AAU "otorgada", which the operative rule reads as granted.
+    seed(db, fixtures_dir)
+    _add_document(
+        db, "disposition.2023.183.75",
+        "Anuncio de 4 de septiembre de 2023, por el que se da publicidad a la nueva autorización ambiental unificada otorgada.",
+        {"doc_type": "aau", "verdict": "no_aplica", "project_name": "Planta X"},
+        "De conformidad con el art. 31.7 de la Ley 7/2007, esta Delegación HA RESUELTO Primero. Dar publicidad al Informe "
+        "Vinculante sobre la Autorización Ambiental Unificada otorgada a la planta X.",
+    )
+    run_resolve(db)
+    run_aggregate(db)
+    export_all(db, tmp_path)
+    with open(tmp_path / "documents.csv", encoding="utf-8", newline="") as f:
+        docs = {r["source_id"]: r for r in csv.DictReader(f)}
+    assert (docs["disposition.2023.183.75"]["doc_type"], docs["disposition.2023.183.75"]["verdict"]) == ("aau", "favorable_condicionada")
+    # A document the rule does not touch keeps the model's reading.
+    assert (docs["C"]["doc_type"], docs["C"]["verdict"]) == ("dia", "desfavorable")
+    assert list(docs["C"])[-2:] == ["verdict", "doc_type"]
+
+
+def test_export_fails_when_a_project_consists_only_of_corrections(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    _add_document(
+        db, "disposition.2023.144.67",
+        "Corrección de errores de la Resolución de 19 de julio de 2023, de la Delegación Territorial en Cádiz, por la que se "
+        "da publicidad al informe vinculante (BOJA núm. 140, de 24 de julio de 2023).",
+        {"doc_type": "aau", "verdict": "desfavorable"}, "text",
+    )
+    run_resolve(db)
+    run_aggregate(db)
+    with pytest.raises(ValueError, match="only of correction notices"):
+        export_all(db, tmp_path)
+    assert not (tmp_path / "projects.csv").exists()

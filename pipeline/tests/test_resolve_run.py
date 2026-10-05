@@ -121,3 +121,45 @@ def test_a_name_override_names_the_project(db, fixtures_dir):
     with db.cursor() as cur:
         cur.execute("SELECT canonical_name FROM projects p JOIN project_documents pd ON pd.project_id = p.id WHERE pd.document_id = %s", (doc_id,))
         assert cur.fetchone()["canonical_name"] == "Ronda Uno"
+
+
+def _add(db, source, source_id, day, title, payload, text="text"):
+    upsert_raw_document(db, RawDocument(source, source_id, day, title, "u", "III", "o", text))
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = %s", (source_id,))
+        doc_id = cur.fetchone()["id"]
+    save_extraction(db, doc_id, "stub", "v1", payload, 0.9, None)
+    return doc_id
+
+
+CADIZ_DT = "de la Delegación Territorial de Sostenibilidad, Medio Ambiente y Economía Azul en Cádiz"
+
+
+def test_a_correction_joins_and_corrects_the_project_of_the_document_it_corrects(db, fixtures_dir):
+    # Jarico 1 (Tarifa): the gazette printed "se otorga" under a title that
+    # says "se deniega"; the correction, with no name or place of its own
+    # in this seed, used to stand as a project of its own.
+    load_municipalities(db, fixtures_dir / "municipalities_sample.geojson", "CODIGO_INE", "NOMBRE", "PROVINCIA")
+    original = _add(
+        db, "boja", "disposition.2023.140.66", date(2023, 7, 24),
+        f"Resolución de 19 de julio de 2023, {CADIZ_DT}, por la que se da publicidad al informe vinculante con el que se "
+        "deniega autorización ambiental unificada en el término municipal de Tarifa (Cádiz).",
+        {"doc_type": "aau", "verdict": "favorable_condicionada", "project_name": "Jarico 1",
+         "municipalities": [{"name": "Ronda", "province": "Málaga"}]},
+    )
+    correction = _add(
+        db, "boja", "disposition.2023.144.67", date(2023, 7, 28),
+        f"Corrección de errores de la Resolución de 19 de julio de 2023, {CADIZ_DT}, por la que se da publicidad al informe "
+        "vinculante con el que se deniega autorización ambiental unificada en el término municipal de Tarifa (Cádiz) "
+        "(BOJA núm. 140, de 24 de julio de 2023).",
+        {"doc_type": "aau", "verdict": "desfavorable"},
+    )
+    assert run_resolve(db) == 1
+    with db.cursor() as cur:
+        cur.execute("SELECT id, canonical_name, status, status_document_id FROM projects")
+        project = cur.fetchone()
+        cur.execute("SELECT document_id FROM project_documents WHERE project_id = %s ORDER BY 1", (project["id"],))
+        members = [r["document_id"] for r in cur.fetchall()]
+    assert members == sorted([original, correction])
+    assert project["canonical_name"] == "Jarico 1"
+    assert (project["status"], project["status_document_id"]) == ("desfavorable", correction)

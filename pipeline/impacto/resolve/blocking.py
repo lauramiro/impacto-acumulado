@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from dataclasses import dataclass
+from datetime import date
+from difflib import SequenceMatcher
 
 from impacto.resolve.model import Record
 from impacto.text import normalize, tokens
@@ -104,3 +107,108 @@ def candidate_pairs(records: list[Record]) -> set[tuple[int, int]]:
                 if a < b and records[a].municipalities & records[b].municipalities:
                     pairs.add((a, b))
     return pairs
+
+
+# Correction notices. Each names the document it corrects in its title: the
+# instrument and its date, and in BOJA the issue that published it
+# ("Corrección de errores de la Resolución de 19 de julio de 2023, de la
+# Delegación ... en Cádiz, ... (BOJA núm. 140, de 24 de julio de 2023)"); the
+# ministry writes "Resolución de 3 de abril de 2023, de la Dirección General
+# ..., por la que se corrigen errores en la de 22 de diciembre de 2022, por
+# la que se formula ...". The stored text carries no reference block, so a
+# BOE identifier in the body is read only when the title names no date.
+_MONTHS = "enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre"
+_DATE = rf"\d{{1,2}} de (?:{_MONTHS}) de \d{{4}}"
+_CORRECTION = re.compile(r"\bcorreccion de (?:errores|erratas)\b|\bse corrigen? (?:errores|erratas)\b")
+_CORRECTION_OF = re.compile(rf"^correccion de (?:errores|erratas) (?:de la|del|de los|de las) (\w+ de {_DATE}.*)$")
+_CORRECTS_IN = re.compile(
+    rf"^(\w+) de {_DATE}(.*?),? por (?:la|el) que se corrigen? (?:errores|erratas) en (?:la|el) de ({_DATE})(.*)$"
+)
+_BOJA_ISSUE = re.compile(rf"\(boja (?:num\.?|n\.?o|no\.?) (\d+),? de (?:{_DATE}|\d{{1,2}}\.\d{{1,2}}\.\d{{4}})\)\.?")
+_BOE_ID = re.compile(r"\bboe-[ab]-\d{4}-\d+\b")
+# The second-best candidate must trail the best by this much, or the
+# reference is ambiguous and no target is taken.
+_CORRECTION_MARGIN = 0.05
+
+
+@dataclass(frozen=True)
+class Notice:
+    document_id: int
+    source: str
+    source_id: str
+    published_at: date
+    title: str
+    text: str = ""
+
+
+def is_correction(title: str) -> bool:
+    return bool(_CORRECTION.search(normalize(title)))
+
+
+def corrected_reference(title: str) -> tuple[str, tuple[str, str] | None] | None:
+    """What a correction's title says of the document it corrects, or None if it is no correction.
+
+    Returns the corrected document's title as the correction restates it
+    ("resolucion de 19 de julio de 2023, de la delegacion ...") and the BOJA
+    (year, issue) that published it, when given. The restated title is "" when
+    the correction names no date (a BOE anuncio's correction).
+    """
+    t = normalize(title)
+    if not _CORRECTION.search(t):
+        return None
+    issue = None
+    if m := _BOJA_ISSUE.search(t):
+        issue = (re.findall(r"\d{4}", m.group(0))[-1], m.group(1))
+        t = (t[: m.start()] + t[m.end() :]).strip()
+    if m := _CORRECTION_OF.match(t):
+        return m.group(1), issue
+    if m := _CORRECTS_IN.match(t):
+        return f"{m.group(1)} de {m.group(3)}{m.group(2)}{m.group(4)}", issue
+    return "", issue
+
+
+def _corrected_by_title(restated: str, issue, pool: list[Notice]) -> int | None:
+    head = re.match(rf"\w+ de {_DATE}", restated).group(0)
+    candidates = [
+        n for n in pool
+        if normalize(n.title).startswith(head)
+        and (issue is None or n.source_id.startswith(f"disposition.{issue[0]}.{issue[1]}."))
+    ]
+    ranked = sorted(
+        ((SequenceMatcher(None, restated, normalize(n.title)).ratio(), n.document_id) for n in candidates),
+        reverse=True,
+    )
+    if not ranked or (len(ranked) > 1 and ranked[0][0] - ranked[1][0] < _CORRECTION_MARGIN):
+        return None
+    return ranked[0][1]
+
+
+def correction_targets(notices: list[Notice]) -> dict[int, int]:
+    """Correction document id -> id of the document it corrects, for each correction whose target is found.
+
+    The target is a document of the same gazette, published no later than the
+    correction, that is not itself a correction, and whose title opens with
+    the instrument and date the correction names (and, for BOJA, sits in the
+    issue it names); among several, the one whose title the correction
+    restates most closely, if clearly so.
+    """
+    corrections = {n.document_id: corrected_reference(n.title) for n in notices}
+    by_source_id = {n.source_id.lower(): n for n in notices if corrections[n.document_id] is None}
+    out: dict[int, int] = {}
+    for c in notices:
+        ref = corrections[c.document_id]
+        if ref is None:
+            continue
+        restated, issue = ref
+        pool = [
+            n for n in notices
+            if corrections[n.document_id] is None and n.source == c.source and n.published_at <= c.published_at
+        ]
+        if restated:
+            target = _corrected_by_title(restated, issue, pool)
+        else:
+            named = {by_source_id[i].document_id for i in _BOE_ID.findall(normalize(c.text)) if i in by_source_id}
+            target = named.pop() if len(named) == 1 else None
+        if target is not None:
+            out[c.document_id] = target
+    return out

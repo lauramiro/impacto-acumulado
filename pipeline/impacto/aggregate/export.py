@@ -13,6 +13,7 @@ from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
 from impacto.developers import GROUPS_FILE, build_developers, load_groups
 from impacto.privacy import has_identity_number
+from impacto.resolve.blocking import is_correction
 from impacto.resolve.run import with_operative
 from impacto.settings import load_settings
 
@@ -90,18 +91,43 @@ def export_projects(conn, out_dir: Path) -> Path:
 
 
 def export_documents(conn, out_dir: Path) -> Path:
+    """documents.csv: verdict and doc_type as resolve reads them, the operative-sentence rule applied."""
     rows = _query(
         conn,
         """
         SELECT d.id, d.source, d.source_id, d.published_at, d.title, d.url, pd.project_id, pd.role, pd.match_score, e.confidence,
-               e.payload->>'verdict' AS verdict, e.payload->>'doc_type' AS doc_type
+               e.payload, d.text
         FROM raw_documents d
         LEFT JOIN extractions e ON e.document_id = d.id
         LEFT JOIN project_documents pd ON pd.document_id = d.id
         ORDER BY d.published_at, d.id
         """,
     )
+    for r in rows:
+        payload, text = r.pop("payload"), r.pop("text")
+        read = with_operative(payload, text or "") if payload is not None else {}
+        r["verdict"], r["doc_type"] = read.get("verdict"), read.get("doc_type")
     return _write_csv(out_dir / "documents.csv", rows)
+
+
+def correction_only_projects(conn) -> list[int]:
+    """Projects every document of which is a correction notice: a correction that found no document to join."""
+    rows = _query(
+        conn,
+        "SELECT pd.project_id, d.title FROM project_documents pd JOIN raw_documents d ON d.id = pd.document_id",
+    )
+    plain = {r["project_id"] for r in rows if not is_correction(r["title"])}
+    return sorted({r["project_id"] for r in rows} - plain)
+
+
+def check_corrections(conn) -> None:
+    """Fail the export when a correction stands as a project of its own: it would count as one more project."""
+    alone = correction_only_projects(conn)
+    if alone:
+        raise ValueError(
+            f"project(s) {alone} consist only of correction notices; the document each corrects was not found "
+            "(impacto.resolve.blocking.correction_targets). Join them with a resolution_overrides key."
+        )
 
 
 def export_developers(conn, out_dir: Path, groups_file: Path = GROUPS_FILE) -> Path:
@@ -578,6 +604,7 @@ def export_all(
     refresh_sensitivity: bool = False,
     periods_file: Path = PERIODS_FILE,
 ) -> list[Path]:
+    check_corrections(conn)
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = [
         export_projects(conn, out_dir),
