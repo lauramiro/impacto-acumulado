@@ -212,7 +212,7 @@ The Agencia Andaluza de la Energía's Mapa de Infraestructuras Energéticas de A
 - No status and no date per plant. The layers do not say whether a plant is operating, authorised or under construction, and the six-monthly report ("Plantas de generación e infraestructuras energéticas de Andalucía", data at 30 June 2026, published 16 September 2026) does not say either on its page.
 - Reuse terms are not stated. The WFS capabilities say `AccessConstraints: NONE`; the REDIAM catalogue record (`2f8edace-f212-42a9-8314-f5048b93112a`) says "Condiciones desconocidas" and lists intellectual-property rights. No licence on the report page.
 
-Not implemented: before the site shows an "En funcionamiento" figure, the Agency should confirm that the layers hold operating plants only and on what terms they may be reused. Until then the baseline would rest on an assumption about what the data means.
+Dropped on 2026-10-05: without a per-plant status or stated reuse terms, an "En funcionamiento" figure would rest on an assumption about what the data means. Revisit if the Agency publishes either.
 
 ## Reviewing project groups
 
