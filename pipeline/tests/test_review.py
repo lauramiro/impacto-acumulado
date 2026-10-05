@@ -4,6 +4,7 @@ from impacto.resolve.review import (
     Group,
     ReviewDoc,
     is_generic,
+    namesake_groups,
     pp_numbers,
     queue,
     reviewed,
@@ -107,6 +108,20 @@ def test_keyed_groups_are_listed_as_reviewed_and_left_out_of_the_count():
     assert summary(rows).startswith(
         "Review queue: 1 project(s) to review (generic_name 1); 1 more already reviewed"
     )
+
+
+def test_projects_sharing_a_plant_name_and_a_developer_are_listed():
+    rey = Group(35, "Plantas solares fotovoltaicas Rey I Solar PV, Rey II Solar PV y Rey III Solar PV", (doc(1),),
+                "Villablanca Solar 1, SL", "solar_fv")
+    rey_i = Group(675, "Rey I Solar PV", (doc(2),), "VILLABLANCA SOLAR 1, S.L.", "solar_fv")
+    other = Group(5, "Rey I Solar PV", (doc(3),), "Otra Energía, S.L.", "solar_fv")
+    plant = Group(254, "PSF Esparragal II", (doc(4),), "FRV Corchitos II Solar, S.L.", "solar_fv")
+    line = Group(566, "Línea de evacuación 132 kV de la FV El Esparragal II", (doc(5),),
+                 "FRV Corchitos II Solar, S.L.U.", "linea_evacuacion")
+    groups = [rey, rey_i, other, plant, line]
+    assert namesake_groups(groups) == {35, 675}
+    rows = queue(groups)
+    assert [(g.project_id, hit) for g, hit, _ in rows] == [(35, ["namesake"]), (675, ["namesake"])]
 
 
 def test_review_clusters_reads_the_database(db, fixtures_dir, tmp_path):

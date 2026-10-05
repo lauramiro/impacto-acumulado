@@ -333,3 +333,19 @@ def test_the_body_wins_over_the_title():
     # A consultation keeps what the model said, whatever its title quotes.
     consultation = {"doc_type": "informacion_publica", "verdict": "no_aplica"}
     assert with_operative(consultation, "", "se da publicidad a la autorización ambiental unificada otorgada") is consultation
+
+
+def test_a_project_checks_technology_and_turbines_against_its_name():
+    from dataclasses import replace
+
+    from impacto.resolve.run import project_generation
+
+    # The newest turbines come from a BOJA notice that names no plant (Retuerta's AAU).
+    dia = rec(11, "Parque Fotovoltaico Retuerta", day=date(2022, 9, 26))
+    aau = replace(rec(185, None), turbines=38, published_at=date(2022, 11, 24))
+    assert project_generation([dia, aau], "Parque Fotovoltaico Retuerta") == ("solar_fv", None)
+    filabres = replace(rec(32, "Parque eólico Filabres"), turbines=52)
+    name = "Parque eólico Filabres, parque eólico Peregiles y parque solar fotovoltaico La Rambla"
+    assert project_generation([filabres], name) == ("eolica", 52)
+    unknown = replace(rec(1, "X"), technology=None)
+    assert project_generation([unknown], "X") == ("otra", None)

@@ -106,6 +106,30 @@ export default async function DataPage() {
         recomienda ninguno ni guarda direcciones de correo.
       </p>
       <h2>Cambios</h2>
+      <section aria-labelledby="cambio-2026-10-06" className={styles.columnas}>
+        <h3 id="cambio-2026-10-06">
+          <time dateTime="2026-10-06">6 de octubre de 2026</time>
+        </h3>
+        <ul>
+          <li>
+            Proyectos duplicados: un anuncio que no nombra municipio, o que nombra una planta dentro de un título con varias, se une
+            al proyecto del mismo promotor que lleva ese nombre, si es el único y nada los separa (otro expediente, otros municipios,
+            una línea frente a una planta, eólica frente a solar). Cuatro proyectos se unen a otro y{" "}
+            <span className="dato">projects.csv</span> pierde cuatro filas: la hibridación Saucito (699) pasa a El Saucito (75), Rey I
+            Solar PV (675) a las plantas Rey I a IV (35), FV Ronda I (698) a las plantas Ronda I a III (47) y la modificación de Lirios
+            Solar PV (61) a su declaración (10). Carmona deja de contar dos veces Rey I: su total baja 356,4 MW. Los enlaces a los
+            números retirados llevan al proyecto que los recoge. Los casos dudosos no se unen: la cola de revisión los lista.
+          </li>
+          <li>
+            Aerogeneradores y tecnología: los anuncios de hibridación describen el parque eólico existente y el modelo copiaba sus
+            aerogeneradores a la planta fotovoltaica. Un proyecto cuyo nombre dice fotovoltaica o módulo, sin eólica propia, ya no
+            publica <span className="dato">turbines</span> (Retuerta, Valdefuentes, Tallisca, PV Centenar, Ferreira II, Montegordo).
+            Un nombre que empieza por parque eólico corrige una tecnología leída como solar u otra:{" "}
+            <span className="dato">technology</span> pasa a <span className="dato">eolica</span> en Filabres, Peregiles y La Rambla
+            (32) y en Parapanda (262). Ninguna fila <span className="dato">solar_fv</span> tiene aerogeneradores.
+          </li>
+        </ul>
+      </section>
       <section aria-labelledby="cambio-2026-10-05" className={styles.columnas}>
         <h3 id="cambio-2026-10-05">
           <time dateTime="2026-10-05">5 de octubre de 2026</time>

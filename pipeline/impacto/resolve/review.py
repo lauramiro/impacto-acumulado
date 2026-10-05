@@ -6,6 +6,10 @@ can split it with `resolution_overrides` (see docs/sources.md). The file is
 for review, not publication: it goes to tmp/review/ locally and to a
 workflow artifact in CI, and the weekly job summary carries the count.
 
+A project that shares a plant name and a developer with another ("namesake")
+is listed too: resolve left the two apart because something told them apart
+or the match was not unique.
+
 Groups whose documents are all keyed in `resolution_overrides`, or acknowledged
 in `review_acknowledgements`, were already reviewed by hand; they are listed,
 marked as such, and left out of the count until a new document joins them.
@@ -22,7 +26,7 @@ from datetime import date
 from pathlib import Path
 
 from impacto.db.connect import connect
-from impacto.resolve.blocking import procedure_key, same_family
+from impacto.resolve.blocking import developer_keys, procedure_key, same_family, same_name
 from impacto.settings import load_settings
 from impacto.text import normalize, tokens
 
@@ -128,6 +132,8 @@ class Group:
     project_id: int
     name: str
     docs: tuple[ReviewDoc, ...]
+    developer: str | None = None
+    technology: str | None = None
 
 
 def pp_numbers(titles) -> set[str]:
@@ -194,7 +200,7 @@ def load_groups(conn) -> list[Group]:
     with conn.cursor() as cur:
         cur.execute(
             """
-            SELECT p.id AS project_id, p.canonical_name, d.id AS document_id, d.published_at, d.title,
+            SELECT p.id AS project_id, p.canonical_name, p.developer, p.technology, d.id AS document_id, d.published_at, d.title,
                    e.payload, o.group_key, (a.document_id IS NOT NULL) AS acknowledged,
                    (SELECT array_agg(m.name ORDER BY m.name) FROM project_municipalities pm
                     JOIN municipalities m ON m.ine_code = pm.ine_code WHERE pm.project_id = p.id) AS municipalities
@@ -231,12 +237,43 @@ def load_groups(conn) -> list[Group]:
                     acknowledged=r["acknowledged"],
                 )
             )
-        groups.append(Group(pid, rs[0]["canonical_name"], tuple(docs)))
+        groups.append(Group(pid, rs[0]["canonical_name"], tuple(docs), rs[0]["developer"], rs[0]["technology"]))
     return groups
 
 
+def namesake_groups(groups: list[Group]) -> set[int]:
+    """Ids of projects that share a plant name and a developer with another project.
+
+    Resolve joins two such projects when each is the other's only namesake and
+    nothing tells them apart (run.namesake_pairs); the ones left are for a
+    person to read: a plant named in two places, two plants of one name, or a
+    plant listed in two multi-plant titles. A plant and its evacuation line,
+    authorised apart, share a name by design and are not listed.
+    """
+    by_developer: dict[str, list[Group]] = {}
+    for g in groups:
+        for k in developer_keys(g.developer):
+            by_developer.setdefault(k, []).append(g)
+    out: set[int] = set()
+    for gs in by_developer.values():
+        for a in gs:
+            for b in gs:
+                if (
+                    a.project_id < b.project_id
+                    and (a.technology == "linea_evacuacion") == (b.technology == "linea_evacuacion")
+                    and same_name(a.name, b.name)
+                ):
+                    out |= {a.project_id, b.project_id}
+    return out
+
+
 def queue(groups: list[Group]) -> list[tuple[Group, list[str], bool]]:
-    return [(g, hit, reviewed(g)) for g in groups if (hit := rules(g))]
+    named = namesake_groups(groups)
+    return [
+        (g, hit, reviewed(g))
+        for g in groups
+        if (hit := rules(g) + (["namesake"] if g.project_id in named else []))
+    ]
 
 
 def write_csv(rows: list[tuple[Group, list[str], bool]], path: Path) -> Path:

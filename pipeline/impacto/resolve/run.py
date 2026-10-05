@@ -9,7 +9,15 @@ import psycopg
 from impacto.db.connect import connect
 from impacto.extract.capacity import with_capacity
 from impacto.extract.operative import find_operative, operative_override, title_override
-from impacto.resolve.blocking import Notice, candidate_pairs, correction_targets
+from impacto.extract.validate import check_generation, with_generation
+from impacto.resolve.blocking import (
+    Notice,
+    candidate_pairs,
+    correction_targets,
+    developer_keys,
+    plant_key,
+    same_name,
+)
 from impacto.resolve.model import Record
 from impacto.resolve.scoring import THRESHOLD, conflict, same_plant_evidence, score_pair
 from impacto.resolve.status import derive_status
@@ -105,7 +113,75 @@ def resolve(
         if keyed_i != keyed_j and not same_plant_evidence(records[i], records[j]):
             continue
         join(i, j)
+
+    # Last, namesakes scoring cannot see: a consultation notice whose
+    # municipality the model did not read (Saucito in "Tharsis", a village of
+    # Alosno), a plant one notice names inside another's list of plants (Rey I
+    # in "Rey I, II, III y IV"), a later notice with no municipality (Lirios).
+    # Blocking pairs names only within a shared municipality, and a name alone
+    # scores under the threshold. Two groups join when one developer and one
+    # plant name are common to both, and nothing marks them as two: a
+    # conflict, different municipalities, a line against a plant, wind against
+    # solar. Each must be the other's only namesake; a group with several
+    # stays apart and the review queue lists it (review.namesake_groups).
+    roots = [r for r in sorted({uf.find(i) for i in range(len(records))}) if not any(m in isolated for m in members[r])]
+    for a, b in namesake_pairs([[records[m] for m in members[r]] for r in roots]):
+        ra, rb = roots[a], roots[b]
+        if any(apart(x, y) for x in members[ra] for y in members[rb]):
+            continue
+        keyed_a = any(m in keyed for m in members[ra])
+        keyed_b = any(m in keyed for m in members[rb])
+        # A hand-made group takes in a namesake only on the same whole name.
+        if keyed_a != keyed_b and not _same_whole_name([records[m] for m in members[ra]], [records[m] for m in members[rb]]):
+            continue
+        join(ra, rb)
     return [[records[i] for i in g] for g in uf.groups()]
+
+
+def _same_whole_name(a: list[Record], b: list[Record]) -> bool:
+    return bool({plant_key(r.name) for r in a} & {plant_key(r.name) for r in b} - {""})
+
+
+def _kind(group: list[Record]) -> str:
+    return "linea" if any(r.technology == "linea_evacuacion" for r in group) else "planta"
+
+
+def _generation(group: list[Record]) -> str | None:
+    """The group's one technology when its documents read only "eolica" or only "solar_fv", else None."""
+    kinds = {r.technology for r in group} & {"eolica", "solar_fv", "hibrida"}
+    return kinds.pop() if len(kinds) == 1 and kinds != {"hibrida"} else None
+
+
+def namesakes(a: list[Record], b: list[Record]) -> bool:
+    """Whether two groups name one plant of one developer, with nothing to tell them apart."""
+    if not {k for r in a for k in developer_keys(r.developer)} & {k for r in b for k in developer_keys(r.developer)}:
+        return False
+    if not any(same_name(x.name, y.name) for x in a if x.name for y in b if y.name):
+        return False
+    if _kind(a) != _kind(b):
+        return False
+    ga, gb = _generation(a), _generation(b)
+    if ga and gb and ga != gb:
+        return False
+    munis_a = frozenset().union(*(r.municipalities for r in a))
+    munis_b = frozenset().union(*(r.municipalities for r in b))
+    return not (munis_a and munis_b) or bool(munis_a & munis_b)
+
+
+def namesake_pairs(groups: list[list[Record]]) -> list[tuple[int, int]]:
+    """Index pairs of groups that are each other's only namesake (see namesakes)."""
+    by_developer: dict[str, list[int]] = {}
+    for i, g in enumerate(groups):
+        for k in {k for r in g for k in developer_keys(r.developer)}:
+            by_developer.setdefault(k, []).append(i)
+    found: dict[int, set[int]] = {}
+    for idxs in by_developer.values():
+        for x in idxs:
+            for y in idxs:
+                if x < y and y not in found.get(x, ()) and namesakes(groups[x], groups[y]):
+                    found.setdefault(x, set()).add(y)
+                    found.setdefault(y, set()).add(x)
+    return sorted((x, y) for x, ys in found.items() for y in ys if x < y and len(ys) == 1 and len(found[y]) == 1)
 
 
 def load_records(conn: psycopg.Connection) -> list[Record]:
@@ -119,7 +195,9 @@ def load_records(conn: psycopg.Connection) -> list[Record]:
         Record.from_extraction(
             r["id"],
             r["published_at"],
-            with_capacity(with_operative(r["payload"], r["text"], r["title"]), r["title"], r["text"]),
+            # Re-applied here like the operative rule, so stored extractions
+            # get the generation check without a new model call.
+            with_generation(with_capacity(with_operative(r["payload"], r["text"], r["title"]), r["title"], r["text"])),
         )
         for r in rows
     ]
@@ -184,6 +262,18 @@ def _latest_with(group: list[Record], attr: str):
     return None
 
 
+def project_generation(group: list[Record], name: str) -> tuple[str, int | None]:
+    """The project's technology and turbines: the newest each document reads, checked against the project's name.
+
+    Each document was checked against its own name (with_generation); the
+    newest turbines may still come from a notice that names no plant (a BOJA
+    AAU notice for Retuerta), so the project's name is read again.
+    """
+    technology, turbines, _ = check_generation(name, _latest_with(group, "technology"), _latest_with(group, "turbines"))
+    # "otra" rather than NULL: the exports and the web enum have no empty technology.
+    return technology or "otra", turbines
+
+
 def _match_reason(group: list[Record], r: Record, corrections: dict[int, int] | None = None) -> tuple[float, str]:
     if len(group) == 1:
         return (1.0, "single")
@@ -200,6 +290,10 @@ def _match_reason(group: list[Record], r: Record, corrections: dict[int, int] | 
         score, reason = score_pair(r, other)
         if score > best[0]:
             best = (score, reason)
+    # Joined as a namesake (resolve): the score stays as low as it is, so the
+    # weekly check lists the document as a weak match, and the reason says why.
+    if best[0] < THRESHOLD and any(other is not r and namesakes([r], [other]) for other in group):
+        return (best[0], "namesake")
     return best
 
 
@@ -238,6 +332,7 @@ def write_projects(
                 # rebuild of this table and links to it stay valid. The
                 # bigserial default is bypassed on purpose.
                 project_id = min(r.document_id for r in group)
+                technology, turbines = project_generation(group, name)
                 cur.execute(
                     """
                     INSERT INTO projects (id, canonical_name, developer, technology, mw_peak, mw_nominal, hectares,
@@ -248,12 +343,11 @@ def write_projects(
                         project_id,
                         name,
                         _latest_with(group, "developer"),
-                        # "otra" rather than NULL: the exports and the web enum have no empty technology.
-                        _latest_with(group, "technology") or "otra",
+                        technology,
                         _latest_labelled(group, "mw_peak"),
                         _latest_labelled(group, "mw_nominal"),
                         _latest_with(group, "hectares"),
-                        _latest_with(group, "turbines"),
+                        turbines,
                         status,
                         status_doc,
                         min(r.published_at for r in group),

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import date
 from difflib import SequenceMatcher
 
+from impacto.developers import developer_key, split_names
 from impacto.resolve.model import Record
 from impacto.text import normalize, tokens
 
@@ -82,6 +83,51 @@ def same_family(a: str, b: str) -> bool:
 
 def name_key(name: str) -> str:
     return " ".join(t for t in tokens(_CAPACITY.sub(" ", normalize(name))) if t not in GENERIC)
+
+
+# Plurals a multi-plant title wraps around the plants it lists ("Plantas solares
+# fotovoltaicas Rey I Solar PV, Rey II Solar PV..."). Left out of plant_key
+# only, so blocking and scoring read names as before.
+_LIST_WORDS = {"solares", "fotovoltaicas", "eolicos", "eolicas", "parques", "instalaciones", "centrales"}
+# A list of plants: commas or semicolons, then "y"/"e" before the last one.
+_LIST_SEPARATOR = re.compile(r"\s*[,;]\s*|\s+[ye]\s+")
+
+
+def plant_key(name: str | None) -> str:
+    """The words that name a plant, or "" when none does (a capacity, a kind of works, a phase alone)."""
+    if not name:
+        return ""
+    words = [t for t in name_key(name).split() if t not in _LIST_WORDS]
+    return " ".join(words) if any(len(t) >= 3 and t.isalpha() for t in words) else ""
+
+
+def plant_keys(name: str | None) -> set[str]:
+    """plant_key of the whole name and, when the name lists plants, of each one.
+
+    "Plantas solares fotovoltaicas Rey I Solar PV de 120 MWp, Rey II Solar PV
+    de 120 MWp ... y Rey IV Solar PV" names "rey i pv" among others. A name
+    without a comma or semicolon is one plant: "Campos y Olivares" is not split.
+    """
+    if not name:
+        return set()
+    keys = {plant_key(name)}
+    text = _CAPACITY.sub(" ", normalize(name))
+    if "," in text or ";" in text:
+        keys |= {plant_key(part) for part in _LIST_SEPARATOR.split(text)}
+    return keys - {""}
+
+
+def same_name(a: str | None, b: str | None) -> bool:
+    """Whether two names name one plant: the same plant_key, or one names a plant the other lists."""
+    ka, kb = plant_key(a), plant_key(b)
+    if not ka or not kb:
+        return False
+    return ka == kb or ka in plant_keys(b) or kb in plant_keys(a)
+
+
+def developer_keys(developer: str | None) -> set[str]:
+    """impacto.developers keys of the companies a developer field names ("A, S.L.; B, SA")."""
+    return {k for n in split_names(developer) if (k := developer_key(n))}
 
 
 def candidate_pairs(records: list[Record]) -> set[tuple[int, int]]:
