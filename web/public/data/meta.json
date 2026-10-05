@@ -1,32 +1,32 @@
 {
-  "generated_at": "2026-10-04T21:05:36.011401+00:00",
+  "generated_at": "2026-10-05T00:47:55.341697+00:00",
   "counts": {
-    "raw_documents": 638,
-    "extractions": 638,
-    "projects": 541,
+    "raw_documents": 779,
+    "extractions": 779,
+    "projects": 590,
     "municipalities": 785,
     "protected_areas": 197
   },
   "files": {
     "projects.csv": {
-      "rows": 541,
-      "bytes": 146528
+      "rows": 590,
+      "bytes": 164911
     },
     "documents.csv": {
-      "rows": 638,
-      "bytes": 319690
+      "rows": 779,
+      "bytes": 417788
     },
     "municipality_stats.csv": {
-      "rows": 456,
-      "bytes": 36176
+      "rows": 543,
+      "bytes": 43197
     },
     "province_monthly.csv": {
-      "rows": 257,
-      "bytes": 13314
+      "rows": 298,
+      "bytes": 15396
     },
     "monthly_events.csv": {
-      "rows": 572,
-      "bytes": 28284
+      "rows": 733,
+      "bytes": 34867
     },
     "municipalities.geojson": {
       "rows": 785,
@@ -37,8 +37,8 @@
       "bytes": 789654
     },
     "municipality_stats.json": {
-      "rows": 244,
-      "bytes": 100158
+      "rows": 260,
+      "bytes": 118755
     },
     "protected_areas.geojson": {
       "rows": 197,
@@ -46,11 +46,11 @@
     },
     "protected_area_stats.json": {
       "rows": 197,
-      "bytes": 122970
+      "bytes": 145365
     },
     "province_stats.json": {
       "rows": 9,
-      "bytes": 18832
+      "bytes": 24294
     },
     "municipality_protected_areas.json": {
       "rows": 785,
@@ -73,8 +73,8 @@
       "bytes": 711
     },
     "open_consultations.json": {
-      "rows": 0,
-      "bytes": 128
+      "rows": 1,
+      "bytes": 1034
     }
   }
 }

@@ -1,14 +1,19 @@
 ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,ha_count,mw_best,mw_peak_fallback_count,name,province
 04002,en_consulta,solar_fv,1,20.0,0.0,0,1,0,20.0,0,Abrucena,Almería
 04007,desconocido,solar_fv,2,4.0,0.0,0,1,0,31.3,1,Alcolea,Almería
+04008,en_consulta,hibrida,1,61.0,176.66,0,1,1,61.0,0,Alcóntar,Almería
 04014,desconocido,solar_fv,1,0.0,0.0,0,0,0,25.0,1,Almócita,Almería
 04016,desconocido,solar_fv,1,0.0,0.0,0,0,0,22.4,1,Antas,Almería
-04016,favorable_condicionada,solar_fv,1,250.0,476.13,0,1,1,250.0,0,Antas,Almería
+04016,favorable_condicionada,solar_fv,2,330.0,678.82,52,2,2,330.0,0,Antas,Almería
+04016,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Antas,Almería
+04022,favorable_condicionada,solar_fv,1,80.0,202.69,52,1,1,80.0,0,Bédar,Almería
 04024,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Benahadux,Almería
 04024,desconocido,solar_fv,5,0.0,0.0,0,0,0,209.68001,5,Benahadux,Almería
 04029,desconocido,solar_fv,3,0.0,0.0,0,0,0,107.3,3,Berja,Almería
 04029,desfavorable,eolica,1,36.6,0.0,0,1,0,36.6,0,Berja,Almería
+04032,en_consulta,solar_fv,1,34.5,0.0,0,1,0,34.5,0,Carboneras,Almería
 04035,desconocido,solar_fv,1,0.998,0.0,0,1,0,0.998,0,Cuevas del Almanzora,Almería
+04035,sin_resolucion,otra,1,0.0,0.0,0,0,0,0.0,0,Cuevas del Almanzora,Almería
 04038,desconocido,solar_fv,2,0.0,0.0,0,0,0,80.0,2,Dalías,Almería
 04038,desfavorable,eolica,2,73.6,0.0,0,2,0,73.6,0,Dalías,Almería
 04045,en_consulta,solar_fv,1,20.0,0.0,0,1,0,20.0,0,Fiñana,Almería
@@ -18,93 +23,112 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 04053,desconocido,solar_fv,1,0.0,0.0,0,0,0,22.4,1,Huércal-Overa,Almería
 04057,desconocido,solar_fv,1,4.0,0.0,0,1,0,4.0,0,Laujar de Andarax,Almería
 04059,desconocido,solar_fv,2,0.0,0.0,0,0,0,72.4,2,Lubrín,Almería
+04059,favorable_condicionada,solar_fv,1,80.0,202.69,52,1,1,80.0,0,Lubrín,Almería
 04060,desconocido,solar_fv,8,0.0,0.0,0,0,0,435.889,7,Lucainena de las Torres,Almería
-04060,favorable_condicionada,hibrida,1,169.125,202.69,52,1,1,169.125,0,Lucainena de las Torres,Almería
+04060,favorable_condicionada,solar_fv,1,80.0,202.69,52,1,1,80.0,0,Lucainena de las Torres,Almería
 04066,desconocido,eolica,2,40.0,0.0,0,1,0,40.0,0,Níjar,Almería
-04066,favorable_condicionada,hibrida,1,169.125,202.69,52,1,1,169.125,0,Níjar,Almería
+04066,favorable_condicionada,solar_fv,1,80.0,202.69,52,1,1,80.0,0,Níjar,Almería
 04075,desconocido,solar_fv,1,0.998,0.0,0,1,0,0.998,0,Pulpí,Almería
-04082,favorable_condicionada,hibrida,1,169.125,202.69,52,1,1,169.125,0,Senés,Almería
+04082,favorable_condicionada,solar_fv,1,80.0,202.69,52,1,1,80.0,0,Senés,Almería
 04083,en_consulta,eolica,4,0.0,0.0,0,0,0,0.0,0,Serón,Almería
+04083,en_consulta,hibrida,1,61.0,176.66,0,1,1,61.0,0,Serón,Almería
 04083,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Serón,Almería
 04083,en_consulta,solar_fv,1,8.4,0.0,0,1,0,8.4,0,Serón,Almería
 04086,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Sorbas,Almería
-04086,favorable_condicionada,hibrida,1,169.125,202.69,52,1,1,169.125,0,Sorbas,Almería
-04088,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Tabernas,Almería
+04086,favorable_condicionada,solar_fv,1,80.0,202.69,52,1,1,80.0,0,Sorbas,Almería
+04088,desconocido,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Tabernas,Almería
 04088,desconocido,solar_fv,15,50.0,0.0,0,1,0,665.8739,13,Tabernas,Almería
-04088,favorable_condicionada,hibrida,1,169.125,202.69,52,1,1,169.125,0,Tabernas,Almería
 04088,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Tabernas,Almería
-04088,favorable_condicionada,solar_fv,1,99.85,203.25,0,1,1,99.85,0,Tabernas,Almería
-04090,favorable_condicionada,hibrida,1,169.125,202.69,52,1,1,169.125,0,Tahal,Almería
+04088,favorable_condicionada,solar_fv,2,179.85,405.94,52,2,2,179.85,0,Tabernas,Almería
+04090,favorable_condicionada,solar_fv,1,80.0,202.69,52,1,1,80.0,0,Tahal,Almería
 04092,en_consulta,eolica,2,0.0,0.0,0,0,0,0.0,0,Tíjola,Almería
 04094,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Turrillas,Almería
 04094,desconocido,solar_fv,2,0.0,0.0,0,0,0,94.97,2,Turrillas,Almería
+04100,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Vera,Almería
 04103,desconocido,solar_fv,1,0.0,0.0,0,0,0,22.4,1,Zurgena,Almería
 04902,desconocido,solar_fv,1,0.0,0.0,0,0,0,30.0,1,El Ejido,Almería
 04902,desfavorable,eolica,2,73.6,0.0,0,2,0,73.6,0,El Ejido,Almería
 04903,desconocido,solar_fv,1,0.0,0.0,0,0,0,30.0,1,La Mojonera,Almería
 04904,desconocido,solar_fv,2,0.0,0.0,0,0,0,80.0,2,Balanegra,Almería
 11001,desfavorable,eolica,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
+11001,en_consulta,eolica,2,109.66,0.0,18,2,0,109.66,0,Alcalá de los Gazules,Cádiz
 11001,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
-11001,favorable_condicionada,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
-11001,favorable_condicionada,solar_fv,3,94.8,0.0,0,2,0,131.20001,1,Alcalá de los Gazules,Cádiz
+11001,favorable_condicionada,hibrida,2,45.83,0.0,0,1,0,45.83,0,Alcalá de los Gazules,Cádiz
+11001,favorable_condicionada,solar_fv,2,47.4,0.0,0,1,0,83.8,1,Alcalá de los Gazules,Cádiz
 11002,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Alcalá del Valle,Cádiz
-11002,desfavorable,linea_evacuacion,1,0.0,447.23,0,0,1,0.0,0,Alcalá del Valle,Cádiz
+11002,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Alcalá del Valle,Cádiz
+11002,sin_resolucion,solar_fv,1,278.6,421.1887,0,1,1,278.6,0,Alcalá del Valle,Cádiz
 11004,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,29.98,1,Algeciras,Cádiz
-11006,en_consulta,hibrida,5,317.3,995.20996,0,4,4,317.3,0,Arcos de la Frontera,Cádiz
+11006,en_consulta,hibrida,3,263.3,532.20996,0,3,3,263.3,0,Arcos de la Frontera,Cádiz
 11006,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Arcos de la Frontera,Cádiz
 11006,favorable_condicionada,solar_fv,2,57.7,0.0,0,2,0,57.7,0,Arcos de la Frontera,Cádiz
+11006,sin_resolucion,hibrida,3,258.63,463.0,0,2,1,258.63,0,Arcos de la Frontera,Cádiz
 11008,desfavorable,eolica,1,0.0,0.0,0,0,0,0.0,0,Los Barrios,Cádiz
 11008,desfavorable,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Los Barrios,Cádiz
 11008,desfavorable,solar_fv,5,10.0,0.0,0,1,0,10.0,0,Los Barrios,Cádiz
-11008,en_consulta,otra,2,0.0,0.0,0,0,0,0.0,0,Los Barrios,Cádiz
+11008,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Los Barrios,Cádiz
 11008,favorable_condicionada,almacenamiento,3,15.0,0.0,0,3,0,15.0,0,Los Barrios,Cádiz
 11008,favorable_condicionada,eolica,2,36.0,0.0,0,2,0,36.0,0,Los Barrios,Cádiz
 11008,favorable_condicionada,otra,2,0.0,0.0,0,0,0,0.0,0,Los Barrios,Cádiz
 11008,favorable_condicionada,solar_fv,3,60.78,0.0,0,2,0,110.68,1,Los Barrios,Cádiz
-11010,en_consulta,hibrida,3,248.3,481.21,0,2,2,248.3,0,Bornos,Cádiz
+11008,sin_resolucion,eolica,1,62.7,0.0,11,1,0,62.7,0,Los Barrios,Cádiz
+11008,sin_resolucion,otra,1,0.0,0.0,0,0,0,0.0,0,Los Barrios,Cádiz
+11010,en_consulta,hibrida,2,248.3,481.21,0,2,2,248.3,0,Bornos,Cádiz
 11010,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Bornos,Cádiz
+11010,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,Bornos,Cádiz
 11013,favorable_condicionada,otra,1,0.0,0.0,0,0,0,0.0,0,Castellar de la Frontera,Cádiz
-11013,favorable_condicionada,solar_fv,3,349.8,99.17,0,2,1,399.69998,1,Castellar de la Frontera,Cádiz
+11013,favorable_condicionada,solar_fv,4,372.8,270.97998,0,3,2,422.69998,1,Castellar de la Frontera,Cádiz
+11014,en_consulta,eolica,1,116.8,0.0,17,1,0,116.8,0,Conil de la Frontera,Cádiz
 11014,favorable_condicionada,solar_fv,2,0.0,0.0,0,0,0,35.22,1,Conil de la Frontera,Cádiz
 11015,desfavorable,eolica,1,109.8,0.0,20,1,0,109.8,0,Chiclana de la Frontera,Cádiz
+11015,en_consulta,eolica,1,116.8,0.0,17,1,0,116.8,0,Chiclana de la Frontera,Cádiz
 11015,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Chiclana de la Frontera,Cádiz
 11015,favorable_condicionada,solar_fv,3,8.5,0.0,0,1,0,8.5,0,Chiclana de la Frontera,Cádiz
-11017,en_consulta,hibrida,3,248.3,481.21,0,2,2,248.3,0,Espera,Cádiz
+11017,en_consulta,hibrida,2,248.3,481.21,0,2,2,248.3,0,Espera,Cádiz
 11017,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Espera,Cádiz
-11020,caducado,eolica,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,desconocido,hibrida,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,desfavorable,hibrida,2,79.99,0.0,5,1,0,79.99,0,Jerez de la Frontera,Cádiz
+11017,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,Espera,Cádiz
+11020,caducado,eolica,2,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
+11020,caducado,hibrida,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
+11020,desfavorable,eolica,1,109.8,0.0,20,1,0,109.8,0,Jerez de la Frontera,Cádiz
+11020,desfavorable,hibrida,3,106.56,46.78,5,2,1,106.56,0,Jerez de la Frontera,Cádiz
 11020,desfavorable,solar_fv,3,93.8,0.0,0,2,0,93.8,0,Jerez de la Frontera,Cádiz
-11020,en_consulta,hibrida,6,833.8,764.69995,0,4,4,833.8,0,Jerez de la Frontera,Cádiz
+11020,en_consulta,eolica,2,169.46,0.0,26,2,0,169.46,0,Jerez de la Frontera,Cádiz
+11020,en_consulta,hibrida,7,986.89996,848.87,4,6,5,986.89996,0,Jerez de la Frontera,Cádiz
 11020,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,favorable_condicionada,hibrida,1,25.99,42.44,0,1,1,25.99,0,Jerez de la Frontera,Cádiz
+11020,favorable_condicionada,hibrida,2,97.985,401.05,11,2,2,97.985,0,Jerez de la Frontera,Cádiz
 11020,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,favorable_condicionada,solar_fv,6,203.4039,358.61,0,3,1,363.39392,2,Jerez de la Frontera,Cádiz
+11020,favorable_condicionada,solar_fv,5,93.9,0.0,0,2,0,253.89,2,Jerez de la Frontera,Cádiz
 11021,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,Jimena de la Frontera,Cádiz
 11021,desfavorable,solar_fv,2,820.9,1326.26,0,2,1,820.9,0,Jimena de la Frontera,Cádiz
-11021,favorable_condicionada,solar_fv,8,465.59998,99.17,0,5,1,615.2,3,Jimena de la Frontera,Cádiz
-11023,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Medina Sidonia,Cádiz
+11021,favorable_condicionada,solar_fv,8,465.59998,99.17,0,5,1,615.19995,3,Jimena de la Frontera,Cádiz
+11021,sin_resolucion,solar_fv,3,728.0,0.0,0,3,0,728.0,0,Jimena de la Frontera,Cádiz
+11023,caducado,eolica,1,0.0,0.0,0,0,0,0.0,0,Medina Sidonia,Cádiz
+11023,desfavorable,eolica,1,109.8,0.0,20,1,0,109.8,0,Medina Sidonia,Cádiz
+11023,en_consulta,eolica,3,226.46,0.0,35,3,0,226.46,0,Medina Sidonia,Cádiz
 11023,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Medina Sidonia,Cádiz
 11023,favorable_condicionada,hibrida,1,0.0,0.0,0,0,0,0.0,0,Medina Sidonia,Cádiz
 11023,favorable_condicionada,otra,1,0.0,0.0,0,0,0,0.0,0,Medina Sidonia,Cádiz
 11023,favorable_condicionada,solar_fv,4,0.0,0.0,0,0,0,69.498,3,Medina Sidonia,Cádiz
 11024,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,4.299,1,Olvera,Cádiz
+11025,en_consulta,eolica,1,52.66,0.0,9,1,0,52.66,0,Paterna de Rivera,Cádiz
 11025,en_consulta,hibrida,3,523.89996,397.72998,0,2,2,523.89996,0,Paterna de Rivera,Cádiz
 11025,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Paterna de Rivera,Cádiz
 11027,caducado,eolica,1,0.0,0.0,0,0,0,0.0,0,El Puerto de Santa María,Cádiz
-11027,desfavorable,hibrida,1,0.0,0.0,0,0,0,0.0,0,El Puerto de Santa María,Cádiz
+11027,desfavorable,hibrida,2,26.57,46.78,0,1,1,26.57,0,El Puerto de Santa María,Cádiz
 11027,desfavorable,solar_fv,1,19.98,0.0,0,1,0,19.98,0,El Puerto de Santa María,Cádiz
 11027,favorable_condicionada,hibrida,1,25.99,42.44,0,1,1,25.99,0,El Puerto de Santa María,Cádiz
 11027,favorable_condicionada,solar_fv,3,9.98,0.0,0,1,0,9.98,0,El Puerto de Santa María,Cádiz
-11028,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
+11028,caducado,eolica,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
+11028,desconocido,solar_fv,1,110.0,0.0,0,1,0,110.0,0,Puerto Real,Cádiz
+11028,desfavorable,eolica,1,109.8,0.0,20,1,0,109.8,0,Puerto Real,Cádiz
 11028,desfavorable,hibrida,1,79.99,0.0,5,1,0,79.99,0,Puerto Real,Cádiz
+11028,en_consulta,eolica,1,116.8,0.0,17,1,0,116.8,0,Puerto Real,Cádiz
 11028,en_consulta,hibrida,2,143.6,175.57,0,1,1,143.6,0,Puerto Real,Cádiz
-11028,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
-11028,favorable_condicionada,almacenamiento,1,24.04,1.24,0,1,1,24.04,0,Puerto Real,Cádiz
-11028,favorable_condicionada,hibrida,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
-11028,favorable_condicionada,solar_fv,5,110.0,0.0,0,1,0,220.0,1,Puerto Real,Cádiz
-11031,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,San Fernando,Cádiz
+11028,favorable_condicionada,almacenamiento,1,24.04,0.358,0,1,1,24.04,0,Puerto Real,Cádiz
+11028,favorable_condicionada,hibrida,3,71.995,358.61,11,1,1,71.995,0,Puerto Real,Cádiz
+11028,favorable_condicionada,solar_fv,4,0.0,0.0,0,0,0,110.0,1,Puerto Real,Cádiz
+11028,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
+11031,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,San Fernando,Cádiz
 11032,caducado,eolica,1,0.0,0.0,0,0,0,0.0,0,Sanlúcar de Barrameda,Cádiz
 11032,desfavorable,solar_fv,3,93.8,0.0,0,2,0,93.8,0,Sanlúcar de Barrameda,Cádiz
 11032,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Sanlúcar de Barrameda,Cádiz
@@ -112,275 +136,330 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11033,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,San Roque,Cádiz
 11033,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,San Roque,Cádiz
 11033,favorable_condicionada,otra,1,0.0,0.0,0,0,0,0.0,0,San Roque,Cádiz
-11033,favorable_condicionada,solar_fv,5,72.8,0.0,0,2,0,197.20001,3,San Roque,Cádiz
+11033,favorable_condicionada,solar_fv,5,72.8,171.81,0,2,1,197.20001,3,San Roque,Cádiz
+11033,sin_resolucion,eolica,1,62.7,0.0,11,1,0,62.7,0,San Roque,Cádiz
+11034,caducado,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Setenil de las Bodegas,Cádiz
 11034,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Setenil de las Bodegas,Cádiz
-11034,desfavorable,linea_evacuacion,1,0.0,447.23,0,0,1,0.0,0,Setenil de las Bodegas,Cádiz
-11034,favorable_condicionada,solar_fv,5,90.0,0.0,0,2,0,215.95999,3,Setenil de las Bodegas,Cádiz
+11034,favorable_condicionada,solar_fv,6,369.0,447.23,0,3,1,494.96,3,Setenil de las Bodegas,Cádiz
+11034,sin_resolucion,solar_fv,1,278.6,421.1887,0,1,1,278.6,0,Setenil de las Bodegas,Cádiz
 11035,desfavorable,solar_fv,2,0.0,0.0,0,0,0,88.79,2,Tarifa,Cádiz
 11035,en_consulta,eolica,1,0.0,0.0,0,0,0,0.0,0,Tarifa,Cádiz
 11035,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Tarifa,Cádiz
 11035,favorable_condicionada,eolica,7,78.399994,0.0,0,5,0,78.399994,0,Tarifa,Cádiz
 11035,favorable_condicionada,hibrida,4,0.0,0.0,0,0,0,0.0,0,Tarifa,Cádiz
 11036,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Torre Alháquime,Cádiz
-11036,desfavorable,linea_evacuacion,1,0.0,447.23,0,0,1,0.0,0,Torre Alháquime,Cádiz
+11036,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Torre Alháquime,Cádiz
+11036,sin_resolucion,solar_fv,1,278.6,421.1887,0,1,1,278.6,0,Torre Alháquime,Cádiz
+11039,en_consulta,eolica,1,116.8,0.0,17,1,0,116.8,0,Vejer de la Frontera,Cádiz
 11039,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Vejer de la Frontera,Cádiz
 11039,favorable_condicionada,solar_fv,4,51.16,0.0,0,2,0,86.380005,1,Vejer de la Frontera,Cádiz
 11041,en_consulta,hibrida,1,523.0,672.62,0,1,1,523.0,0,Villamartín,Cádiz
 11041,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Villamartín,Cádiz
 11901,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Benalup-Casas Viejas,Cádiz
 11901,favorable_condicionada,solar_fv,2,0.0,0.0,0,0,0,36.018,2,Benalup-Casas Viejas,Cádiz
-11902,en_consulta,hibrida,2,650.6,469.52,0,2,2,650.6,0,San José del Valle,Cádiz
+11902,en_consulta,eolica,1,52.66,0.0,9,1,0,52.66,0,San José del Valle,Cádiz
+11902,en_consulta,hibrida,3,718.69995,469.52,4,3,2,718.69995,0,San José del Valle,Cádiz
 11903,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,San Martín del Tesorillo,Cádiz
 11903,desfavorable,solar_fv,1,801.0,1326.26,0,1,1,801.0,0,San Martín del Tesorillo,Cádiz
-11903,favorable_condicionada,solar_fv,5,89.0,0.0,0,3,0,182.0,2,San Martín del Tesorillo,Cádiz
+11903,favorable_condicionada,solar_fv,5,89.0,171.81,0,3,1,182.0,2,San Martín del Tesorillo,Cádiz
+11903,sin_resolucion,solar_fv,2,478.0,0.0,0,2,0,478.0,0,San Martín del Tesorillo,Cádiz
 14005,desconocido,solar_fv,2,27.993,0.0,0,1,0,46.989,1,Almodóvar del Río,Córdoba
-14005,favorable_condicionada,solar_fv,2,0.0,97.0,0,0,1,139.99,2,Almodóvar del Río,Córdoba
+14005,favorable_condicionada,solar_fv,2,69.0,97.0,0,1,1,118.990005,1,Almodóvar del Río,Córdoba
 14012,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Bujalance,Córdoba
 14012,desconocido,solar_fv,6,0.0,0.0,0,0,0,146.95,4,Bujalance,Córdoba
-14012,favorable_condicionada,solar_fv,4,279.68,671.36,0,2,2,350.672,2,Bujalance,Córdoba
+14012,favorable_condicionada,solar_fv,4,215.68,458.36,0,2,2,286.672,2,Bujalance,Córdoba
 14013,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Cabra,Córdoba
-14013,favorable_condicionada,solar_fv,4,358.0,1152.34,0,4,4,358.0,0,Cabra,Córdoba
+14013,favorable_condicionada,solar_fv,4,396.44,1135.8201,0,4,4,396.44,0,Cabra,Córdoba
 14018,favorable_condicionada,solar_fv,2,130.68,263.36,0,1,1,166.176,1,El Carpio,Córdoba
-14019,favorable_condicionada,solar_fv,1,188.0,521.32,0,1,1,188.0,0,Castro del Río,Córdoba
+14019,favorable_condicionada,solar_fv,1,226.44,504.8,0,1,1,226.44,0,Castro del Río,Córdoba
 14021,desconocido,solar_fv,4,0.0,0.0,0,0,0,80.92999,4,Córdoba,Córdoba
 14021,desfavorable,solar_fv,1,0.0,201.18,0,0,1,100.0,1,Córdoba,Córdoba
 14021,favorable_condicionada,solar_fv,3,130.68,263.36,0,1,1,201.672,2,Córdoba,Córdoba
-14025,favorable_condicionada,solar_fv,1,188.0,521.32,0,1,1,188.0,0,Espejo,Córdoba
-14030,favorable_condicionada,solar_fv,1,0.0,97.0,0,0,1,90.0,1,Fuente Palmera,Córdoba
+14025,favorable_condicionada,solar_fv,1,226.44,504.8,0,1,1,226.44,0,Espejo,Córdoba
+14030,favorable_condicionada,solar_fv,1,69.0,97.0,0,1,1,69.0,0,Fuente Palmera,Córdoba
 14033,desconocido,solar_fv,3,27.993,0.0,0,1,0,101.483,2,Guadalcázar,Córdoba
-14033,favorable_condicionada,solar_fv,1,0.0,97.0,0,0,1,90.0,1,Guadalcázar,Córdoba
+14033,favorable_condicionada,solar_fv,1,69.0,97.0,0,1,1,69.0,0,Guadalcázar,Córdoba
 14038,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Lucena,Córdoba
 14041,desconocido,solar_fv,3,76.0,0.0,0,2,0,76.0,0,Montemayor,Córdoba
 14041,desfavorable,solar_fv,1,0.0,201.18,0,0,1,100.0,1,Montemayor,Córdoba
-14041,favorable_condicionada,solar_fv,1,188.0,521.32,0,1,1,188.0,0,Montemayor,Córdoba
+14041,favorable_condicionada,solar_fv,1,226.44,504.8,0,1,1,226.44,0,Montemayor,Córdoba
 14042,desconocido,solar_fv,2,42.989998,0.0,0,2,0,42.989998,0,Montilla,Córdoba
 14043,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Montoro,Córdoba
 14043,desconocido,solar_fv,4,0.0,0.0,0,0,0,149.947,3,Montoro,Córdoba
-14043,favorable_condicionada,solar_fv,3,329.68,893.35,0,3,3,329.68,0,Montoro,Córdoba
+14043,favorable_condicionada,solar_fv,3,265.68,680.35,0,3,3,265.68,0,Montoro,Córdoba
 14049,desconocido,solar_fv,2,0.0,0.0,0,0,0,9.98,2,Palma del Río,Córdoba
-14056,en_consulta,solar_fv,1,0.2,0.0,0,1,0,0.2,0,Puente Genil,Córdoba
+14056,sin_resolucion,solar_fv,1,0.2,0.0,0,1,0,0.2,0,Puente Genil,Córdoba
 14066,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Villa del Río,Córdoba
-14066,favorable_condicionada,solar_fv,1,149.0,408.0,0,1,1,149.0,0,Villa del Río,Córdoba
+14066,favorable_condicionada,solar_fv,1,85.0,195.0,0,1,1,85.0,0,Villa del Río,Córdoba
 18001,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,47.186,1,Agrón,Granada
 18003,desconocido,solar_fv,2,48.28,0.0,0,1,0,48.28,0,Albolote,Granada
-18003,favorable_condicionada,solar_fv,2,125.0,227.97,0,1,1,125.0,0,Albolote,Granada
+18003,favorable_condicionada,solar_fv,3,235.14,607.43,0,2,2,235.14,0,Albolote,Granada
+18003,sin_resolucion,solar_fv,2,194.25,577.83,0,2,2,194.25,0,Albolote,Granada
 18007,desconocido,eolica,2,0.0,0.0,0,0,0,0.0,0,Albuñuelas,Granada
 18007,desfavorable,solar_fv,1,42.0,0.0,0,1,0,42.0,0,Albuñuelas,Granada
-18007,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Albuñuelas,Granada
 18007,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,47.186,1,Albuñuelas,Granada
+18007,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Albuñuelas,Granada
 18010,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Aldeire,Granada
-18013,en_consulta,solar_fv,1,78.0,0.0,0,1,0,78.0,0,Alhama de Granada,Granada
+18011,sin_resolucion,solar_fv,1,92.75,262.13,0,1,1,92.75,0,Alfacar,Granada
+18013,sin_resolucion,solar_fv,1,78.0,0.0,0,1,0,78.0,0,Alhama de Granada,Granada
 18014,desfavorable,solar_fv,1,42.0,0.0,0,1,0,42.0,0,Alhendín,Granada
-18014,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhendín,Granada
 18014,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,47.186,1,Alhendín,Granada
+18014,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhendín,Granada
 18021,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Armilla,Granada
 18022,desfavorable,solar_fv,1,14.85,0.0,0,1,0,14.85,0,Atarfe,Granada
-18022,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Atarfe,Granada
-18022,en_consulta,solar_fv,2,78.0,0.0,0,1,0,105.5,1,Atarfe,Granada
-18022,favorable_condicionada,solar_fv,3,275.0,547.0,0,1,1,407.89,1,Atarfe,Granada
+18022,favorable_condicionada,solar_fv,6,561.14,1196.395,0,4,4,694.03,1,Atarfe,Granada
+18022,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Atarfe,Granada
+18022,sin_resolucion,solar_fv,4,272.25,538.59,0,3,2,299.75,1,Atarfe,Granada
 18023,desconocido,eolica,1,6.0,0.0,0,1,0,6.0,0,Baza,Granada
 18023,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Baza,Granada
-18023,favorable_condicionada,solar_fv,2,30.75,395.0,0,1,1,280.75,1,Baza,Granada
-18034,en_consulta,solar_fv,1,78.0,0.0,0,1,0,78.0,0,Cacín,Granada
-18034,favorable_condicionada,solar_fv,1,275.0,547.0,0,1,1,275.0,0,Cacín,Granada
+18023,favorable_condicionada,solar_fv,2,230.75,395.0,0,2,1,230.75,0,Baza,Granada
+18023,sin_resolucion,solar_fv,1,27.0,56.58,0,1,1,27.0,0,Baza,Granada
+18034,favorable_condicionada,solar_fv,1,250.0,403.115,0,1,1,250.0,0,Cacín,Granada
+18034,sin_resolucion,solar_fv,1,78.0,0.0,0,1,0,78.0,0,Cacín,Granada
 18035,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Cádiar,Granada
 18037,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Calicasas,Granada
+18037,sin_resolucion,solar_fv,1,92.75,262.13,0,1,1,92.75,0,Calicasas,Granada
 18039,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Caniles,Granada
 18039,desfavorable,solar_fv,1,37.2,0.0,0,1,0,37.2,0,Caniles,Granada
 18039,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Caniles,Granada
-18039,favorable_condicionada,solar_fv,1,0.0,395.0,0,0,1,250.0,1,Caniles,Granada
-18048,favorable_condicionada,solar_fv,1,275.0,547.0,0,1,1,275.0,0,Cijuela,Granada
+18039,favorable_condicionada,solar_fv,1,200.0,395.0,0,1,1,200.0,0,Caniles,Granada
+18048,favorable_condicionada,solar_fv,1,250.0,403.115,0,1,1,250.0,0,Cijuela,Granada
 18051,desconocido,solar_fv,1,48.28,0.0,0,1,0,48.28,0,Colomera,Granada
-18061,en_consulta,solar_fv,3,128.0,0.0,0,2,0,227.98001,1,Chimeneas,Granada
-18061,favorable_condicionada,solar_fv,1,275.0,547.0,0,1,1,275.0,0,Chimeneas,Granada
+18051,favorable_condicionada,solar_fv,2,253.0,669.61,0,2,2,253.0,0,Colomera,Granada
+18051,sin_resolucion,solar_fv,2,185.5,485.02002,0,2,2,185.5,0,Colomera,Granada
+18061,favorable_condicionada,solar_fv,1,250.0,403.115,0,1,1,250.0,0,Chimeneas,Granada
+18061,sin_resolucion,solar_fv,3,128.0,0.0,0,2,0,227.98001,1,Chimeneas,Granada
 18062,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Churriana de la Vega,Granada
+18066,favorable_condicionada,solar_fv,1,177.0,483.76,0,1,1,177.0,0,Deifontes,Granada
 18069,desfavorable,hibrida,1,88.24,54.14,25,1,1,88.24,0,Dólar,Granada
+18069,sin_resolucion,hibrida,1,88.24,54.14,0,1,1,88.24,0,Dólar,Granada
 18071,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Dúrcal,Granada
 18071,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Dúrcal,Granada
 18072,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,47.186,1,Escúzar,Granada
+18074,sin_resolucion,hibrida,1,88.24,54.14,0,1,1,88.24,0,Ferreira,Granada
 18087,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Granada,Granada
+18087,sin_resolucion,solar_fv,1,92.75,262.13,0,1,1,92.75,0,Granada,Granada
 18089,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Guadix,Granada
 18089,desfavorable,hibrida,1,88.24,54.14,25,1,1,88.24,0,Guadix,Granada
+18089,sin_resolucion,hibrida,1,88.24,54.14,0,1,1,88.24,0,Guadix,Granada
+18089,sin_resolucion,solar_fv,1,36.9,49.63,0,1,1,36.9,0,Guadix,Granada
 18095,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Güevéjar,Granada
+18095,sin_resolucion,solar_fv,1,92.75,262.13,0,1,1,92.75,0,Güevéjar,Granada
 18097,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Huéneja,Granada
 18097,desfavorable,hibrida,1,88.24,54.14,25,1,1,88.24,0,Huéneja,Granada
 18097,favorable_condicionada,solar_fv,1,89.745,0.0,0,1,0,89.745,0,Huéneja,Granada
+18097,sin_resolucion,hibrida,2,137.64,150.34,0,2,2,137.64,0,Huéneja,Granada
 18102,desconocido,otra,1,0.0,0.0,0,0,0,0.0,0,Íllora,Granada
 18102,desconocido,solar_fv,1,22.0,0.0,0,1,0,22.0,0,Íllora,Granada
-18102,en_consulta,solar_fv,2,78.0,0.0,0,1,0,177.98001,1,Íllora,Granada
-18102,favorable_condicionada,solar_fv,1,275.0,547.0,0,1,1,275.0,0,Íllora,Granada
+18102,favorable_condicionada,solar_fv,1,250.0,403.115,0,1,1,250.0,0,Íllora,Granada
+18102,sin_resolucion,solar_fv,2,78.0,0.0,0,1,0,177.98001,1,Íllora,Granada
 18105,favorable_condicionada,solar_fv,1,177.0,483.76,0,1,1,177.0,0,Iznalloz,Granada
-18115,favorable_condicionada,solar_fv,1,275.0,547.0,0,1,1,275.0,0,Láchar,Granada
+18111,sin_resolucion,solar_fv,1,92.75,262.13,0,1,1,92.75,0,Jun,Granada
+18114,sin_resolucion,hibrida,1,88.24,54.14,0,1,1,88.24,0,La Calahorra,Granada
+18115,favorable_condicionada,solar_fv,1,250.0,403.115,0,1,1,250.0,0,Láchar,Granada
 18122,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Loja,Granada
 18126,desfavorable,solar_fv,1,42.0,0.0,0,1,0,42.0,0,La Malahá,Granada
 18132,desconocido,solar_fv,1,48.28,0.0,0,1,0,48.28,0,Moclín,Granada
-18132,en_consulta,solar_fv,1,0.0,0.0,0,0,0,27.5,1,Moclín,Granada
-18132,favorable_condicionada,solar_fv,2,76.0,185.85,0,1,1,76.0,0,Moclín,Granada
+18132,favorable_condicionada,solar_fv,4,311.14,793.27997,0,3,3,311.14,0,Moclín,Granada
+18132,sin_resolucion,solar_fv,4,287.0,800.72003,0,3,3,314.5,1,Moclín,Granada
 18135,desconocido,otra,1,0.0,0.0,0,0,0,0.0,0,Montefrío,Granada
-18138,en_consulta,solar_fv,1,78.0,0.0,0,1,0,78.0,0,Moraleda de Zafayona,Granada
+18138,sin_resolucion,solar_fv,1,78.0,0.0,0,1,0,78.0,0,Moraleda de Zafayona,Granada
 18140,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Motril,Granada
 18145,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Ogíjares,Granada
 18149,desconocido,solar_fv,1,0.0,0.0,0,0,0,9.98,1,Villa de Otura,Granada
-18149,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villa de Otura,Granada
+18149,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villa de Otura,Granada
 18150,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Padul,Granada
 18150,desfavorable,solar_fv,1,42.0,0.0,0,1,0,42.0,0,Padul,Granada
-18150,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Padul,Granada
 18150,favorable_condicionada,hibrida,1,0.875,0.0,0,1,0,0.875,0,Padul,Granada
 18150,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,47.186,1,Padul,Granada
+18150,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Padul,Granada
 18153,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Peligros,Granada
 18158,desfavorable,solar_fv,1,14.85,0.0,0,1,0,14.85,0,Pinos Puente,Granada
-18158,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Pinos Puente,Granada
-18158,en_consulta,solar_fv,2,78.0,0.0,0,1,0,177.98001,1,Pinos Puente,Granada
-18158,favorable_condicionada,solar_fv,2,275.0,547.0,0,1,1,407.89,1,Pinos Puente,Granada
+18158,favorable_condicionada,solar_fv,2,250.0,403.115,0,1,1,382.89,1,Pinos Puente,Granada
+18158,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Pinos Puente,Granada
+18158,sin_resolucion,solar_fv,2,78.0,0.0,0,1,0,177.98001,1,Pinos Puente,Granada
 18159,favorable_condicionada,solar_fv,1,177.0,483.76,0,1,1,177.0,0,Píñar,Granada
 18175,desfavorable,solar_fv,1,14.85,0.0,0,1,0,14.85,0,Santa Fe,Granada
 18175,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,132.89,1,Santa Fe,Granada
 18182,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Ugíjar,Granada
 18184,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Vélez de Benaudalla,Granada
 18185,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Ventas de Huelma,Granada
-18185,en_consulta,solar_fv,1,50.0,0.0,0,1,0,50.0,0,Ventas de Huelma,Granada
-18185,favorable_condicionada,solar_fv,2,275.0,547.0,0,1,1,322.186,1,Ventas de Huelma,Granada
+18185,favorable_condicionada,solar_fv,2,250.0,403.115,0,1,1,297.186,1,Ventas de Huelma,Granada
+18185,sin_resolucion,solar_fv,1,50.0,0.0,0,1,0,50.0,0,Ventas de Huelma,Granada
+18189,sin_resolucion,solar_fv,1,92.75,262.13,0,1,1,92.75,0,Víznar,Granada
 18194,desconocido,eolica,1,6.0,0.0,0,1,0,6.0,0,Zújar,Granada
 18194,favorable_condicionada,solar_fv,1,30.75,0.0,0,1,0,30.75,0,Zújar,Granada
+18194,sin_resolucion,solar_fv,1,27.0,56.58,0,1,1,27.0,0,Zújar,Granada
 18902,desconocido,eolica,2,0.0,0.0,0,0,0,0.0,0,El Valle,Granada
 18905,desconocido,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Las Gabias,Granada
 18905,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,132.89,1,Las Gabias,Granada
 18906,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Los Guájares,Granada
+18907,sin_resolucion,hibrida,1,88.24,54.14,0,1,1,88.24,0,Valle del Zalabí,Granada
 18908,desconocido,eolica,2,0.0,0.0,0,0,0,0.0,0,Villamena,Granada
 18908,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villamena,Granada
 18908,desfavorable,solar_fv,1,42.0,0.0,0,1,0,42.0,0,Villamena,Granada
-18908,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villamena,Granada
+18908,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villamena,Granada
 18910,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,El Pinar,Granada
 18911,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,132.89,1,Vegas del Genil,Granada
-18914,favorable_condicionada,solar_fv,1,275.0,547.0,0,1,1,275.0,0,Valderrubio,Granada
+18914,favorable_condicionada,solar_fv,1,250.0,403.115,0,1,1,250.0,0,Valderrubio,Granada
+21003,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,El Almendro,Huelva
 21003,favorable_condicionada,hibrida,1,39.975,73.0324,20,1,1,39.975,0,El Almendro,Huelva
 21003,favorable_condicionada,solar_fv,2,65.83,186.466,66,2,2,65.83,0,El Almendro,Huelva
-21005,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Almonte,Huelva
+21005,en_consulta,solar_fv,1,109.74,294.35,0,1,1,109.74,0,Almonte,Huelva
 21005,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Almonte,Huelva
 21005,favorable_condicionada,solar_fv,1,5.0,0.0,0,1,0,5.0,0,Almonte,Huelva
+21005,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Almonte,Huelva
 21006,desconocido,solar_fv,1,30.25,0.0,0,1,0,30.25,0,Alosno,Huelva
+21006,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,Alosno,Huelva
 21006,favorable_condicionada,solar_fv,1,209.0,590.93,0,1,1,209.0,0,Alosno,Huelva
+21006,sin_resolucion,solar_fv,1,209.0,529.0,0,1,1,209.0,0,Alosno,Huelva
 21010,favorable_condicionada,hibrida,1,21.3,0.0,0,1,0,21.3,0,Ayamonte,Huelva
 21010,favorable_condicionada,solar_fv,1,96.0,98.2,0,1,1,96.0,0,Ayamonte,Huelva
 21011,desconocido,solar_fv,1,0.0,0.0,0,0,0,5.0,1,Beas,Huelva
-21011,favorable_condicionada,solar_fv,5,59.82,97.11,0,3,1,98.32,2,Beas,Huelva
+21011,favorable_condicionada,solar_fv,6,110.82,257.75,0,4,2,149.32,2,Beas,Huelva
 21013,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Bollullos Par del Condado,Huelva
 21018,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,El Campillo,Huelva
-21023,en_consulta,solar_fv,2,0.0,0.0,0,0,0,100.0,2,El Cerro de Andévalo,Huelva
+21023,en_consulta,almacenamiento,1,150.0,4.1728,0,1,1,150.0,0,El Cerro de Andévalo,Huelva
 21023,favorable_condicionada,solar_fv,1,209.0,590.93,0,1,1,209.0,0,El Cerro de Andévalo,Huelva
+21023,sin_resolucion,solar_fv,2,0.0,0.0,0,0,0,100.0,2,El Cerro de Andévalo,Huelva
 21030,desconocido,solar_fv,1,20.0,0.0,0,1,0,20.0,0,Chucena,Huelva
 21030,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Chucena,Huelva
 21030,favorable_condicionada,solar_fv,1,0.0,204.0,0,0,1,100.0,1,Chucena,Huelva
 21035,desconocido,solar_fv,5,37.5,0.0,0,1,0,147.45,4,Gibraleón,Huelva
-21035,en_consulta,solar_fv,1,22.88,0.0,0,1,0,22.88,0,Gibraleón,Huelva
 21035,favorable_condicionada,solar_fv,5,423.776,1206.64,0,4,2,473.766,1,Gibraleón,Huelva
+21035,sin_resolucion,solar_fv,2,22.88,0.0,0,1,0,122.765,1,Gibraleón,Huelva
 21036,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,La Granada de Río-Tinto,Huelva
 21041,desconocido,solar_fv,1,44.0,0.0,0,1,0,44.0,0,Huelva,Huelva
 21041,favorable_condicionada,solar_fv,4,44.0,0.0,0,1,0,44.0,0,Huelva,Huelva
 21042,desconocido,solar_fv,1,4.6,0.0,0,1,0,4.6,0,Isla Cristina,Huelva
-21050,desconocido,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Moguer,Huelva
 21050,favorable_condicionada,solar_fv,3,442.496,1253.78,0,2,2,475.996,1,Moguer,Huelva
+21050,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,Moguer,Huelva
 21052,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Nerva,Huelva
 21052,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Nerva,Huelva
 21053,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,Niebla,Huelva
 21054,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,La Palma del Condado,Huelva
-21055,desconocido,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Palos de la Frontera,Huelva
 21055,favorable_condicionada,solar_fv,4,486.496,1253.78,0,3,2,519.996,1,Palos de la Frontera,Huelva
+21055,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,Palos de la Frontera,Huelva
 21057,favorable_condicionada,solar_fv,1,180.0,269.0,0,1,1,180.0,0,Paymogo,Huelva
 21058,desconocido,hibrida,1,17.25,0.0,0,1,0,17.25,0,Puebla de Guzmán,Huelva
-21058,favorable_condicionada,hibrida,2,83.479996,435.6,0,2,2,83.479996,0,Puebla de Guzmán,Huelva
+21058,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,Puebla de Guzmán,Huelva
+21058,favorable_condicionada,hibrida,2,83.479996,435.6,40,2,2,83.479996,0,Puebla de Guzmán,Huelva
 21058,favorable_condicionada,solar_fv,2,319.52002,657.75,0,2,2,319.52002,0,Puebla de Guzmán,Huelva
+21058,sin_resolucion,solar_fv,2,389.0,1183.81,0,2,2,389.0,0,Puebla de Guzmán,Huelva
 21061,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Rociana del Condado,Huelva
-21064,desconocido,solar_fv,8,60.989998,0.0,0,3,0,110.939995,5,San Juan del Puerto,Huelva
+21064,desconocido,solar_fv,7,9.99,0.0,0,2,0,59.939995,5,San Juan del Puerto,Huelva
 21064,favorable_condicionada,solar_fv,6,452.47598,1253.78,0,4,2,490.96597,2,San Juan del Puerto,Huelva
+21064,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,San Juan del Puerto,Huelva
 21066,favorable_condicionada,solar_fv,1,96.0,98.2,0,1,1,96.0,0,San Silvestre de Guzmán,Huelva
-21070,desconocido,solar_fv,8,56.0,0.0,0,2,0,130.93,6,Trigueros,Huelva
+21070,desconocido,solar_fv,7,5.0,0.0,0,1,0,79.92999,6,Trigueros,Huelva
 21070,favorable_condicionada,solar_fv,7,544.496,1511.53,0,4,4,587.98596,3,Trigueros,Huelva
+21070,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,Trigueros,Huelva
 21073,desconocido,solar_fv,2,4.6,0.0,0,1,0,9.59,1,Villablanca,Huelva
+21073,en_consulta,hibrida,1,42.6,0.0,48,1,0,42.6,0,Villablanca,Huelva
 21073,favorable_condicionada,hibrida,1,21.3,0.0,0,1,0,21.3,0,Villablanca,Huelva
 21073,favorable_condicionada,solar_fv,2,96.0,98.2,0,1,1,100.99,1,Villablanca,Huelva
+21076,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,Villanueva de los Castillejos,Huelva
 21077,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,Villarrasa,Huelva
 21079,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Zufre,Huelva
-23002,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá la Real,Jaén
+23002,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá la Real,Jaén
 23005,favorable_condicionada,solar_fv,2,0.0,0.0,0,0,0,0.0,0,Andújar,Jaén
 23006,favorable_condicionada,solar_fv,3,49.99,0.0,0,1,0,99.98,1,Arjona,Jaén
-23024,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,La Carolina,Jaén
+23024,sin_resolucion,otra,1,0.0,0.0,0,0,0,0.0,0,La Carolina,Jaén
 23035,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Fuerte del Rey,Jaén
 23035,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Fuerte del Rey,Jaén
 23040,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Lahiguera,Jaén
 23050,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Jaén,Jaén
 23050,favorable_condicionada,solar_fv,1,3.3,6.78,0,1,1,3.3,0,Jaén,Jaén
-23055,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Linares,Jaén
+23055,sin_resolucion,otra,1,0.0,0.0,0,0,0,0.0,0,Linares,Jaén
 23056,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Lopera,Jaén
 23056,desconocido,solar_fv,1,0.0,0.0,0,0,0,35.0,1,Lopera,Jaén
-23056,favorable_condicionada,solar_fv,4,228.99,408.0,0,3,1,278.98,1,Lopera,Jaén
+23056,favorable_condicionada,solar_fv,4,164.99,195.0,0,3,1,214.98001,1,Lopera,Jaén
 23059,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Marmolejo,Jaén
 23059,desconocido,solar_fv,2,0.0,0.0,0,0,0,99.98,2,Marmolejo,Jaén
 23059,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Marmolejo,Jaén
-23059,favorable_condicionada,solar_fv,9,308.97998,408.0,0,5,1,508.93997,4,Marmolejo,Jaén
-23061,en_consulta,solar_fv,1,2.0,0.0,0,1,0,2.0,0,Mengíbar,Jaén
+23059,favorable_condicionada,solar_fv,9,244.98001,195.0,0,5,1,444.93997,4,Marmolejo,Jaén
+23061,sin_resolucion,solar_fv,1,2.0,0.0,0,1,0,2.0,0,Mengíbar,Jaén
 23086,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Torredelcampo,Jaén
 29007,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhaurín de la Torre,Málaga
 29008,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhaurín el Grande,Málaga
 29010,desconocido,solar_fv,3,0.0,0.0,0,0,0,49.94,1,Almargen,Málaga
-29012,favorable_condicionada,solar_fv,1,0.0,333.88,0,0,1,199.19,1,Álora,Málaga
-29013,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alozaina,Málaga
+29010,en_consulta,eolica,1,99.0,0.0,18,1,0,99.0,0,Almargen,Málaga
+29011,sin_resolucion,solar_fv,1,130.2,251.08,0,1,1,130.2,0,Almogía,Málaga
+29012,desfavorable,solar_fv,1,62.5,94.75,0,1,1,62.5,0,Álora,Málaga
+29012,favorable_condicionada,solar_fv,4,355.13498,588.447,0,4,4,355.13498,0,Álora,Málaga
+29012,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Álora,Málaga
+29013,favorable_condicionada,solar_fv,2,50.01,70.55,0,1,1,50.01,0,Alozaina,Málaga
 29015,desconocido,eolica,3,0.0,0.0,0,0,0,0.0,0,Antequera,Málaga
 29015,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Antequera,Málaga
 29015,en_consulta,solar_fv,1,25.0,0.0,0,1,0,25.0,0,Antequera,Málaga
-29015,favorable_condicionada,solar_fv,7,548.0,963.06,0,2,2,585.51,1,Antequera,Málaga
+29015,favorable_condicionada,almacenamiento,1,85.1044,0.0,0,1,0,85.1044,0,Antequera,Málaga
+29015,favorable_condicionada,solar_fv,6,186.23,370.84998,0,2,2,223.73999,1,Antequera,Málaga
 29017,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Archidona,Málaga
 29017,favorable_condicionada,solar_fv,2,48.0,145.51,0,1,1,48.0,0,Archidona,Málaga
 29018,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Ardales,Málaga
-29020,desfavorable,linea_evacuacion,1,0.0,447.23,0,0,1,0.0,0,Arriate,Málaga
+29018,en_consulta,eolica,1,99.0,0.0,18,1,0,99.0,0,Ardales,Málaga
+29020,caducado,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Arriate,Málaga
 29031,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,El Burgo,Málaga
-29032,favorable_condicionada,solar_fv,2,500.0,817.55,0,1,1,537.51,1,Campillos,Málaga
+29032,favorable_condicionada,solar_fv,2,138.23,225.34,0,1,1,175.73999,1,Campillos,Málaga
 29035,desconocido,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Cañete la Real,Málaga
 29035,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Cañete la Real,Málaga
 29035,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Cañete la Real,Málaga
 29038,desconocido,solar_fv,2,0.0,90.0,0,0,1,50.0,1,Cártama,Málaga
-29038,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Cártama,Málaga
+29038,favorable_condicionada,solar_fv,4,216.905,363.10703,0,3,3,216.905,0,Cártama,Málaga
+29038,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Cártama,Málaga
+29038,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Cártama,Málaga
 29039,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Casabermeja,Málaga
 29040,desconocido,solar_fv,3,0.0,90.0,0,0,1,100.0,2,Casarabonela,Málaga
 29040,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Casarabonela,Málaga
 29040,desfavorable,solar_fv,1,62.5,94.75,0,1,1,62.5,0,Casarabonela,Málaga
-29040,favorable_condicionada,solar_fv,2,121.1,575.98,0,1,2,320.29,1,Casarabonela,Málaga
+29040,favorable_condicionada,solar_fv,3,216.905,363.10703,0,3,3,216.905,0,Casarabonela,Málaga
+29040,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Casarabonela,Málaga
 29041,desconocido,eolica,4,0.0,0.0,0,0,0,0.0,0,Casares,Málaga
 29041,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Casares,Málaga
 29041,desconocido,solar_fv,3,42.34,0.0,0,1,0,42.34,0,Casares,Málaga
 29041,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,Casares,Málaga
 29041,desfavorable,solar_fv,1,801.0,1326.26,0,1,1,801.0,0,Casares,Málaga
-29041,favorable_condicionada,solar_fv,1,23.0,0.0,0,1,0,23.0,0,Casares,Málaga
+29041,favorable_condicionada,solar_fv,1,23.0,171.81,0,1,1,23.0,0,Casares,Málaga
+29041,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Casares,Málaga
+29041,sin_resolucion,solar_fv,4,838.01,859.68,0,4,1,838.01,0,Casares,Málaga
 29042,desconocido,solar_fv,1,0.0,90.0,0,0,1,50.0,1,Coín,Málaga
-29042,favorable_condicionada,solar_fv,3,0.0,333.88,0,0,1,199.19,1,Coín,Málaga
+29042,favorable_condicionada,solar_fv,3,50.01,70.55,0,1,1,50.01,0,Coín,Málaga
 29048,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Cuevas del Becerro,Málaga
 29056,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,Gaucín,Málaga
 29056,desfavorable,solar_fv,2,820.9,1326.26,0,2,1,820.9,0,Gaucín,Málaga
+29056,sin_resolucion,solar_fv,1,250.0,0.0,0,1,0,250.0,0,Gaucín,Málaga
 29058,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Guaro,Málaga
 29059,desconocido,solar_fv,2,3.5,0.0,0,1,0,3.5,0,Humilladero,Málaga
 29067,desconocido,solar_fv,2,0.0,90.0,0,0,1,50.0,1,Málaga,Málaga
+29067,sin_resolucion,solar_fv,1,130.2,251.08,0,1,1,130.2,0,Málaga,Málaga
 29068,desconocido,eolica,5,0.0,0.0,0,0,0,0.0,0,Manilva,Málaga
-29068,favorable_condicionada,solar_fv,1,23.0,0.0,0,1,0,23.0,0,Manilva,Málaga
+29068,favorable_condicionada,solar_fv,1,23.0,171.81,0,1,1,23.0,0,Manilva,Málaga
 29069,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Marbella,Málaga
 29072,desconocido,solar_fv,1,3.5,0.0,0,1,0,3.5,0,Mollina,Málaga
 29073,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Monda,Málaga
 29076,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Ojén,Málaga
 29080,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Pizarra,Málaga
-29080,favorable_condicionada,solar_fv,2,121.1,575.98,0,1,2,320.29,1,Pizarra,Málaga
-29084,desfavorable,linea_evacuacion,1,0.0,447.23,0,0,1,0.0,0,Ronda,Málaga
-29084,favorable_condicionada,solar_fv,2,0.0,11.0,0,0,1,7.0,1,Ronda,Málaga
+29080,favorable_condicionada,solar_fv,3,216.905,363.10703,0,3,3,216.905,0,Pizarra,Málaga
+29080,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Pizarra,Málaga
+29084,caducado,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Ronda,Málaga
+29084,favorable_condicionada,solar_fv,4,279.0,469.23,0,1,3,293.0,2,Ronda,Málaga
+29084,sin_resolucion,solar_fv,1,278.6,421.1887,0,1,1,278.6,0,Ronda,Málaga
 29088,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Sierra de Yeguas,Málaga
 29089,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Teba,Málaga
 29089,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Teba,Málaga
 29089,desconocido,solar_fv,2,0.0,0.0,0,0,0,43.98,1,Teba,Málaga
+29089,en_consulta,eolica,1,99.0,0.0,18,1,0,99.0,0,Teba,Málaga
 29089,favorable_condicionada,solar_fv,2,0.0,0.0,0,0,0,0.0,0,Teba,Málaga
+29093,favorable_condicionada,solar_fv,1,138.23,225.34,0,1,1,138.23,0,Valle de Abdalajís,Málaga
 29095,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Villanueva de Algaidas,Málaga
 29095,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villanueva de Algaidas,Málaga
 29098,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Villanueva de Tapia,Málaga
-29903,desfavorable,linea_evacuacion,1,0.0,447.23,0,0,1,0.0,0,Montecorto,Málaga
-41004,desconocido,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Alcalá de Guadaíra,Sevilla
-41004,favorable_condicionada,hibrida,1,24.04,1.6336,0,1,1,24.04,0,Alcalá de Guadaíra,Sevilla
-41004,favorable_condicionada,solar_fv,24,373.06,601.89,0,7,2,1002.61993,9,Alcalá de Guadaíra,Sevilla
+29903,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Montecorto,Málaga
+41004,en_consulta,almacenamiento,2,16.5,0.0,0,1,0,95.7,1,Alcalá de Guadaíra,Sevilla
+41004,favorable_condicionada,almacenamiento,1,0.0,0.0,0,0,0,50.0,1,Alcalá de Guadaíra,Sevilla
+41004,favorable_condicionada,hibrida,1,39.6,1.6336,0,1,1,39.6,0,Alcalá de Guadaíra,Sevilla
+41004,favorable_condicionada,solar_fv,23,559.45996,1451.0499,0,8,4,1024.02,7,Alcalá de Guadaíra,Sevilla
+41004,sin_resolucion,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Alcalá de Guadaíra,Sevilla
 41005,favorable_condicionada,linea_evacuacion,3,0.0,0.0,0,0,0,0.0,0,Alcalá del Río,Sevilla
 41005,favorable_condicionada,solar_fv,5,10.0,0.0,0,1,0,156.89,4,Alcalá del Río,Sevilla
 41007,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,50.0,1,La Algaba,Sevilla
@@ -395,17 +474,21 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41021,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Camas,Sevilla
 41022,favorable_condicionada,hibrida,1,98.0,267.8,0,1,1,98.0,0,La Campana,Sevilla
 41023,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Cantillana,Sevilla
+41024,en_consulta,almacenamiento,1,0.0,0.0,0,0,0,35.12,1,Carmona,Sevilla
 41024,favorable_condicionada,hibrida,1,98.0,267.8,0,1,1,98.0,0,Carmona,Sevilla
 41024,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Carmona,Sevilla
-41024,favorable_condicionada,solar_fv,35,838.49,1923.6647,0,12,7,1490.9083,14,Carmona,Sevilla
+41024,favorable_condicionada,solar_fv,34,878.09,1923.6647,0,13,7,1425.5084,13,Carmona,Sevilla
+41024,sin_resolucion,solar_fv,1,356.4,464.3,0,1,1,356.4,0,Carmona,Sevilla
 41027,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Castilblanco de los Arroyos,Sevilla
 41027,favorable_condicionada,solar_fv,1,45.836,0.0,0,1,0,45.836,0,Castilblanco de los Arroyos,Sevilla
 41034,favorable_condicionada,solar_fv,3,78.802,0.0,0,2,0,78.802,0,Coria del Río,Sevilla
-41038,desconocido,solar_fv,1,114.95,184.56,0,1,1,114.95,0,Dos Hermanas,Sevilla
-41038,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Dos Hermanas,Sevilla
+41037,en_consulta,eolica,1,99.0,0.0,18,1,0,99.0,0,Los Corrales,Sevilla
 41038,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Dos Hermanas,Sevilla
-41038,favorable_condicionada,solar_fv,22,465.36304,912.878,0,10,6,592.064,6,Dos Hermanas,Sevilla
-41039,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Écija,Sevilla
+41038,favorable_condicionada,solar_fv,22,475.09103,911.828,0,10,6,601.792,6,Dos Hermanas,Sevilla
+41038,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,Dos Hermanas,Sevilla
+41038,sin_resolucion,solar_fv,1,114.95,184.56,0,1,1,114.95,0,Dos Hermanas,Sevilla
+41039,en_consulta,solar_fv,1,9.98,0.0,0,1,0,9.98,0,Écija,Sevilla
+41039,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,Écija,Sevilla
 41041,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Estepa,Sevilla
 41042,favorable_condicionada,hibrida,1,98.0,267.8,0,1,1,98.0,0,Fuentes de Andalucía,Sevilla
 41045,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Gerena,Sevilla
@@ -415,14 +498,16 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41051,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Huévar del Aljarafe,Sevilla
 41051,favorable_condicionada,solar_fv,9,81.0,21.5095,0,5,1,121.6,3,Huévar del Aljarafe,Sevilla
 41053,favorable_condicionada,solar_fv,1,8.5,0.0,0,1,0,8.5,0,Lebrija,Sevilla
-41056,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,La Luisiana,Sevilla
+41056,en_consulta,almacenamiento,1,22.92,0.0,0,1,0,22.92,0,La Luisiana,Sevilla
+41056,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,La Luisiana,Sevilla
 41058,favorable_condicionada,solar_fv,5,0.0,360.0,0,0,1,274.91098,4,Mairena del Alcor,Sevilla
-41063,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,150.0,3,Los Molares,Sevilla
+41063,favorable_condicionada,almacenamiento,2,39.6,0.0,0,1,0,89.6,1,Los Molares,Sevilla
+41063,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,50.0,1,Los Molares,Sevilla
 41065,favorable_condicionada,eolica,1,30.0,0.0,0,1,0,30.0,0,Morón de la Frontera,Sevilla
 41067,desfavorable,solar_fv,1,56.5,98.47,0,1,1,56.5,0,Olivares,Sevilla
 41067,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Olivares,Sevilla
 41067,favorable_condicionada,solar_fv,2,0.0,0.0,0,0,0,87.976,2,Olivares,Sevilla
-41068,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Osuna,Sevilla
+41068,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,Osuna,Sevilla
 41070,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Palomares del Río,Sevilla
 41072,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Pedrera,Sevilla
 41075,favorable_condicionada,solar_fv,3,47.6,0.0,0,2,0,62.6,1,Pilas,Sevilla
@@ -436,22 +521,24 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41082,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,La Roda de Andalucía,Sevilla
 41085,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Salteras,Sevilla
 41085,favorable_condicionada,solar_fv,8,168.936,212.7,0,4,1,308.036,4,Salteras,Sevilla
+41087,en_consulta,almacenamiento,1,22.0,0.0,0,1,0,22.0,0,Sanlúcar la Mayor,Sevilla
 41087,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Sanlúcar la Mayor,Sevilla
 41087,favorable_condicionada,solar_fv,4,12.4,0.0,0,2,0,97.9,2,Sanlúcar la Mayor,Sevilla
 41089,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,150.0,3,Santiponce,Sevilla
-41091,desconocido,solar_fv,1,114.95,184.56,0,1,1,114.95,0,Sevilla,Sevilla
-41091,en_consulta,solar_fv,2,0.0,0.0,0,0,0,0.0,0,Sevilla,Sevilla
+41090,en_consulta,eolica,1,99.0,0.0,18,1,0,99.0,0,El Saucejo,Sevilla
 41091,favorable_condicionada,almacenamiento,4,0.0,0.0,0,0,0,0.0,0,Sevilla,Sevilla
 41091,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Sevilla,Sevilla
-41091,favorable_condicionada,solar_fv,8,42.1,34.0476,0,3,1,467.472,5,Sevilla,Sevilla
-41095,desconocido,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Utrera,Sevilla
-41095,favorable_condicionada,solar_fv,2,186.4,501.29,0,1,1,419.4,1,Utrera,Sevilla
+41091,favorable_condicionada,solar_fv,8,228.5,523.2076,0,4,2,420.872,4,Sevilla,Sevilla
+41091,sin_resolucion,solar_fv,3,114.95,184.56,0,1,1,114.95,0,Sevilla,Sevilla
+41095,en_consulta,almacenamiento,1,0.0,0.0,0,0,0,67.97,1,Utrera,Sevilla
+41095,favorable_condicionada,solar_fv,2,372.8,990.45,0,2,2,372.8,0,Utrera,Sevilla
+41095,sin_resolucion,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Utrera,Sevilla
 41096,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Valencina de la Concepción,Sevilla
 41096,favorable_condicionada,solar_fv,3,126.635994,212.7,0,3,1,126.635994,0,Valencina de la Concepción,Sevilla
 41099,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Villanueva del Río y Minas,Sevilla
 41100,favorable_condicionada,eolica,4,82.6,0.0,7,4,0,82.6,0,Villanueva de San Juan,Sevilla
 41101,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Villaverde del Río,Sevilla
-41102,en_consulta,solar_fv,1,0.0,0.0,0,0,0,0.0,0,El Viso del Alcor,Sevilla
 41102,favorable_condicionada,solar_fv,3,20.0,0.0,0,1,0,25.906,1,El Viso del Alcor,Sevilla
+41102,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,El Viso del Alcor,Sevilla
 41902,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Isla Mayor,Sevilla
 41902,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Isla Mayor,Sevilla
