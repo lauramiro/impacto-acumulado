@@ -241,6 +241,7 @@ month,scope,technology,event,document_count
 2023-04-01,Cádiz,otra,consulta,1
 2023-04-01,Cádiz,solar_fv,favorable_condicionada,1
 2023-04-01,Córdoba,solar_fv,consulta,2
+2023-04-01,Huelva,hibrida,favorable_condicionada,1
 2023-04-01,Huelva,solar_fv,desfavorable,1
 2023-04-01,Huelva,solar_fv,sin_veredicto,1
 2023-04-01,Jaén,solar_fv,favorable_condicionada,1
@@ -291,12 +292,11 @@ month,scope,technology,event,document_count
 2023-07-01,Andalucía,eolica,desfavorable,2
 2023-07-01,Andalucía,hibrida,favorable_condicionada,1
 2023-07-01,Andalucía,otra,consulta,1
-2023-07-01,Andalucía,otra,favorable_condicionada,1
 2023-07-01,Andalucía,solar_fv,desfavorable,8
-2023-07-01,Andalucía,solar_fv,favorable_condicionada,7
+2023-07-01,Andalucía,solar_fv,favorable_condicionada,8
 2023-07-01,Cádiz,eolica,desfavorable,2
 2023-07-01,Cádiz,solar_fv,desfavorable,8
-2023-07-01,Cádiz,solar_fv,favorable_condicionada,1
+2023-07-01,Cádiz,solar_fv,favorable_condicionada,2
 2023-07-01,Huelva,hibrida,favorable_condicionada,1
 2023-07-01,Huelva,solar_fv,favorable_condicionada,1
 2023-07-01,Jaén,otra,consulta,1
@@ -465,6 +465,7 @@ month,scope,technology,event,document_count
 2024-09-01,Cádiz,solar_fv,favorable_condicionada,2
 2024-09-01,Granada,solar_fv,desfavorable,1
 2024-09-01,Sevilla,hibrida,consulta,1
+2024-09-01,Sevilla,solar_fv,favorable_condicionada,1
 2024-10-01,Andalucía,eolica,consulta,2
 2024-10-01,Andalucía,hibrida,consulta,1
 2024-10-01,Andalucía,hibrida,favorable_condicionada,1
