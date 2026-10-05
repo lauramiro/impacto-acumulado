@@ -28,7 +28,7 @@ Almería,2026-05-01,en_consulta,1,20.0,20.0,0
 Almería,2026-07-01,desfavorable,2,73.6,73.6,0
 Almería,2026-07-01,en_consulta,4,0.0,0.0,0
 Cádiz,2019-03-01,favorable_condicionada,1,0.0,110.0,1
-Cádiz,2019-08-01,favorable_condicionada,1,109.5039,109.5039,0
+Cádiz,2019-08-01,favorable_condicionada,1,90.75,90.75,0
 Cádiz,2020-12-01,sin_resolucion,3,728.0,728.0,0
 Cádiz,2021-03-01,sin_resolucion,1,173.0,173.0,0
 Cádiz,2021-06-01,sin_resolucion,1,62.7,62.7,0
@@ -54,7 +54,7 @@ Cádiz,2023-09-01,favorable_condicionada,1,279.0,279.0,0
 Cádiz,2023-10-01,desfavorable,1,0.0,0.0,0
 Cádiz,2023-11-01,sin_resolucion,1,54.0,54.0,0
 Cádiz,2024-02-01,favorable_condicionada,2,29.6,29.6,0
-Cádiz,2024-03-01,desfavorable,1,26.57,26.57,0
+Cádiz,2024-03-01,desfavorable,1,0.0,26.57,1
 Cádiz,2024-03-01,favorable_condicionada,2,36.8,36.8,0
 Cádiz,2024-04-01,desfavorable,1,0.0,0.0,0
 Cádiz,2024-04-01,favorable_condicionada,1,12.0,12.0,0
@@ -82,7 +82,7 @@ Cádiz,2025-05-01,favorable_condicionada,1,10.0,10.0,0
 Cádiz,2025-06-01,desconocido,1,110.0,110.0,0
 Cádiz,2025-06-01,en_consulta,3,689.3,689.3,0
 Cádiz,2025-06-01,favorable_condicionada,1,46.2,46.2,0
-Cádiz,2025-07-01,en_consulta,5,876.2001,876.2001,0
+Cádiz,2025-07-01,en_consulta,5,530.2,530.2,0
 Cádiz,2025-08-01,desfavorable,1,109.8,109.8,0
 Cádiz,2025-09-01,en_consulta,2,109.66,109.66,0
 Cádiz,2025-10-01,en_consulta,1,116.8,116.8,0
@@ -94,13 +94,13 @@ Cádiz,2026-04-01,en_consulta,1,15.0,15.0,0
 Cádiz,2026-04-01,favorable_condicionada,2,0.0,0.0,0
 Cádiz,2026-05-01,favorable_condicionada,1,47.7,47.7,0
 Cádiz,2026-06-01,en_consulta,1,68.1,68.1,0
-Cádiz,2026-07-01,favorable_condicionada,6,40.989998,45.289,1
+Cádiz,2026-07-01,favorable_condicionada,6,39.0,43.299,1
 Cádiz,2026-08-01,favorable_condicionada,1,2.5,2.5,0
 Córdoba,2022-05-01,favorable_condicionada,1,85.0,85.0,0
 Córdoba,2022-11-01,desconocido,3,76.0,76.0,0
 Córdoba,2022-11-01,desfavorable,1,0.0,100.0,1
 Córdoba,2022-11-01,favorable_condicionada,1,69.0,69.0,0
-Córdoba,2022-12-01,favorable_condicionada,1,226.44,226.44,0
+Córdoba,2022-12-01,favorable_condicionada,1,188.0,188.0,0
 Córdoba,2023-02-01,desconocido,11,27.993,277.409,9
 Córdoba,2023-02-01,favorable_condicionada,4,130.68,251.662,3
 Córdoba,2023-03-01,desconocido,3,0.0,149.947,3
@@ -122,7 +122,7 @@ Granada,2022-11-01,sin_resolucion,1,0.0,27.5,1
 Granada,2022-12-01,desconocido,2,0.0,0.0,0
 Granada,2022-12-01,favorable_condicionada,1,177.0,177.0,0
 Granada,2023-01-01,desfavorable,1,83.0,83.0,0
-Granada,2023-01-01,favorable_condicionada,3,508.14,508.14,0
+Granada,2023-01-01,favorable_condicionada,3,533.14,533.14,0
 Granada,2023-02-01,desconocido,2,0.0,9.98,1
 Granada,2023-02-01,sin_resolucion,3,128.0,227.98001,1
 Granada,2023-03-01,desconocido,3,6.0,6.0,0
@@ -162,7 +162,7 @@ Huelva,2023-03-01,favorable_condicionada,2,43.5,93.490005,1
 Huelva,2023-05-01,favorable_condicionada,3,204.0,204.0,0
 Huelva,2023-06-01,favorable_condicionada,1,0.0,0.0,0
 Huelva,2023-07-01,favorable_condicionada,1,39.975,39.975,0
-Huelva,2023-08-01,favorable_condicionada,1,96.0,96.0,0
+Huelva,2023-08-01,favorable_condicionada,1,48.0,48.0,0
 Huelva,2023-09-01,favorable_condicionada,1,27.83,27.83,0
 Huelva,2023-11-01,desconocido,1,37.5,37.5,0
 Huelva,2023-12-01,favorable_condicionada,1,0.0,0.0,0
@@ -215,7 +215,7 @@ Málaga,2021-12-01,sin_resolucion,1,278.6,278.6,0
 Málaga,2022-01-01,favorable_condicionada,1,48.0,48.0,0
 Málaga,2023-01-01,desconocido,2,0.0,0.0,0
 Málaga,2023-01-01,desfavorable,2,884.0,884.0,0
-Málaga,2023-01-01,favorable_condicionada,5,418.215,418.215,0
+Málaga,2023-01-01,favorable_condicionada,5,417.51498,417.51498,0
 Málaga,2023-02-01,desconocido,18,3.5,197.42,4
 Málaga,2023-02-01,desfavorable,1,62.5,62.5,0
 Málaga,2023-02-01,favorable_condicionada,4,0.0,51.51,3
@@ -255,7 +255,7 @@ Sevilla,2023-02-01,favorable_condicionada,32,890.345,1386.3451,12
 Sevilla,2023-02-01,sin_resolucion,1,0.0,0.0,0
 Sevilla,2023-03-01,favorable_condicionada,10,98.99,312.232,6
 Sevilla,2023-05-01,favorable_condicionada,3,186.4,233.04,1
-Sevilla,2023-06-01,favorable_condicionada,1,169.728,169.728,0
+Sevilla,2023-06-01,favorable_condicionada,1,160.0,160.0,0
 Sevilla,2023-07-01,desconocido,1,150.0,150.0,0
 Sevilla,2023-07-01,favorable_condicionada,5,169.303,169.303,0
 Sevilla,2023-08-01,favorable_condicionada,1,0.0,4.9,1

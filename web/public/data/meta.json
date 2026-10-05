@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T11:38:45.177309+00:00",
+  "generated_at": "2026-10-05T11:53:58.172105+00:00",
   "counts": {
     "raw_documents": 758,
     "extractions": 758,
@@ -10,7 +10,7 @@
   "files": {
     "projects.csv": {
       "rows": 587,
-      "bytes": 163031
+      "bytes": 163028
     },
     "documents.csv": {
       "rows": 758,
@@ -18,7 +18,7 @@
     },
     "developers.json": {
       "rows": 478,
-      "bytes": 159901
+      "bytes": 159894
     },
     "project_details.json": {
       "rows": 587,
@@ -30,11 +30,11 @@
     },
     "municipality_stats.csv": {
       "rows": 537,
-      "bytes": 42700
+      "bytes": 42665
     },
     "province_monthly.csv": {
       "rows": 294,
-      "bytes": 15206
+      "bytes": 15185
     },
     "monthly_events.csv": {
       "rows": 698,
@@ -50,7 +50,7 @@
     },
     "municipality_stats.json": {
       "rows": 260,
-      "bytes": 117477
+      "bytes": 117442
     },
     "protected_areas.geojson": {
       "rows": 197,
@@ -58,11 +58,11 @@
     },
     "protected_area_stats.json": {
       "rows": 197,
-      "bytes": 141998
+      "bytes": 141941
     },
     "province_stats.json": {
       "rows": 9,
-      "bytes": 23877
+      "bytes": 23867
     },
     "municipality_protected_areas.json": {
       "rows": 785,
