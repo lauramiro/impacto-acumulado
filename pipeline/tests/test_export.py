@@ -482,3 +482,20 @@ def test_evaluation_carries_the_aau_publication_verdicts(db, fixtures_dir, tmp_p
     block = json.loads(path.read_text(encoding="utf-8"))["aau_publication"]
     assert block == {"held_out": {"measured": "2026-10-04", "labelled": 15, "correct": 14},
                      "live": {"labelled": 1, "correct": 1}, "unknown_projects": 1, "projects": 4}
+
+
+def test_export_evaluation_carries_the_previous_run_as_history(tmp_path):
+    last_run = tmp_path / "last_run.json"
+    last_run.write_text(json.dumps({"provider": "stub", "measured": "2026-10-05", "accuracy": {"verdict": 1.0}, "n_labels": 1, "n_scored": 1, "skipped": []}), encoding="utf-8")
+    previous = tmp_path / "previous.json"
+    previous.write_text(json.dumps({"provider": "old", "measured": "2026-09-22", "accuracy": {"verdict": 0.5}, "n_labels": 2, "n_scored": 2, "skipped": []}), encoding="utf-8")
+    labels, old_labels = tmp_path / "labels", tmp_path / "old"
+    labels.mkdir()
+    old_labels.mkdir()
+    (labels / "a.json").write_text(json.dumps({"expected": {"verdict": "favorable"}}), encoding="utf-8")
+    for name in ("a.json", "b.json"):
+        (old_labels / name).write_text(json.dumps({"expected": {"verdict": "favorable"}}), encoding="utf-8")
+    path = export_evaluation(tmp_path / "out", last_run=last_run, labels_dir=labels, previous_run=previous, previous_labels_dir=old_labels)
+    written = json.loads(path.read_text(encoding="utf-8"))
+    assert written["previous"] == {"provider": "old", "measured": "2026-09-22", "accuracy": {"verdict": 0.5}, "n_scored": 2, "field_samples": {"verdict": 2}}
+    assert written["field_samples"] == {"verdict": 1}

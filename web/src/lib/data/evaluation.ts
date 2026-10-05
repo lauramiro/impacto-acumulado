@@ -7,6 +7,8 @@ import { dataFile } from "./paths";
 export const EvaluationSchema = z
   .object({
     provider: z.string().min(1),
+    measured: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    labels: z.string().min(1),
     accuracy: z.record(z.string(), z.number().min(0).max(1)),
     n_labels: z.number().int().nonnegative(),
     n_scored: z.number().int().nonnegative(),
@@ -19,6 +21,15 @@ export const EvaluationSchema = z
         live: z.object({ labelled: z.number().int().nonnegative(), correct: z.number().int().nonnegative() }),
         unknown_projects: z.number().int().nonnegative(),
         projects: z.number().int().nonnegative(),
+      })
+      .optional(),
+    previous: z
+      .object({
+        provider: z.string().min(1),
+        measured: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        accuracy: z.record(z.string(), z.number().min(0).max(1)),
+        n_scored: z.number().int().nonnegative(),
+        field_samples: z.record(z.string(), z.number().int().nonnegative()),
       })
       .optional(),
   })
@@ -34,6 +45,8 @@ export async function loadEvaluation(): Promise<Evaluation> {
   const raw = EvaluationSchema.parse(JSON.parse(await readFile(dataFile("evaluation.json"), "utf-8")));
   return {
     provider: raw.provider,
+    measured: raw.measured,
+    labelsFolder: raw.labels,
     accuracy: raw.accuracy,
     nLabels: raw.n_labels,
     nScored: raw.n_scored,
@@ -46,6 +59,15 @@ export async function loadEvaluation(): Promise<Evaluation> {
           live: raw.aau_publication.live,
           unknownProjects: raw.aau_publication.unknown_projects,
           projects: raw.aau_publication.projects,
+        }
+      : null,
+    previous: raw.previous
+      ? {
+          provider: raw.previous.provider,
+          measured: raw.previous.measured,
+          accuracy: raw.previous.accuracy,
+          nScored: raw.previous.n_scored,
+          fieldSamples: raw.previous.field_samples,
         }
       : null,
   };

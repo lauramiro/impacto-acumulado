@@ -19,8 +19,13 @@ MAP_SIMPLIFY_TOLERANCE = 0.002  # roughly 200 m: sub-pixel on the web map even a
 GEOJSON_DECIMALS = 5  # about one metre; the default nine only inflates the files
 
 EVALUATION_DIR = Path(__file__).resolve().parents[2] / "evaluation"
+# The published figure: a run of the held-out labels written on 2026-10-05.
+# The September figure, on labels later used to tune the extractor, is
+# carried beside it as history.
 LAST_RUN = EVALUATION_DIR / "last_run.json"
-LABELS_DIR = EVALUATION_DIR / "labels"
+LABELS_DIR = EVALUATION_DIR / "labels_2026-10"
+PREVIOUS_RUN = EVALUATION_DIR / "2026-09-22_run.json"
+PREVIOUS_LABELS_DIR = EVALUATION_DIR / "labels"
 PERIODS_FILE = EVALUATION_DIR / "periods.json"
 AAU_VERDICTS_FILE = EVALUATION_DIR / "aau_verdicts.json"
 
@@ -334,7 +339,13 @@ def _aau_publication(conn, aau_file: Path) -> dict:
 
 
 def export_evaluation(
-    out_dir: Path, last_run: Path = LAST_RUN, labels_dir: Path = LABELS_DIR, conn=None, aau_file: Path = AAU_VERDICTS_FILE
+    out_dir: Path,
+    last_run: Path = LAST_RUN,
+    labels_dir: Path = LABELS_DIR,
+    conn=None,
+    aau_file: Path = AAU_VERDICTS_FILE,
+    previous_run: Path | None = PREVIOUS_RUN,
+    previous_labels_dir: Path = PREVIOUS_LABELS_DIR,
 ) -> Path:
     # The evaluation is run by hand after labelling, not weekly; the export
     # carries the last checked result to the site. A missing run is an error,
@@ -344,6 +355,15 @@ def export_evaluation(
     result = json.loads(last_run.read_text(encoding="utf-8"))
     result["labels_count"] = len(list(labels_dir.glob("*.json")))
     result["field_samples"] = _field_samples(labels_dir, set(result.get("skipped", [])))
+    if previous_run is not None and previous_run.is_file():
+        previous = json.loads(previous_run.read_text(encoding="utf-8"))
+        result["previous"] = {
+            "provider": previous["provider"],
+            "measured": previous["measured"],
+            "accuracy": previous["accuracy"],
+            "n_scored": previous["n_scored"],
+            "field_samples": _field_samples(previous_labels_dir, set(previous.get("skipped", []))),
+        }
     if conn is not None:
         result["aau_publication"] = _aau_publication(conn, aau_file)
     return _write_json(out_dir / "evaluation.json", result)

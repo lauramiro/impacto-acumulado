@@ -67,6 +67,14 @@ describe("loaders", () => {
   it("loads the evaluation result", async () => {
     const ev = await loadEvaluation();
     expect(ev.provider).toBe("mistral:ministral-14b-latest");
+    expect(ev).toMatchObject({ measured: "2026-10-05", labelsFolder: "labels_2026-10" });
+    expect(ev.previous).toEqual({
+      provider: "mistral:ministral-14b-latest",
+      measured: "2026-09-22",
+      accuracy: { verdict: 0.95 },
+      nScored: 20,
+      fieldSamples: { verdict: 20 },
+    });
     expect(ev.accuracy["mw_nominal"]).toBe(0.8);
     expect(ev).toMatchObject({ nLabels: 20, nScored: 20, labelsCount: 20, skipped: [] });
     expect(ev.aauPublication).toEqual({
@@ -84,6 +92,8 @@ describe("loaders", () => {
   it("rejects an evaluation with more scored than labelled", () => {
     const result = EvaluationSchema.safeParse({
       provider: "x",
+      measured: "2026-10-05",
+      labels: "l",
       accuracy: {},
       n_labels: 1,
       n_scored: 2,
@@ -95,7 +105,16 @@ describe("loaders", () => {
   });
 
   it("rejects an evaluation missing field_samples", () => {
-    const result = EvaluationSchema.safeParse({ provider: "x", accuracy: {}, n_labels: 1, n_scored: 1, skipped: [], labels_count: 1 });
+    const result = EvaluationSchema.safeParse({
+      provider: "x",
+      measured: "2026-10-05",
+      labels: "l",
+      accuracy: {},
+      n_labels: 1,
+      n_scored: 1,
+      skipped: [],
+      labels_count: 1,
+    });
     expect(result.success).toBe(false);
   });
 

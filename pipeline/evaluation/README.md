@@ -36,15 +36,24 @@ Labelling rules:
 - Aim for a mix: at least 5 BOJA documents, at least 3 unfavourable, at least 2
   wind, at least 2 public consultation notices.
 
-Status: 20 labels (11 BOE, 9 BOJA), reviewed by hand on 2026-09-22.
-`last_run.json` holds the Mistral run on that set with prompt v3, made before
-anyone tuned the extractor against these labels. It is the published figure
-(`impacto export` copies it to `web/public/data/evaluation.json`) and it is
-frozen: `run_eval` refuses to write it.
+Two label sets:
 
-The extraction fixes of 2026-09-23 (prompt v4) were designed and checked
-against these same 20 labels, so from then on they are a tuning set.
-`tuned_run.json` records the v4 result for reference; it is not evidence
-about unseen documents and is not published. A new published figure needs
-labels written after 2026-09-23, and replacing `last_run.json` with it means
-removing the guard in `run_eval.py` in the same commit.
+- `labels/`: 20 labels (11 BOE, 9 BOJA), reviewed by hand on 2026-09-22. The
+  Mistral run on them with prompt v3, made before anyone tuned the extractor,
+  is kept in `2026-09-22_run.json`. The extraction fixes of 2026-09-23 (prompt
+  v4) were designed and checked against these labels, so they are a tuning
+  set; `tuned_run.json` records the v4 result for reference.
+- `labels_2026-10/`: 20 labels written on 2026-10-05, after the tuning, on
+  documents never used to tune. Chosen by keyword and at random within strata,
+  not by the extractor's output: 6 ministry impact declarations (2
+  unfavourable, 3 wind or hybrid), 4 BOE section V consultations, 7 BOJA AAU
+  notices (2 refusals, 3 wind) and 3 BOJA consultations (hydrogen plants
+  with their own solar field; their `technology` is not labelled).
+
+`last_run.json` is the published figure (`impacto export` copies it to
+`web/public/data/evaluation.json`, with the September run beside it as
+history): the run on `labels_2026-10/`, made with the `extraction-eval`
+workflow on 2026-10-05, misses in `last_run_misses.json`. To refresh it, run
+that workflow and commit its `eval_run.json` as `last_run.json`. Once
+anything is tuned against `labels_2026-10/`, a new published figure needs new
+labels again.

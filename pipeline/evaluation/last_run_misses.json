@@ -1,0 +1,182 @@
+[
+  {
+    "source_id": "BOE-A-2023-16374",
+    "field": "mw_nominal",
+    "expected": 27.83,
+    "actual": 55.83
+  },
+  {
+    "source_id": "BOE-A-2023-16374",
+    "field": "mw_peak",
+    "expected": 33.39,
+    "actual": 55.83
+  },
+  {
+    "source_id": "BOE-A-2023-2589",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Fuentes de Andalucía",
+        "province": "Sevilla"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Carmona",
+        "province": "Sevilla",
+        "role": null
+      },
+      {
+        "name": "La Campana",
+        "province": "Sevilla",
+        "role": null
+      },
+      {
+        "name": "Fuentes de Andalucía",
+        "province": "Sevilla",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "BOE-A-2025-26328",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Guadix",
+        "province": "Granada"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Guadix",
+        "province": "Granada",
+        "role": null
+      },
+      {
+        "name": "Dólar",
+        "province": "Granada",
+        "role": null
+      },
+      {
+        "name": "Huéneja",
+        "province": "Granada",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "BOE-B-2020-49856",
+    "field": "mw_nominal",
+    "expected": null,
+    "actual": 250.0
+  },
+  {
+    "source_id": "BOE-B-2020-49856",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Gaucín",
+        "province": "Málaga"
+      },
+      {
+        "name": "Jimena de la Frontera",
+        "province": "Cádiz"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Gaucín",
+        "province": "Málaga",
+        "role": null
+      },
+      {
+        "name": "Jimena de la Frontera",
+        "province": "Cádiz",
+        "role": null
+      },
+      {
+        "name": "Gaucín",
+        "province": "Málaga",
+        "role": null
+      },
+      {
+        "name": "Jimena de la Frontera",
+        "province": "Cádiz",
+        "role": null
+      },
+      {
+        "name": "Gaucín",
+        "province": "Málaga",
+        "role": null
+      },
+      {
+        "name": "Casares",
+        "province": "Málaga",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "BOE-B-2021-16761",
+    "field": "municipalities",
+    "expected": [
+      {
+        "name": "Alcalá del Valle",
+        "province": "Cádiz"
+      }
+    ],
+    "actual": [
+      {
+        "name": "Alcalá del Valle",
+        "province": "Cádiz",
+        "role": null
+      },
+      {
+        "name": "Cañete la Real",
+        "province": "Málaga",
+        "role": null
+      },
+      {
+        "name": "El Burgo",
+        "province": "Málaga",
+        "role": null
+      },
+      {
+        "name": "Casarabonela",
+        "province": "Málaga",
+        "role": null
+      }
+    ]
+  },
+  {
+    "source_id": "disposition.2024.197.71",
+    "field": "technology",
+    "expected": "solar_fv",
+    "actual": null
+  },
+  {
+    "source_id": "disposition.2025.120.35",
+    "field": "mw_nominal",
+    "expected": 96.3,
+    "actual": 166.3
+  },
+  {
+    "source_id": "disposition.2025.32.91",
+    "field": "mw_nominal",
+    "expected": 5,
+    "actual": null
+  },
+  {
+    "source_id": "disposition.2026.134.74",
+    "field": "project_name",
+    "expected": "Parque Eólico El Poniente",
+    "actual": "Proyecto básico del Parque Eólico El Poniente"
+  },
+  {
+    "source_id": "disposition.2026.74.38",
+    "field": "mw_nominal",
+    "expected": 20,
+    "actual": 15.0
+  }
+]

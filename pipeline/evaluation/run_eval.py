@@ -22,10 +22,12 @@ log = logging.getLogger(__name__)
 # against it; labels_2026-10/ was written afterwards and is held out.
 LABELS_DIR = Path(__file__).resolve().parent / "labels"
 HELD_OUT_DIR = Path(__file__).resolve().parent / "labels_2026-10"
+# last_run.json is the published figure (export copies it to the site): the
+# run of the held-out labels, written with `--labels evaluation/labels_2026-10
+# --out evaluation/last_run.json` (the extraction-eval workflow). Runs go to
+# tuned_run.json unless --out says otherwise. The September figure, measured
+# on labels/ before the extractor was tuned against them, is kept as history.
 LAST_RUN = Path(__file__).resolve().parent / "last_run.json"
-# last_run.json is the published baseline: export copies it to the site, and
-# it predates any tuning against the labels, so nothing may overwrite it.
-# Runs go to tuned_run.json unless --out says otherwise.
 TUNED_RUN = Path(__file__).resolve().parent / "tuned_run.json"
 
 NUMERIC = {"mw_peak", "mw_nominal", "hectares", "turbines"}
@@ -62,11 +64,6 @@ def misses_path(out: Path) -> Path:
     return out.with_name(f"{out.stem}_misses.json")
 
 
-def _refuse_baseline(out: Path) -> None:
-    if out.resolve() == LAST_RUN.resolve():
-        raise ValueError(f"{LAST_RUN.name} is the published baseline; write eval runs elsewhere")
-
-
 def run_eval(
     conn: psycopg.Connection,
     provider: Provider,
@@ -79,10 +76,8 @@ def run_eval(
     A label whose document is not in raw_documents, or whose extraction raises
     (rate limit, malformed response), is skipped with a warning so a partial
     run still records what completed. The result is printed as a table and
-    written to `out`; each miss is written to `misses_path(out)`. `out` may
-    not be the published baseline, `last_run.json`.
+    written to `out`; each miss is written to `misses_path(out)`.
     """
-    _refuse_baseline(out)
     names = municipality_name_map(conn)
     hits: dict[str, list[bool]] = {}
     misses: list[dict] = []
@@ -137,10 +132,6 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--labels", type=Path, default=LABELS_DIR, help="label folder; the published figure uses labels_2026-10")
     parser.add_argument("--out", type=Path, default=TUNED_RUN, help="result file; its misses go beside it")
     args = parser.parse_args(argv)
-    try:
-        _refuse_baseline(args.out)
-    except ValueError as exc:
-        parser.error(str(exc))
     settings = load_settings()
     provider = build_provider(settings, args.provider)
     with connect(settings.db_dsn) as conn:

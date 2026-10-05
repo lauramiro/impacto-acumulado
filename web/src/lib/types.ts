@@ -93,6 +93,10 @@ export type GazetteDocument = {
 
 export type Evaluation = {
   provider: string;
+  /** Date of the run, YYYY-MM-DD. */
+  measured: string;
+  /** Label folder under pipeline/evaluation the run scored. */
+  labelsFolder: string;
   accuracy: Record<string, number>;
   nLabels: number;
   nScored: number;
@@ -106,5 +110,13 @@ export type Evaluation = {
     live: { labelled: number; correct: number };
     unknownProjects: number;
     projects: number;
+  } | null;
+  /** The previous published run, kept as dated history. */
+  previous: {
+    provider: string;
+    measured: string;
+    accuracy: Record<string, number>;
+    nScored: number;
+    fieldSamples: Record<string, number>;
   } | null;
 };

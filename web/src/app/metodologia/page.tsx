@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Figure } from "@/components/figure";
 import { loadOpenConsultations } from "@/lib/data/consultations";
 import { loadEvaluation } from "@/lib/data/evaluation";
-import { formatInt, formatPercent } from "@/lib/format";
+import { formatDate, formatInt, formatPercent } from "@/lib/format";
 import { REPO_URL } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -44,6 +44,12 @@ export default async function MethodologyPage() {
         renovables en Andalucía: declaraciones de impacto ambiental e informes. El BOE solo recoge proyectos de más de 50 MW.
       </p>
       <p>
+        Boletín Oficial del Estado, sección V: anuncios de información pública de esos mismos proyectos, cuando lo que se somete a
+        consulta incluye la evaluación ambiental. Se guardan sin la relación de bienes y derechos afectados, que lleva nombres y
+        documentos de identidad de propietarios; un anuncio en el que no se encuentra dónde empieza esa relación no se guarda. Los
+        módulos de almacenamiento exentos de evaluación ambiental no se incluyen.
+      </p>
+      <p>
         Boletín Oficial de la Junta de Andalucía, consejería con competencias en medio ambiente: autorizaciones ambientales
         unificadas, informes e información pública de proyectos de cualquier tamaño.
       </p>
@@ -68,16 +74,17 @@ export default async function MethodologyPage() {
 
       <h2 id="precision">Precisión medida</h2>
       <p data-testid="muestra">
-        Medida con <span className="dato">{ev.provider}</span> sobre {formatInt(ev.nScored)} documentos etiquetados a mano
+        Medida el {formatDate(ev.measured)} con <span className="dato">{ev.provider}</span> sobre {formatInt(ev.nScored)} documentos
+        etiquetados a mano
         {ev.skipped.length > 0 ? ` (${formatInt(ev.skipped.length)} más no pudieron evaluarse)` : ""}, de un conjunto de{" "}
-        {formatInt(ev.labelsCount)}. Cada campo se mide solo sobre las etiquetas que lo llevan, así que la muestra varía por
-        campo; la columna «Muestra» de la tabla la indica para cada uno. Las{" "}
-        <a href={`${REPO_URL}/tree/main/pipeline/evaluation/labels`} rel="noopener">
+        {formatInt(ev.labelsCount)}. Las{" "}
+        <a href={`${REPO_URL}/tree/main/pipeline/evaluation/${ev.labelsFolder}`} rel="noopener">
           etiquetas
         </a>{" "}
-        se escribieron leyendo cada resolución, no la extracción, y se revisaron una a una. Esta precisión se midió
-        antes de corregir el extractor con esos mismos documentos; los datos publicados proceden ya de la versión
-        corregida, y medir su precisión exige etiquetar documentos nuevos.
+        se escribieron leyendo cada documento, no la extracción, y ninguno de esos documentos se usó para ajustar el extractor:
+        miden la versión que produce los datos publicados. Se eligieron al azar dentro de grupos (declaraciones del ministerio,
+        anuncios de la sección V del BOE, autorizaciones y consultas del BOJA; con desfavorables y eólicos en cada fuente). Cada
+        campo se mide solo sobre las etiquetas que lo llevan, así que la muestra varía por campo.
       </p>
       <table className={styles.tabla} aria-label="Precisión por campo">
         <thead>
@@ -85,6 +92,11 @@ export default async function MethodologyPage() {
             <th scope="col">Campo</th>
             <th scope="col" className={styles.num}>Aciertos</th>
             <th scope="col" className={styles.num}>Muestra</th>
+            {ev.previous ? (
+              <th scope="col" className={styles.num}>
+                {formatDate(ev.previous.measured)}
+              </th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
@@ -98,20 +110,30 @@ export default async function MethodologyPage() {
                   <Figure value={formatPercent(acc)} />
                 </td>
                 <td className={styles.num}>{sample !== undefined ? <Figure value={formatInt(sample)} /> : "—"}</td>
+                {ev.previous ? (
+                  <td className={styles.num}>
+                    {ev.previous.accuracy[f] !== undefined ? <Figure value={formatPercent(ev.previous.accuracy[f]!)} /> : "—"}
+                  </td>
+                ) : null}
               </tr>
             );
           })}
         </tbody>
       </table>
       <p className="pie">
-        Los fallos más frecuentes: en «nombre del proyecto», el extractor conserva la coletilla descriptiva del título en vez de
-        cortar en el nombre de la planta (para «Planta fotovoltaica Carbo de 90 MWp y su infraestructura de evacuación» el nombre
-        correcto es «Planta fotovoltaica Carbo»); en «municipios», arrastra los términos de la línea de evacuación además de los
-        del emplazamiento generador. En el parque fotovoltaico Retuerta, hibridado con un parque eólico ya existente, el modelo
-        confunde ambas instalaciones: la tecnología sale como híbrida en vez de solar fotovoltaica, y la potencia nominal sale
-        sumada (76 MW en vez de 38). Un acierto en
-        potencia, superficie o aerogeneradores admite un 2 por ciento de diferencia con el valor impreso.
+        Los fallos de esta medida: en «municipios», el extractor sigue sumando los términos que solo cruza la línea de
+        evacuación (4 de 17 documentos). En la potencia, suma la del parque existente cuando el proyecto lo hibrida (Valdefuentes:
+        55,83 MW en vez de 27,83), mezcla la potencia del electrolizador con la de la planta solar en las dos plantas de
+        hidrógeno, cuenta como nominal la suma de potencias pico de cuatro plantas y deja sin leer los 5 MW de una autorización
+        del BOJA. Un acierto en potencia, superficie o aerogeneradores admite un 2 por ciento de diferencia con el valor impreso.
       </p>
+      {ev.previous ? (
+        <p className="pie" data-testid="medida-anterior">
+          La última columna es la medida anterior, del {formatDate(ev.previous.measured)}, sobre{" "}
+          {formatInt(ev.previous.nScored)} documentos que después se usaron para corregir el extractor: se conserva como
+          historial, pero ya no mide la versión publicada.
+        </p>
+      ) : null}
 
       {ev.aauPublication ? (
         <>

@@ -1,10 +1,13 @@
 {
   "provider": "mistral:ministral-14b-latest",
+  "measured": "2026-10-05",
+  "labels": "labels_2026-10",
   "accuracy": { "doc_type": 1.0, "verdict": 0.95, "developer": 0.9, "technology": 1.0, "mw_nominal": 0.8, "municipalities": 0.95 },
   "n_labels": 20,
   "n_scored": 20,
   "skipped": [],
   "labels_count": 20,
   "field_samples": { "doc_type": 20, "verdict": 20, "developer": 18, "technology": 20, "mw_nominal": 20, "municipalities": 20 },
-  "aau_publication": { "held_out": { "measured": "2026-10-04", "labelled": 15, "correct": 14 }, "live": { "labelled": 35, "correct": 35 }, "unknown_projects": 137, "projects": 541 }
+  "aau_publication": { "held_out": { "measured": "2026-10-04", "labelled": 15, "correct": 14 }, "live": { "labelled": 35, "correct": 35 }, "unknown_projects": 137, "projects": 541 },
+  "previous": { "provider": "mistral:ministral-14b-latest", "measured": "2026-09-22", "accuracy": { "verdict": 0.95 }, "n_scored": 20, "field_samples": { "verdict": 20 } }
 }
