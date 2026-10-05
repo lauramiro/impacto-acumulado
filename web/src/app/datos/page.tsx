@@ -118,10 +118,11 @@ export default async function DataPage() {
           </li>
           <li>
             Fuente nueva: los anuncios de información pública de la sección V del BOE sobre proyectos renovables en Andalucía que
-            someten a consulta la evaluación ambiental (138 anuncios desde 2019). Se guardan sin la relación de bienes y derechos
-            afectados, que lleva datos personales. La mayoría se suma a un proyecto ya publicado; los módulos de almacenamiento por
-            baterías de plantas existentes cuentan como proyectos propios. <span className="dato">projects.csv</span> pasa de 541 a
-            601 filas; seis de las nuevas son plantas que la agrupación unía con otras y ahora separa.
+            someten a consulta la evaluación ambiental (120 anuncios desde 2019). Se guardan sin la relación de bienes y derechos
+            afectados, que lleva datos personales. La mayoría se suma a un proyecto ya publicado. Los módulos de almacenamiento
+            exentos de evaluación ambiental no se incluyen; los que sí se evalúan cuentan como proyectos propios, no como parte de
+            la planta que hibridan. <span className="dato">projects.csv</span> pasa de 541 a 585 filas; seis de las nuevas son
+            plantas que la agrupación unía con otras y ahora separa.
           </li>
         </ul>
       </section>
