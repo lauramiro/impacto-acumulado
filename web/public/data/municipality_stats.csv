@@ -52,9 +52,9 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 04904,desconocido,solar_fv,2,0.0,0.0,0,0,0,80.0,2,Balanegra,Almería
 11001,desfavorable,eolica,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
 11001,en_consulta,eolica,2,109.66,0.0,18,2,0,109.66,0,Alcalá de los Gazules,Cádiz
-11001,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
-11001,favorable_condicionada,hibrida,2,45.83,0.0,0,1,0,45.83,0,Alcalá de los Gazules,Cádiz
-11001,favorable_condicionada,solar_fv,2,47.4,0.0,0,1,0,83.8,1,Alcalá de los Gazules,Cádiz
+11001,en_consulta,hibrida,2,45.83,0.0,0,1,0,45.83,0,Alcalá de los Gazules,Cádiz
+11001,favorable_condicionada,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
+11001,favorable_condicionada,solar_fv,3,94.8,0.0,0,2,0,131.20001,1,Alcalá de los Gazules,Cádiz
 11002,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Alcalá del Valle,Cádiz
 11002,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Alcalá del Valle,Cádiz
 11002,sin_resolucion,solar_fv,1,278.6,421.1887,0,1,1,278.6,0,Alcalá del Valle,Cádiz
@@ -77,7 +77,8 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11010,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Bornos,Cádiz
 11010,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,Bornos,Cádiz
 11013,favorable_condicionada,otra,1,0.0,0.0,0,0,0,0.0,0,Castellar de la Frontera,Cádiz
-11013,favorable_condicionada,solar_fv,4,372.8,270.97998,0,3,2,422.69998,1,Castellar de la Frontera,Cádiz
+11013,favorable_condicionada,solar_fv,3,349.8,99.17,0,2,1,399.69998,1,Castellar de la Frontera,Cádiz
+11013,sin_resolucion,solar_fv,1,173.0,171.81,0,1,1,173.0,0,Castellar de la Frontera,Cádiz
 11014,en_consulta,eolica,1,116.8,0.0,17,1,0,116.8,0,Conil de la Frontera,Cádiz
 11014,favorable_condicionada,solar_fv,2,0.0,0.0,0,0,0,35.22,1,Conil de la Frontera,Cádiz
 11015,desfavorable,eolica,1,109.8,0.0,20,1,0,109.8,0,Chiclana de la Frontera,Cádiz
@@ -93,11 +94,11 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11020,desfavorable,hibrida,3,106.56,46.78,5,2,1,106.56,0,Jerez de la Frontera,Cádiz
 11020,desfavorable,solar_fv,3,93.8,0.0,0,2,0,93.8,0,Jerez de la Frontera,Cádiz
 11020,en_consulta,eolica,2,169.46,0.0,26,2,0,169.46,0,Jerez de la Frontera,Cádiz
-11020,en_consulta,hibrida,7,986.89996,848.87,4,6,5,986.89996,0,Jerez de la Frontera,Cádiz
+11020,en_consulta,hibrida,8,1058.895,848.87,15,7,5,1058.895,0,Jerez de la Frontera,Cádiz
 11020,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,favorable_condicionada,hibrida,2,97.985,401.05,11,2,2,97.985,0,Jerez de la Frontera,Cádiz
+11020,favorable_condicionada,hibrida,1,25.99,42.44,0,1,1,25.99,0,Jerez de la Frontera,Cádiz
 11020,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,favorable_condicionada,solar_fv,5,93.9,0.0,0,2,0,253.89,2,Jerez de la Frontera,Cádiz
+11020,favorable_condicionada,solar_fv,6,203.4039,358.61,0,3,1,363.39392,2,Jerez de la Frontera,Cádiz
 11021,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,Jimena de la Frontera,Cádiz
 11021,desfavorable,solar_fv,2,820.9,1326.26,0,2,1,820.9,0,Jimena de la Frontera,Cádiz
 11021,favorable_condicionada,solar_fv,8,465.59998,99.17,0,5,1,615.19995,3,Jimena de la Frontera,Cádiz
@@ -123,9 +124,9 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11028,desfavorable,eolica,1,109.8,0.0,20,1,0,109.8,0,Puerto Real,Cádiz
 11028,desfavorable,hibrida,1,79.99,0.0,5,1,0,79.99,0,Puerto Real,Cádiz
 11028,en_consulta,eolica,1,116.8,0.0,17,1,0,116.8,0,Puerto Real,Cádiz
-11028,en_consulta,hibrida,2,143.6,175.57,0,1,1,143.6,0,Puerto Real,Cádiz
+11028,en_consulta,hibrida,3,215.595,175.57,11,2,1,215.595,0,Puerto Real,Cádiz
 11028,favorable_condicionada,almacenamiento,1,24.04,0.358,0,1,1,24.04,0,Puerto Real,Cádiz
-11028,favorable_condicionada,hibrida,3,71.995,358.61,11,1,1,71.995,0,Puerto Real,Cádiz
+11028,favorable_condicionada,hibrida,2,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
 11028,favorable_condicionada,solar_fv,4,0.0,0.0,0,0,0,110.0,1,Puerto Real,Cádiz
 11028,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
 11031,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,San Fernando,Cádiz
@@ -136,8 +137,9 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11033,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,San Roque,Cádiz
 11033,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,San Roque,Cádiz
 11033,favorable_condicionada,otra,1,0.0,0.0,0,0,0,0.0,0,San Roque,Cádiz
-11033,favorable_condicionada,solar_fv,5,72.8,171.81,0,2,1,197.20001,3,San Roque,Cádiz
+11033,favorable_condicionada,solar_fv,5,72.8,0.0,0,2,0,197.20001,3,San Roque,Cádiz
 11033,sin_resolucion,eolica,1,62.7,0.0,11,1,0,62.7,0,San Roque,Cádiz
+11033,sin_resolucion,solar_fv,1,173.0,171.81,0,1,1,173.0,0,San Roque,Cádiz
 11034,caducado,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Setenil de las Bodegas,Cádiz
 11034,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Setenil de las Bodegas,Cádiz
 11034,favorable_condicionada,solar_fv,6,369.0,447.23,0,3,1,494.96,3,Setenil de las Bodegas,Cádiz
@@ -161,7 +163,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11902,en_consulta,hibrida,3,718.69995,469.52,4,3,2,718.69995,0,San José del Valle,Cádiz
 11903,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,San Martín del Tesorillo,Cádiz
 11903,desfavorable,solar_fv,1,801.0,1326.26,0,1,1,801.0,0,San Martín del Tesorillo,Cádiz
-11903,favorable_condicionada,solar_fv,5,89.0,171.81,0,3,1,182.0,2,San Martín del Tesorillo,Cádiz
+11903,favorable_condicionada,solar_fv,5,89.0,0.0,0,3,0,182.0,2,San Martín del Tesorillo,Cádiz
 11903,sin_resolucion,solar_fv,2,478.0,0.0,0,2,0,478.0,0,San Martín del Tesorillo,Cádiz
 14005,desconocido,solar_fv,2,27.993,0.0,0,1,0,46.989,1,Almodóvar del Río,Córdoba
 14005,favorable_condicionada,solar_fv,2,69.0,97.0,0,1,1,118.990005,1,Almodóvar del Río,Córdoba
@@ -333,13 +335,13 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 21041,favorable_condicionada,solar_fv,4,44.0,0.0,0,1,0,44.0,0,Huelva,Huelva
 21042,desconocido,solar_fv,1,4.6,0.0,0,1,0,4.6,0,Isla Cristina,Huelva
 21050,favorable_condicionada,solar_fv,3,442.496,1253.78,0,2,2,475.996,1,Moguer,Huelva
-21050,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,Moguer,Huelva
+21050,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Moguer,Huelva
 21052,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Nerva,Huelva
 21052,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Nerva,Huelva
 21053,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,Niebla,Huelva
 21054,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,La Palma del Condado,Huelva
 21055,favorable_condicionada,solar_fv,4,486.496,1253.78,0,3,2,519.996,1,Palos de la Frontera,Huelva
-21055,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,Palos de la Frontera,Huelva
+21055,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Palos de la Frontera,Huelva
 21057,favorable_condicionada,solar_fv,1,180.0,269.0,0,1,1,180.0,0,Paymogo,Huelva
 21058,desconocido,hibrida,1,17.25,0.0,0,1,0,17.25,0,Puebla de Guzmán,Huelva
 21058,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,Puebla de Guzmán,Huelva
@@ -349,11 +351,11 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 21061,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Rociana del Condado,Huelva
 21064,desconocido,solar_fv,7,9.99,0.0,0,2,0,59.939995,5,San Juan del Puerto,Huelva
 21064,favorable_condicionada,solar_fv,6,452.47598,1253.78,0,4,2,490.96597,2,San Juan del Puerto,Huelva
-21064,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,San Juan del Puerto,Huelva
+21064,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,San Juan del Puerto,Huelva
 21066,favorable_condicionada,solar_fv,1,96.0,98.2,0,1,1,96.0,0,San Silvestre de Guzmán,Huelva
 21070,desconocido,solar_fv,7,5.0,0.0,0,1,0,79.92999,6,Trigueros,Huelva
 21070,favorable_condicionada,solar_fv,7,544.496,1511.53,0,4,4,587.98596,3,Trigueros,Huelva
-21070,sin_resolucion,solar_fv,2,153.0,0.0,0,2,0,153.0,0,Trigueros,Huelva
+21070,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Trigueros,Huelva
 21073,desconocido,solar_fv,2,4.6,0.0,0,1,0,9.59,1,Villablanca,Huelva
 21073,en_consulta,hibrida,1,42.6,0.0,48,1,0,42.6,0,Villablanca,Huelva
 21073,favorable_condicionada,hibrida,1,21.3,0.0,0,1,0,21.3,0,Villablanca,Huelva
@@ -391,9 +393,9 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29013,favorable_condicionada,solar_fv,2,50.01,70.55,0,1,1,50.01,0,Alozaina,Málaga
 29015,desconocido,eolica,3,0.0,0.0,0,0,0,0.0,0,Antequera,Málaga
 29015,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Antequera,Málaga
+29015,en_consulta,almacenamiento,1,85.1044,0.0,0,1,0,85.1044,0,Antequera,Málaga
 29015,en_consulta,solar_fv,1,25.0,0.0,0,1,0,25.0,0,Antequera,Málaga
-29015,favorable_condicionada,almacenamiento,1,85.1044,0.0,0,1,0,85.1044,0,Antequera,Málaga
-29015,favorable_condicionada,solar_fv,6,186.23,370.84998,0,2,2,223.73999,1,Antequera,Málaga
+29015,favorable_condicionada,solar_fv,7,186.23,370.84998,0,2,2,223.73999,1,Antequera,Málaga
 29017,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Archidona,Málaga
 29017,favorable_condicionada,solar_fv,2,48.0,145.51,0,1,1,48.0,0,Archidona,Málaga
 29018,desconocido,eolica,1,0.0,0.0,0,0,0,0.0,0,Ardales,Málaga
@@ -406,7 +408,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29035,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Cañete la Real,Málaga
 29038,desconocido,solar_fv,2,0.0,90.0,0,0,1,50.0,1,Cártama,Málaga
 29038,favorable_condicionada,solar_fv,4,216.905,363.10703,0,3,3,216.905,0,Cártama,Málaga
-29038,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Cártama,Málaga
 29038,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Cártama,Málaga
 29039,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Casabermeja,Málaga
 29040,desconocido,solar_fv,3,0.0,90.0,0,0,1,100.0,2,Casarabonela,Málaga
@@ -419,8 +420,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29041,desconocido,solar_fv,3,42.34,0.0,0,1,0,42.34,0,Casares,Málaga
 29041,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,Casares,Málaga
 29041,desfavorable,solar_fv,1,801.0,1326.26,0,1,1,801.0,0,Casares,Málaga
-29041,favorable_condicionada,solar_fv,1,23.0,171.81,0,1,1,23.0,0,Casares,Málaga
-29041,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Casares,Málaga
+29041,favorable_condicionada,solar_fv,1,23.0,0.0,0,1,0,23.0,0,Casares,Málaga
 29041,sin_resolucion,solar_fv,4,838.01,859.68,0,4,1,838.01,0,Casares,Málaga
 29042,desconocido,solar_fv,1,0.0,90.0,0,0,1,50.0,1,Coín,Málaga
 29042,favorable_condicionada,solar_fv,3,50.01,70.55,0,1,1,50.01,0,Coín,Málaga
@@ -433,7 +433,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29067,desconocido,solar_fv,2,0.0,90.0,0,0,1,50.0,1,Málaga,Málaga
 29067,sin_resolucion,solar_fv,1,130.2,251.08,0,1,1,130.2,0,Málaga,Málaga
 29068,desconocido,eolica,5,0.0,0.0,0,0,0,0.0,0,Manilva,Málaga
-29068,favorable_condicionada,solar_fv,1,23.0,171.81,0,1,1,23.0,0,Manilva,Málaga
+29068,favorable_condicionada,solar_fv,1,23.0,0.0,0,1,0,23.0,0,Manilva,Málaga
 29069,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Marbella,Málaga
 29072,desconocido,solar_fv,1,3.5,0.0,0,1,0,3.5,0,Mollina,Málaga
 29073,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Monda,Málaga
@@ -455,10 +455,10 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29095,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villanueva de Algaidas,Málaga
 29098,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Villanueva de Tapia,Málaga
 29903,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Montecorto,Málaga
-41004,en_consulta,almacenamiento,2,16.5,0.0,0,1,0,95.7,1,Alcalá de Guadaíra,Sevilla
-41004,favorable_condicionada,almacenamiento,1,0.0,0.0,0,0,0,50.0,1,Alcalá de Guadaíra,Sevilla
-41004,favorable_condicionada,hibrida,1,39.6,1.6336,0,1,1,39.6,0,Alcalá de Guadaíra,Sevilla
-41004,favorable_condicionada,solar_fv,23,559.45996,1451.0499,0,8,4,1024.02,7,Alcalá de Guadaíra,Sevilla
+41004,en_consulta,almacenamiento,4,56.1,0.0,0,2,0,135.29999,1,Alcalá de Guadaíra,Sevilla
+41004,en_consulta,hibrida,1,39.6,0.0,0,1,0,39.6,0,Alcalá de Guadaíra,Sevilla
+41004,favorable_condicionada,hibrida,1,24.04,1.6336,0,1,1,24.04,0,Alcalá de Guadaíra,Sevilla
+41004,favorable_condicionada,solar_fv,25,559.45996,1451.0499,0,8,4,1124.02,9,Alcalá de Guadaíra,Sevilla
 41004,sin_resolucion,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Alcalá de Guadaíra,Sevilla
 41005,favorable_condicionada,linea_evacuacion,3,0.0,0.0,0,0,0,0.0,0,Alcalá del Río,Sevilla
 41005,favorable_condicionada,solar_fv,5,10.0,0.0,0,1,0,156.89,4,Alcalá del Río,Sevilla
@@ -475,9 +475,10 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41022,favorable_condicionada,hibrida,1,98.0,267.8,0,1,1,98.0,0,La Campana,Sevilla
 41023,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Cantillana,Sevilla
 41024,en_consulta,almacenamiento,1,0.0,0.0,0,0,0,35.12,1,Carmona,Sevilla
+41024,en_consulta,hibrida,2,39.6,0.0,0,1,0,79.2,1,Carmona,Sevilla
 41024,favorable_condicionada,hibrida,1,98.0,267.8,0,1,1,98.0,0,Carmona,Sevilla
 41024,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Carmona,Sevilla
-41024,favorable_condicionada,solar_fv,34,878.09,1923.6647,0,13,7,1425.5084,13,Carmona,Sevilla
+41024,favorable_condicionada,solar_fv,35,838.49,1923.6647,0,12,7,1490.9083,14,Carmona,Sevilla
 41024,sin_resolucion,solar_fv,1,356.4,464.3,0,1,1,356.4,0,Carmona,Sevilla
 41027,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Castilblanco de los Arroyos,Sevilla
 41027,favorable_condicionada,solar_fv,1,45.836,0.0,0,1,0,45.836,0,Castilblanco de los Arroyos,Sevilla
@@ -501,8 +502,8 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41056,en_consulta,almacenamiento,1,22.92,0.0,0,1,0,22.92,0,La Luisiana,Sevilla
 41056,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,La Luisiana,Sevilla
 41058,favorable_condicionada,solar_fv,5,0.0,360.0,0,0,1,274.91098,4,Mairena del Alcor,Sevilla
-41063,favorable_condicionada,almacenamiento,2,39.6,0.0,0,1,0,89.6,1,Los Molares,Sevilla
-41063,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,50.0,1,Los Molares,Sevilla
+41063,en_consulta,almacenamiento,3,79.2,0.0,0,2,0,79.2,0,Los Molares,Sevilla
+41063,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,150.0,3,Los Molares,Sevilla
 41065,favorable_condicionada,eolica,1,30.0,0.0,0,1,0,30.0,0,Morón de la Frontera,Sevilla
 41067,desfavorable,solar_fv,1,56.5,98.47,0,1,1,56.5,0,Olivares,Sevilla
 41067,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Olivares,Sevilla
