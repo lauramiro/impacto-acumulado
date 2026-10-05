@@ -6,6 +6,7 @@ import { FactSheet } from "@/components/project/fact-sheet";
 import { Provenance } from "@/components/project/provenance";
 import { ReportError } from "@/components/report-error";
 import { RecordHeader } from "@/components/project/record-header";
+import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjectRecord } from "@/lib/data/project-record";
 import { loadProjects } from "@/lib/data/projects";
@@ -46,12 +47,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ProjectPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
   const n = parseId(id);
-  const [record, munis] = await Promise.all([n === null ? null : loadProjectRecord(n), loadMunicipalities()]);
+  const [record, munis, developers] = await Promise.all([n === null ? null : loadProjectRecord(n), loadMunicipalities(), loadDevelopers()]);
   if (!record) notFound();
   const here = record.project.ineCodes.map((ine) => munis.find((m) => m.ine === ine)).filter((m) => m !== undefined);
   return (
     <article className={styles.page}>
-      <RecordHeader project={record.project} />
+      <RecordHeader project={record.project} developerKeys={keysByPrintedName(developers)} />
       <FactSheet project={record.project} municipalities={here} />
       {/* record.statusDocument, not record.project.statusDocumentId: loadProjectRecord
           already nulls it for a "desconocido" project (status_document_id still names

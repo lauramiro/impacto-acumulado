@@ -90,6 +90,13 @@ export default async function MethodologyPage() {
         reciente; una consulta pública no cambia el estado de un proyecto ya resuelto.
       </p>
 
+      <p>
+        El promotor se guarda como lo imprime el boletín. Para agruparlo, se le quitan la forma jurídica (S.L., S.L.U., S.A.…), las
+        mayúsculas, los acentos y la puntuación, de modo que «Enel Green Power España, S.L.» y «Enel Green Power España, SL» son el
+        mismo promotor. Las sociedades cuyo nombre solo cambia en el número final (Tayant Investment 12 a 15) se muestran juntas como
+        «mismo nombre», sin afirmar que sean del mismo grupo; un grupo empresarial solo se asigna a mano y con fuente.
+      </p>
+
       <h2 id="precision">Precisión medida</h2>
       <p data-testid="muestra">
         Medida el {formatDate(ev.measured)} con <span className="dato">{ev.provider}</span> sobre {formatInt(ev.nScored)} documentos

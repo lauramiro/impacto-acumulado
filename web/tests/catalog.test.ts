@@ -17,9 +17,16 @@ function realDataFile(name: string): string {
 
 describe("catalog", () => {
   it("documents every column of each CSV, in the export's order", () => {
-    for (const entry of CATALOG.filter((e) => e.columns)) {
+    for (const entry of CATALOG.filter((e) => e.columns && e.file.endsWith(".csv"))) {
       const header = readFileSync(realDataFile(entry.file), "utf-8").split("\n")[0].trim().split(",");
       expect(entry.columns!.map((c) => c.name), entry.file).toEqual(header);
+    }
+  });
+
+  it("documents every field of a JSON list's entries, in the export's order", () => {
+    for (const entry of CATALOG.filter((e) => e.columns && e.file.endsWith(".json"))) {
+      const [first] = JSON.parse(readFileSync(realDataFile(entry.file), "utf-8")) as Record<string, unknown>[];
+      expect(entry.columns!.map((c) => c.name), entry.file).toEqual(Object.keys(first!));
     }
   });
 
@@ -41,7 +48,7 @@ describe("catalog", () => {
     expect(() => readFileSync(dataFile("meta.json"), "utf-8")).not.toThrow();
   });
 
-  it("has fifteen entries", () => {
-    expect(CATALOG).toHaveLength(15);
+  it("has sixteen entries", () => {
+    expect(CATALOG).toHaveLength(16);
   });
 });

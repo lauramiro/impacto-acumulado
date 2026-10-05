@@ -48,6 +48,24 @@ export const CATALOG: CatalogEntry[] = [
     ],
   },
   {
+    file: "developers.json",
+    description:
+      "Un promotor por entrada: las grafías con que lo nombran los boletines unidas en una clave (sin forma jurídica, mayúsculas, acentos ni puntuación), sus proyectos y sus MW por estado. Un proyecto atribuido a varias sociedades cuenta en cada una.",
+    columns: [
+      { name: "key", type: "texto", meaning: "Clave normalizada; la página del promotor es /promotor/key" },
+      { name: "name", type: "texto", meaning: "La grafía más frecuente" },
+      { name: "names", type: "lista", meaning: "Todas las grafías tal como aparecen en developer de projects.csv" },
+      { name: "family", type: "texto", meaning: "La clave sin el número final (Tayant Investment 12 y 15 comparten family): un patrón de nombre, no un grupo comprobado" },
+      { name: "group", type: "texto", meaning: "Grupo asignado a mano en pipeline/reference/developer_groups.csv; vacío si no hay" },
+      { name: "parent_company", type: "texto", meaning: "Sociedad matriz, solo con fuente; vacío si no hay" },
+      { name: "source_url", type: "texto", meaning: "Fuente de group y parent_company" },
+      { name: "project_ids", type: "lista", meaning: "id en projects.csv" },
+      { name: "projects_by_status", type: "objeto", meaning: "Proyectos por estado" },
+      { name: "mw_by_status", type: "objeto", meaning: "Suma de mw_best por estado, sin líneas de evacuación" },
+      { name: "mw_count", type: "entero", meaning: "Proyectos cuya potencia se suma" },
+    ],
+  },
+  {
     file: "municipality_stats.csv",
     description: "Totales por municipio, estado y tecnología. Un proyecto en varios municipios cuenta íntegro en cada uno.",
     columns: [

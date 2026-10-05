@@ -112,6 +112,12 @@ export default async function DataPage() {
         </h3>
         <ul>
           <li>
+            Archivo nuevo, <span className="dato">developers.json</span>: los promotores con sus distintas grafías unidas, sus
+            proyectos y sus MW por estado. Cada uno tiene su página en <Link href="/promotores">Promotores</Link>.
+            <span className="dato"> projects.csv</span> no cambia: su columna <span className="dato">developer</span> sigue como la
+            imprime el boletín.
+          </li>
+          <li>
             Un valor nuevo de <span className="dato">status</span>, <span className="dato">sin_resolucion</span>: proyectos cuya última
             consulta pública tiene más de 24 meses y sin resolución publicada (antes, <span className="dato">en_consulta</span>). Se
             calcula en cada actualización semanal, así que un proyecto puede pasar a este estado sin un documento nuevo.

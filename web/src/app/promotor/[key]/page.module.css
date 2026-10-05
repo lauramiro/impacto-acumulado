@@ -1,0 +1,24 @@
+.eyebrow {
+  margin: 1.5rem 0 0;
+  font-size: var(--texto-pie);
+}
+
+.nombre {
+  font-size: var(--texto-nombre);
+  margin: 0.25rem 0 1rem;
+}
+
+.seccion {
+  margin: 2rem 0;
+}
+
+.lista {
+  margin: 0;
+  padding-left: 1.25rem;
+  columns: 2 16rem;
+  column-gap: 2rem;
+}
+
+.lista li {
+  break-inside: avoid;
+}

@@ -7,6 +7,7 @@ import pytest
 from evaluation.run_eval import LABELS_DIR
 from impacto.aggregate.export import (
     export_all,
+    export_developers,
     export_evaluation,
     export_open_consultations,
     export_sensitivity_geojson,
@@ -24,6 +25,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
     paths = export_all(db, tmp_path)
     names = sorted(p.name for p in paths)
     assert names == [
+        "developers.json",
         "documents.csv",
         "evaluation.json",
         "meta.json",
@@ -499,3 +501,32 @@ def test_export_evaluation_carries_the_previous_run_as_history(tmp_path):
     written = json.loads(path.read_text(encoding="utf-8"))
     assert written["previous"] == {"provider": "old", "measured": "2026-09-22", "accuracy": {"verdict": 0.5}, "n_scored": 2, "field_samples": {"verdict": 2}}
     assert written["field_samples"] == {"verdict": 1}
+
+
+def test_export_developers_groups_projects_by_normalised_key(db, tmp_path):
+    with db.cursor() as cur:
+        for i, (developer, status, tech, mw) in enumerate(
+            [
+                ("Enel Green Power España, S.L.", "favorable", "solar_fv", 50),
+                ("Enel Green Power España, SL; Otra Solar, S.L.U.", "desfavorable", "solar_fv", 20),
+                ("Enel Green Power España, SL", "favorable", "linea_evacuacion", 70),
+                (None, "en_consulta", "eolica", 10),
+            ],
+            start=1,
+        ):
+            cur.execute(
+                "INSERT INTO projects (id, canonical_name, developer, technology, status, mw_nominal, first_seen, last_seen) "
+                "VALUES (%s, %s, %s, %s, %s, %s, '2024-01-01', '2024-01-01')",
+                (i, f"P{i}", developer, tech, status, mw),
+            )
+    path = export_developers(db, tmp_path, groups_file=tmp_path / "none.csv")
+    devs = {d["key"]: d for d in json.loads(path.read_text(encoding="utf-8"))}
+    assert sorted(devs) == ["enel-green-power-espana", "otra-solar"]
+    enel = devs["enel-green-power-espana"]
+    assert enel["names"] == ["Enel Green Power España, S.L.", "Enel Green Power España, SL"]
+    assert enel["project_ids"] == [1, 2, 3]
+    assert enel["projects_by_status"] == {"desfavorable": 1, "favorable": 2}
+    # The evacuation line counts as a project and adds no MW.
+    assert enel["mw_by_status"] == {"desfavorable": 20.0, "favorable": 50.0}
+    assert enel["mw_count"] == 2
+    assert devs["otra-solar"]["project_ids"] == [2]

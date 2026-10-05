@@ -121,3 +121,19 @@ export const OpenConsultationsFileSchema = z.object({
     }),
   ),
 });
+
+export const DevelopersFileSchema = z.array(
+  z.object({
+    key: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    name: z.string(),
+    names: z.array(z.string()).min(1),
+    family: z.string(),
+    group: z.string().nullable(),
+    parent_company: z.string().nullable(),
+    source_url: z.string().nullable(),
+    project_ids: z.array(z.number().int()).min(1),
+    projects_by_status: z.partialRecord(z.enum(STATUSES), z.number().int().positive()),
+    mw_by_status: z.partialRecord(z.enum(STATUSES), z.number()),
+    mw_count: z.number().int().nonnegative(),
+  }),
+);

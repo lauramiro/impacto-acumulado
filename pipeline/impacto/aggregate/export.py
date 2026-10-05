@@ -10,6 +10,7 @@ import psycopg
 
 from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
+from impacto.developers import GROUPS_FILE, build_developers, load_groups
 from impacto.resolve.run import with_operative
 from impacto.settings import load_settings
 
@@ -99,6 +100,16 @@ def export_documents(conn, out_dir: Path) -> Path:
         """,
     )
     return _write_csv(out_dir / "documents.csv", rows)
+
+
+def export_developers(conn, out_dir: Path, groups_file: Path = GROUPS_FILE) -> Path:
+    """developers.json: one entry per normalised developer (impacto.developers), with its projects and MW by status."""
+    rows = _query(
+        conn,
+        "SELECT p.id, p.developer, p.status, a.mw_best FROM projects p "
+        "JOIN projects_for_aggregates a ON a.id = p.id ORDER BY p.id",
+    )
+    return _write_json(out_dir / "developers.json", build_developers(rows, load_groups(groups_file)))
 
 
 def export_municipality_stats(conn, out_dir: Path) -> Path:
@@ -438,12 +449,14 @@ def export_open_consultations(conn, out_dir: Path, today: date | None = None, pe
 
 
 def _row_count(path: Path) -> int:
-    # CSV: data rows. FeatureCollection: features. Other JSON object: keys.
-    # Anything else (a single result object) counts as one row.
+    # CSV: data rows. FeatureCollection: features. JSON list: items. Other
+    # JSON object: keys. Anything else (a single result object) counts as one row.
     if path.suffix == ".csv":
         with open(path, encoding="utf-8", newline="") as f:
             return sum(1 for _ in csv.DictReader(f))
     payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, list):
+        return len(payload)
     if isinstance(payload, dict) and payload.get("type") == "FeatureCollection":
         return len(payload["features"])
     if isinstance(payload, dict) and "consultations" in payload:
@@ -479,6 +492,7 @@ def export_all(
     paths = [
         export_projects(conn, out_dir),
         export_documents(conn, out_dir),
+        export_developers(conn, out_dir),
         export_municipality_stats(conn, out_dir),
         export_province_monthly(conn, out_dir),
         export_monthly_events(conn, out_dir),

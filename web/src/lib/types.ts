@@ -77,6 +77,20 @@ export type Project = {
   provinces: string[];
 };
 
+/** A developer as normalised by the pipeline (impacto.developers): one key per company, however printed. */
+export type Developer = {
+  key: string;
+  name: string;
+  names: string[];
+  /** The key without a trailing number: a naming pattern shared by sibling companies, not a finding that they are related. */
+  family: string;
+  group: string | null;
+  parentCompany: string | null;
+  sourceUrl: string | null;
+  projectIds: number[];
+  mwCount: number;
+};
+
 export type GazetteDocument = {
   id: number;
   source: "boe" | "boja";

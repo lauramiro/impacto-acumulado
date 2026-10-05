@@ -1,3 +1,4 @@
+import { keysByPrintedName, loadDevelopers, relatedDevelopers } from "@/lib/data/developers";
 import { describe, expect, it } from "vitest";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { EvaluationSchema, loadEvaluation } from "@/lib/data/evaluation";
@@ -224,5 +225,15 @@ describe("loadOpenConsultations", () => {
       ineCodes: ["04083", "04092"],
     });
     expect(consultations[1]).toMatchObject({ period: null, deadline: null, ineCodes: [] });
+  });
+});
+
+describe("loadDevelopers", () => {
+  it("reads developers and maps every printed name to its key", async () => {
+    const devs = await loadDevelopers();
+    expect(devs.map((d) => d.key)).toEqual(["cartuja-solar", "cartuja-solar-2"]);
+    const keys = keysByPrintedName(devs);
+    expect(keys.get("Cartuja Solar, S.L.")).toBe("cartuja-solar");
+    expect(relatedDevelopers(devs, devs[0]!).map((d) => d.key)).toEqual(["cartuja-solar-2"]);
   });
 });

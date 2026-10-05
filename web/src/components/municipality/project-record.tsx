@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeveloperLinks } from "@/components/developer-links";
 import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatHa, formatInt, formatMw } from "@/lib/format";
@@ -8,7 +9,15 @@ import styles from "./project-record.module.css";
 
 const GAZETTE = { boe: "BOE", boja: "BOJA" } as const;
 
-export function ProjectRecord({ project, documents }: { project: Project; documents: GazetteDocument[] }) {
+export function ProjectRecord({
+  project,
+  documents,
+  developerKeys,
+}: {
+  project: Project;
+  documents: GazetteDocument[];
+  developerKeys: ReadonlyMap<string, string>;
+}) {
   const figures = [
     project.mwNominal !== null ? formatMw(project.mwNominal) : null,
     project.hectares !== null ? formatHa(project.hectares) : null,
@@ -23,7 +32,7 @@ export function ProjectRecord({ project, documents }: { project: Project; docume
         <StatusBadge status={project.status} />
       </header>
       <p className={styles.meta}>
-        {project.developer ?? "Promotor no identificado"} · {TECHNOLOGY_LABELS[project.technology]}
+        <DeveloperLinks developer={project.developer} keys={developerKeys} /> · {TECHNOLOGY_LABELS[project.technology]}
         {figures.length > 0 ? (
           <>
             {" · "}

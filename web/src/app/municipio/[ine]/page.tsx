@@ -10,6 +10,7 @@ import { Sensitivity } from "@/components/municipality/sensitivity";
 import { Totals } from "@/components/municipality/totals";
 import { stillOpen } from "@/lib/consultations";
 import { loadOpenConsultations } from "@/lib/data/consultations";
+import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
@@ -52,15 +53,17 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function MunicipalityPage({ params }: { params: Promise<Params> }) {
   const { ine } = await params;
-  const [muni, stats, areas, projects, documents, { consultations }] = await Promise.all([
+  const [muni, stats, areas, projects, documents, { consultations }, developers] = await Promise.all([
     findMunicipality(ine),
     loadMunicipalityStats(),
     loadMunicipalityProtectedAreas(),
     loadProjects(),
     loadDocuments(),
     loadOpenConsultations(),
+    loadDevelopers(),
   ]);
   if (!muni) notFound();
+  const developerKeys = keysByPrintedName(developers);
 
   const s = stats.get(ine);
   const here = projects.filter((p) => p.ineCodes.includes(ine)).sort((a, b) => b.lastSeen.localeCompare(a.lastSeen));
@@ -94,7 +97,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
       <section aria-labelledby="proyectos" className={styles.proyectos}>
         <h2 id="proyectos">Proyectos ({formatInt(here.length)})</h2>
         {here.map((p) => (
-          <ProjectRecord key={p.id} project={p} documents={docsByProject.get(p.id) ?? []} />
+          <ProjectRecord key={p.id} project={p} documents={docsByProject.get(p.id) ?? []} developerKeys={developerKeys} />
         ))}
       </section>
 
