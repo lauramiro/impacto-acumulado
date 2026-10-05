@@ -46,6 +46,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "provinces.geojson",
         "sensitivity_eol.geojson",
         "sensitivity_ftv.geojson",
+        "splitting_candidates.json",
     ]
     with open(tmp_path / "projects.csv", encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))

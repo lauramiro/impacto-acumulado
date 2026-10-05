@@ -8,6 +8,7 @@ from pathlib import Path
 
 import psycopg
 
+from impacto.aggregate.splitting import splitting_candidates
 from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
 from impacto.developers import GROUPS_FILE, build_developers, load_groups
@@ -175,6 +176,30 @@ def export_project_details(conn, out_dir: Path) -> Path:
         """,
     )
     return _write_json(out_dir / "project_details.json", project_details(rows))
+
+
+def export_splitting_candidates(conn, out_dir: Path) -> Path:
+    """splitting_candidates.json: groups of sibling projects each under 50 MW and together over it (impacto.aggregate.splitting)."""
+    projects = _query(
+        conn,
+        """
+        SELECT p.id, p.developer, a.mw_best, p.first_seen,
+               COALESCE((SELECT array_agg(pm.ine_code) FROM project_municipalities pm WHERE pm.project_id = p.id), '{}') AS ine_codes
+        FROM projects p JOIN projects_for_aggregates a ON a.id = p.id
+        """,
+    )
+    for p in projects:
+        p["ine_codes"] = set(p["ine_codes"])
+    # Neighbours: municipalities whose boundaries meet. Only those that hold a project matter.
+    pairs = _query(
+        conn,
+        """
+        WITH used AS (SELECT DISTINCT m.ine_code, m.geom FROM municipalities m JOIN project_municipalities pm USING (ine_code))
+        SELECT a.ine_code AS a, b.ine_code AS b FROM used a JOIN used b ON a.ine_code < b.ine_code AND ST_Intersects(a.geom, b.geom)
+        """,
+    )
+    adjacency = {(r["a"], r["b"]) for r in pairs}
+    return _write_json(out_dir / "splitting_candidates.json", splitting_candidates(projects, adjacency))
 
 
 def export_municipality_stats(conn, out_dir: Path) -> Path:
@@ -559,6 +584,7 @@ def export_all(
         export_documents(conn, out_dir),
         export_developers(conn, out_dir),
         export_project_details(conn, out_dir),
+        export_splitting_candidates(conn, out_dir),
         export_municipality_stats(conn, out_dir),
         export_province_monthly(conn, out_dir),
         export_monthly_events(conn, out_dir),
