@@ -112,6 +112,12 @@ export default async function DataPage() {
         </h3>
         <ul>
           <li>
+            Potencia: cuando el boletín etiqueta la potencia pico o la nominal («61,2 MWp/51 MWn»), esa cifra corrige la que leyó el
+            modelo, y cada proyecto toma la del documento más reciente que la etiqueta. Cambian 14 proyectos en{" "}
+            <span className="dato">mw_nominal</span> o <span className="dato">mw_peak</span>; por ejemplo, Las Quinientas pasa de
+            109,5 a 90,75 MW nominales, Los Lirios de 96 a 48 y la planta solar de Jerez Este H2 de 484,3 a 138,3.
+          </li>
+          <li>
             Revisión de agrupaciones: <span className="dato">projects.csv</span> pasa de 585 a 587 filas. El parque eólico Hinojosa
             (63,08 MW, favorable con condiciones) y su ampliación (25,12 MW, desfavorable) son dos proyectos con dos declaraciones; antes
             figuraban juntos y como denegados. Don Rodrigo I (250 MW, en consulta desde 2019) se separa de Don Rodrigo (150 MW). Siete
