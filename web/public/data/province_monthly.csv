@@ -92,7 +92,6 @@ Cádiz,2026-02-01,desfavorable,1,79.99,79.99,0
 Cádiz,2026-03-01,en_consulta,1,0.0,0.0,0
 Cádiz,2026-04-01,en_consulta,1,15.0,15.0,0
 Cádiz,2026-04-01,favorable_condicionada,2,0.0,0.0,0
-Cádiz,2026-05-01,en_consulta,1,45.83,45.83,0
 Cádiz,2026-05-01,favorable_condicionada,1,47.7,47.7,0
 Cádiz,2026-06-01,en_consulta,1,68.1,68.1,0
 Cádiz,2026-07-01,favorable_condicionada,6,40.989998,45.289,1
@@ -194,7 +193,6 @@ Huelva,2025-12-01,favorable_condicionada,1,0.0,0.0,0
 Huelva,2026-02-01,en_consulta,1,69.56,69.56,0
 Huelva,2026-04-01,favorable_condicionada,1,209.0,209.0,0
 Huelva,2026-08-01,favorable_condicionada,1,0.0,0.0,0
-Huelva,2026-09-01,en_consulta,1,150.0,150.0,0
 Jaén,2022-05-01,favorable_condicionada,1,85.0,85.0,0
 Jaén,2022-10-01,favorable_condicionada,1,0.0,0.0,0
 Jaén,2022-11-01,favorable_condicionada,1,0.0,0.0,0
@@ -242,7 +240,6 @@ Málaga,2025-07-01,en_consulta,1,99.0,99.0,0
 Málaga,2025-07-01,favorable_condicionada,1,0.0,0.0,0
 Málaga,2025-10-01,favorable_condicionada,1,0.0,0.0,0
 Málaga,2026-02-01,desconocido,1,0.0,0.0,0
-Málaga,2026-04-01,en_consulta,1,85.1044,85.1044,0
 Málaga,2026-05-01,favorable_condicionada,1,0.0,0.0,0
 Sevilla,2019-09-01,sin_resolucion,1,150.0,150.0,0
 Sevilla,2021-07-01,sin_resolucion,1,356.4,356.4,0
@@ -288,15 +285,11 @@ Sevilla,2025-09-01,favorable_condicionada,1,0.0,0.0,0
 Sevilla,2025-10-01,favorable_condicionada,2,0.0,0.0,0
 Sevilla,2025-12-01,favorable_condicionada,1,0.0,0.0,0
 Sevilla,2026-01-01,favorable_condicionada,2,0.0,0.0,0
-Sevilla,2026-02-01,en_consulta,6,101.2,180.4,1
 Sevilla,2026-02-01,favorable_condicionada,4,0.0,0.0,0
 Sevilla,2026-03-01,en_consulta,1,22.92,22.92,0
 Sevilla,2026-03-01,favorable_condicionada,1,0.0,6.931,1
-Sevilla,2026-04-01,en_consulta,4,56.1,163.67,2
-Sevilla,2026-05-01,en_consulta,2,79.2,79.2,0
 Sevilla,2026-05-01,favorable_condicionada,2,0.0,0.0,0
 Sevilla,2026-06-01,favorable_condicionada,3,0.0,0.0,0
 Sevilla,2026-07-01,favorable_condicionada,3,0.0,4.299,1
 Sevilla,2026-08-01,favorable_condicionada,1,0.0,5.906,1
-Sevilla,2026-09-01,en_consulta,1,0.0,35.12,1
 Sevilla,2026-09-01,favorable_condicionada,2,20.0,20.0,0

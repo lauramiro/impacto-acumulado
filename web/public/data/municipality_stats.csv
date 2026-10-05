@@ -52,7 +52,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 04904,desconocido,solar_fv,2,0.0,0.0,0,0,0,80.0,2,Balanegra,Almería
 11001,desfavorable,eolica,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
 11001,en_consulta,eolica,2,109.66,0.0,18,2,0,109.66,0,Alcalá de los Gazules,Cádiz
-11001,en_consulta,hibrida,2,45.83,0.0,0,1,0,45.83,0,Alcalá de los Gazules,Cádiz
+11001,en_consulta,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
 11001,favorable_condicionada,hibrida,1,0.0,0.0,0,0,0,0.0,0,Alcalá de los Gazules,Cádiz
 11001,favorable_condicionada,solar_fv,3,94.8,0.0,0,2,0,131.20001,1,Alcalá de los Gazules,Cádiz
 11002,desfavorable,eolica,1,25.12,0.0,7,1,0,25.12,0,Alcalá del Valle,Cádiz
@@ -125,7 +125,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11028,desfavorable,hibrida,1,79.99,0.0,5,1,0,79.99,0,Puerto Real,Cádiz
 11028,en_consulta,eolica,1,116.8,0.0,17,1,0,116.8,0,Puerto Real,Cádiz
 11028,en_consulta,hibrida,3,215.595,175.57,11,2,1,215.595,0,Puerto Real,Cádiz
-11028,favorable_condicionada,almacenamiento,1,24.04,0.358,0,1,1,24.04,0,Puerto Real,Cádiz
+11028,favorable_condicionada,almacenamiento,1,24.04,1.24,0,1,1,24.04,0,Puerto Real,Cádiz
 11028,favorable_condicionada,hibrida,2,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
 11028,favorable_condicionada,solar_fv,4,0.0,0.0,0,0,0,110.0,1,Puerto Real,Cádiz
 11028,sin_resolucion,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
@@ -321,7 +321,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 21011,favorable_condicionada,solar_fv,6,110.82,257.75,0,4,2,149.32,2,Beas,Huelva
 21013,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Bollullos Par del Condado,Huelva
 21018,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,El Campillo,Huelva
-21023,en_consulta,almacenamiento,1,150.0,4.1728,0,1,1,150.0,0,El Cerro de Andévalo,Huelva
 21023,favorable_condicionada,solar_fv,1,209.0,590.93,0,1,1,209.0,0,El Cerro de Andévalo,Huelva
 21023,sin_resolucion,solar_fv,2,0.0,0.0,0,0,0,100.0,2,El Cerro de Andévalo,Huelva
 21030,desconocido,solar_fv,1,20.0,0.0,0,1,0,20.0,0,Chucena,Huelva
@@ -393,7 +392,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29013,favorable_condicionada,solar_fv,2,50.01,70.55,0,1,1,50.01,0,Alozaina,Málaga
 29015,desconocido,eolica,3,0.0,0.0,0,0,0,0.0,0,Antequera,Málaga
 29015,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Antequera,Málaga
-29015,en_consulta,almacenamiento,1,85.1044,0.0,0,1,0,85.1044,0,Antequera,Málaga
 29015,en_consulta,solar_fv,1,25.0,0.0,0,1,0,25.0,0,Antequera,Málaga
 29015,favorable_condicionada,solar_fv,7,186.23,370.84998,0,2,2,223.73999,1,Antequera,Málaga
 29017,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Archidona,Málaga
@@ -455,8 +453,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29095,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Villanueva de Algaidas,Málaga
 29098,desfavorable,solar_fv,1,83.0,123.6,0,1,1,83.0,0,Villanueva de Tapia,Málaga
 29903,favorable_condicionada,solar_fv,1,279.0,447.23,0,1,1,279.0,0,Montecorto,Málaga
-41004,en_consulta,almacenamiento,4,56.1,0.0,0,2,0,135.29999,1,Alcalá de Guadaíra,Sevilla
-41004,en_consulta,hibrida,1,39.6,0.0,0,1,0,39.6,0,Alcalá de Guadaíra,Sevilla
 41004,favorable_condicionada,hibrida,1,24.04,1.6336,0,1,1,24.04,0,Alcalá de Guadaíra,Sevilla
 41004,favorable_condicionada,solar_fv,25,559.45996,1451.0499,0,8,4,1124.02,9,Alcalá de Guadaíra,Sevilla
 41004,sin_resolucion,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Alcalá de Guadaíra,Sevilla
@@ -474,8 +470,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41021,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Camas,Sevilla
 41022,favorable_condicionada,hibrida,1,98.0,267.8,0,1,1,98.0,0,La Campana,Sevilla
 41023,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Cantillana,Sevilla
-41024,en_consulta,almacenamiento,1,0.0,0.0,0,0,0,35.12,1,Carmona,Sevilla
-41024,en_consulta,hibrida,2,39.6,0.0,0,1,0,79.2,1,Carmona,Sevilla
 41024,favorable_condicionada,hibrida,1,98.0,267.8,0,1,1,98.0,0,Carmona,Sevilla
 41024,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Carmona,Sevilla
 41024,favorable_condicionada,solar_fv,35,838.49,1923.6647,0,12,7,1490.9083,14,Carmona,Sevilla
@@ -502,7 +496,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41056,en_consulta,almacenamiento,1,22.92,0.0,0,1,0,22.92,0,La Luisiana,Sevilla
 41056,sin_resolucion,hibrida,1,0.0,0.0,0,0,0,0.0,0,La Luisiana,Sevilla
 41058,favorable_condicionada,solar_fv,5,0.0,360.0,0,0,1,274.91098,4,Mairena del Alcor,Sevilla
-41063,en_consulta,almacenamiento,3,79.2,0.0,0,2,0,79.2,0,Los Molares,Sevilla
 41063,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,150.0,3,Los Molares,Sevilla
 41065,favorable_condicionada,eolica,1,30.0,0.0,0,1,0,30.0,0,Morón de la Frontera,Sevilla
 41067,desfavorable,solar_fv,1,56.5,98.47,0,1,1,56.5,0,Olivares,Sevilla
@@ -522,7 +515,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41082,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,La Roda de Andalucía,Sevilla
 41085,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Salteras,Sevilla
 41085,favorable_condicionada,solar_fv,8,168.936,212.7,0,4,1,308.036,4,Salteras,Sevilla
-41087,en_consulta,almacenamiento,1,22.0,0.0,0,1,0,22.0,0,Sanlúcar la Mayor,Sevilla
 41087,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Sanlúcar la Mayor,Sevilla
 41087,favorable_condicionada,solar_fv,4,12.4,0.0,0,2,0,97.9,2,Sanlúcar la Mayor,Sevilla
 41089,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,150.0,3,Santiponce,Sevilla
@@ -531,7 +523,6 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 41091,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Sevilla,Sevilla
 41091,favorable_condicionada,solar_fv,8,228.5,523.2076,0,4,2,420.872,4,Sevilla,Sevilla
 41091,sin_resolucion,solar_fv,3,114.95,184.56,0,1,1,114.95,0,Sevilla,Sevilla
-41095,en_consulta,almacenamiento,1,0.0,0.0,0,0,0,67.97,1,Utrera,Sevilla
 41095,favorable_condicionada,solar_fv,2,372.8,990.45,0,2,2,372.8,0,Utrera,Sevilla
 41095,sin_resolucion,solar_fv,1,150.0,0.0,0,1,0,150.0,0,Utrera,Sevilla
 41096,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Valencina de la Concepción,Sevilla
