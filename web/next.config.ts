@@ -16,6 +16,21 @@ function retiredProjects(): Record<string, number> {
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Page routes only: /data/ files are public reference data that other sites read
+  // from the browser, so they keep the cross-origin access the host gives static files.
+  async headers() {
+    return [
+      {
+        source: "/((?!data/).*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return Object.entries(retiredProjects()).map(([from, to]) => {
       if (!/^\d+$/.test(from) || !Number.isInteger(to) || to <= 0) throw new Error(`retired_projects.json: bad entry ${from} -> ${to}`);

@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: `${muni.name} · Impacto Acumulado`,
     description,
-    alternates: { types: { "application/atom+xml": [{ url: `${SITE_URL}/feeds/municipio/${ine}.xml`, title: `Documentos en ${muni.name}` }] } },
+    alternates: { canonical: "./", types: { "application/atom+xml": [{ url: `${SITE_URL}/feeds/municipio/${ine}.xml`, title: `Documentos en ${muni.name}` }] } },
   };
 }
 

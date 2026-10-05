@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Figure } from "@/components/figure";
 import { CATALOG } from "@/lib/data/catalog";
-import { loadMeta } from "@/lib/data/meta";
+import { loadMeta, type Meta } from "@/lib/data/meta";
 import { dataFile } from "@/lib/data/paths";
 import { formatBytes, formatInt, formatLongDate } from "@/lib/format";
 import { EVENT_LABELS, ROLE_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
@@ -27,6 +27,39 @@ export const metadata: Metadata = {
   description: "Descarga del conjunto de datos de resoluciones ambientales de proyectos renovables en Andalucía, con licencia CC BY 4.0.",
 };
 
+const MEDIA_TYPES: Record<string, string> = {
+  csv: "text/csv",
+  json: "application/json",
+  geojson: "application/geo+json",
+};
+
+// schema.org Dataset for the download page. Counts and dates come from meta.json,
+// the file list from the catalogue, so the markup cannot drift from the table.
+function datasetJsonLd(meta: Meta) {
+  const year = meta.generatedAt.getUTCFullYear();
+  return {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: "Resoluciones ambientales de proyectos renovables en Andalucía",
+    description: `Proyectos renovables en Andalucía (${meta.counts.projects} agrupados a partir de ${meta.counts.raw_documents} documentos del BOE y el BOJA), con su estado, tecnología, potencia y municipios. La extracción es automática y tiene errores medidos.`,
+    url: `${SITE_URL}/datos`,
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    inLanguage: "es",
+    isAccessibleForFree: true,
+    creator: { "@type": "Organization", name: "Impacto Acumulado", url: SITE_URL },
+    isBasedOn: ["https://www.boe.es", "https://www.juntadeandalucia.es/boja"],
+    spatialCoverage: { "@type": "Place", name: "Andalucía, España" },
+    temporalCoverage: `2019/${year}`,
+    dateModified: meta.generatedAt.toISOString(),
+    distribution: CATALOG.map((entry) => ({
+      "@type": "DataDownload",
+      name: entry.file,
+      contentUrl: `${SITE_URL}/data/${entry.file}`,
+      encodingFormat: MEDIA_TYPES[entry.file.split(".").pop()!] ?? "application/octet-stream",
+    })),
+  };
+}
+
 export default async function DataPage() {
   const meta = await loadMeta();
   // meta.json cannot list itself in meta.files (it is the file that lists every
@@ -34,8 +67,15 @@ export default async function DataPage() {
   // single manifest object, and its size on disk.
   const metaJsonBytes = (await stat(dataFile("meta.json"))).size;
   const year = meta.generatedAt.getUTCFullYear();
+  // The changelog's row counts that describe the current export come from meta.json.
+  const projectRows = meta.files["projects.csv"]?.rows;
+  if (projectRows === undefined) throw new Error("datos: projects.csv is not in meta.files");
   return (
     <article className={styles.page}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd(meta)).replace(/</g, "\\u003c") }}
+      />
       <h1>Datos</h1>
       <p>
         Todo lo que muestra el sitio sale de estos archivos, que el pipeline regenera cada semana. Se publican con licencia{" "}
@@ -184,10 +224,13 @@ export default async function DataPage() {
             109,5 a 90,75 MW nominales, Los Lirios de 96 a 48 y la planta solar de Jerez Este H2 de 484,3 a 138,3.
           </li>
           <li>
-            Revisión de agrupaciones: <span className="dato">projects.csv</span> pasa de 585 a 587 filas. El parque eólico Hinojosa
-            (63,08 MW, favorable con condiciones) y su ampliación (25,12 MW, desfavorable) son dos proyectos con dos declaraciones; antes
-            figuraban juntos y como denegados. Don Rodrigo I (250 MW, en consulta desde 2019) se separa de Don Rodrigo (150 MW). Siete
-            proyectos con nombre genérico toman el que da el boletín (por ejemplo, «Plantas fotovoltaicas del Nudo Jordana»).
+            Revisión de agrupaciones: <span className="dato">projects.csv</span> pasa de 585 a {formatInt(projectRows)} filas. El parque
+            eólico Hinojosa (63,08 MW, favorable con condiciones) y su ampliación (25,12 MW, desfavorable) son dos proyectos con dos
+            declaraciones; antes figuraban juntos y como denegados. Don Rodrigo I (250 MW, en consulta desde 2019) se separa de Don
+            Rodrigo (150 MW). Siete proyectos con nombre genérico toman el que da el boletín (por ejemplo, «Plantas fotovoltaicas del
+            Nudo Jordana»). Estas separaciones suman dos filas, y cuatro identificadores quedan retirados porque su proyecto se unió a
+            otro (el 38 pasa al 18, el 49 al 47, el 55 al 53 y el 194 al 122; sus direcciones redirigen a la del proyecto actual,
+            según <span className="dato">retired_projects.json</span>).
           </li>
           <li>
             Archivo nuevo, <span className="dato">splitting_candidates.json</span>: grupos de proyectos de promotores con el mismo

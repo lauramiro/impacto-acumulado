@@ -14,7 +14,7 @@ import { APPROVED_OR_PENDING, PROVINCES, REFUSED_OR_LAPSED, REGION, type StatsCe
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-  alternates: { types: { "application/atom+xml": [{ url: `${SITE_URL}/feeds/andalucia.xml`, title: "Documentos en Andalucía" }] } },
+  alternates: { canonical: "./", types: { "application/atom+xml": [{ url: `${SITE_URL}/feeds/andalucia.xml`, title: "Documentos en Andalucía" }] } },
 };
 
 export default async function HomePage() {
