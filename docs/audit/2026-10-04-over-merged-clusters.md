@@ -99,3 +99,14 @@ Commit fa2b8fa (`pipeline/impacto/resolve/`):
 Result after the production rebuild (export 55591da): 444 projects to 541; 46 over-merged projects split; two modifications joined their originals (Cimera Solar, Celeno Solar); declared MW 11,175.1 to 13,236.6 in 205 projects (was 174).
 
 Left as is, worth a look: P47 keeps CEPSA's joint Ronda I to III document with Nueva Ronda III (Vaguadas) and SET Danae; P51 keeps Suresa's "Módulo PSFV Alíjar" with the Alíjar hybridization; P143 keeps Fénix's "Puerto Real 110" with the Puerto Real I hybridization; P54 keeps the Tabernas collector substation with Tabernas 100; plants are now separate from their own evacuation lines (Esparragal II, Benacazón). An unkeyed document still joins a keyed group when nothing conflicts, so a new document can attach to the wrong keyed plant.
+
+## Review queue, 2026-10-05
+
+The first `review-clusters` run listed 74 groups. Read against the gazette texts:
+
+- Split: Hinojosa (PEol-268) and Hinojosa Ampliación (PEol-268_AMPL), two declarations, the second unfavourable; the merged project read as refused. Don Rodrigo I (250 MW, PFot-030, 2019 consultation) and Don Rodrigo (150 MW, 2015 DIA amended in 2023). Keys in `resolution_overrides`; the blocking rule now reads the `_AMPL` suffix.
+- Named by hand (`project_name_overrides`): 27 Nudo Jordana, 339 El Bujeo, 429 evacuación PSF Huévar I y II, 439 Puerto Real, 598 Huévar 1, 599 Huévar 2, 615 Villamartín H2.
+- Kept as one plant: the rest. A State plant also gets a Junta AAU under the same name and developer (Hipódromo, Cabra 0, Campos del Condado VI); a grant is followed by a modification under the same expediente; one declaration can cover several plants (Metaway I and II, Natera and Orla, Jesús and Santa María); MW differs between peak and nominal or between design versions.
+- Left with a note: 173 is a delegation of competence for an unnamed plant whose text is now restricted; 442 states no plant name.
+
+After tuning the rules (modifications exempt, peak against peak, State plus AAU allowed) the queue lists 29, all reviewed above as single plants.

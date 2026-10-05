@@ -112,6 +112,12 @@ export default async function DataPage() {
         </h3>
         <ul>
           <li>
+            Revisión de agrupaciones: <span className="dato">projects.csv</span> pasa de 585 a 587 filas. El parque eólico Hinojosa
+            (63,08 MW, favorable con condiciones) y su ampliación (25,12 MW, desfavorable) son dos proyectos con dos declaraciones; antes
+            figuraban juntos y como denegados. Don Rodrigo I (250 MW, en consulta desde 2019) se separa de Don Rodrigo (150 MW). Siete
+            proyectos con nombre genérico toman el que da el boletín (por ejemplo, «Plantas fotovoltaicas del Nudo Jordana»).
+          </li>
+          <li>
             Archivo nuevo, <span className="dato">splitting_candidates.json</span>: grupos de proyectos de promotores con el mismo
             nombre que declaran cada uno menos de 50 MW y juntos los superan (posible fraccionamiento). Las páginas de proyecto y de
             municipio los señalan.
