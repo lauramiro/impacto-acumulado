@@ -267,11 +267,11 @@ def export_project_details(conn, out_dir: Path) -> Path:
 
 
 def export_splitting_candidates(conn, out_dir: Path) -> Path:
-    """splitting_candidates.json: groups of sibling projects each under 50 MW and together over it (impacto.aggregate.splitting)."""
+    """splitting_candidates.json: groups of projects each under 50 MW and together over it, by developer family or shared evacuation infrastructure (impacto.aggregate.splitting)."""
     projects = _query(
         conn,
         """
-        SELECT p.id, p.developer, a.mw_best, p.first_seen,
+        SELECT p.id, p.developer, a.mw_best, p.first_seen, p.canonical_name AS name, p.technology,
                COALESCE((SELECT array_agg(pm.ine_code) FROM project_municipalities pm WHERE pm.project_id = p.id), '{}') AS ine_codes,
                -- Assessed by the State: a DIA or informe of the Ministry (BOE section III, BOE-A-...).
                EXISTS (

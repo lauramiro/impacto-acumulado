@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { DeveloperIndex, type DeveloperRow } from "@/components/developer-index";
-import { byProjectCount, developerTotals } from "@/lib/developers";
+import { DeveloperIndex, DeveloperRollupIndex, type DeveloperRow } from "@/components/developer-index";
+import { byProjectCount, developerRollups, developerTotals } from "@/lib/developers";
 import { loadDevelopers } from "@/lib/data/developers";
 import { loadProjects } from "@/lib/data/projects";
 
@@ -29,6 +29,7 @@ export default async function DevelopersPage() {
   return (
     <article>
       <h1>Promotores</h1>
+      <DeveloperRollupIndex rows={developerRollups(developers, byId)} />
       <DeveloperIndex rows={rows} />
     </article>
   );

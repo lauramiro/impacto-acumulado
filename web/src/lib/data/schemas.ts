@@ -159,7 +159,10 @@ export const ProjectDetailsFileSchema = z.record(
 
 export const SplittingFileSchema = z.array(
   z.object({
-    family: z.string(),
+    // "familia": developers with one name; "infraestructura": plants behind one evacuation project or substation.
+    kind: z.enum(["familia", "infraestructura"]),
+    family: z.string().nullable(),
+    infrastructure: z.object({ project_ids: z.array(z.number().int()), substations: z.array(z.string()) }).optional(),
     project_ids: z.array(z.number().int()).min(2),
     mw: z.array(z.number()),
     mw_total: z.number(),

@@ -273,7 +273,16 @@ describe("protectedAreaKey", () => {
 
 describe("loadSplittingGroups", () => {
   it("reads the groups", async () => {
-    const [g] = await loadSplittingGroups();
-    expect(g).toEqual({ family: "cartuja-solar", projectIds: [1, 2], mwTotal: 70, ineCodes: ["29067", "29084"], firstSeen: ["2022-01-01", "2023-05-05"] });
+    const [g, infra] = await loadSplittingGroups();
+    expect(g).toEqual({
+      kind: "familia",
+      family: "cartuja-solar",
+      projectIds: [1, 2],
+      mwTotal: 70,
+      ineCodes: ["29067", "29084"],
+      firstSeen: ["2022-01-01", "2023-05-05"],
+      infrastructure: null,
+    });
+    expect(infra).toMatchObject({ kind: "infraestructura", family: null, infrastructure: { projectIds: [3], substations: ["canto"] } });
   });
 });

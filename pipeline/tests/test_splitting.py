@@ -1,6 +1,6 @@
 from datetime import date
 
-from impacto.aggregate.splitting import splitting_candidates
+from impacto.aggregate.splitting import listed_plants, splitting_candidates, substations
 
 
 def p(i, developer, mw, munis, day=date(2022, 1, 1), state_assessed=False):
@@ -127,3 +127,137 @@ def test_spellings_the_groups_file_joins_share_a_family():
     assert group["family"] == "greenalia-solar-power-guadame"
     assert group["project_ids"] == [183, 197, 241, 258, 437]
     assert group["mw_total"] == 249.95
+
+
+def plant(i, name, developer, mw, munis, day=date(2023, 1, 20), technology="solar_fv", **kw):
+    return {**p(i, developer, mw, munis, day, **kw), "name": name, "technology": technology}
+
+
+def line(i, name, developer, munis, day=date(2023, 2, 9)):
+    return plant(i, name, developer, None, munis, day, technology="linea_evacuacion")
+
+
+CARMONA = "41024"
+
+
+def carmona_projects():
+    # /municipio/41024 (data of 2026-10-05): five plants of five companies, 36,3 MW each,
+    # behind one shared evacuation project (147), and Carmo 1 to 3 of three companies
+    # behind another (473). Carmo 1 declares 50 MW peak and no nominal, so it is not under 50.
+    five = [(294, "Almazara"), (283, "Atlante"), (276, "Chapitel"), (275, "Garita"), (281, "Fortaleza")]
+    out = [plant(i, f"PSF {n} Solar", f"{n} Solar, S.L.", 36.3, [CARMONA]) for i, n in five]
+    out[1]["name"] = "PSF Atlante Solar e Infraestructura Evacuación (Líneas 30 kV)"
+    out.append(
+        line(
+            147,
+            "Infraestructura común para la Evacuación de las PSFV Almazara Solar, Atlante Solar, "
+            "Chapitel Solar, Garita Solar y Fortaleza Solar (SET Azora Carmona 30/220kV y LAAT 220kV)",
+            "Almazara Solar S.L.",
+            ["41019", CARMONA, "41027"],
+        )
+    )
+    out += [
+        plant(344, "PSFV «Carmo 1»", "Elsa Energía, S.L.", 50.0, [CARMONA]),
+        plant(481, "PSFV «Carmo 2»", "Cripton Solar, S.L.", 36.665, [CARMONA]),
+        plant(295, "PSFV «Carmo 3»", "Argon Sostenible, S.L.", 36.665, [CARMONA]),
+        line(
+            473,
+            "Infraestructura común para la Evacuación de las PSFV Arcadia Carmona 1, 2 y 3 y "
+            "Carmo 1, 2 y 3 (SET El Canto 30/220 kV y LAAT 220 kV)",
+            "Elsa Energía, S.L.",
+            [CARMONA],
+        ),
+        # Named like the town, in another place: not one of the listed plants.
+        plant(900, "PSFV Carmo 10", "Otra, S.L.", 40, [CARMONA]),
+    ]
+    return out
+
+
+def test_plants_a_shared_evacuation_project_lists_are_a_group_whatever_their_developers():
+    groups = splitting_candidates(carmona_projects(), set(), {})
+    assert [g["kind"] for g in groups] == ["infraestructura", "infraestructura"]
+    five, carmo = groups
+    assert five["project_ids"] == [275, 276, 281, 283, 294]
+    assert five["mw_total"] == 181.5
+    assert five["family"] is None
+    assert five["infrastructure"] == {"project_ids": [147], "substations": ["azora carmona"]}
+    assert five["ine_codes"] == [CARMONA]
+    assert carmo["project_ids"] == [295, 481]
+    assert carmo["mw_total"] == 73.33
+    assert carmo["infrastructure"] == {"project_ids": [473], "substations": ["canto"]}
+
+
+def test_listed_names_are_read_from_the_evacuation_project_name():
+    assert listed_plants(
+        "Infraestructura común para la Evacuación de las PSFV Arcadia Carmona 1, 2 y 3 y Carmo 1, 2 y 3"
+    ) == [
+        ["arcadia", "carmona", "1"],
+        ["arcadia", "carmona", "2"],
+        ["arcadia", "carmona", "3"],
+        ["carmo", "1"],
+        ["carmo", "2"],
+        ["carmo", "3"],
+    ]
+    assert listed_plants("Infraestructura de evacuación PSF Huévar I y II") == [["huevar", "1"], ["huevar", "2"]]
+    assert listed_plants(
+        "Línea aéreo-subterránea 15 kV de evacuación de las plantas solares fotovoltaicas El Naranjo 8 y PSFV El Naranjo 9"
+    ) == [["naranjo", "8"], ["naranjo", "9"]]
+    # A final "solar" stays, so a plant called after its town alone is not taken for it.
+    assert listed_plants("Infraestructura para evacuación varias plantas (Chucena Solar, Aznalcóllar Solar)") == [
+        ["chucena", "solar"],
+        ["aznalcollar", "solar"],
+    ]
+    assert listed_plants("Soterramiento de Línea de Evacuación") == []
+
+
+def test_substation_names_drop_voltages_and_generic_words():
+    assert substations("Infraestructura común (SET Azora Carmona 30/220kV y LAAT 220kV)") == {"azora carmona"}
+    assert substations("hsf La Víbora III, línea evacuación y SET La Víbora III") == {"vibora 3"}
+    assert substations("Infraestructura común de varias plantas para Evacuación a SET Guillena 220-400") == {"guillena"}
+    assert substations("Evacuación Común Guillena 400 kV (SET Colectora y tramo LAAT 400 kV)") == set()
+    assert substations("SET Danae 220/30 kV y LASAT 220 kV SET Danae-SET Ronda Renovables") == {
+        "danae",
+        "ronda renovables",
+    }
+
+
+def test_plants_naming_one_substation_share_it_when_near():
+    a = plant(1, "PSF Uno y SET Los Llanos 30/132 kV", "Uno, S.L.", 30, ["A"])
+    b = plant(2, "PSF Dos y SET Los Llanos 30/132 kV", "Dos, S.L.", 30, ["B"])
+    [g] = splitting_candidates([a, b], {("A", "B")}, {})
+    assert g["kind"] == "infraestructura"
+    assert g["infrastructure"] == {"project_ids": [], "substations": ["llanos"]}
+    assert splitting_candidates([a, b], set(), {}) == []
+
+
+def test_a_listed_plant_far_from_the_line_or_outside_the_rules_is_left_out():
+    projects = [
+        line(10, "Evacuación de las PSFV Alfa Solar, Beta Solar y Gamma Solar", "Alfa, S.L.", ["A"]),
+        plant(1, "PSF Alfa Solar", "Alfa, S.L.", 30, ["A"]),
+        plant(2, "PSF Beta Solar", "Beta, S.L.", 30, ["Z"]),  # far from the line
+        plant(3, "PSF Gamma Solar", "Gamma, S.L.", 30, ["A"], state_assessed=True),
+    ]
+    assert splitting_candidates(projects, set(), {}) == []
+    projects[2]["ine_codes"] = {"A"}
+    [g] = splitting_candidates(projects, set(), {})
+    assert g["project_ids"] == [1, 2]
+    projects[2]["first_seen"] = date(2026, 1, 1)
+    assert splitting_candidates(projects, set(), {}) == []
+
+
+def test_an_infrastructure_group_that_repeats_a_family_group_is_not_listed_twice():
+    projects = [
+        line(10, "Evacuación común de las PSF Tayant 1 y 2", "Tayant Investment 1, S.L.", ["A"]),
+        plant(1, "PSF Tayant 1", "Tayant Investment 1, S.L.", 30, ["A"]),
+        plant(2, "PSF Tayant 2", "Tayant Investment 2, S.L.", 30, ["A"]),
+    ]
+    [g] = splitting_candidates(projects, set(), {})
+    assert g["kind"] == "familia"
+    assert g["family"] == "tayant-investment"
+
+
+def test_projects_without_name_or_technology_only_form_family_groups():
+    projects = [p(1, "Solar 1, S.L.", 30, ["A"]), p(2, "Solar 2, S.L.", 30, ["A"])]
+    [g] = splitting_candidates(projects, set(), {})
+    assert g["kind"] == "familia"
+    assert "infrastructure" not in g

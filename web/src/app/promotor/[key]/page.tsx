@@ -10,7 +10,7 @@ import { keysByPrintedName, loadDevelopers, relatedDevelopers } from "@/lib/data
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
-import { loadSplittingGroups } from "@/lib/data/splitting";
+import { developerSplittingGroups, loadSplittingGroups } from "@/lib/data/splitting";
 import { formatCoverage, formatInt, formatMw } from "@/lib/format";
 import styles from "./page.module.css";
 
@@ -79,7 +79,7 @@ export default async function DeveloperPage({ params }: { params: Promise<Params
     .filter((m) => projectsIn.has(m.ine))
     .sort((a, b) => projectsIn.get(b.ine)! - projectsIn.get(a.ine)! || a.name.localeCompare(b.name, "es"));
   const otherNames = developer.names.filter((n) => n !== developer.name);
-  const splittingHere = splitting.filter((g) => g.family === developer.family);
+  const splittingHere = developerSplittingGroups(splitting, developer);
 
   return (
     <article>

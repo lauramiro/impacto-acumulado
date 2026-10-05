@@ -99,7 +99,10 @@ export default async function MethodologyPage() {
         El promotor se guarda como lo imprime el boletín. Para agruparlo, se le quitan la forma jurídica (S.L., S.L.U., S.A.…), las
         mayúsculas, los acentos y la puntuación, de modo que «Enel Green Power España, S.L.» y «Enel Green Power España, SL» son el
         mismo promotor. Las sociedades cuyo nombre solo cambia en el número final (Tayant Investment 12 a 15) se muestran juntas como
-        «mismo nombre», sin afirmar que sean del mismo grupo; un grupo empresarial solo se asigna a mano y con fuente.
+        «mismo nombre», sin afirmar que sean del mismo grupo; un grupo empresarial solo se asigna a mano y con fuente. La fuente
+        (cuentas anuales, la web del grupo o un registro oficial como el BORME) tiene que nombrar la sociedad o los proyectos que
+        promueve; sin ella no se indica sociedad matriz. En <Link href="/promotores">Promotores</Link> se suman las sociedades de cada
+        grupo con fuente y de cada familia de nombres.
       </p>
 
       <h2 id="precision">Precisión medida</h2>
@@ -247,10 +250,17 @@ export default async function MethodologyPage() {
       <ul>
         <li>
           sus promotores tienen el mismo nombre salvo el número final (Tayant Investment 12 a 15), o son la misma sociedad, aunque
-          los boletines la escriban de forma distinta («Greenalia Solar Power Guadame» y «PowerGuadame»);
+          los boletines la escriban de forma distinta («Greenalia Solar Power Guadame» y «PowerGuadame»), y cada uno comparte
+          municipio, o linda, con otro del grupo; o bien
+        </li>
+        <li>
+          comparten infraestructura de evacuación, sea cual sea su promotor (misma infraestructura de evacuación): el nombre de un
+          proyecto de evacuación los enumera («Infraestructura común para la Evacuación de las PSFV Almazara Solar, Atlante Solar,
+          Chapitel Solar, Garita Solar y Fortaleza Solar»), o sus nombres citan la misma subestación («SET El Canto»), y cada planta
+          comparte municipio, o linda, con el proyecto de evacuación o con la otra planta. Un grupo así que repite uno del primer tipo
+          no se muestra dos veces;
         </li>
         <li>son al menos dos, cada uno declara menos de 50 MW y juntos superan los 50 MW;</li>
-        <li>cada uno comparte municipio, o linda, con otro del grupo;</li>
         <li>sus primeros documentos caen dentro de 24 meses;</li>
         <li>
           el Estado no evaluó ninguno: un proyecto con una declaración de impacto o un informe del Ministerio en el BOE (sección III)

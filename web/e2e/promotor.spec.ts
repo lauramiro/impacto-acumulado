@@ -50,7 +50,7 @@ test("a developer page shows the possible-splitting groups of its family", async
   await expect(note.getByTestId("fraccionamiento-grupo")).toHaveCount(mine.length);
   for (const id of mine[0].project_ids) await expect(note.locator(`a[href="/proyecto/${id}"]`)).toBeVisible();
 
-  const none = developers.find((d) => !groups.some((g) => g.family === d.family))!;
+  const none = developers.find((d) => !groups.some((g) => g.family === d.family || g.project_ids.some((id) => d.project_ids.includes(id))))!;
   await page.goto(`/promotor/${none.key}`);
   await expect(page.getByTestId("fraccionamiento")).toHaveCount(0);
 });
@@ -71,4 +71,39 @@ test("the MW column tells no approved projects from undeclared MW, and ranks bot
   await mw.click();
   await expect(section.getByRole("columnheader", { name: /MW aprobados/ })).toHaveAttribute("aria-sort", "ascending");
   await expect(firstMw).toHaveText(/^[\d.,]+ MW$/);
+});
+
+test("a developer with a project behind shared evacuation shows that group, whatever the family", async ({ page }) => {
+  const groups: { kind: string; project_ids: number[] }[] = JSON.parse(
+    readFileSync(path.join(__dirname, "..", "public", "data", "splitting_candidates.json"), "utf-8"),
+  );
+  const shared = groups.find((g) => g.kind === "infraestructura")!;
+  const dev = developers.find((d) => d.project_ids.includes(shared.project_ids[0]))!;
+  await page.goto(`/promotor/${dev.key}`);
+  const group = page.getByTestId("fraccionamiento-grupo").filter({ hasText: "Misma infraestructura de evacuación" });
+  await expect(group).toHaveCount(1);
+  for (const id of shared.project_ids.slice(1)) await expect(group.locator(`a[href="/proyecto/${id}"]`)).toBeVisible();
+});
+
+test("the index adds up sourced groups and naming families, with the parent only where a source says so", async ({ page }) => {
+  type Full = Dev & { group: string | null; parent_company: string | null; source_url: string | null };
+  const full = developers as Full[];
+  const sourced = full.filter((d) => d.parent_company !== null);
+  expect(sourced.length).toBeGreaterThan(0);
+  for (const d of sourced) expect(d.source_url).toMatch(/^https:\/\//);
+  await page.goto("/promotores");
+  const section = page.getByRole("region", { name: "Por grupo o familia de nombres" });
+  await expect(section).toContainText("no está comprobado que pertenezcan al mismo grupo");
+  const search = section.getByLabel("Buscar grupo o familia");
+  // Greenalia: the Guadame and Zumajo companies, one row, its parent linked to the source.
+  // Other Greenalia-named companies the source does not cover (San Julián) stay a naming family.
+  const greenalia = full.filter((d) => d.group === "Greenalia");
+  await search.fill("Greenalia");
+  const row = section.getByRole("row").filter({ has: page.getByRole("rowheader", { name: "Greenalia", exact: true }) });
+  await expect(row).toHaveCount(1);
+  await expect(row.getByRole("cell").nth(1)).toHaveText(String(greenalia.length));
+  await expect(row.getByRole("link", { name: "Greenalia", exact: true }).last()).toHaveAttribute("href", greenalia[0]!.source_url!);
+  // A naming family has no parent.
+  await search.fill("Tayant Investment 12");
+  await expect(section.getByRole("row", { name: /Tayant Investment/ })).toContainText("familia de nombres, sin fuente");
 });

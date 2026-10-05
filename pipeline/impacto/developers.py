@@ -13,7 +13,10 @@ Power España, SL"), so:
   A family is a naming pattern, not a finding that the companies are related;
 - `pipeline/reference/developer_groups.csv` joins keys or families the rules
   cannot: spelling slips, and corporate groups when a source says so. A
-  spelling row also joins families (`resolved_family`).
+  spelling row (no parent company) also joins families (`resolved_family`).
+  A corporate row names a parent company and the `source_url` that says so;
+  it is never written without one, and it applies to the key, its family or
+  the family its spellings resolve to (`group_of`).
 """
 
 from __future__ import annotations
@@ -126,20 +129,42 @@ def resolved_family(key: str, groups: dict[str, Group]) -> str:
     return family
 
 
+def group_of(key: str, groups: dict[str, Group]) -> Group | None:
+    """The row that applies to a key: the first corporate row for the key, its family or its
+    resolved family; else the first spelling row for the key or its family.
+
+    So "Greenalia Solar PowerGuadame III" takes the corporate row of the family its spelling
+    row joins ("greenalia-solar-power-guadame"), not only the spelling row's name.
+    """
+    rows = [g for k in (key, family_key(key), resolved_family(key, groups)) if (g := groups.get(k))]
+    return next((g for g in rows if g.parent_company), rows[0] if rows else None)
+
+
 def load_groups(path: Path = GROUPS_FILE) -> dict[str, Group]:
-    """Rows of developer_groups.csv by key; a row's key is a developer key or a family key."""
+    """Rows of developer_groups.csv by key; a row's key is a developer key or a family key.
+
+    A parent company without a source_url, or a key written twice, is an error: the
+    site does not assert a parent it cannot cite.
+    """
     if not path.exists():
         return {}
+    out: dict[str, Group] = {}
     with open(path, encoding="utf-8", newline="") as f:
-        return {
-            row["key"].strip(): Group(
+        for row in csv.DictReader(f):
+            key = row["key"].strip()
+            if not key or key.startswith("#"):
+                continue
+            group = Group(
                 row["group"].strip(),
                 row["parent_company"].strip() or None,
                 row["source_url"].strip() or None,
             )
-            for row in csv.DictReader(f)
-            if row["key"].strip() and not row["key"].startswith("#")
-        }
+            if group.parent_company and not (group.source_url or "").startswith("https://"):
+                raise ValueError(f"{path.name}: {key} names a parent company without a source_url")
+            if key in out:
+                raise ValueError(f"{path.name}: {key} is written twice")
+            out[key] = group
+    return out
 
 
 def build_developers(projects: list[dict], groups: dict[str, Group]) -> list[dict]:
@@ -162,7 +187,7 @@ def build_developers(projects: list[dict], groups: dict[str, Group]) -> list[dic
     out = []
     for key in sorted(printed):
         family = resolved_family(key, groups)
-        group = groups.get(key) or groups.get(family_key(key))
+        group = group_of(key, groups)
         ids = sorted(project_ids[key])
         mw_by_status: dict[str, float] = defaultdict(float)
         projects_by_status: Counter[str] = Counter()

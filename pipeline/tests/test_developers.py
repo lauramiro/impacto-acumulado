@@ -1,8 +1,11 @@
+import pytest
+
 from impacto.developers import (
     Group,
     build_developers,
     developer_key,
     family_key,
+    group_of,
     load_groups,
     resolved_family,
     split_names,
@@ -110,11 +113,68 @@ def test_the_display_name_is_the_most_printed_and_not_shouted():
     assert devs[0]["name"] == "Olivento S.L."
 
 
-def test_the_shipped_groups_file_parses():
+def test_the_shipped_groups_file_parses_and_every_parent_has_a_source():
     groups = load_groups()
-    assert (
-        groups["greenalia-solar-powerguadame"].name == groups["greenalia-solar-power-guadame"].name
+    three = developer_key("Greenalia Solar PowerGuadame III, S.L.")
+    one = developer_key("Greenalia Solar Power Guadame I, S.L.")
+    assert group_of(three, groups) == group_of(one, groups)
+    for g in groups.values():
+        if g.parent_company:
+            assert g.source_url and g.source_url.startswith("https://")
+
+
+def test_a_corporate_row_reaches_spellings_joined_to_its_family():
+    groups = {
+        "acme-solar-powernorte": Group("Acme Solar Power Norte", None, None),
+        "acme-solar-power-norte": Group("Acme", "Acme, S.A.", "https://example.org/acme"),
+    }
+    assert group_of("acme-solar-powernorte-3", groups).parent_company == "Acme, S.A."
+    assert group_of("acme-solar-power-norte-1", groups).parent_company == "Acme, S.A."
+    # A spelling row alone still names the spelling group.
+    spelling = {"acme-solar-powernorte": groups["acme-solar-powernorte"]}
+    assert group_of("acme-solar-powernorte-3", spelling).name == "Acme Solar Power Norte"
+    assert group_of("otra", groups) is None
+
+
+def test_a_parent_without_a_source_or_a_repeated_key_is_refused(tmp_path):
+    path = tmp_path / "groups.csv"
+    path.write_text(
+        "key,group,parent_company,source_url,note\ntayant-investment,Grupo T,Matriz SA,,\n",
+        encoding="utf-8",
     )
+    with pytest.raises(ValueError, match="without a source_url"):
+        load_groups(path)
+    path.write_text(
+        "key,group,parent_company,source_url,note\nmitra-alfa,Mitra Alfa,,,\nmitra-alfa,Otro,,,\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="written twice"):
+        load_groups(path)
+
+
+def test_shipped_corporate_groups_roll_up_their_companies():
+    groups = load_groups()
+    devs = build_developers(
+        [
+            {"id": 1, "developer": "Greenalia Solar PowerGuadame III, S.L.U.", "status": "favorable", "mw_best": 49.99},
+            {"id": 2, "developer": "Greenalia Solar Power Zumajo I, S.L.U.", "status": "favorable", "mw_best": 49.99},
+            {"id": 3, "developer": "Enel Green Power España, SL", "status": "favorable", "mw_best": 10},
+            {"id": 4, "developer": "Tayant Investment 12, S.L.", "status": "favorable", "mw_best": 49.8},
+        ],
+        groups,
+    )
+    by_key = {d["key"]: d for d in devs}
+    assert {by_key[k]["group"] for k in ("greenalia-solar-powerguadame-iii", "greenalia-solar-power-zumajo-i")} == {
+        "Greenalia"
+    }
+    # The corporate row does not merge the families: Guadame and Zumajo stay two naming patterns.
+    assert by_key["greenalia-solar-powerguadame-iii"]["family"] == "greenalia-solar-power-guadame"
+    assert by_key["greenalia-solar-power-zumajo-i"]["family"] == "greenalia-solar-power-zumajo"
+    assert by_key["enel-green-power-espana"]["parent_company"] == "Endesa, S.A."
+    assert by_key["enel-green-power-espana"]["source_url"].startswith("https://www.endesa.com/")
+    # No source, no parent.
+    assert by_key["tayant-investment-12"]["parent_company"] is None
+    assert by_key["tayant-investment-12"]["group"] is None
 
 
 def test_a_spelling_row_joins_families_and_a_corporate_row_does_not():

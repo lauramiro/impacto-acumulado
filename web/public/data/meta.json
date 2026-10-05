@@ -22,15 +22,15 @@
     },
     "developers.json": {
       "rows": 478,
-      "bytes": 160211
+      "bytes": 161621
     },
     "project_details.json": {
       "rows": 583,
       "bytes": 672442
     },
     "splitting_candidates.json": {
-      "rows": 23,
-      "bytes": 4418
+      "rows": 25,
+      "bytes": 5394
     },
     "municipality_stats.csv": {
       "rows": 522,

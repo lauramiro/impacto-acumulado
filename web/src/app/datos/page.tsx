@@ -128,6 +128,22 @@ export default async function DataPage() {
             <span className="dato">technology</span> pasa a <span className="dato">eolica</span> en Filabres, Peregiles y La Rambla
             (32) y en Parapanda (262). Ninguna fila <span className="dato">solar_fv</span> tiene aerogeneradores.
           </li>
+          <li>
+            <span className="dato">splitting_candidates.json</span> gana un segundo tipo de grupo, misma infraestructura de evacuación
+            (<span className="dato">kind</span> <span className="dato">infraestructura</span>, con{" "}
+            <span className="dato">family</span> vacío e <span className="dato">infrastructure</span>): plantas que enumera un mismo
+            proyecto de evacuación o cuyos nombres citan la misma subestación, sea cual sea su promotor. Los grupos de antes llevan{" "}
+            <span className="dato">kind</span> <span className="dato">familia</span> y no cambian. Se añaden dos grupos en Carmona: las
+            cinco plantas de 36,3 MW de la infraestructura común de Almazara, Atlante, Chapitel, Garita y Fortaleza Solar (181,5 MW) y
+            Carmo 2 y 3 (73,33 MW; Carmo 1 declara 50 MW y queda fuera).
+          </li>
+          <li>
+            <span className="dato">developers.json</span>: <span className="dato">group</span>,{" "}
+            <span className="dato">parent_company</span> y <span className="dato">source_url</span> para los grupos con fuente: Endesa
+            (Enel Green Power España), Acciona Energía (Corporación Acciona Eólica) y Greenalia (las sociedades Guadame y Zumajo). Nueve
+            entradas cambian; el resto, igual. En Promotores, una tabla nueva suma las sociedades de cada grupo con fuente y de cada
+            familia de nombres.
+          </li>
         </ul>
       </section>
       <section aria-labelledby="cambio-2026-10-05" className={styles.columnas}>

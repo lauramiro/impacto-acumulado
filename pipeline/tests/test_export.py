@@ -11,11 +11,13 @@ from impacto.aggregate.export import (
     export_evaluation,
     export_open_consultations,
     export_sensitivity_geojson,
+    export_splitting_candidates,
     project_details,
     retired_projects,
 )
 from impacto.aggregate.run import run_aggregate
 from impacto.db.documents import RawDocument, save_extraction, upsert_raw_document
+from impacto.reference.load import load_municipalities
 from impacto.resolve.run import run_resolve
 from tests.test_aggregate import seed_slice3
 from tests.test_resolve_run import seed
@@ -536,6 +538,29 @@ def test_export_developers_groups_projects_by_normalised_key(db, tmp_path):
     assert enel["mw_by_status"] == {"desfavorable": 20.0, "favorable": 50.0}
     assert enel["mw_count"] == 2
     assert devs["otra-solar"]["project_ids"] == [2]
+
+
+def test_export_splitting_reads_names_and_technology_for_shared_evacuation(db, fixtures_dir, tmp_path):
+    load_municipalities(db, fixtures_dir / "municipalities_sample.geojson", "CODIGO_INE", "NOMBRE", "PROVINCIA")
+    rows = [
+        (1, "Infraestructura común para la Evacuación de las PSFV Alfa Solar y Beta Solar", "Alfa, S.L.", "linea_evacuacion", None),
+        (2, "PSF Alfa Solar", "Alfa, S.L.", "solar_fv", 30),
+        (3, "PSF Beta Solar", "Beta, S.L.", "solar_fv", 30),
+    ]
+    with db.cursor() as cur:
+        for pid, name, developer, tech, mw in rows:
+            cur.execute(
+                "INSERT INTO projects (id, canonical_name, developer, technology, status, mw_nominal, first_seen, last_seen) "
+                "VALUES (%s, %s, %s, %s, 'favorable', %s, '2023-01-01', '2023-01-01')",
+                (pid, name, developer, tech, mw),
+            )
+            cur.execute("INSERT INTO project_municipalities (project_id, ine_code) VALUES (%s, '29084')", (pid,))
+    db.commit()
+    [group] = json.loads(export_splitting_candidates(db, tmp_path).read_text(encoding="utf-8"))
+    assert group["kind"] == "infraestructura"
+    assert group["family"] is None
+    assert group["project_ids"] == [2, 3]
+    assert group["infrastructure"] == {"project_ids": [1], "substations": []}
 
 
 def test_project_details_keep_substance_and_drop_identity_numbers():

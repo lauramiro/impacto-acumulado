@@ -74,7 +74,7 @@ export const CATALOG: CatalogEntry[] = [
   {
     file: "splitting_candidates.json",
     description:
-      "Grupos de posible fraccionamiento: proyectos de promotores con el mismo nombre salvo el número final, en municipios iguales o vecinos y con primeros documentos dentro de 24 meses, que declaran cada uno menos de 50 MW y juntos los superan. Un patrón, no una conclusión; la regla está en Metodología.",
+      "Grupos de posible fraccionamiento: proyectos que declaran cada uno menos de 50 MW y juntos los superan, con primeros documentos dentro de 24 meses. kind familia: promotores con el mismo nombre salvo el número final, en municipios iguales o vecinos (family). kind infraestructura: plantas que enumera un mismo proyecto de evacuación o cuyos nombres citan la misma subestación, sea cual sea su promotor (infrastructure: project_ids de esos proyectos y substations). Un patrón, no una conclusión; la regla está en Metodología.",
   },
   {
     file: "municipality_stats.csv",

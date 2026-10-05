@@ -90,6 +90,20 @@ test("a municipality with several possible-splitting groups has one section that
   for (const list of await note.getByRole("list").all()) await expect(list).toHaveAccessibleName(/ · \d[\d.]*(,\d)? MW/);
 });
 
+test("plants of different companies behind one shared evacuation project are a group", async ({ page }) => {
+  // Carmona: Almazara, Atlante, Chapitel, Garita and Fortaleza Solar, 36,3 MW each, listed by one
+  // shared evacuation project; their developers have five different names (data of 2026-10-05).
+  await page.goto("/municipio/41024");
+  const note = page.getByTestId("fraccionamiento");
+  const shared = note.locator('[data-kind="infraestructura"]');
+  await expect(shared.first()).toBeVisible();
+  const five = shared.filter({ hasText: "Almazara" });
+  await expect(five.getByRole("heading", { level: 3 })).toHaveText(/^Misma infraestructura de evacuación · 181,5 MW/);
+  for (const id of [275, 276, 281, 283, 294]) await expect(five.locator(`a[href="/proyecto/${id}"]`)).toBeVisible();
+  await expect(five.getByTestId("fraccionamiento-infraestructura").getByRole("link")).toHaveAttribute("href", "/proyecto/147");
+  await expect(note.getByText("Es un patrón en los datos, no una conclusión")).toHaveCount(1);
+});
+
 test("a status row with no declared figure reads sin dato, and hectares carry a coverage line", async ({ page }) => {
   // Jerez: none of its lapsed projects declares MW or surface (data of 2026-10-05).
   await page.goto("/municipio/11020");

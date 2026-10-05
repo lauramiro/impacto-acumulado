@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { LookupTable } from "@/components/lookup-table";
+import type { RollupRow } from "@/lib/developers";
 import { absenceMark, formatInt, formatMw, NO_PROJECTS } from "@/lib/format";
 
 export type DeveloperRow = {
@@ -40,6 +41,50 @@ function MwCell({ r }: { r: DeveloperRow }) {
     </>
   ) : (
     mark
+  );
+}
+
+export function DeveloperRollupIndex({ rows }: { rows: RollupRow[] }) {
+  return (
+    <LookupTable
+      id="grupos"
+      title="Por grupo o familia de nombres"
+      countText={`${formatInt(rows.length)} grupos y familias`}
+      countTestId="grupos-recuento"
+      intro={
+        <p>
+          Las sociedades sumadas: las de un grupo empresarial cuando una fuente lo dice (la matriz enlaza a la fuente) y las que solo
+          cambian en el número final del nombre (una familia de nombres, como Arena Power Ren 5 y Arena Power Ren 22). Una familia es
+          un patrón de nombres habitual en sociedades creadas para un solo proyecto; no está comprobado que pertenezcan al mismo
+          grupo. Cada proyecto cuenta una vez en cada fila.
+        </p>
+      }
+      searchLabel="Buscar grupo o familia"
+      rows={rows}
+      rowKey={(r) => `${r.kind}-${r.key}`}
+      searchText={(r) => [r.name, r.parentCompany ?? "", ...r.names].join(" ")}
+      emptyText="Ningún grupo ni familia coincide con la búsqueda."
+      defaultSort={{ column: "Proyectos", direction: "descending" }}
+      columns={[
+        { header: "Grupo o familia", rowHeader: true, cell: (r) => <Link href={`/promotor/${r.key}`}>{r.name}</Link>, sortValue: (r) => r.name },
+        {
+          header: "Matriz",
+          cell: (r) =>
+            r.parentCompany && r.sourceUrl ? (
+              <a href={r.sourceUrl} rel="noopener">
+                {r.parentCompany}
+              </a>
+            ) : (
+              <span className="pie">familia de nombres, sin fuente</span>
+            ),
+          sortValue: (r) => r.parentCompany,
+        },
+        { header: "Sociedades", numeric: true, cell: (r) => formatInt(r.companies), sortValue: (r) => r.companies },
+        { header: "Proyectos", numeric: true, cell: (r) => formatInt(r.projects), sortValue: (r) => r.projects },
+        { header: "MW aprobados o en trámite", numeric: true, cell: (r) => <MwCell r={r} />, sortValue: developerMwSort },
+        { header: "Municipios", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.municipalities), sortValue: (r) => r.municipalities },
+      ]}
+    />
   );
 }
 

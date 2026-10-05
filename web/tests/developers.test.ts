@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { developerParts, developerTotals, projectMwBest } from "@/lib/developers";
-import type { Project } from "@/lib/types";
+import { developerParts, developerRollups, developerTotals, projectMwBest } from "@/lib/developers";
+import type { Developer, Project } from "@/lib/types";
 
 const base: Project = {
   id: 1,
@@ -49,5 +49,63 @@ describe("developerParts", () => {
       { name: "Trofeo Solar, S.L.", key: null },
     ]);
     expect(developerParts(null, keys)).toEqual([]);
+  });
+});
+
+describe("developerRollups", () => {
+  const dev = (key: string, name: string, family: string, projectIds: number[], extra: Partial<Developer> = {}): Developer => ({
+    key,
+    name,
+    names: [name],
+    family,
+    group: null,
+    parentCompany: null,
+    sourceUrl: null,
+    projectIds,
+    mwCount: projectIds.length,
+    ...extra,
+  });
+  const projects = new Map<number, Project>(
+    [1, 2, 3, 4, 5, 6].map((id) => [id, { ...base, id, mwNominal: 10, ineCodes: [`4100${id}`] }]),
+  );
+  const greenalia = { group: "Greenalia", parentCompany: "Greenalia", sourceUrl: "https://greenalia.es/x" };
+
+  it("adds up a sourced group across families and a naming family, and leaves single companies out", () => {
+    const rows = developerRollups(
+      [
+        dev("gsp-guadame-1", "Greenalia Solar Power Guadame I, S.L.U.", "gsp-guadame", [1], greenalia),
+        dev("gsp-guadame-2", "Greenalia Solar Power Guadame II, S.L.U.", "gsp-guadame", [2, 3], greenalia),
+        dev("gsp-zumajo-1", "Greenalia Solar Power Zumajo I, S.L.U.", "gsp-zumajo", [3], greenalia),
+        dev("tayant-investment-12", "Tayant Investment 12, S.L.", "tayant-investment", [4]),
+        dev("tayant-investment-13", "TAYANT INVESTMENT 13, S.L.", "tayant-investment", [5]),
+        dev("olivento", "Olivento, S.L.", "olivento", [6]),
+      ],
+      projects,
+    );
+    expect(rows.map((r) => [r.kind, r.name, r.companies, r.projects, r.parentCompany])).toEqual([
+      ["grupo", "Greenalia", 3, 3, "Greenalia"],
+      ["familia", "Tayant Investment", 2, 2, null],
+    ]);
+    // Project 3 names two of the group's companies and counts once.
+    expect(rows[0]).toMatchObject({ key: "gsp-guadame-2", accumulatingMw: 30, sourceUrl: "https://greenalia.es/x" });
+  });
+
+  it("names a family by the name its spellings are joined under, and a one-company group when a source names its parent", () => {
+    const rows = developerRollups(
+      [
+        dev("siroco-hydrogen-1", "Siroco Hydrogen, 1 S.L.", "siroco-hydrogen", [1], { group: "Siroco Hydrogen" }),
+        dev("siroco-hydrogene-4", "Siroco Hydrogene 4, S.L.", "siroco-hydrogen", [2], { group: "Siroco Hydrogen" }),
+        dev("enel-green-power-espana", "Enel Green Power España, S.L.", "enel-green-power-espana", [3], {
+          group: "Endesa",
+          parentCompany: "Endesa, S.A.",
+          sourceUrl: "https://www.endesa.com/x",
+        }),
+      ],
+      projects,
+    );
+    expect(rows.map((r) => [r.kind, r.name])).toEqual([
+      ["familia", "Siroco Hydrogen"],
+      ["grupo", "Endesa"],
+    ]);
   });
 });
