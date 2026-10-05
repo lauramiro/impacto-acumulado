@@ -203,6 +203,17 @@ This is a substantially different implementation path than the brief anticipated
 - `project_details.json`: `{project_id: [{document_id, expediente, conditions[{category, text}], species_mentioned, protected_areas_mentioned, evidence{field: quote}, utm_coordinates}]}`, oldest document first; documents with nothing to show are left out. Evidence is limited to the fields the fact sheet shows, and a quote or condition that holds an identity number is dropped.
 - `meta.json` key `files`: per exported file `{rows, bytes}`; rows are data rows for CSV, features for GeoJSON, items for a JSON list, keys for keyed JSON, 1 for `evaluation.json`. Read by `/datos`.
 
+## Operating plants: MIEA (T10 discovery, 2026-10-05)
+
+The Agencia Andaluza de la Energía's Mapa de Infraestructuras Energéticas de Andalucía (MIEA) is machine-readable through a WFS, `https://www.agenciaandaluzadelaenergia.es/mapwms/wfs` (GeoServer, WFS 2.0.0, GeoJSON output, EPSG:25830). Checked on 2026-10-05:
+
+- 21 layers. The generation ones: `MIEA:csolares` (3 017 points; `NOMBRE`, `POTENCIA` as text such as "50,0 MW", `TECNOLOGIA`), `MIEA:cEolicas` (`NOMBRE`, `POTENCIA`), `cBiomasa`, `cBiogas_otros`, `cHidroelectricas`, `cResiduos`, `cCogeneracion`, `ctermicas`, `cAlmacElec` (electrical storage), `h2_view`.
+- Points, not plant outlines: the municipality would come from a spatial join with the DERA boundaries.
+- No status and no date per plant. The layers do not say whether a plant is operating, authorised or under construction, and the six-monthly report ("Plantas de generación e infraestructuras energéticas de Andalucía", data at 30 June 2026, published 16 September 2026) does not say either on its page.
+- Reuse terms are not stated. The WFS capabilities say `AccessConstraints: NONE`; the REDIAM catalogue record (`2f8edace-f212-42a9-8314-f5048b93112a`) says "Condiciones desconocidas" and lists intellectual-property rights. No licence on the report page.
+
+Not implemented: before the site shows an "En funcionamiento" figure, the Agency should confirm that the layers hold operating plants only and on what terms they may be reused. Until then the baseline would rest on an assumption about what the data means.
+
 ## Reviewing project groups
 
 Two weekly checks feed the review, both in the job summary of the pipeline run:
