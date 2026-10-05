@@ -79,6 +79,10 @@
     "developers.json": {
       "rows": 2,
       "bytes": 600
+    },
+    "project_details.json": {
+      "rows": 1,
+      "bytes": 400
     }
   }
 }

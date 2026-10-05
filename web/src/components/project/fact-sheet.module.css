@@ -15,3 +15,6 @@
   .grid { grid-template-columns: 1fr; gap: 0.1rem 0; }
   .grid dd { margin-bottom: 0.5rem; }
 }
+.cita { font-size: var(--texto-pie); margin-top: 0.2rem; }
+.cita summary { cursor: pointer; width: fit-content; }
+.cita ul { margin: 0.3rem 0 0; padding-left: 1rem; max-width: 40rem; }

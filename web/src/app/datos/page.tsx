@@ -112,6 +112,11 @@ export default async function DataPage() {
         </h3>
         <ul>
           <li>
+            Archivo nuevo, <span className="dato">project_details.json</span>: por proyecto, las condiciones, especies y espacios
+            protegidos que leen los documentos y las citas que respaldan cada dato de la ficha. Las páginas de proyecto los
+            muestran.
+          </li>
+          <li>
             Archivo nuevo, <span className="dato">developers.json</span>: los promotores con sus distintas grafías unidas, sus
             proyectos y sus MW por estado. Cada uno tiene su página en <Link href="/promotores">Promotores</Link>.
             <span className="dato"> projects.csv</span> no cambia: su columna <span className="dato">developer</span> sigue como la

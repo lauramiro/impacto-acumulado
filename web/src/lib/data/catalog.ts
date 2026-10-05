@@ -66,6 +66,11 @@ export const CATALOG: CatalogEntry[] = [
     ],
   },
   {
+    file: "project_details.json",
+    description:
+      "Por id de proyecto, lo que la extracción lee en cada documento además de la ficha: expediente, condiciones por categoría (resumidas por el modelo, no literales), especies y espacios protegidos citados, citas literales cortas que respaldan cada dato de la ficha y coordenadas UTM. Lectura automática: el texto que vale es el del boletín.",
+  },
+  {
     file: "municipality_stats.csv",
     description: "Totales por municipio, estado y tecnología. Un proyecto en varios municipios cuenta íntegro en cada uno.",
     columns: [

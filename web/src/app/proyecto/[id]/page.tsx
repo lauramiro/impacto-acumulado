@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Conditions, Mentions } from "@/components/project/conditions";
 import { DocumentTimeline } from "@/components/project/document-timeline";
-import { FactSheet } from "@/components/project/fact-sheet";
+import { FactSheet, type FieldEvidence } from "@/components/project/fact-sheet";
 import { Provenance } from "@/components/project/provenance";
 import { ReportError } from "@/components/report-error";
 import { RecordHeader } from "@/components/project/record-header";
 import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
 import { loadMunicipalities } from "@/lib/data/municipalities";
+import { distinctNames, loadProjectDetails } from "@/lib/data/project-details";
 import { loadProjectRecord } from "@/lib/data/project-record";
 import { loadProjects } from "@/lib/data/projects";
 import { formatMw } from "@/lib/format";
@@ -47,13 +49,30 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ProjectPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
   const n = parseId(id);
-  const [record, munis, developers] = await Promise.all([n === null ? null : loadProjectRecord(n), loadMunicipalities(), loadDevelopers()]);
+  const [record, munis, developers, allDetails] = await Promise.all([
+    n === null ? null : loadProjectRecord(n),
+    loadMunicipalities(),
+    loadDevelopers(),
+    loadProjectDetails(),
+  ]);
   if (!record) notFound();
+  const details = allDetails.get(record.project.id) ?? [];
+  const docById = new Map(record.documents.map((d) => [d.id, d]));
+  // Newest document first, as the fact sheet takes each figure from the newest document that states it.
+  const evidence: FieldEvidence = {};
+  for (const d of [...details].reverse()) {
+    const doc = docById.get(d.documentId);
+    if (!doc) continue;
+    for (const [field, quote] of Object.entries(d.evidence)) (evidence[field] ??= []).push({ quote, doc });
+  }
+  const expedientes = distinctNames(details.map((d) => (d.expediente ? [d.expediente] : [])));
   const here = record.project.ineCodes.map((ine) => munis.find((m) => m.ine === ine)).filter((m) => m !== undefined);
   return (
     <article className={styles.page}>
       <RecordHeader project={record.project} developerKeys={keysByPrintedName(developers)} />
-      <FactSheet project={record.project} municipalities={here} />
+      <FactSheet project={record.project} municipalities={here} evidence={evidence} expedientes={expedientes} />
+      <Conditions details={details} documents={record.documents} />
+      <Mentions species={distinctNames(details.map((d) => d.species))} areas={distinctNames(details.map((d) => d.protectedAreas))} />
       {/* record.statusDocument, not record.project.statusDocumentId: loadProjectRecord
           already nulls it for a "desconocido" project (status_document_id still names
           a real document - the latest one - even though nothing resolved the status),

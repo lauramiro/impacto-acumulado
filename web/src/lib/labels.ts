@@ -138,3 +138,16 @@ export function provinceFromSlug(slug: string | null): Province | null {
   if (slug === null) return null;
   return PROVINCES.find((p) => provinceSlug(p) === slug) ?? null;
 }
+
+/** Categories of the conditions a decision sets, in the order the project page lists them. */
+export const CONDITION_LABELS = {
+  fauna: "Fauna",
+  flora: "Flora y vegetación",
+  agua: "Agua",
+  suelo: "Suelo",
+  paisaje: "Paisaje",
+  patrimonio: "Patrimonio",
+  compensacion: "Medidas compensatorias",
+  vigilancia: "Vigilancia ambiental",
+  general: "Otras condiciones",
+} as const;

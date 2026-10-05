@@ -48,7 +48,7 @@ describe("catalog", () => {
     expect(() => readFileSync(dataFile("meta.json"), "utf-8")).not.toThrow();
   });
 
-  it("has sixteen entries", () => {
-    expect(CATALOG).toHaveLength(16);
+  it("has seventeen entries", () => {
+    expect(CATALOG).toHaveLength(17);
   });
 });

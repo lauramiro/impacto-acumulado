@@ -80,3 +80,41 @@ test("an evacuation line's capacity is labelled as evacuated", async ({ page }) 
   await expect(page.getByText("Potencia evacuada", { exact: true })).toBeVisible();
   await expect(page.getByText("Potencia nominal", { exact: true })).toHaveCount(0);
 });
+
+type Details = Record<string, { document_id: number; conditions: { category: string; text: string }[]; species_mentioned: string[]; evidence: Record<string, string> }[]>;
+const details: Details = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "project_details.json"), "utf-8"));
+
+test("project 1 shows its conditions by category, each tied to a document, and a quote behind its capacity", async ({ page }) => {
+  const conditions = details["1"]!.flatMap((d) => d.conditions);
+  await page.goto("/proyecto/1");
+  await expect(page.getByRole("heading", { name: `Condiciones (${conditions.length})` })).toBeVisible();
+  await expect(page.getByText("Resumen automático de las condiciones")).toBeVisible();
+  const first = conditions[0]!;
+  const item = page.getByRole("listitem").filter({ hasText: first.text }).first();
+  await item.getByRole("link").click();
+  await expect(page).toHaveURL(/#documento-\d+$/);
+  const ficha = page.getByRole("region", { name: "Ficha" });
+  await ficha.getByText("Cita").first().click();
+  await expect(ficha.locator("details[open] li").first()).toContainText("«");
+});
+
+test("species named in the documents are listed, with a caution", async ({ page }) => {
+  const id = Object.keys(details).find((k) => details[k]!.some((d) => d.species_mentioned.length > 0))!;
+  await page.goto(`/proyecto/${id}`);
+  const region = page.getByRole("region", { name: "Especies y espacios citados" });
+  await expect(region).toContainText("Citar no quiere decir que el proyecto los afecte");
+});
+
+test("documents lead with what they are and who issued them; a correction says so", async ({ page }) => {
+  const rows: { id: string; project_id: string; title: string }[] = parse(
+    readFileSync(path.join(__dirname, "..", "public", "data", "documents.csv"), "utf-8"),
+    { columns: true, bom: true },
+  );
+  const correction = rows.find((r) => /correcci[oó]n de errores/i.test(r.title) && r.project_id !== "")!;
+  await page.goto(`/proyecto/${correction.project_id}`);
+  const item = page.locator(`#documento-${correction.id}`);
+  await expect(item.getByTestId("correccion")).toBeVisible();
+  await expect(item.locator("p").first()).toContainText("Corrección de errores");
+  await page.goto("/proyecto/1");
+  await expect(page.getByRole("region", { name: /Documentos/ }).getByText(/Dirección General|Subdelegación|Delegación/).first()).toBeVisible();
+});

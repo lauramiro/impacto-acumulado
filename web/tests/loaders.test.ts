@@ -1,3 +1,4 @@
+import { distinctNames, loadProjectDetails } from "@/lib/data/project-details";
 import { keysByPrintedName, loadDevelopers, relatedDevelopers } from "@/lib/data/developers";
 import { describe, expect, it } from "vitest";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
@@ -235,5 +236,19 @@ describe("loadDevelopers", () => {
     const keys = keysByPrintedName(devs);
     expect(keys.get("Cartuja Solar, S.L.")).toBe("cartuja-solar");
     expect(relatedDevelopers(devs, devs[0]!).map((d) => d.key)).toEqual(["cartuja-solar-2"]);
+  });
+});
+
+describe("loadProjectDetails", () => {
+  it("reads each project's document details and strips the model's quotation marks", async () => {
+    const details = await loadProjectDetails();
+    const [doc] = details.get(1)!;
+    expect(doc!.conditions).toEqual([{ category: "fauna", text: "Parada biológica de marzo a julio." }]);
+    expect(doc!.evidence["mw_nominal"]).toBe("93 MW");
+    expect(details.has(2)).toBe(false);
+  });
+
+  it("joins names across documents once each, ignoring case", () => {
+    expect(distinctNames([["Sisón", "Avutarda"], ["sisón", "Cernícalo"]])).toEqual(["Avutarda", "Cernícalo", "Sisón"]);
   });
 });

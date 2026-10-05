@@ -137,3 +137,20 @@ export const DevelopersFileSchema = z.array(
     mw_count: z.number().int().nonnegative(),
   }),
 );
+
+export const CONDITION_CATEGORIES = ["fauna", "flora", "agua", "suelo", "paisaje", "patrimonio", "vigilancia", "compensacion", "general"] as const;
+
+export const ProjectDetailsFileSchema = z.record(
+  z.string().regex(/^\d+$/),
+  z.array(
+    z.object({
+      document_id: z.number().int(),
+      expediente: z.string().nullable(),
+      conditions: z.array(z.object({ category: z.enum(CONDITION_CATEGORIES), text: z.string().min(1) })),
+      species_mentioned: z.array(z.string()),
+      protected_areas_mentioned: z.array(z.string()),
+      evidence: z.record(z.string(), z.string()),
+      utm_coordinates: z.array(z.object({ x: z.number(), y: z.number(), zone: z.number().nullable().optional() })),
+    }),
+  ),
+);
