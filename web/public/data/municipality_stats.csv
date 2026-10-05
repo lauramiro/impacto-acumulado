@@ -312,54 +312,42 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 21005,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Almonte,Huelva
 21005,favorable_condicionada,solar_fv,1,5.0,0.0,0,1,0,5.0,0,Almonte,Huelva
 21005,sin_resolucion,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Almonte,Huelva
-21006,desconocido,solar_fv,1,30.25,0.0,0,1,0,30.25,0,Alosno,Huelva
 21006,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,Alosno,Huelva
-21006,favorable_condicionada,solar_fv,1,209.0,590.93,0,1,1,209.0,0,Alosno,Huelva
+21006,favorable_condicionada,solar_fv,2,239.25,590.93,0,2,1,239.25,0,Alosno,Huelva
 21006,sin_resolucion,solar_fv,1,209.0,529.0,0,1,1,209.0,0,Alosno,Huelva
 21010,favorable_condicionada,hibrida,1,21.3,0.0,0,1,0,21.3,0,Ayamonte,Huelva
 21010,favorable_condicionada,solar_fv,1,48.0,98.2,0,1,1,48.0,0,Ayamonte,Huelva
-21011,desconocido,solar_fv,1,0.0,0.0,0,0,0,5.0,1,Beas,Huelva
-21011,favorable_condicionada,solar_fv,6,110.82,257.75,0,4,2,149.32,2,Beas,Huelva
+21011,favorable_condicionada,solar_fv,7,110.82,257.75,0,4,2,154.32,3,Beas,Huelva
 21013,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Bollullos Par del Condado,Huelva
 21018,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,El Campillo,Huelva
 21023,favorable_condicionada,solar_fv,1,209.0,590.93,0,1,1,209.0,0,El Cerro de Andévalo,Huelva
 21023,sin_resolucion,solar_fv,2,0.0,0.0,0,0,0,100.0,2,El Cerro de Andévalo,Huelva
-21030,desconocido,solar_fv,1,20.0,0.0,0,1,0,20.0,0,Chucena,Huelva
 21030,favorable_condicionada,linea_evacuacion,2,0.0,0.0,0,0,0,0.0,0,Chucena,Huelva
-21030,favorable_condicionada,solar_fv,1,0.0,204.0,0,0,1,100.0,1,Chucena,Huelva
-21035,desconocido,solar_fv,5,37.5,0.0,0,1,0,147.45,4,Gibraleón,Huelva
-21035,favorable_condicionada,solar_fv,5,423.776,1206.64,0,4,2,473.766,1,Gibraleón,Huelva
+21030,favorable_condicionada,solar_fv,2,20.0,204.0,0,1,1,120.0,1,Chucena,Huelva
+21035,favorable_condicionada,solar_fv,10,461.276,1206.64,0,5,2,621.216,5,Gibraleón,Huelva
 21035,sin_resolucion,solar_fv,2,22.88,0.0,0,1,0,122.765,1,Gibraleón,Huelva
 21036,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,La Granada de Río-Tinto,Huelva
 21041,desconocido,solar_fv,1,44.0,0.0,0,1,0,44.0,0,Huelva,Huelva
 21041,favorable_condicionada,solar_fv,4,44.0,0.0,0,1,0,44.0,0,Huelva,Huelva
-21042,desconocido,solar_fv,1,4.6,0.0,0,1,0,4.6,0,Isla Cristina,Huelva
-21050,favorable_condicionada,solar_fv,3,442.496,1253.78,0,2,2,475.996,1,Moguer,Huelva
-21050,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Moguer,Huelva
+21042,favorable_condicionada,solar_fv,1,4.6,0.0,0,1,0,4.6,0,Isla Cristina,Huelva
+21050,favorable_condicionada,solar_fv,4,493.496,1253.78,0,3,2,526.996,1,Moguer,Huelva
 21052,en_consulta,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Nerva,Huelva
 21052,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Nerva,Huelva
 21053,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,Niebla,Huelva
 21054,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,La Palma del Condado,Huelva
-21055,favorable_condicionada,solar_fv,4,486.496,1253.78,0,3,2,519.996,1,Palos de la Frontera,Huelva
-21055,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Palos de la Frontera,Huelva
+21055,favorable_condicionada,solar_fv,5,537.496,1253.78,0,4,2,570.996,1,Palos de la Frontera,Huelva
 21057,favorable_condicionada,solar_fv,1,180.0,269.0,0,1,1,180.0,0,Paymogo,Huelva
-21058,desconocido,hibrida,1,17.25,0.0,0,1,0,17.25,0,Puebla de Guzmán,Huelva
 21058,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,Puebla de Guzmán,Huelva
-21058,favorable_condicionada,hibrida,2,83.479996,435.6,40,2,2,83.479996,0,Puebla de Guzmán,Huelva
+21058,favorable_condicionada,hibrida,3,100.729996,435.6,40,3,2,100.729996,0,Puebla de Guzmán,Huelva
 21058,favorable_condicionada,solar_fv,2,319.52002,657.75,0,2,2,319.52002,0,Puebla de Guzmán,Huelva
 21058,sin_resolucion,solar_fv,2,389.0,1183.81,0,2,2,389.0,0,Puebla de Guzmán,Huelva
 21061,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Rociana del Condado,Huelva
-21064,desconocido,solar_fv,7,9.99,0.0,0,2,0,59.939995,5,San Juan del Puerto,Huelva
-21064,favorable_condicionada,solar_fv,6,452.47598,1253.78,0,4,2,490.96597,2,San Juan del Puerto,Huelva
-21064,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,San Juan del Puerto,Huelva
+21064,favorable_condicionada,solar_fv,14,513.46594,1253.78,0,7,2,601.90594,7,San Juan del Puerto,Huelva
 21066,favorable_condicionada,solar_fv,1,48.0,98.2,0,1,1,48.0,0,San Silvestre de Guzmán,Huelva
-21070,desconocido,solar_fv,7,5.0,0.0,0,1,0,79.92999,6,Trigueros,Huelva
-21070,favorable_condicionada,solar_fv,7,544.496,1511.53,0,4,4,587.98596,3,Trigueros,Huelva
-21070,sin_resolucion,solar_fv,1,51.0,0.0,0,1,0,51.0,0,Trigueros,Huelva
-21073,desconocido,solar_fv,2,4.6,0.0,0,1,0,9.59,1,Villablanca,Huelva
+21070,favorable_condicionada,solar_fv,15,600.496,1511.53,0,6,4,718.9159,9,Trigueros,Huelva
 21073,en_consulta,hibrida,1,42.6,0.0,48,1,0,42.6,0,Villablanca,Huelva
 21073,favorable_condicionada,hibrida,1,21.3,0.0,0,1,0,21.3,0,Villablanca,Huelva
-21073,favorable_condicionada,solar_fv,2,48.0,98.2,0,1,1,52.989998,1,Villablanca,Huelva
+21073,favorable_condicionada,solar_fv,4,52.6,98.2,0,2,1,62.579994,2,Villablanca,Huelva
 21076,en_consulta,hibrida,1,69.56,0.0,6,1,0,69.56,0,Villanueva de los Castillejos,Huelva
 21077,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,33.5,1,Villarrasa,Huelva
 21079,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Zufre,Huelva
@@ -382,8 +370,8 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 23059,favorable_condicionada,solar_fv,9,244.98001,195.0,0,5,1,444.93997,4,Marmolejo,Jaén
 23061,sin_resolucion,solar_fv,1,2.0,0.0,0,1,0,2.0,0,Mengíbar,Jaén
 23086,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Torredelcampo,Jaén
-29007,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhaurín de la Torre,Málaga
-29008,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhaurín el Grande,Málaga
+29007,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhaurín de la Torre,Málaga
+29008,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Alhaurín el Grande,Málaga
 29010,desconocido,solar_fv,3,0.0,0.0,0,0,0,49.94,1,Almargen,Málaga
 29010,en_consulta,eolica,1,99.0,0.0,18,1,0,99.0,0,Almargen,Málaga
 29011,sin_resolucion,solar_fv,1,130.2,251.08,0,1,1,130.2,0,Almogía,Málaga
@@ -405,14 +393,14 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29035,desconocido,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Cañete la Real,Málaga
 29035,favorable_condicionada,eolica,1,63.08,0.0,11,1,0,63.08,0,Cañete la Real,Málaga
 29035,favorable_condicionada,solar_fv,3,0.0,0.0,0,0,0,0.0,0,Cañete la Real,Málaga
-29038,desconocido,solar_fv,2,0.0,90.0,0,0,1,50.0,1,Cártama,Málaga
-29038,favorable_condicionada,solar_fv,4,216.205,363.10703,0,3,3,216.205,0,Cártama,Málaga
+29038,desconocido,solar_fv,1,0.0,90.0,0,0,1,50.0,1,Cártama,Málaga
+29038,favorable_condicionada,solar_fv,5,216.205,363.10703,0,3,3,216.205,0,Cártama,Málaga
 29038,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Cártama,Málaga
 29039,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Casabermeja,Málaga
-29040,desconocido,solar_fv,3,0.0,90.0,0,0,1,100.0,2,Casarabonela,Málaga
+29040,desconocido,solar_fv,2,0.0,90.0,0,0,1,100.0,2,Casarabonela,Málaga
 29040,desfavorable,solar_fv,1,62.5,94.75,0,1,1,62.5,0,Casarabonela,Málaga
 29040,favorable_condicionada,eolica,1,63.08,0.0,11,1,0,63.08,0,Casarabonela,Málaga
-29040,favorable_condicionada,solar_fv,3,216.205,363.10703,0,3,3,216.205,0,Casarabonela,Málaga
+29040,favorable_condicionada,solar_fv,4,216.205,363.10703,0,3,3,216.205,0,Casarabonela,Málaga
 29040,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Casarabonela,Málaga
 29041,desconocido,eolica,4,0.0,0.0,0,0,0,0.0,0,Casares,Málaga
 29041,desconocido,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Casares,Málaga
@@ -437,8 +425,7 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 29072,desconocido,solar_fv,1,3.5,0.0,0,1,0,3.5,0,Mollina,Málaga
 29073,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Monda,Málaga
 29076,favorable_condicionada,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Ojén,Málaga
-29080,desconocido,solar_fv,1,0.0,0.0,0,0,0,0.0,0,Pizarra,Málaga
-29080,favorable_condicionada,solar_fv,3,216.205,363.10703,0,3,3,216.205,0,Pizarra,Málaga
+29080,favorable_condicionada,solar_fv,4,216.205,363.10703,0,3,3,216.205,0,Pizarra,Málaga
 29080,sin_resolucion,solar_fv,1,206.74,606.231,0,1,1,206.74,0,Pizarra,Málaga
 29084,caducado,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Ronda,Málaga
 29084,favorable_condicionada,solar_fv,4,279.0,469.23,0,1,3,293.0,2,Ronda,Málaga
