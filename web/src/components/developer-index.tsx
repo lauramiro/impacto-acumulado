@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LookupTable } from "@/components/lookup-table";
-import { formatInt, formatMw, NO_DATA } from "@/lib/format";
+import { absenceMark, formatInt, formatMw, NO_PROJECTS } from "@/lib/format";
 
 export type DeveloperRow = {
   key: string;
@@ -15,6 +15,33 @@ export type DeveloperRow = {
   refused: number;
   municipalities: number;
 };
+
+/** Approved or pending projects: every project not counted as refused or lapsed (developerTotals splits them that way). */
+const accumulatingProjects = (r: DeveloperRow) => r.projects - r.refused;
+
+/** NO_PROJECTS with no approved or pending projects, NO_DATA when none of them declares MW, else null. */
+export function developerMwMark(r: DeveloperRow) {
+  return absenceMark(r.accumulatingWithMw, accumulatingProjects(r));
+}
+
+/** A missing figure ranks after every real one, so a sort by MW starts with a number in either direction. */
+export function developerMwSort(r: DeveloperRow): number | null {
+  return developerMwMark(r) === null ? r.accumulatingMw : null;
+}
+
+function MwCell({ r }: { r: DeveloperRow }) {
+  const mark = developerMwMark(r);
+  if (mark === null) return formatMw(r.accumulatingMw);
+  // "–" read out as words: a screen reader may skip the dash.
+  return mark === NO_PROJECTS ? (
+    <>
+      <span aria-hidden="true">{NO_PROJECTS}</span>
+      <span className="visually-hidden">ningún proyecto aprobado o en trámite</span>
+    </>
+  ) : (
+    mark
+  );
+}
 
 export function DeveloperIndex({ rows }: { rows: DeveloperRow[] }) {
   return (
@@ -41,8 +68,8 @@ export function DeveloperIndex({ rows }: { rows: DeveloperRow[] }) {
         {
           header: "MW aprobados o en trámite",
           numeric: true,
-          cell: (r) => (r.accumulatingWithMw === 0 ? NO_DATA : formatMw(r.accumulatingMw)),
-          sortValue: (r) => r.accumulatingMw,
+          cell: (r) => <MwCell r={r} />,
+          sortValue: developerMwSort,
         },
         { header: "Denegados o caducados", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.refused), sortValue: (r) => r.refused },
         { header: "Municipios", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.municipalities), sortValue: (r) => r.municipalities },

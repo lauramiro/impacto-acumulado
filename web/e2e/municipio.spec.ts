@@ -89,3 +89,13 @@ test("a municipality with several possible-splitting groups has one section that
   // Each group's list is labelled by its family and total MW.
   for (const list of await note.getByRole("list").all()) await expect(list).toHaveAccessibleName(/ · \d[\d.]*(,\d)? MW/);
 });
+
+test("a status row with no declared figure reads sin dato, and hectares carry a coverage line", async ({ page }) => {
+  // Jerez: none of its lapsed projects declares MW or surface (data of 2026-10-05).
+  await page.goto("/municipio/11020");
+  const totals = page.getByRole("region", { name: "Totales" });
+  const row = totals.getByRole("row", { name: /^Caducado/ });
+  await expect(row.getByRole("cell")).toHaveText(["3", "sin dato", "sin dato"]);
+  await expect(totals.getByText(/^MW declarados en \d+ de \d+ proyectos?/)).toBeVisible();
+  await expect(totals.getByText(/^Superficie declarada en \d+ de \d+ proyectos?$/)).toBeVisible();
+});

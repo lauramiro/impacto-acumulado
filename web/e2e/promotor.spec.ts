@@ -54,3 +54,21 @@ test("a developer page shows the possible-splitting groups of its family", async
   await page.goto(`/promotor/${none.key}`);
   await expect(page.getByTestId("fraccionamiento")).toHaveCount(0);
 });
+
+test("the MW column tells no approved projects from undeclared MW, and ranks both last", async ({ page }) => {
+  await page.goto("/promotores");
+  const section = page.getByRole("region", { name: "Todos los promotores" });
+  const search = section.getByLabel("Buscar promotor");
+  // Its only project lapsed: nothing approved or pending, so no MW to be missing.
+  await search.fill("Arena Power Ren 32");
+  await expect(section.getByRole("row", { name: /Arena Power Ren 32/ }).getByRole("cell").first()).toHaveText("1");
+  await expect(section.getByRole("row", { name: /Arena Power Ren 32/ }).getByRole("cell").nth(1)).toContainText("–");
+  await search.fill("");
+  const mw = section.getByRole("button", { name: /MW aprobados o en trámite/ });
+  const firstMw = section.locator("tbody tr").first().getByRole("cell").nth(1);
+  await mw.click();
+  await expect(firstMw).toHaveText(/^[\d.,]+ MW$/);
+  await mw.click();
+  await expect(section.getByRole("columnheader", { name: /MW aprobados/ })).toHaveAttribute("aria-sort", "ascending");
+  await expect(firstMw).toHaveText(/^[\d.,]+ MW$/);
+});

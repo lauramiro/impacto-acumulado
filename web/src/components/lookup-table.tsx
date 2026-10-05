@@ -8,6 +8,7 @@ import styles from "./lookup-table.module.css";
 /**
  * `hideOnPhone`: drop the column below 768 px so the table fits without horizontal scroll.
  * `sortValue`: makes the header a sort button; numbers sort largest first, text A to Z.
+ * A null value (no figure to rank) sorts last in either direction.
  */
 export type LookupColumn<R> = {
   header: string;
@@ -16,9 +17,10 @@ export type LookupColumn<R> = {
   rowHeader?: boolean;
   hiddenHeader?: boolean;
   hideOnPhone?: boolean;
-  sortValue?: (r: R) => number | string;
+  sortValue?: (r: R) => SortValue;
 };
 
+type SortValue = number | string | null;
 type Direction = "ascending" | "descending";
 export type LookupSort = { column: string; direction: Direction };
 
@@ -30,6 +32,15 @@ const collator = new Intl.Collator("es", { sensitivity: "base", numeric: true })
 
 function compare(a: number | string, b: number | string): number {
   return typeof a === "number" && typeof b === "number" ? a - b : collator.compare(String(a), String(b));
+}
+
+/** `rows` ordered by `value`, nulls last whatever the direction; stable, so ties keep their order. */
+export function sortRows<R>(rows: readonly R[], value: (r: R) => SortValue, direction: Direction): R[] {
+  const sign = direction === "ascending" ? 1 : -1;
+  return rows
+    .map((r) => ({ r, v: value(r) }))
+    .sort((a, b) => (a.v === null || b.v === null ? Number(a.v === null) - Number(b.v === null) : sign * compare(a.v, b.v)))
+    .map((x) => x.r);
 }
 
 /** Rows shown before "Ver todos"; the rest are not rendered, on the server or the client. */
@@ -67,13 +78,7 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
 
   const found = p.rows.filter((r) => matches(p.searchText(r), deferredQuery));
   const sortValue = sortColumn?.sortValue;
-  const sign = active?.direction === "ascending" ? 1 : -1;
-  const matched = sortValue
-    ? found
-        .map((r) => ({ r, v: sortValue(r) }))
-        .sort((a, b) => sign * compare(a.v, b.v))
-        .map((x) => x.r)
-    : found;
+  const matched = sortValue && active ? sortRows(found, sortValue, active.direction) : found;
 
   const shown = all ? matched : matched.slice(0, FIRST_ROWS);
   const tableId = `${p.id}-tabla`;
