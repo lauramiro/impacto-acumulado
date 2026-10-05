@@ -150,6 +150,7 @@ def test_a_consultation_after_the_impact_declaration_is_not_an_environmental_one
     title = "Anuncio por el que se somete a información pública la solicitud de declaración de utilidad pública del parque"
     assert not assesses_environment(title, "Esta instalación ha obtenido Declaración de Impacto Ambiental Favorable, publicada en el BOE.")
     assert not assesses_environment(title, "El módulo de almacenamiento queda exento del trámite de evaluación de impacto ambiental simplificada.")
+    assert not assesses_environment(title, "Solicitud de autorización administrativa previa y exención del trámite de evaluación de impacto ambiental simplificada para el módulo de almacenamiento.")
     assert assesses_environment(title, "La instalación se encuentra sometida al procedimiento de evaluación de impacto ambiental ordinaria.")
     assert assesses_environment(title, "Se somete a información pública el Proyecto y el Estudio de Impacto Ambiental de la planta.")
     assert assesses_environment(title, "Solicitud de autorización y evaluación de impacto ambiental simplificada para la instalación de almacenamiento.")

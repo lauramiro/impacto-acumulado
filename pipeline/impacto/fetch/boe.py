@@ -150,9 +150,10 @@ _ENVIRONMENT_TITLE = ["impacto ambiental", "evaluacion ambiental", "estudio de i
 # A plant that "ha obtenido declaración de impacto ambiental" is past it: the
 # consultation is on its energy permit or expropriation (observed in 2023-2026
 # public-utility and modification notices). Storage exempt from the assessment
-# (Real Decreto 997/2025) says so with "exento del trámite".
+# (Real Decreto 997/2025) says so with "exento del trámite" or asks for the
+# "exención del trámite" (BOE-B-2026-15229, BOE-B-2026-15996).
 _ENVIRONMENT_BODY = ["estudio de impacto ambiental", "evaluacion de impacto ambiental ordinaria", "evaluacion de impacto ambiental simplificada"]
-_EXEMPTION = re.compile(r"exent[ao]s? del tramite de evaluacion de impacto ambiental[^.]*")
+_EXEMPTION = re.compile(r"(?:exent[ao]s?|exencion) del tramite de evaluacion de impacto ambiental[^.]*")
 
 
 def assesses_environment(title: str, body: str) -> bool:
