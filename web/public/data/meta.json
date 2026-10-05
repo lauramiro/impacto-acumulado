@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T14:34:53.566384+00:00",
+  "generated_at": "2026-10-05T15:56:37.537487+00:00",
   "counts": {
     "raw_documents": 758,
     "extractions": 758,
@@ -8,13 +8,17 @@
     "protected_areas": 197
   },
   "files": {
+    "retired_projects.json": {
+      "rows": 4,
+      "bytes": 42
+    },
     "projects.csv": {
       "rows": 583,
       "bytes": 162846
     },
     "documents.csv": {
       "rows": 758,
-      "bytes": 404996
+      "bytes": 405796
     },
     "developers.json": {
       "rows": 478,
