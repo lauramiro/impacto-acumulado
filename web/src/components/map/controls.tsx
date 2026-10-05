@@ -4,7 +4,7 @@ import { useId, useMemo, useState } from "react";
 import { formatInt } from "@/lib/format";
 import { METRIC_LABELS, SENSITIVITY_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { splitBy } from "@/lib/metrics";
-import { METRICS, SENSITIVITY_LAYERS, STATUSES, TECHNOLOGIES, type Metric, type SensitivityLayer, type StatsCell, type Status, type Technology } from "@/lib/types";
+import { APPROVED_OR_PENDING, METRICS, SENSITIVITY_LAYERS, STATUSES, TECHNOLOGIES, type Metric, type SensitivityLayer, type StatsCell, type Status, type Technology } from "@/lib/types";
 import styles from "./controls.module.css";
 
 type Props = {
@@ -26,10 +26,18 @@ type Props = {
 };
 
 /** "Todos los estados", "Ningún estado", one label, or "3 de 6 estados". */
-function groupSummary<T extends string>(all: readonly T[], on: ReadonlySet<T>, labels: Record<T, string>, words: { all: string; none: string; some: string }) {
+function groupSummary<T extends string>(
+  all: readonly T[],
+  on: ReadonlySet<T>,
+  labels: Record<T, string>,
+  words: { all: string; none: string; some: string },
+  preset?: { members: readonly T[]; label: string },
+) {
   const picked = all.filter((v) => on.has(v));
   if (picked.length === all.length) return words.all;
   if (picked.length === 0) return words.none;
+  // The default: named, as one state, rather than counted ("5 de 7 estados").
+  if (preset && picked.length === preset.members.length && preset.members.every((v) => on.has(v))) return preset.label;
   if (picked.length === 1) return labels[picked[0]];
   return `${picked.length} de ${all.length} ${words.some}`;
 }
@@ -43,7 +51,13 @@ export function filterSummary(
 ) {
   const layers = [natura ? "Red Natura 2000" : null, sensitivity !== "ninguna" ? `Sensibilidad ${SENSITIVITY_LABELS[sensitivity].toLowerCase()}` : null].filter(Boolean);
   return [
-    groupSummary(listed, statuses, STATUS_LABELS, { all: "Todos los estados", none: "Ningún estado", some: "estados" }),
+    groupSummary(
+      listed,
+      statuses,
+      STATUS_LABELS,
+      { all: "Todos los estados", none: "Ningún estado", some: "estados" },
+      { members: listed.filter((s) => APPROVED_OR_PENDING.includes(s)), label: "Aprobados o en trámite" },
+    ),
     groupSummary(TECHNOLOGIES, technologies, TECHNOLOGY_LABELS, { all: "Todas las tecnologías", none: "Ninguna tecnología", some: "tecnologías" }),
     ...layers,
   ].join(" · ");
@@ -128,6 +142,9 @@ export function Controls({
             </label>
           ))}
           <Shortcuts all={STATUSES} on={statuses} onSet={onStatuses} label="estados" />
+          <button type="button" className={`${styles.atajo} ${styles.atajoSolo}`} onClick={() => onStatuses(new Set(APPROVED_OR_PENDING))}>
+            solo aprobados o en trámite
+          </button>
           {emptyStatuses.length > 0 ? (
             <span className={styles.sinProyectos}>Sin proyectos en Andalucía: {emptyStatuses.map((s) => STATUS_LABELS[s]).join(", ")}</span>
           ) : null}

@@ -1,0 +1,70 @@
+.buscador {
+  position: relative;
+  max-width: 24rem;
+  margin: 1rem 0 0;
+}
+
+.etiqueta {
+  display: block;
+  font-size: var(--texto-pie);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.25rem;
+}
+
+.campo {
+  width: 100%;
+  min-height: 2.75rem;
+  font: inherit;
+  padding: 0.5rem 0.75rem;
+  color: var(--tinta);
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  border-radius: 2px;
+}
+
+.lista {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  border-top: 0;
+}
+
+.lista[hidden] {
+  display: none;
+}
+
+.lista button {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  text-align: left;
+  font: inherit;
+  color: var(--tinta);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--regla);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.lista button:hover,
+.activa button {
+  background: var(--escala-1);
+}
+
+.provincia {
+  font-size: var(--texto-pie);
+  opacity: 0.75;
+}
+
+.vacio {
+  font-size: var(--texto-dato);
+  margin: 0.5rem 0 0;
+}

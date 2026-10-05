@@ -10,7 +10,7 @@ import { expandMapData, type CompactMapData } from "@/lib/compact";
 import { fetchJson } from "@/lib/fetch-json";
 import { formatCoverage } from "@/lib/format";
 import { formatMetric, NO_FIGURE_LABELS } from "@/lib/labels";
-import { defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
+import { DEFAULT_STATUSES, defaultState, parseMapState, serializeMapState, type MapState } from "@/lib/map-state";
 import { classIndex, classify, metricCoverage, metricDecimals, metricValue, mwCoverage } from "@/lib/metrics";
 import { PROVINCES, REGION, type Filters, type Metric, type Province, type Scope, type SensitivityLayer, type Status, type Technology } from "@/lib/types";
 import type { MuniProps, ProvProps, SiteProps } from "./choropleth";
@@ -18,6 +18,7 @@ import { Controls } from "./controls";
 import { OverlayKey } from "./legend";
 import { NaturaTable } from "./natura-table";
 import { Panel, PANEL_HEADING_ID } from "./panel";
+import { PlaceSearch } from "./place-search";
 import { ProvinceTable } from "./province-table";
 import { Timeline } from "./timeline";
 import { useLayers, type LayerData } from "./use-layers";
@@ -198,8 +199,12 @@ export function MapExplorer({ data, lastMonth }: Props) {
     return { layer: state.sensitivity, data: sensitivityLayer.data };
   }, [state.sensitivity, sensitivityLayer]);
 
+  // One denominator for the screen: the headline's (approved or pending) unless the visitor changed the statuses.
+  const onHeadlineBasis = state.statuses.size === DEFAULT_STATUSES.length && DEFAULT_STATUSES.every((s) => state.statuses.has(s));
+
   return (
     <div>
+      <PlaceSearch places={municipalities} onPick={select} />
       <Controls
         metric={state.metric}
         regionCells={provinceStats["Andalucía"]}
@@ -229,6 +234,11 @@ export function MapExplorer({ data, lastMonth }: Props) {
           sensitivity: state.sensitivity !== "ninguna" && layers[state.sensitivity].status === "error",
         }}
       />
+      <p className={styles.base} data-testid="nota-base">
+        {onHeadlineBasis
+          ? "El mapa, la tabla por provincia y el índice cuentan los proyectos aprobados o en trámite, la misma base que el titular. Los denegados o caducados se añaden en Filtros."
+          : "Con estos filtros, el mapa, la tabla por provincia y el índice no cuentan lo mismo que el titular (aprobados o en trámite)."}
+      </p>
       <div className={styles.layout} id="mapa">
         <div className={styles.mapa}>
           {geo === "error" ? (

@@ -30,3 +30,11 @@
   display: inline-block;
   min-height: 24px;
 }
+
+/* On a phone the title on one line keeps the place search in the first screen. */
+@media (max-width: 767px) {
+  .titulo {
+    font-size: 1.625rem;
+    letter-spacing: 0.02em;
+  }
+}

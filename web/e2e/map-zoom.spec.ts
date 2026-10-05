@@ -27,7 +27,7 @@ test("picking a province zooms the map to it on a phone, and clearing it restore
   await page.goto("/");
   const full = await jaenSizes(page);
 
-  await page.getByRole("region", { name: "Por provincia" }).getByRole("button", { name: "Jaén" }).click();
+  await page.getByRole("region", { name: "Por provincia" }).getByRole("button", { name: "Jaén", exact: true }).click();
   await expect(page).toHaveURL(/provincia=jaen/);
   await expect(page.locator('[data-province="Jaén"]')).toHaveCount(1);
   const zoomed = await jaenSizes(page);

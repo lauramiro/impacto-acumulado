@@ -17,15 +17,82 @@
     linear-gradient(to left, rgb(0 0 0 / 0.14), transparent) right center / 1rem 100% no-repeat scroll;
 }
 
+/* The status breakdown is a phone-only control: wide screens show every column. */
+.soloMovil,
+.desglose {
+  display: none;
+}
+
 @media (max-width: 767px) {
-  .table th,
-  .table td {
+  .section .table th,
+  .section .table td {
     padding: 0.375rem 0.5rem;
   }
 
-  /* Said in words as well as the shadow: on a phone the table always overflows. */
+  /* Provincia and Total fit a 390px screen; the statuses unfold under each row on a tap. */
+  .detalle {
+    display: none;
+  }
+
+  .section .table .soloMovil {
+    display: table-cell;
+    text-align: right;
+  }
+
+  .section .table .desglose {
+    display: table-row;
+  }
+
+  .section .table .desglose[hidden] {
+    display: none;
+  }
+
+  .section .table {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .section .table thead th,
+  .section .table thead th:first-child {
+    width: auto;
+  }
+
+  .desplegar {
+    font: inherit;
+    font-size: var(--texto-pie);
+    color: var(--oficial);
+    background: none;
+    border: 1px solid var(--regla);
+    border-radius: 2px;
+    min-height: 1.75rem;
+    padding: 0.0625rem 0.5rem;
+    cursor: pointer;
+  }
+
+  .estados {
+    margin: 0;
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .estados div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .estados dt {
+    font-size: var(--texto-pie);
+  }
+
+  .estados dd {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  /* Said in words: the breakdown is behind the "Estados" button of each row. */
   .nota:has(+ .scroll)::after {
-    content: " Desliza la tabla hacia la izquierda para ver todas las columnas.";
+    content: " En una pantalla estrecha, toca «Estados» en una fila para ver el desglose por estado.";
   }
 }
 

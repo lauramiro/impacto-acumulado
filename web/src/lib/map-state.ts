@@ -1,5 +1,5 @@
 import { provinceFromSlug, provinceSlug } from "./labels";
-import { METRICS, STATUSES, TECHNOLOGIES, type Metric, type Province, type SensitivityLayer, type Status, type Technology } from "./types";
+import { APPROVED_OR_PENDING, METRICS, STATUSES, TECHNOLOGIES, type Metric, type Province, type SensitivityLayer, type Status, type Technology } from "./types";
 
 export type MapState = {
   metric: Metric;
@@ -11,10 +11,21 @@ export type MapState = {
   selected: string | null;
 };
 
+/**
+ * Statuses on when the URL names none: the headline's definition (approved or pending), so the
+ * map, the province table and the index count the same projects the headline does. Refused or
+ * lapsed projects are one tick away in the filters, and `estado=` in the URL carries any choice.
+ */
+export const DEFAULT_STATUSES: readonly Status[] = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s));
+
+function sameSet<T>(a: ReadonlySet<T>, b: readonly T[]): boolean {
+  return a.size === b.length && b.every((v) => a.has(v));
+}
+
 export function defaultState(): MapState {
   return {
     metric: "mw",
-    statuses: new Set(STATUSES),
+    statuses: new Set(DEFAULT_STATUSES),
     technologies: new Set(TECHNOLOGIES),
     natura: false,
     sensitivity: "ninguna",
@@ -32,9 +43,9 @@ function isMetric(s: string | null): s is Metric {
   return s !== null && (METRICS as readonly string[]).includes(s);
 }
 
-function listParam<T extends string>(params: URLSearchParams, name: string, all: readonly T[]): Set<T> {
+function listParam<T extends string>(params: URLSearchParams, name: string, all: readonly T[], whenAbsent: readonly T[] = all): Set<T> {
   const raw = params.get(name);
-  if (raw === null) return new Set(all);
+  if (raw === null) return new Set(whenAbsent);
   return new Set(raw.split(",").filter((v): v is T => (all as readonly string[]).includes(v)));
 }
 
@@ -49,7 +60,7 @@ export function parseMapState(params: URLSearchParams): MapState {
   const m = params.get("m");
   return {
     metric: isMetric(metricParam) ? metricParam : "mw",
-    statuses: listParam(params, "estado", STATUSES),
+    statuses: listParam(params, "estado", STATUSES, DEFAULT_STATUSES),
     technologies: listParam(params, "tecnologia", TECHNOLOGIES),
     natura: params.get("natura") === "1",
     sensitivity: sensitivityParam(params.get("sensibilidad")),
@@ -61,7 +72,7 @@ export function parseMapState(params: URLSearchParams): MapState {
 export function serializeMapState(state: MapState): string {
   const params = new URLSearchParams();
   if (state.metric !== "mw") params.set("metrica", state.metric);
-  if (state.statuses.size !== STATUSES.length) params.set("estado", STATUSES.filter((s) => state.statuses.has(s)).join(","));
+  if (!sameSet(state.statuses, DEFAULT_STATUSES)) params.set("estado", STATUSES.filter((s) => state.statuses.has(s)).join(","));
   if (state.technologies.size !== TECHNOLOGIES.length) params.set("tecnologia", TECHNOLOGIES.filter((t) => state.technologies.has(t)).join(","));
   if (state.natura) params.set("natura", "1");
   if (state.sensitivity !== "ninguna") params.set("sensibilidad", SENSITIVITY_PARAM[state.sensitivity]);

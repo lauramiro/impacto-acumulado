@@ -5,9 +5,12 @@ test("province table follows the status filter and selects a province", async ({
   await page.goto("/");
   await openFilters(page);
   const table = page.getByRole("region", { name: "Por provincia" });
-  await expect(table.getByRole("columnheader", { name: "Desfavorable" })).toBeVisible();
+  // Refused projects are not in the default statuses, so they have no column until ticked.
+  await expect(table.getByRole("columnheader", { name: "Desfavorable" })).toHaveCount(0);
   await expect(table.getByRole("rowheader", { name: "Andalucía" })).toBeVisible();
   await expect(table.getByRole("columnheader", { name: "Con MW declarado" })).toBeVisible();
+  await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).check();
+  await expect(table.getByRole("columnheader", { name: "Desfavorable" })).toBeVisible();
   await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).uncheck();
   await expect(table.getByRole("columnheader", { name: "Desfavorable" })).toHaveCount(0);
   const sevilla = table.getByRole("button", { name: "Sevilla" });
@@ -82,14 +85,14 @@ test("on a phone, picking a province confirms it under the table with a link to 
   const table = page.getByRole("region", { name: "Por provincia" });
   const status = table.getByRole("status");
   await expect(status).toBeEmpty();
-  await table.getByRole("button", { name: "Cádiz" }).click();
+  await table.getByRole("button", { name: "Cádiz", exact: true }).click();
   await expect(status).toBeInViewport();
   await expect(status).toHaveText(/^Cádiz marcada en el mapa · [\d.]+ municipios? en el índice · Ver el mapa$/);
   const count = (await page.getByTestId("indice-recuento").textContent())?.match(/^[\d.]+/)?.[0];
   await expect(status).toContainText(`${count} municipio`);
   await status.getByRole("link", { name: "Ver el mapa" }).click();
   await expect(page.locator("#mapa")).toBeInViewport();
-  await table.getByRole("button", { name: "Cádiz" }).click();
+  await table.getByRole("button", { name: "Cádiz", exact: true }).click();
   await expect(status).toBeEmpty();
 });
 

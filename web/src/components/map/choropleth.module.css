@@ -35,6 +35,29 @@
   pointer-events: none;
 }
 
+/* Font sizes are in viewBox units: the map is drawn at about 0.9 of them on a
+   desktop and 0.4 on a phone, so a phone needs roughly twice the size. */
+.rotulos text {
+  font-family: var(--font-body), serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  fill: var(--tinta);
+  stroke: var(--papel);
+  stroke-width: 3px;
+  paint-order: stroke;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .rotulos text {
+    font-size: 26px;
+    stroke-width: 5px;
+  }
+}
+
 .provinciaMarcada {
   fill: none;
   stroke: var(--oficial);

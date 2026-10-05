@@ -20,11 +20,18 @@
   vertical-align: baseline;
 }
 
-.table tfoot th,
-.table tfoot td {
+.table .total th,
+.table .total td {
   border-bottom: 0;
   border-top: 1px solid var(--tinta);
   font-weight: 600;
+}
+
+/* Refused projects sit apart from the total: a rule above, and a lighter weight. */
+.table .denegados th,
+.table .denegados td {
+  border-top: 1px solid var(--tinta);
+  font-weight: 400;
 }
 
 .table .num {
@@ -38,4 +45,9 @@
 
 .cobertura {
   font-size: 0.8125rem;
+}
+
+.base {
+  font-size: 0.8125rem;
+  margin-top: 0.75rem;
 }

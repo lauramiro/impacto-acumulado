@@ -5,6 +5,11 @@
   align-items: start;
 }
 
+.base {
+  font-size: var(--texto-pie);
+  margin: 0 0 0.75rem;
+}
+
 .mapa {
   min-height: 12rem;
 }

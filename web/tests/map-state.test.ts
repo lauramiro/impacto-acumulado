@@ -1,13 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_STATE, defaultState, parseMapState, serializeMapState } from "@/lib/map-state";
-import { STATUSES, TECHNOLOGIES } from "@/lib/types";
+import { DEFAULT_STATE, DEFAULT_STATUSES, defaultState, parseMapState, serializeMapState } from "@/lib/map-state";
+import { APPROVED_OR_PENDING, STATUSES, TECHNOLOGIES } from "@/lib/types";
 
 describe("map state in the URL", () => {
-  it("defaults to MW, every status, nothing selected", () => {
+  it("defaults to MW, the headline's statuses (approved or pending), nothing selected", () => {
     const s = parseMapState(new URLSearchParams(""));
     expect(s.metric).toBe("mw");
-    expect([...s.statuses].sort()).toEqual([...STATUSES].sort());
+    expect([...s.statuses].sort()).toEqual([...APPROVED_OR_PENDING].sort());
+    expect(s.statuses.has("desfavorable")).toBe(false);
+    expect(s.statuses.has("caducado")).toBe(false);
+    expect(DEFAULT_STATUSES).toEqual(STATUSES.filter((x) => APPROVED_OR_PENDING.includes(x)));
     expect(s.selected).toBeNull();
+  });
+  it("carries every status in the URL, since leaving estado out now means approved or pending", () => {
+    const all = { ...DEFAULT_STATE, statuses: new Set(STATUSES) };
+    const qs = serializeMapState(all);
+    expect(new URLSearchParams(qs).get("estado")).toBe(STATUSES.join(","));
+    expect([...parseMapState(new URLSearchParams(qs)).statuses].sort()).toEqual([...STATUSES].sort());
+  });
+  it("reads a deep link to a municipality with the default statuses", () => {
+    const s = parseMapState(new URLSearchParams("metrica=ha&m=41024"));
+    expect(s).toMatchObject({ metric: "ha", selected: "41024" });
+    expect([...s.statuses].sort()).toEqual([...DEFAULT_STATUSES].sort());
   });
   it("reads metric, statuses and selection", () => {
     const s = parseMapState(new URLSearchParams("metrica=ha&estado=desfavorable,caducado&m=29084"));

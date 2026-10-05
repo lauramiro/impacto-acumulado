@@ -115,7 +115,11 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
     const path = geoPath(projection);
     return {
       munis: municipalities.features.map((f) => ({ ine: f.properties.ine_code, name: f.properties.name, d: path(f) ?? "" })),
-      provs: provinces.features.map((f) => ({ province: f.properties.province, d: path(f) ?? "" })),
+      provs: provinces.features.map((f) => {
+        // The centroid of the mainland part: an offshore islet would pull the label out to sea.
+        const [x, y] = path.centroid(mainland({ type: "FeatureCollection", features: [f] }).features[0]);
+        return { province: f.properties.province, d: path(f) ?? "", label: Number.isFinite(x) && x > 0 && x < VIEW_W && y > 0 && y < VIEW_H ? { x, y } : null };
+      }),
     };
   }, [projection, municipalities, provinces]);
 
@@ -163,6 +167,16 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
           {paths.provs.map((p) => (
             <path key={p.province} d={p.d} />
           ))}
+        </g>
+        {/* Names of the provinces, so the map can be read without the table: ink on a paper halo, under the pointer. */}
+        <g className={styles.rotulos} aria-hidden="true" data-testid="rotulos-provincias">
+          {paths.provs.map((p) =>
+            p.label ? (
+              <text key={p.province} x={p.label.x} y={p.label.y} textAnchor="middle" data-province-label={p.province}>
+                {p.province}
+              </text>
+            ) : null,
+          )}
         </g>
         {paths.provs
           .filter((p) => p.province === province)

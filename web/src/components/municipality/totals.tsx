@@ -2,7 +2,7 @@ import { Figure } from "@/components/figure";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { absenceMark, formatCoverage, formatHa, formatInt, formatMwDeclared, formatNumber } from "@/lib/format";
 import { splitBy, sumFigures } from "@/lib/metrics";
-import { STATUSES, TECHNOLOGIES, type Figures, type MunicipalityStats } from "@/lib/types";
+import { APPROVED_OR_PENDING, REFUSED_OR_LAPSED, STATUSES, TECHNOLOGIES, type Figures, type MunicipalityStats, type StatsCell } from "@/lib/types";
 import styles from "./totals.module.css";
 
 /** A coverage note read inside a sentence: "superficie declarada en 2 de 11 proyectos". */
@@ -12,12 +12,25 @@ const midSentence = (note: string) => note.charAt(0).toLowerCase() + note.slice(
 const mwCell = (f: Figures) => absenceMark(f.mwCount, f.projectCount) ?? formatNumber(f.mwBest, 1);
 const haCell = (f: Figures) => absenceMark(f.haCount, f.projectCount) ?? formatNumber(f.hectares, 1);
 
+/**
+ * The cells split the way the headline splits them: approved or pending (which every total on the
+ * page counts) and refused or lapsed (which have a row of their own, never added to the total).
+ */
+export function splitByHeadline(cells: readonly StatsCell[]): { accumulating: StatsCell[]; refused: StatsCell[] } {
+  return {
+    accumulating: cells.filter((c) => APPROVED_OR_PENDING.includes(c.status)),
+    refused: cells.filter((c) => REFUSED_OR_LAPSED.includes(c.status)),
+  };
+}
+
 /** `areaHa`: the municipality's area, for the share of it the declared hectares cover. */
 export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: number }) {
-  const figuresByStatus = splitBy(stats.cells, "status");
-  const byTech = splitBy(stats.cells, "technology");
-  const total = sumFigures(stats.cells);
-  const rows = STATUSES.filter((s) => (figuresByStatus.get(s)?.projectCount ?? 0) > 0);
+  const { accumulating, refused: refusedCells } = splitByHeadline(stats.cells);
+  const figuresByStatus = splitBy(accumulating, "status");
+  const byTech = splitBy(accumulating, "technology");
+  const total = sumFigures(accumulating);
+  const refused = sumFigures(refusedCells);
+  const rows = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s) && (figuresByStatus.get(s)?.projectCount ?? 0) > 0);
   const techs = TECHNOLOGIES.filter((t) => t !== "linea_evacuacion" && (byTech.get(t)?.projectCount ?? 0) > 0);
   const lines = byTech.get("linea_evacuacion");
   return (
@@ -53,9 +66,9 @@ export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: nu
             );
           })}
         </tbody>
-        <tfoot>
+        <tbody className={styles.total}>
           <tr>
-            <th scope="row">Total</th>
+            <th scope="row">Total aprobados o en trámite</th>
             <td className={styles.num}>
               <Figure value={formatInt(total.projectCount)} />
             </td>
@@ -66,8 +79,29 @@ export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: nu
               <Figure value={haCell(total)} />
             </td>
           </tr>
-        </tfoot>
+        </tbody>
+        {refused.projectCount > 0 ? (
+          <tbody className={styles.denegados} data-testid="fila-denegados">
+            <tr>
+              <th scope="row">Denegados o caducados</th>
+              <td className={styles.num}>
+                <Figure value={formatInt(refused.projectCount)} />
+              </td>
+              <td className={styles.num}>
+                <Figure value={mwCell(refused)} />
+              </td>
+              <td className={styles.num}>
+                <Figure value={haCell(refused)} />
+              </td>
+            </tr>
+          </tbody>
+        ) : null}
       </table>
+      <p className={styles.base} data-testid="nota-base-municipio">
+        Las cifras de esta página, salvo la fila de denegados o caducados, cuentan {formatInt(total.projectCount)}{" "}
+        {total.projectCount === 1 ? "proyecto aprobado o en trámite" : "proyectos aprobados o en trámite"}, la misma base que el titular del mapa.
+        {refused.projectCount > 0 ? " Los denegados o caducados no se suman al total." : null}
+      </p>
       <p className={styles.tech}>
         Por tecnología:{" "}
         {techs.map((t, i) => {
@@ -80,8 +114,12 @@ export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: nu
           );
         })}
       </p>
-      <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.mwCount, total.projectCount, "mw", total.mwPeakCount)}</p>
-      <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.haCount, total.projectCount, "ha")}</p>
+      {total.projectCount > 0 ? (
+        <>
+          <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.mwCount, total.projectCount, "mw", total.mwPeakCount)}</p>
+          <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.haCount, total.projectCount, "ha")}</p>
+        </>
+      ) : null}
       {total.haCount > 0 && areaHa > 0 ? (
         <p className={styles.tech} data-testid="cuota-termino">
           Superficie declarada: <Figure value={formatHa(total.hectares)} />, el{" "}

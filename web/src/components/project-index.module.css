@@ -1,0 +1,37 @@
+.estados {
+  border: 0;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  align-items: center;
+}
+
+.estados legend {
+  float: left;
+  margin-right: 0.5rem;
+  font-size: var(--texto-pie);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 1.5rem;
+  font-size: var(--texto-dato);
+  cursor: pointer;
+}
+
+.recuento {
+  font-size: var(--texto-pie);
+}
+
+/* "Favorable con condiciones" on one line pushed the table past a phone's width: let the badge wrap there. */
+@media (max-width: 767px) {
+  .estado > span {
+    white-space: normal;
+  }
+}

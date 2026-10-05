@@ -63,10 +63,15 @@ export type LookupTableProps<R> = {
   defaultSort?: LookupSort;
   emptyText: string;
   rowClassName?: (r: R) => string | undefined;
+  /** Optional: the search text held by the caller (to put it in the URL); the table keeps its own when absent. */
+  query?: string;
+  onQueryChange?: (q: string) => void;
 };
 
 export function LookupTable<R>(p: LookupTableProps<R>) {
-  const [query, setQuery] = useState("");
+  const [ownQuery, setOwnQuery] = useState("");
+  const query = p.query ?? ownQuery;
+  const setQuery = (q: string) => (p.onQueryChange ? p.onQueryChange(q) : setOwnQuery(q));
   const [sort, setSort] = useState<LookupSort | null>(null);
   const [all, setAll] = useState(false);
   const deferredQuery = useDeferredValue(query);

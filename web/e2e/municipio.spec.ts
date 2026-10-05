@@ -105,11 +105,37 @@ test("plants of different companies behind one shared evacuation project are a g
 });
 
 test("a status row with no declared figure reads sin dato, and hectares carry a coverage line", async ({ page }) => {
-  // Jerez: none of its lapsed projects declares MW or surface (data of 2026-10-05).
-  await page.goto("/municipio/11020");
+  // 04035: its one project is a consultation with no resolution and declares neither MW nor surface (data of 2026-10-05).
+  await page.goto("/municipio/04035");
   const totals = page.getByRole("region", { name: "Totales" });
-  const row = totals.getByRole("row", { name: /^Caducado/ });
-  await expect(row.getByRole("cell")).toHaveText(["3", "sin dato", "sin dato"]);
+  const row = totals.getByRole("row", { name: /^Consulta sin resolución/ });
+  await expect(row.getByRole("cell")).toHaveText(["1", "sin dato", "sin dato"]);
   await expect(totals.getByText(/^MW declarados en \d+ de \d+ proyectos?/)).toBeVisible();
   await expect(totals.getByText(/^Superficie declarada en \d+ de \d+ proyectos?$/)).toBeVisible();
+});
+
+type Cell = { status: string; project_count: number; mw_best: number };
+const stats: Record<string, { cells: Cell[] }> = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "municipality_stats.json"), "utf-8"));
+const ACCUMULATING = ["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion", "desconocido"];
+const REFUSED = ["desfavorable", "caducado"];
+const sum = (ine: string, statuses: string[], key: "project_count" | "mw_best") =>
+  stats[ine]!.cells.filter((c) => statuses.includes(c.status)).reduce((a, c) => a + c[key], 0);
+const mwText = (n: number) => new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: true }).format(n);
+
+test("the Total row counts approved or pending projects only; refused ones have a row of their own", async ({ page }) => {
+  // Jerez de la Frontera has refused MW that the old Total added in.
+  const ine = "11020";
+  expect(sum(ine, REFUSED, "mw_best")).toBeGreaterThan(0);
+  await page.goto(`/municipio/${ine}`);
+  const totals = page.getByRole("region", { name: "Totales" });
+  const total = totals.getByRole("row", { name: /^Total aprobados o en trámite/ });
+  await expect(total.getByRole("cell").nth(0)).toHaveText(String(sum(ine, ACCUMULATING, "project_count")));
+  await expect(total.getByRole("cell").nth(1)).toHaveText(mwText(sum(ine, ACCUMULATING, "mw_best")));
+  const refused = totals.getByTestId("fila-denegados").getByRole("row", { name: /^Denegados o caducados/ });
+  await expect(refused.getByRole("cell").nth(0)).toHaveText(String(sum(ine, REFUSED, "project_count")));
+  await expect(refused.getByRole("cell").nth(1)).toHaveText(mwText(sum(ine, REFUSED, "mw_best")));
+  // No status row is a refused one, and the page states one denominator.
+  await expect(totals.getByRole("row", { name: /^Desfavorable/ })).toHaveCount(0);
+  await expect(totals.getByTestId("nota-base-municipio")).toContainText(`${sum(ine, ACCUMULATING, "project_count")} proyectos aprobados o en trámite`);
+  await expect(totals.getByText(/^MW declarados en \d+ de \d+ proyectos/)).toContainText(`de ${sum(ine, ACCUMULATING, "project_count")} proyectos`);
 });

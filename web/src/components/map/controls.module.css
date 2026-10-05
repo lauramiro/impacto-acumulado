@@ -63,6 +63,11 @@
   cursor: pointer;
 }
 
+.atajoSolo {
+  font-size: var(--texto-pie);
+  margin-left: 0.5rem;
+}
+
 .atajo:disabled {
   color: var(--tinta);
   opacity: 0.55;

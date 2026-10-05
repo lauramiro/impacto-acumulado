@@ -152,10 +152,12 @@ test("on a phone the filters fold behind a toggle that summarises them", async (
   await page.goto("/");
   const toggle = page.getByRole("button", { name: /^Filtros/ });
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
-  await expect(page.getByTestId("resumen-filtros")).toHaveText("Todos los estados · Todas las tecnologías");
+  await expect(page.getByTestId("resumen-filtros")).toHaveText("Aprobados o en trámite · Todas las tecnologías");
   await expect(page.getByRole("checkbox", { name: /^Desfavorable \(/ })).toBeHidden();
   await toggle.click();
-  await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).uncheck();
+  // Refused projects are off by default; ticking one of the two refused statuses leaves one status short of all.
+  await expect(page.getByRole("checkbox", { name: /^Desfavorable \(/ })).not.toBeChecked();
+  await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).check();
   await expect(page.getByTestId("resumen-filtros")).toHaveText(`${listed.length - 1} de ${listed.length} estados · Todas las tecnologías`);
 });
 
@@ -166,6 +168,9 @@ test("status and technology shortcuts select all or none in one click", async ({
   await expect(page).toHaveURL(/estado=(&|$)/);
   await expect(page.getByRole("region", { name: "Por provincia" }).getByText("Ningún estado seleccionado.")).toBeVisible();
   await page.getByRole("button", { name: "Marcar todos: estados", exact: true }).click();
+  // Every status is no longer the default, so the URL carries it.
+  await expect(page).toHaveURL(/estado=.*desfavorable.*caducado/);
+  await page.getByRole("button", { name: "solo aprobados o en trámite", exact: true }).click();
   await expect(page).not.toHaveURL(/estado=/);
   await page.getByRole("button", { name: "Desmarcar todos: tecnologías", exact: true }).click();
   await expect(page.getByRole("region", { name: "Por provincia" }).getByText("Ninguna tecnología seleccionada.")).toBeVisible();
@@ -190,6 +195,6 @@ test("at desktop size the filters fold too, so most of the map is in the first s
   await expect(page.getByRole("checkbox", { name: "Eólica", exact: true })).toBeHidden();
   const map = await page.locator("#mapa svg").first().boundingBox();
   // Above the map: the intro (four or five lines, depending on its figures),
-  // the one-line información pública status and the folded filter row.
-  expect(map!.y).toBeLessThan(520);
+  // the one-line información pública status, the place search, the folded filter row and the basis note.
+  expect(map!.y).toBeLessThan(700);
 });

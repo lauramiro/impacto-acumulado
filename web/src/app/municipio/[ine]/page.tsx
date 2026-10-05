@@ -7,7 +7,7 @@ import { ReportError } from "@/components/report-error";
 import { OpenConsultations } from "@/components/open-consultations";
 import { ProtectedAreas } from "@/components/municipality/protected-areas";
 import { Sensitivity } from "@/components/municipality/sensitivity";
-import { Totals } from "@/components/municipality/totals";
+import { splitByHeadline, Totals } from "@/components/municipality/totals";
 import { stillOpen } from "@/lib/consultations";
 import { loadOpenConsultations } from "@/lib/data/consultations";
 import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
@@ -42,10 +42,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const [muni, stats] = await Promise.all([findMunicipality(ine), loadMunicipalityStats()]);
   if (!muni) return { title: "Municipio no encontrado · Impacto Acumulado" };
   const s = stats.get(ine);
-  const t = s ? sumFigures(s.cells) : null;
-  const description = t
-    ? `${formatMw(t.mwBest)} en ${formatInt(t.projectCount)} proyectos renovables evaluados en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount, "mw", t.mwPeakCount)}).`
-    : `Ningún proyecto renovable registrado en los boletines para ${muni.name} (${muni.province}).`;
+  // The headline's definition: approved or pending; refused projects are not in the figure.
+  const t = s ? sumFigures(splitByHeadline(s.cells).accumulating) : null;
+  const description = t && t.projectCount > 0
+    ? `${formatMw(t.mwBest)} en ${formatInt(t.projectCount)} proyectos renovables aprobados o en trámite en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount, "mw", t.mwPeakCount)}).`
+    : s
+      ? `Ningún proyecto renovable aprobado o en trámite en ${muni.name} (${muni.province}); solo denegados o caducados según el BOE y el BOJA.`
+      : `Ningún proyecto renovable registrado en los boletines para ${muni.name} (${muni.province}).`;
   return {
     title: `${muni.name} · Impacto Acumulado`,
     description,

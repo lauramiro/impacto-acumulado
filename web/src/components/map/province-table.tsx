@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment, useState } from "react";
 import { absenceMark, formatCoverageCell, formatInt, NO_DATA, NO_PROJECTS } from "@/lib/format";
 import { formatMetric, NO_FIGURE_LABELS, STATUS_LABELS } from "@/lib/labels";
 import { baseMetric, metricCoverage, metricValue } from "@/lib/metrics";
@@ -31,6 +32,15 @@ function Mark({ mark }: { mark: string }) {
 }
 
 export function ProvinceTable({ stats, metric, filters, selected, onSelect, indexCount, areas }: Props) {
+  // Phone only: the provinces whose statuses are unfolded under their row.
+  const [unfolded, setUnfolded] = useState<ReadonlySet<Scope>>(new Set());
+  const toggle = (scope: Scope) =>
+    setUnfolded((prev) => {
+      const next = new Set(prev);
+      if (next.has(scope)) next.delete(scope);
+      else next.add(scope);
+      return next;
+    });
   const region = stats[REGION];
   const only = (s: Status): Filters => ({ ...filters, statuses: new Set([s]) });
   const checked = STATUSES.filter((s) => filters.statuses.has(s));
@@ -54,6 +64,41 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
     const c = metricCoverage(cells, metric, filters);
     return c.total === 0 ? <Mark mark={NO_PROJECTS} /> : formatCoverageCell(c.declared, c.total);
   };
+  const unfoldButton = (scope: Scope) => (
+    <button
+      type="button"
+      className={styles.desplegar}
+      aria-expanded={unfolded.has(scope)}
+      aria-controls={`desglose-${scope}`}
+      aria-label={`Estados de ${scope}`}
+      onClick={() => toggle(scope)}
+    >
+      Estados <span aria-hidden="true">{unfolded.has(scope) ? "▲" : "▼"}</span>
+    </button>
+  );
+  // On a phone the status columns do not fit beside Provincia and Total; each row unfolds them in a line of their own.
+  const breakdownRow = (scope: Scope) => (
+    <tr id={`desglose-${scope}`} className={styles.desglose} hidden={!unfolded.has(scope)}>
+      <td colSpan={3}>
+        {unfolded.has(scope) ? (
+        <dl className={styles.estados}>
+          {statuses.map((s) => (
+            <div key={s}>
+              <dt>{STATUS_LABELS[s]}</dt>
+              <dd className="dato">{value(scope, only(s))}</dd>
+            </div>
+          ))}
+          {coverageHeader ? (
+            <div>
+              <dt>{coverageHeader}</dt>
+              <dd className="dato">{coverage(stats[scope])}</dd>
+            </div>
+          ) : null}
+        </dl>
+        ) : null}
+      </td>
+    </tr>
+  );
   const coverageHeader = baseMetric(metric) === "mw" ? "Con MW declarado" : metric === "ha" ? "Con superficie declarada" : null;
   return (
     <section aria-labelledby="provincias" className={styles.section}>
@@ -72,29 +117,36 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
                   <th scope="col">Provincia</th>
                   <th scope="col" className={`${styles.num} ${styles.total}`}>Total</th>
                   {statuses.map((s) => (
-                    <th key={s} scope="col" className={styles.num}>
+                    <th key={s} scope="col" className={`${styles.num} ${styles.detalle}`}>
                       {STATUS_LABELS[s]}
                     </th>
                   ))}
-                  {coverageHeader ? <th scope="col" className={styles.num}>{coverageHeader}</th> : null}
+                  {coverageHeader ? <th scope="col" className={`${styles.num} ${styles.detalle}`}>{coverageHeader}</th> : null}
+                  <th scope="col" className={styles.soloMovil}>
+                    <span className="visually-hidden">Desglose por estado</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {PROVINCES.map((p) => (
-                  <tr key={p} className={selected === p ? styles.seleccionada : undefined}>
-                    <th scope="row">
-                      <button type="button" aria-pressed={selected === p} className={styles.provincia} onClick={() => onSelect(selected === p ? null : p)}>
-                        {p}
-                      </button>
-                    </th>
-                    <td className={`dato ${styles.num} ${styles.total}`}>{value(p, filters)}</td>
-                    {statuses.map((s) => (
-                      <td key={s} className={`dato ${styles.num}`}>
-                        {value(p, only(s))}
-                      </td>
-                    ))}
-                    {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(stats[p])}</td> : null}
-                  </tr>
+                  <Fragment key={p}>
+                    <tr className={selected === p ? styles.seleccionada : undefined}>
+                      <th scope="row">
+                        <button type="button" aria-pressed={selected === p} className={styles.provincia} onClick={() => onSelect(selected === p ? null : p)}>
+                          {p}
+                        </button>
+                      </th>
+                      <td className={`dato ${styles.num} ${styles.total}`}>{value(p, filters)}</td>
+                      {statuses.map((s) => (
+                        <td key={s} className={`dato ${styles.num} ${styles.detalle}`}>
+                          {value(p, only(s))}
+                        </td>
+                      ))}
+                      {coverageHeader ? <td className={`dato ${styles.num} ${styles.detalle}`}>{coverage(stats[p])}</td> : null}
+                      <td className={styles.soloMovil}>{unfoldButton(p)}</td>
+                    </tr>
+                    {breakdownRow(p)}
+                  </Fragment>
                 ))}
               </tbody>
               <tfoot>
@@ -102,12 +154,14 @@ export function ProvinceTable({ stats, metric, filters, selected, onSelect, inde
                   <th scope="row">{REGION}</th>
                   <td className={`dato ${styles.num} ${styles.total}`}>{value(REGION, filters)}</td>
                   {statuses.map((s) => (
-                    <td key={s} className={`dato ${styles.num}`}>
+                    <td key={s} className={`dato ${styles.num} ${styles.detalle}`}>
                       {value(REGION, only(s))}
                     </td>
                   ))}
-                  {coverageHeader ? <td className={`dato ${styles.num}`}>{coverage(region)}</td> : null}
+                  {coverageHeader ? <td className={`dato ${styles.num} ${styles.detalle}`}>{coverage(region)}</td> : null}
+                  <td className={styles.soloMovil}>{unfoldButton(REGION)}</td>
                 </tr>
+                {breakdownRow(REGION)}
               </tfoot>
             </table>
           </div>
