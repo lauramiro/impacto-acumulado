@@ -82,7 +82,10 @@ export default async function MethodologyPage() {
         Cada semana el pipeline descarga los documentos nuevos y un modelo de lenguaje (<span className="dato">{ev.provider}</span>)
         convierte cada uno en un registro: tipo, resultado, promotor, tecnología, potencia, superficie y municipios. Una regla lee
         además la frase dispositiva (la que formula la declaración o resuelve la autorización) y corrige el tipo de documento y
-        el resultado, pero solo cuando el modelo ya los había leído como ese mismo tipo de decisión o como «otro».
+        el resultado, pero solo cuando el modelo ya los había leído como ese mismo tipo de decisión o como «otro». Otra regla lee
+        la potencia cuando el boletín la etiqueta («61,2 MWp/51 MWn», «109,52 MWp (90,75 MWn)») y corrige la del modelo, que a
+        veces toma la pico por nominal; si el título nombra varias plantas no se aplica. La potencia de un proyecto es la del
+        documento más reciente que la etiqueta, y solo si ninguno lo hace, la del más reciente que la da sin etiqueta.
       </p>
       <p>
         Los documentos se agrupan en proyectos por nombre, promotor, expediente y municipio. El identificador de un proyecto es

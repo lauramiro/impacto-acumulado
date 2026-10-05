@@ -7,6 +7,7 @@ from datetime import UTC, date, datetime
 import psycopg
 
 from impacto.db.connect import connect
+from impacto.extract.capacity import with_capacity
 from impacto.extract.operative import operative_override
 from impacto.resolve.blocking import candidate_pairs
 from impacto.resolve.model import Record
@@ -95,11 +96,18 @@ def resolve(records: list[Record], overrides: dict[int, str]) -> list[list[Recor
 def load_records(conn: psycopg.Connection) -> list[Record]:
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT d.id, d.published_at, d.text, e.payload FROM extractions e JOIN raw_documents d ON d.id = e.document_id "
+            "SELECT d.id, d.published_at, d.title, d.text, e.payload FROM extractions e JOIN raw_documents d ON d.id = e.document_id "
             "WHERE e.status = 'ok' ORDER BY d.published_at, d.id"
         )
         rows = cur.fetchall()
-    return [Record.from_extraction(r["id"], r["published_at"], with_operative(r["payload"], r["text"])) for r in rows]
+    return [
+        Record.from_extraction(
+            r["id"],
+            r["published_at"],
+            with_capacity(with_operative(r["payload"], r["text"]), r["title"], r["text"]),
+        )
+        for r in rows
+    ]
 
 
 def with_operative(payload: dict, text: str) -> dict:
@@ -124,6 +132,16 @@ def load_name_overrides(conn: psycopg.Connection) -> dict[int, str]:
         return {r["document_id"]: r["name"] for r in cur.fetchall()}
 
 
+def _latest_labelled(group: list[Record], attr: str):
+    """The newest figure the gazette labels as nominal or peak, else the newest of any kind.
+
+    A later notice that prints "109,5039 MW" with no label does not override
+    a declaration's "109,52 MWp (90,75 MWn)".
+    """
+    labelled = [r for r in group if getattr(r, f"{attr}_labelled")]
+    return _latest_with(labelled, attr) or _latest_with(group, attr)
+
+
 def _latest_with(group: list[Record], attr: str):
     for r in sorted(group, key=lambda r: (r.published_at, r.document_id), reverse=True):
         value = getattr(r, attr)
@@ -144,7 +162,10 @@ def _match_reason(group: list[Record], r: Record) -> tuple[float, str]:
 
 
 def write_projects(
-    conn: psycopg.Connection, groups: list[list[Record]], today: date | None = None, names: dict[int, str] | None = None
+    conn: psycopg.Connection,
+    groups: list[list[Record]],
+    today: date | None = None,
+    names: dict[int, str] | None = None,
 ) -> int:
     names = names or {}
     try:
@@ -159,7 +180,10 @@ def write_projects(
                 # An impact declaration names the project it assesses; later
                 # notices ("el proyecto que se cita") often carry a looser name.
                 declarations = [r for r in group if r.doc_type == "dia"]
-                named = sorted((r for r in group if r.document_id in names), key=lambda r: (r.published_at, r.document_id))
+                named = sorted(
+                    (r for r in group if r.document_id in names),
+                    key=lambda r: (r.published_at, r.document_id),
+                )
                 name = (
                     (names[named[-1].document_id] if named else None)
                     or _latest_with(declarations, "name")
@@ -183,8 +207,8 @@ def write_projects(
                         _latest_with(group, "developer"),
                         # "otra" rather than NULL: the exports and the web enum have no empty technology.
                         _latest_with(group, "technology") or "otra",
-                        _latest_with(group, "mw_peak"),
-                        _latest_with(group, "mw_nominal"),
+                        _latest_labelled(group, "mw_peak"),
+                        _latest_labelled(group, "mw_nominal"),
                         _latest_with(group, "hectares"),
                         _latest_with(group, "turbines"),
                         status,
@@ -197,7 +221,13 @@ def write_projects(
                     score, reason = _match_reason(group, r)
                     cur.execute(
                         "INSERT INTO project_documents (project_id, document_id, role, match_score, match_reason) VALUES (%s, %s, %s, %s, %s)",
-                        (project_id, r.document_id, ROLE_BY_TYPE.get(r.doc_type, "otro"), score, reason),
+                        (
+                            project_id,
+                            r.document_id,
+                            ROLE_BY_TYPE.get(r.doc_type, "otro"),
+                            score,
+                            reason,
+                        ),
                     )
                 munis = set()
                 for r in group:

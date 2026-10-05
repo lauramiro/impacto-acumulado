@@ -295,3 +295,18 @@ def test_an_extension_file_is_another_procedure():
     assert procedure_key("peol-268_ampl") == ("peol", "268", "ampl")
     assert procedure_key("peol-268 ampl") == ("peol", "268", "ampl")
     assert procedure_key("peol-268_ampl") != procedure_key("peol-268")
+
+
+def test_a_labelled_figure_wins_over_a_later_unlabelled_one():
+    from datetime import date as _date
+
+    from impacto.resolve.model import Record
+    from impacto.resolve.run import _latest_labelled
+
+    def rec(i, day, n, labelled):
+        return Record(i, day, "dia", "favorable", "Las Quinientas", None, None, frozenset(), n, None, None, None, "solar_fv",
+                      mw_nominal_labelled=labelled)
+
+    group = [rec(1, _date(2019, 8, 8), 90.75, True), rec(2, _date(2020, 11, 13), 109.5039, False)]
+    assert _latest_labelled(group, "mw_nominal") == 90.75
+    assert _latest_labelled([group[1]], "mw_nominal") == 109.5039

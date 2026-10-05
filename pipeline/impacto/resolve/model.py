@@ -21,10 +21,15 @@ class Record:
     hectares: float | None
     turbines: int | None
     technology: str | None
+    # The gazette labels the figure as nominal or peak (impacto.extract.capacity).
+    mw_nominal_labelled: bool = False
+    mw_peak_labelled: bool = False
 
     @classmethod
     def from_extraction(cls, document_id: int, published_at: date, payload: dict) -> Record:
-        munis = frozenset(normalize(m["name"]) for m in payload.get("municipalities") or [] if m.get("name"))
+        munis = frozenset(
+            normalize(m["name"]) for m in payload.get("municipalities") or [] if m.get("name")
+        )
         exp = payload.get("expediente")
         return cls(
             document_id=document_id,
@@ -40,4 +45,6 @@ class Record:
             hectares=payload.get("hectares"),
             turbines=payload.get("turbines"),
             technology=payload.get("technology"),
+            mw_nominal_labelled=bool(payload.get("mw_nominal_labelled")),
+            mw_peak_labelled=bool(payload.get("mw_peak_labelled")),
         )
