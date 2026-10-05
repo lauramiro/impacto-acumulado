@@ -54,7 +54,7 @@ Cádiz,2023-09-01,favorable_condicionada,1,279.0,279.0,0
 Cádiz,2023-10-01,desfavorable,1,0.0,0.0,0
 Cádiz,2023-11-01,sin_resolucion,1,54.0,54.0,0
 Cádiz,2024-02-01,favorable_condicionada,2,29.6,29.6,0
-Cádiz,2024-03-01,desfavorable,1,0.0,26.57,1
+Cádiz,2024-03-01,desfavorable,1,24.0,24.0,0
 Cádiz,2024-03-01,favorable_condicionada,2,36.8,36.8,0
 Cádiz,2024-04-01,desfavorable,1,0.0,0.0,0
 Cádiz,2024-04-01,favorable_condicionada,1,12.0,12.0,0
@@ -94,7 +94,7 @@ Cádiz,2026-04-01,en_consulta,1,15.0,15.0,0
 Cádiz,2026-04-01,favorable_condicionada,2,0.0,0.0,0
 Cádiz,2026-05-01,favorable_condicionada,1,47.7,47.7,0
 Cádiz,2026-06-01,en_consulta,1,68.1,68.1,0
-Cádiz,2026-07-01,favorable_condicionada,6,39.0,43.299,1
+Cádiz,2026-07-01,favorable_condicionada,6,40.989998,45.289,1
 Cádiz,2026-08-01,favorable_condicionada,1,2.5,2.5,0
 Córdoba,2022-05-01,favorable_condicionada,1,85.0,85.0,0
 Córdoba,2022-11-01,desconocido,3,76.0,76.0,0

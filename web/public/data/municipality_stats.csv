@@ -92,12 +92,12 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11020,caducado,eolica,2,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
 11020,caducado,hibrida,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
 11020,desfavorable,eolica,1,109.8,0.0,20,1,0,109.8,0,Jerez de la Frontera,Cádiz
-11020,desfavorable,hibrida,3,79.99,46.78,5,1,1,106.56,1,Jerez de la Frontera,Cádiz
+11020,desfavorable,hibrida,3,103.99,46.78,5,2,1,103.99,0,Jerez de la Frontera,Cádiz
 11020,desfavorable,solar_fv,3,93.8,0.0,0,2,0,93.8,0,Jerez de la Frontera,Cádiz
 11020,en_consulta,eolica,2,169.46,0.0,26,2,0,169.46,0,Jerez de la Frontera,Cádiz
 11020,en_consulta,hibrida,8,712.89496,848.87,15,7,5,712.89496,0,Jerez de la Frontera,Cádiz
 11020,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
-11020,favorable_condicionada,hibrida,1,24.0,42.44,0,1,1,24.0,0,Jerez de la Frontera,Cádiz
+11020,favorable_condicionada,hibrida,1,25.99,42.44,0,1,1,25.99,0,Jerez de la Frontera,Cádiz
 11020,favorable_condicionada,linea_evacuacion,1,0.0,0.0,0,0,0,0.0,0,Jerez de la Frontera,Cádiz
 11020,favorable_condicionada,solar_fv,6,184.65,358.61,0,3,1,344.64,2,Jerez de la Frontera,Cádiz
 11021,desfavorable,eolica,1,216.6,0.0,38,1,0,216.6,0,Jimena de la Frontera,Cádiz
@@ -116,9 +116,9 @@ ine_code,status,technology,project_count,mw_nominal,hectares,turbines,mw_count,h
 11025,en_consulta,hibrida,3,177.9,397.72998,0,2,2,177.9,0,Paterna de Rivera,Cádiz
 11025,en_consulta,otra,1,0.0,0.0,0,0,0,0.0,0,Paterna de Rivera,Cádiz
 11027,caducado,eolica,1,0.0,0.0,0,0,0,0.0,0,El Puerto de Santa María,Cádiz
-11027,desfavorable,hibrida,2,0.0,46.78,0,0,1,26.57,1,El Puerto de Santa María,Cádiz
+11027,desfavorable,hibrida,2,24.0,46.78,0,1,1,24.0,0,El Puerto de Santa María,Cádiz
 11027,desfavorable,solar_fv,1,19.98,0.0,0,1,0,19.98,0,El Puerto de Santa María,Cádiz
-11027,favorable_condicionada,hibrida,1,24.0,42.44,0,1,1,24.0,0,El Puerto de Santa María,Cádiz
+11027,favorable_condicionada,hibrida,1,25.99,42.44,0,1,1,25.99,0,El Puerto de Santa María,Cádiz
 11027,favorable_condicionada,solar_fv,3,9.98,0.0,0,1,0,9.98,0,El Puerto de Santa María,Cádiz
 11028,caducado,eolica,1,0.0,0.0,0,0,0,0.0,0,Puerto Real,Cádiz
 11028,desconocido,solar_fv,1,110.0,0.0,0,1,0,110.0,0,Puerto Real,Cádiz
