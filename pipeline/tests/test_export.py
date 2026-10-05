@@ -601,12 +601,21 @@ def test_documents_csv_carries_the_verdict_resolve_reads(db, fixtures_dir, tmp_p
         "De conformidad con el art. 31.7 de la Ley 7/2007, esta Delegación HA RESUELTO Primero. Dar publicidad al Informe "
         "Vinculante sobre la Autorización Ambiental Unificada otorgada a la planta X.",
     )
+    _add_document(
+        db, "disposition.2023.183.76",
+        "Anuncio de 5 de septiembre de 2023, de la Delegación Territorial en Huelva, por el que se da publicidad a la nueva "
+        "autorización ambiental unificada otorgada en esta provincia.",
+        {"doc_type": "aau", "verdict": "no_aplica", "project_name": "Planta Y"},
+        "Expediente AAU/HU/012/22. Promotor: Y.",
+    )
     run_resolve(db)
     run_aggregate(db)
     export_all(db, tmp_path)
     with open(tmp_path / "documents.csv", encoding="utf-8", newline="") as f:
         docs = {r["source_id"]: r for r in csv.DictReader(f)}
     assert (docs["disposition.2023.183.75"]["doc_type"], docs["disposition.2023.183.75"]["verdict"]) == ("aau", "favorable_condicionada")
+    # The same notice with the decision in its title alone (the Huelva form).
+    assert (docs["disposition.2023.183.76"]["doc_type"], docs["disposition.2023.183.76"]["verdict"]) == ("aau", "favorable_condicionada")
     # A document the rule does not touch keeps the model's reading.
     assert (docs["C"]["doc_type"], docs["C"]["verdict"]) == ("dia", "desfavorable")
     assert list(docs["C"])[-2:] == ["verdict", "doc_type"]

@@ -91,7 +91,7 @@ def export_projects(conn, out_dir: Path) -> Path:
 
 
 def export_documents(conn, out_dir: Path) -> Path:
-    """documents.csv: verdict and doc_type as resolve reads them, the operative-sentence rule applied."""
+    """documents.csv: verdict and doc_type as resolve reads them, the operative-sentence rule applied to text and title."""
     rows = _query(
         conn,
         """
@@ -105,7 +105,7 @@ def export_documents(conn, out_dir: Path) -> Path:
     )
     for r in rows:
         payload, text = r.pop("payload"), r.pop("text")
-        read = with_operative(payload, text or "") if payload is not None else {}
+        read = with_operative(payload, text or "", r["title"] or "") if payload is not None else {}
         r["verdict"], r["doc_type"] = read.get("verdict"), read.get("doc_type")
     return _write_csv(out_dir / "documents.csv", rows)
 
@@ -459,14 +459,14 @@ def _aau_publication(conn, aau_file: Path) -> dict:
     for label in labels["tuning"] + labels["held_out"]:
         rows = _query(
             conn,
-            "SELECT d.text, e.payload FROM raw_documents d JOIN extractions e ON e.document_id = d.id "
+            "SELECT d.title, d.text, e.payload FROM raw_documents d JOIN extractions e ON e.document_id = d.id "
             "WHERE d.source = %s AND d.source_id = %s",
             (label["source"], label["source_id"]),
         )
         if not rows:
             continue
         scored += 1
-        correct += with_operative(rows[0]["payload"], rows[0]["text"])["verdict"] == label["expected_verdict"]
+        correct += with_operative(rows[0]["payload"], rows[0]["text"], rows[0]["title"])["verdict"] == label["expected_verdict"]
     counts = _query(conn, "SELECT count(*) FILTER (WHERE status = 'desconocido') AS unknown, count(*) AS total FROM projects")[0]
     return {"held_out": labels["held_out_result"], "live": {"labelled": scored, "correct": correct}, "unknown_projects": counts["unknown"], "projects": counts["total"]}
 

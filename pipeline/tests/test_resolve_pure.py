@@ -310,3 +310,26 @@ def test_a_labelled_figure_wins_over_a_later_unlabelled_one():
     group = [rec(1, _date(2019, 8, 8), 90.75, True), rec(2, _date(2020, 11, 13), 109.5039, False)]
     assert _latest_labelled(group, "mw_nominal") == 90.75
     assert _latest_labelled([group[1]], "mw_nominal") == 109.5039
+
+
+def test_the_operative_rule_reads_the_title_when_the_body_states_nothing():
+    # disposition.2023.183.75: the decision is in the title alone.
+    title = ("Anuncio de 4 de septiembre de 2023, de la Delegación Territorial en Huelva, por el que se da publicidad "
+             "a la nueva autorización ambiental unificada otorgada en esta provincia. (PP. 2085/2023).")
+    payload = {"doc_type": "aau", "verdict": "no_aplica"}
+    assert with_operative(payload, "Expediente AAU/HU/012/22. Promotor: X.", title)["verdict"] == "favorable_condicionada"
+    assert with_operative(payload, "Expediente AAU/HU/012/22. Promotor: X.") is payload
+
+
+def test_the_body_wins_over_the_title():
+    # Jarico 1: the title says "se deniega"; the body as printed says "se otorga".
+    title = "Resolución de 19 de julio de 2023, por la que se da publicidad al informe vinculante con el que se deniega autorización ambiental unificada."
+    body = "Esta Delegación HA RESUELTO dar publicidad al informe vinculante con el que se otorga autorización ambiental unificada."
+    assert with_operative({"doc_type": "aau", "verdict": "no_aplica"}, body, title)["verdict"] == "favorable_condicionada"
+    # A ministry DIA's title states no adjective: it never decides the verdict.
+    dia = {"doc_type": "dia", "verdict": "desfavorable"}
+    dia_title = "Resolución de 1 de marzo de 2023, por la que se formula declaración de impacto ambiental del proyecto X."
+    assert with_operative(dia, "Texto sin frase dispositiva.", dia_title) is dia
+    # A consultation keeps what the model said, whatever its title quotes.
+    consultation = {"doc_type": "informacion_publica", "verdict": "no_aplica"}
+    assert with_operative(consultation, "", "se da publicidad a la autorización ambiental unificada otorgada") is consultation

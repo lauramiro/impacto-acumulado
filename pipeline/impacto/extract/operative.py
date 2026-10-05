@@ -31,8 +31,8 @@ Forms handled (matched on normalised text: lowercase, no accents):
   vinculante ..."): "autorizacion ambiental unificada otorgada" or "se otorga
   autorizacion ambiental unificada" -> aau, favorable_condicionada; "se otorga
   modificacion de" or "se modifica la autorizacion ambiental unificada" ->
-  modificacion, favorable_condicionada; "se deniega la autorizacion ambiental
-  unificada" -> aau, desfavorable; "se archiva la autorizacion ambiental
+  modificacion, favorable_condicionada; "se deniega" or "no se otorga la
+  autorizacion ambiental unificada" -> aau, desfavorable; "se archiva la autorizacion ambiental
   unificada" -> caducidad (the procedure ended without a decision). Most of
   these notices state no verdict at all (the full text is only on the
   department's website) and get none.
@@ -72,13 +72,14 @@ _AAU_DENY = re.compile(
 )
 _PUBLICITY = re.compile(r"\b(?:dar|da|se da|procede a dar) publicidad\b")
 _PUBLISHED_GRANT = re.compile(
-    r"autorizacion ambiental unificada (?:simplificada )?otorgada|se otorga (?:la )?autorizacion ambiental unificada"
+    r"autorizacion ambiental unificada (?:simplificada )?otorgada|(?<!\bno )se otorga (?:la )?autorizacion ambiental unificada"
 )
 _PUBLISHED_MODIFICATION = re.compile(
     r"se otorga (?:la )?modificacion de (?:la )?autorizacion ambiental unificada|se modifica (?:la )?autorizacion ambiental unificada"
 )
 _PUBLISHED_REFUSAL = re.compile(
-    r"se deniega (?:la )?autorizacion ambiental unificada|autorizacion ambiental unificada (?:simplificada )?denegada"
+    r"(?:se deniega|no se otorga) (?:la )?autorizacion ambiental unificada"
+    r"|autorizacion ambiental unificada (?:simplificada )?(?:denegada|no otorgada)"
 )
 # An archived procedure ended without a decision: the project lapses.
 _PUBLISHED_ARCHIVE = re.compile(r"se archiva (?:la )?autorizacion ambiental unificada")

@@ -183,6 +183,16 @@ def test_publication_notice_of_a_refused_aau():
     assert (hit.doc_type, hit.verdict) == ("aau", "desfavorable")
 
 
+def test_publication_notice_of_an_aau_not_granted_is_a_refusal():
+    # Document 562 (Granada): "no se otorga" once read as a grant.
+    notice = (
+        "Acuerdo de 28 de agosto de 2024, de la Delegación Territorial en Granada, por el que se da publicidad a informe "
+        "vinculante por el que no se otorga autorización ambiental unificada al proyecto que se cita."
+    )
+    hit = find_operative(notice)
+    assert (hit.doc_type, hit.verdict) == ("aau", "desfavorable")
+
+
 def test_publication_of_a_resolution_that_modifies_an_aau_is_a_granted_modification():
     # disposition.2024.108.42, the held-out miss of 2026-10-04.
     notice = (

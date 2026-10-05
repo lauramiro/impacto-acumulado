@@ -8,7 +8,7 @@ import psycopg
 
 from impacto.db.connect import connect
 from impacto.extract.capacity import with_capacity
-from impacto.extract.operative import operative_override
+from impacto.extract.operative import find_operative, operative_override
 from impacto.resolve.blocking import Notice, candidate_pairs, correction_targets
 from impacto.resolve.model import Record
 from impacto.resolve.scoring import THRESHOLD, conflict, same_plant_evidence, score_pair
@@ -119,7 +119,7 @@ def load_records(conn: psycopg.Connection) -> list[Record]:
         Record.from_extraction(
             r["id"],
             r["published_at"],
-            with_capacity(with_operative(r["payload"], r["text"]), r["title"], r["text"]),
+            with_capacity(with_operative(r["payload"], r["text"], r["title"]), r["title"], r["text"]),
         )
         for r in rows
     ]
@@ -138,13 +138,25 @@ def load_corrections(conn: psycopg.Connection) -> dict[int, int]:
     )
 
 
-def with_operative(payload: dict, text: str) -> dict:
+# The decisions a title states reliably: the AAU publication notices.
+TITLE_DOC_TYPES = {"aau", "modificacion", "caducidad"}
+
+
+def with_operative(payload: dict, text: str, title: str = "") -> dict:
     """The payload with the operative-sentence rule applied as extraction applies it.
 
     Re-applied on every resolve, so a rule added after a document was
-    extracted reaches it without a new (paid) model call.
+    extracted reaches it without a new (paid) model call. The title is read
+    only when the body states no operative sentence: many BOJA publication
+    notices say "se da publicidad a la nueva autorización ambiental unificada
+    otorgada" in the title alone. Only those publication forms are read from
+    a title: a ministry DIA's title never states its adjective, so the
+    favourable form would read every refusal as granted.
     """
     hit = operative_override(payload.get("doc_type", "otro"), text)
+    if hit is None and find_operative(text) is None:
+        hit = operative_override(payload.get("doc_type", "otro"), title)
+        hit = hit if hit is not None and hit.doc_type in TITLE_DOC_TYPES else None
     return payload if hit is None else {**payload, "doc_type": hit.doc_type, "verdict": hit.verdict}
 
 
