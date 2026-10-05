@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -139,12 +140,20 @@ def select_consultation_items(items: list[SummaryItem]) -> list[SummaryItem]:
 
 
 _ENVIRONMENT_TITLE = ["impacto ambiental", "evaluacion ambiental", "estudio de impacto"]
-_ENVIRONMENT_BODY = ["estudio de impacto ambiental", "evaluacion de impacto ambiental", "declaracion de impacto ambiental"]
+# In the body, only wording that puts the assessment itself under consultation.
+# A plant that "ha obtenido declaración de impacto ambiental" is past it: the
+# consultation is on its energy permit or expropriation (observed in 2023-2026
+# public-utility and modification notices). Storage exempt from the assessment
+# (Real Decreto 997/2025) says so with "exento del trámite".
+_ENVIRONMENT_BODY = ["estudio de impacto ambiental", "evaluacion de impacto ambiental ordinaria", "evaluacion de impacto ambiental simplificada"]
+_EXEMPTION = re.compile(r"exent[ao]s? del tramite de evaluacion de impacto ambiental[^.]*")
 
 
 def assesses_environment(title: str, body: str) -> bool:
     """Whether a consultation covers the environmental assessment, not only the energy permit or expropriation."""
-    return _has_any(title, _ENVIRONMENT_TITLE) or _has_any(body, _ENVIRONMENT_BODY)
+    if _has_any(title, _ENVIRONMENT_TITLE):
+        return True
+    return _has_any(_EXEMPTION.sub(" ", normalize(body)), _ENVIRONMENT_BODY)
 
 
 def concerns_andalusia(title: str, body: str) -> bool:

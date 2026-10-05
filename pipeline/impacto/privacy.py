@@ -6,9 +6,15 @@ number ("relación concreta e individualizada de bienes y derechos
 afectados"). The site needs none of it, so the list and everything after it
 are cut before the text reaches the database, the HTTP cache or the LLM.
 
-If an identity number is still in the text after the cut, the list was not
-where the rule expects it, and the announcement is held back for a person to
-review rather than stored whole.
+The cut is made at a paragraph: the one that opens the list (its heading,
+alone or after "Anexo"), or the first owner row ("Titular:", "Finca n").
+A sentence that only mentions the list ("...la relación de bienes y derechos
+que figura como anexo") is kept, with what follows it: public-utility notices
+state their objection period after that sentence.
+
+If an identity number or an owner label is still in the text after the cut,
+the list was not where the rule expects it, and the announcement is held back
+for a person to review rather than stored whole.
 """
 
 from __future__ import annotations
@@ -18,12 +24,16 @@ from dataclasses import dataclass
 
 from impacto.text import strip_accents
 
-# The heading of the owner list, matched on lowercased, accent-free text.
-_OWNER_LIST = re.compile(r"relacion (?:concreta e individualizada )?de (?:los )?bienes,? (?:y|e|o) derechos")
+# A paragraph that opens the owner list, matched on lowercased, accent-free text.
+_LIST_HEADING = re.compile(
+    r"^(?:anexo\s*[ivx0-9]*\s*[:.\-]?\s*)?relacion (?:concreta e individualizada )?de (?:los )?bienes,? (?:y|e|o) derechos"
+)
+# A bare "ANEXO" paragraph right before the list goes with it.
+_ANNEX_LABEL = re.compile(r"^anexo\s*[ivx0-9]*\s*[:.\-]?\s*$")
+# An owner row.
+_OWNER_ROW = re.compile(r"\btitular(?:es)?\s*:|^finca\s*(?:n[ºo.]*\s*)?\d")
 # Spanish DNI and NIE numbers, whole or with the BOE's masking (***4567**).
 _IDENTITY = re.compile(r"\b\d{8}[A-Z]\b|\b[XYZ]\d{7}[A-Z]\b|\*{3}\d{4}\*{2}")
-# A labelled owner left behind.
-_OWNER_LABEL = re.compile(r"\btitular(?:es)?\s*:", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -34,18 +44,25 @@ class StripResult:
     reason: str = ""
 
 
+def _fold(paragraph: str) -> str:
+    return strip_accents(paragraph).lower().strip()
+
+
 def strip_personal_annex(text: str) -> StripResult:
-    """The text up to the owner list, how much was cut, and whether to hold it back."""
-    # Folded one character at a time so positions in `folded` are positions in
-    # `text` (a ligature or a multi-character lowercase would shift them).
-    folded = "".join((strip_accents(c)[:1] or c).lower()[:1] or c for c in text)
-    match = _OWNER_LIST.search(folded)
-    kept = text if match is None else text[: match.start()]
-    # Drop an "Anexo:" label left dangling just before the list.
-    kept = re.sub(r"(?i)\s*anexo\s*[:.]?\s*$", "", kept).rstrip()
+    """The text before the owner list, how much was cut, and whether to hold it back."""
+    paragraphs = text.split("\n")
+    cut = len(paragraphs)
+    for i, paragraph in enumerate(paragraphs):
+        folded = _fold(paragraph)
+        if _LIST_HEADING.search(folded) or _OWNER_ROW.search(folded):
+            cut = i
+            if i > 0 and _ANNEX_LABEL.match(_fold(paragraphs[i - 1])):
+                cut = i - 1
+            break
+    kept = "\n".join(paragraphs[:cut]).rstrip()
     removed = len(text) - len(kept)
     if _IDENTITY.search(kept):
         return StripResult(kept, removed, True, "an identity number remains after the cut")
-    if _OWNER_LABEL.search(kept):
+    if re.search(r"\btitular(?:es)?\s*:", kept, re.IGNORECASE):
         return StripResult(kept, removed, True, "a 'titular:' label remains after the cut")
     return StripResult(kept, removed, False)
