@@ -11,6 +11,7 @@ import psycopg
 from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
 from impacto.developers import GROUPS_FILE, build_developers, load_groups
+from impacto.privacy import has_identity_number
 from impacto.resolve.run import with_operative
 from impacto.settings import load_settings
 
@@ -110,6 +111,70 @@ def export_developers(conn, out_dir: Path, groups_file: Path = GROUPS_FILE) -> P
         "JOIN projects_for_aggregates a ON a.id = p.id ORDER BY p.id",
     )
     return _write_json(out_dir / "developers.json", build_developers(rows, load_groups(groups_file)))
+
+
+# Evidence quotes published next to the fact-sheet figures. Other keys the
+# model may cite (related projects, coordinates) are not shown on the site.
+DETAIL_EVIDENCE_KEYS = (
+    "doc_type", "verdict", "project_name", "developer", "expediente", "technology",
+    "mw_nominal", "mw_peak", "hectares", "turbines", "municipalities",
+)
+
+
+def _distinct(names) -> list[str]:
+    """Names once each, ignoring case and spacing, in the spelling first seen, sorted."""
+    seen: dict[str, str] = {}
+    for n in names or []:
+        if isinstance(n, str) and n.strip():
+            seen.setdefault(" ".join(n.split()).casefold(), " ".join(n.split()))
+    return sorted(seen.values(), key=str.casefold)
+
+
+def project_details(rows: list[dict]) -> dict[str, list[dict]]:
+    """Per project, the substance each document's extraction holds, oldest document first.
+
+    A document with nothing to show is left out. A quote or condition that
+    holds an identity number is dropped: the site publishes no personal data.
+    """
+    out: dict[str, list[dict]] = {}
+    for r in sorted(rows, key=lambda r: (r["published_at"], r["document_id"])):
+        p = r["payload"] or {}
+        conditions = [
+            {"category": c.get("category") or "general", "text": c["text"].strip()}
+            for c in p.get("conditions") or []
+            if isinstance(c, dict) and (c.get("text") or "").strip() and not has_identity_number(c["text"])
+        ]
+        evidence = {
+            k: v.strip()
+            for k, v in (p.get("evidence") or {}).items()
+            if k in DETAIL_EVIDENCE_KEYS and isinstance(v, str) and v.strip() and not has_identity_number(v)
+        }
+        doc = {
+            "document_id": r["document_id"],
+            "expediente": p.get("expediente") or None,
+            "conditions": conditions,
+            "species_mentioned": _distinct(p.get("species_mentioned")),
+            "protected_areas_mentioned": _distinct(p.get("protected_areas_mentioned")),
+            "evidence": evidence,
+            "utm_coordinates": [c for c in p.get("utm_coordinates") or [] if isinstance(c, dict)],
+        }
+        if any(doc[k] for k in ("expediente", "conditions", "species_mentioned", "protected_areas_mentioned", "evidence")):
+            out.setdefault(str(r["project_id"]), []).append(doc)
+    return out
+
+
+def export_project_details(conn, out_dir: Path) -> Path:
+    """project_details.json: what each project's documents say beyond the fact sheet (T7)."""
+    rows = _query(
+        conn,
+        """
+        SELECT pd.project_id, d.id AS document_id, d.published_at, e.payload
+        FROM project_documents pd
+        JOIN raw_documents d ON d.id = pd.document_id
+        JOIN extractions e ON e.document_id = d.id
+        """,
+    )
+    return _write_json(out_dir / "project_details.json", project_details(rows))
 
 
 def export_municipality_stats(conn, out_dir: Path) -> Path:
@@ -493,6 +558,7 @@ def export_all(
         export_projects(conn, out_dir),
         export_documents(conn, out_dir),
         export_developers(conn, out_dir),
+        export_project_details(conn, out_dir),
         export_municipality_stats(conn, out_dir),
         export_province_monthly(conn, out_dir),
         export_monthly_events(conn, out_dir),

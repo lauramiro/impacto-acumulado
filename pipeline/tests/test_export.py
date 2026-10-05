@@ -11,6 +11,7 @@ from impacto.aggregate.export import (
     export_evaluation,
     export_open_consultations,
     export_sensitivity_geojson,
+    project_details,
 )
 from impacto.aggregate.run import run_aggregate
 from impacto.resolve.run import run_resolve
@@ -36,6 +37,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "municipality_stats.csv",
         "municipality_stats.json",
         "open_consultations.json",
+        "project_details.json",
         "projects.csv",
         "protected_area_stats.json",
         "protected_areas.geojson",
@@ -530,3 +532,48 @@ def test_export_developers_groups_projects_by_normalised_key(db, tmp_path):
     assert enel["mw_by_status"] == {"desfavorable": 20.0, "favorable": 50.0}
     assert enel["mw_count"] == 2
     assert devs["otra-solar"]["project_ids"] == [2]
+
+
+def test_project_details_keep_substance_and_drop_identity_numbers():
+    rows = [
+        {
+            "project_id": 7,
+            "document_id": 2,
+            "published_at": date(2023, 1, 1),
+            "payload": {
+                "expediente": "AAU/SE/1/22",
+                "conditions": [
+                    {"category": "fauna", "text": " Parada biológica de marzo a julio. "},
+                    {"category": None, "text": "Vallado permeable."},
+                    {"category": "general", "text": "Titular 12345678Z notificado."},
+                    {"category": "agua", "text": ""},
+                ],
+                "species_mentioned": ["Sisón", "sisón ", "Aguilucho cenizo", "Sisón"],
+                "protected_areas_mentioned": ["ZEPA Campiñas de Sevilla"],
+                "evidence": {"mw_nominal": "49,9 MW", "related_projects": "x", "developer": "D. 12345678Z"},
+                "utm_coordinates": [{"x": 1.0, "y": 2.0, "zone": 30}],
+            },
+        },
+        {"project_id": 7, "document_id": 1, "published_at": date(2022, 6, 1), "payload": {"expediente": "AAU/SE/1/22"}},
+        {"project_id": 8, "document_id": 3, "published_at": date(2022, 6, 1), "payload": {"conditions": []}},
+        {"project_id": 9, "document_id": 4, "published_at": date(2022, 6, 1), "payload": None},
+    ]
+    details = project_details(rows)
+    assert list(details) == ["7"]
+    first, second = details["7"]
+    assert first == {
+        "document_id": 1,
+        "expediente": "AAU/SE/1/22",
+        "conditions": [],
+        "species_mentioned": [],
+        "protected_areas_mentioned": [],
+        "evidence": {},
+        "utm_coordinates": [],
+    }
+    assert second["conditions"] == [
+        {"category": "fauna", "text": "Parada biológica de marzo a julio."},
+        {"category": "general", "text": "Vallado permeable."},
+    ]
+    assert second["species_mentioned"] == ["Aguilucho cenizo", "Sisón"]
+    assert second["evidence"] == {"mw_nominal": "49,9 MW"}
+    assert second["utm_coordinates"] == [{"x": 1.0, "y": 2.0, "zone": 30}]

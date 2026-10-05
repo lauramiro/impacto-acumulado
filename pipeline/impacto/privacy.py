@@ -66,3 +66,8 @@ def strip_personal_annex(text: str) -> StripResult:
     if re.search(r"\btitular(?:es)?\s*:", kept, re.IGNORECASE):
         return StripResult(kept, removed, True, "a 'titular:' label remains after the cut")
     return StripResult(kept, removed, False)
+
+
+def has_identity_number(text: str) -> bool:
+    """True when the text holds a DNI, NIE or masked identity number."""
+    return bool(_IDENTITY.search(text))
