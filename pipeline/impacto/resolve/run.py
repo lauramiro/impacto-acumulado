@@ -147,7 +147,14 @@ def write_projects(conn: psycopg.Connection, groups: list[list[Record]], today: 
             cur.execute("DELETE FROM projects")
             for group in groups:
                 status, status_doc = derive_status(group, today)
-                name = _latest_with(group, "name") or f"Proyecto sin nombre ({group[0].document_id})"
+                # An impact declaration names the project it assesses; later
+                # notices ("el proyecto que se cita") often carry a looser name.
+                declarations = [r for r in group if r.doc_type == "dia"]
+                name = (
+                    _latest_with(declarations, "name")
+                    or _latest_with(group, "name")
+                    or f"Proyecto sin nombre ({group[0].document_id})"
+                )
                 # The id is the group's minimum document id: document ids
                 # never change, so a project keeps its id across the weekly
                 # rebuild of this table and links to it stay valid. The

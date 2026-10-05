@@ -103,6 +103,18 @@ jobs:
         with:
           name: resolve-check
           path: ${{ runner.temp }}/resolve-check.md
+      - name: review queue
+        id: review
+        continue-on-error: true
+        run: |
+          uv run python -m impacto review-clusters --out "$RUNNER_TEMP/clusters.csv" --summary-out "$RUNNER_TEMP/review.md"
+          cat "$RUNNER_TEMP/review.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: keep the review queue
+        if: steps.review.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: review-clusters
+          path: ${{ runner.temp }}/clusters.csv
       - run: uv run python -m impacto aggregate
       - run: uv run python -m impacto export
       - name: commit exports

@@ -93,3 +93,18 @@ def test_run_resolve_falls_back_to_otra_when_no_document_names_a_technology(db, 
     with db.cursor() as cur:
         cur.execute("SELECT technology FROM projects")
         assert cur.fetchone()["technology"] == "otra"
+
+
+def test_an_impact_declaration_names_the_project_over_later_notices(db, fixtures_dir):
+    seed(db, fixtures_dir)
+    payload = {"doc_type": "modificacion", "verdict": "favorable", "project_name": "Ronda I (modificación)", "expediente": "E1",
+               "municipalities": [{"name": "Ronda", "province": "Málaga"}], "confidence": 0.9}
+    upsert_raw_document(db, RawDocument("boe", "D", date(2024, 6, 1), "t", "u", "III", "o", "text D"))
+    with db.cursor() as cur:
+        cur.execute("SELECT id FROM raw_documents WHERE source_id = 'D'")
+        doc_id = cur.fetchone()["id"]
+    save_extraction(db, doc_id, "stub", "v1", payload, 0.9, None)
+    run_resolve(db)
+    with db.cursor() as cur:
+        cur.execute("SELECT canonical_name FROM projects p JOIN project_documents pd ON pd.project_id = p.id WHERE pd.document_id = %s", (doc_id,))
+        assert cur.fetchone()["canonical_name"] == "Parque fotovoltaico Ronda I"

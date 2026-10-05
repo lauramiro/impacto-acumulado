@@ -10,6 +10,7 @@ COMMANDS = {
     "extract": "impacto.extract.run",
     "resolve": "impacto.resolve.run",
     "resolve-check": "impacto.resolve.check",
+    "review-clusters": "impacto.resolve.review",
     "aggregate": "impacto.aggregate.run",
     "export": "impacto.aggregate.export",
     "reference": "impacto.reference.load",

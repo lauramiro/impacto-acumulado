@@ -1,0 +1,126 @@
+from datetime import date
+
+from impacto.resolve.review import (
+    Group,
+    ReviewDoc,
+    is_generic,
+    pp_numbers,
+    queue,
+    reviewed,
+    rules,
+    summary,
+)
+
+
+def doc(
+    i,
+    *,
+    title="t",
+    doc_type="aau",
+    verdict="no_aplica",
+    expediente=None,
+    mw=None,
+    day=None,
+    key=None,
+):
+    return ReviewDoc(
+        i, day or date(2023, 1, i), title, doc_type, verdict, expediente, mw, ("Marmolejo",), key
+    )
+
+
+def test_a_clean_pair_hits_nothing():
+    g = Group(
+        1,
+        "Planta solar Guadame III",
+        (doc(1, mw=50, expediente="AAU/JA/1/22"), doc(2, mw=50.4, expediente="AAU/JA/1/22/M1")),
+    )
+    assert rules(g) == []
+
+
+def test_many_documents():
+    assert "many_documents" in rules(Group(1, "Las Quinientas", tuple(doc(i) for i in range(1, 6))))
+    assert "many_documents" not in rules(
+        Group(1, "Las Quinientas", tuple(doc(i) for i in range(1, 5)))
+    )
+
+
+def test_several_pp_numbers_in_titles():
+    assert pp_numbers(
+        ["Anuncio ... que se cita. (PP. 81/2019).", "otro (PP. 081/2019)", "x PP. 12/2020"]
+    ) == {"81/2019", "12/2020"}
+    g = Group(1, "Guadame", (doc(1, title="a (PP. 81/2019)."), doc(2, title="b (PP. 12/2020).")))
+    assert "several_pp_numbers" in rules(g)
+
+
+def test_mw_more_than_ten_percent_apart():
+    assert "mw_differs" in rules(Group(1, "Guadame", (doc(1, mw=50), doc(2, mw=138.4))))
+    assert "mw_differs" not in rules(Group(1, "Guadame", (doc(1, mw=50), doc(2, mw=54.9))))
+
+
+def test_several_expedientes_ignore_modification_suffixes():
+    same = Group(
+        1, "Guadame", (doc(1, expediente="AAU/JA/12/21"), doc(2, expediente="AAU/JA/12/21/M1"))
+    )
+    other = Group(
+        1, "Guadame", (doc(1, expediente="AAU/JA/12/21"), doc(2, expediente="AAU/JA/13/21"))
+    )
+    assert "several_expedientes" not in rules(same)
+    assert "several_expedientes" in rules(other)
+
+
+def test_consultation_after_a_decision():
+    g = Group(
+        1,
+        "Marchenilla VII",
+        (
+            doc(1, doc_type="aau", verdict="favorable", day=date(2022, 3, 1)),
+            doc(2, doc_type="informacion_publica", day=date(2024, 5, 1)),
+        ),
+    )
+    assert "consultation_after_decision" in rules(g)
+    before = Group(
+        1,
+        "X",
+        (
+            doc(1, doc_type="informacion_publica", day=date(2021, 1, 1)),
+            doc(2, verdict="favorable", day=date(2022, 1, 1)),
+        ),
+    )
+    assert "consultation_after_decision" not in rules(before)
+
+
+def test_generic_names():
+    assert is_generic("Planta Solar Fotovoltaica")
+    assert is_generic("Parque solar fotovoltaico de 50 MW")
+    assert is_generic("Plantas Solares Fotovoltaicas")
+    assert not is_generic("Planta solar fotovoltaica Las Quinientas")
+    assert "generic_name" in rules(Group(1, "Planta Solar Fotovoltaica", (doc(1),)))
+
+
+def test_keyed_groups_are_listed_as_reviewed_and_left_out_of_the_count():
+    keyed = Group(1, "Planta Solar Fotovoltaica", (doc(1, key="a"), doc(2, key="a")))
+    open_ = Group(2, "Planta Solar Fotovoltaica", (doc(3, key="a"), doc(4)))
+    clean = Group(3, "Las Quinientas", (doc(5),))
+    rows = queue([keyed, open_, clean])
+    assert [(g.project_id, done) for g, _, done in rows] == [(1, True), (2, False)]
+    assert reviewed(keyed) and not reviewed(open_)
+    assert summary(rows).startswith(
+        "Review queue: 1 project(s) to review (generic_name 1); 1 more already keyed"
+    )
+
+
+def test_review_clusters_reads_the_database(db, fixtures_dir, tmp_path):
+    from impacto.resolve.review import load_groups, write_csv
+    from impacto.resolve.run import run_resolve
+    from tests.test_resolve_run import seed
+
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    groups = {g.project_id: g for g in load_groups(db)}
+    assert sorted(len(g.docs) for g in groups.values()) == [1, 2]
+    ronda = next(g for g in groups.values() if len(g.docs) == 2)
+    assert ronda.docs[0].doc_type == "informacion_publica"
+    assert ronda.docs[1].mw == 93
+    assert ronda.docs[0].municipalities == ("Ronda",)
+    path = write_csv(queue(list(groups.values())), tmp_path / "clusters.csv")
+    assert path.read_text(encoding="utf-8").startswith("project_id,name,rules,reviewed")
