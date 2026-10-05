@@ -1,7 +1,7 @@
 from datetime import date
 
 from impacto.resolve.blocking import Notice, corrected_reference, correction_targets, is_correction
-from impacto.resolve.run import resolve
+from impacto.resolve.run import _match_reason, resolve
 from impacto.resolve.status import derive_status
 from tests.test_resolve_pure import rec
 
@@ -144,3 +144,18 @@ def test_a_correction_with_no_decision_leaves_the_original_verdict():
     notice = rec(10, "Ronda", doc_type="informacion_publica", verdict="no_aplica", day=date(2022, 1, 1))
     notice_fix = rec(11, "Ronda", doc_type="informacion_publica", verdict="no_aplica", day=date(2022, 2, 1))
     assert derive_status([notice, notice_fix], corrections={11: 10}) == ("en_consulta", 10)
+
+
+def test_a_correction_and_its_target_match_with_full_confidence():
+    original = rec(194, "Jarico 1", doc_type="aau", day=date(2023, 7, 24))
+    correction = rec(122, None, munis=(), mw=None, doc_type="aau", day=date(2023, 7, 28))
+    other = rec(300, "Jarico 1", doc_type="aau", day=date(2023, 8, 1))
+    group = [original, correction, other]
+    assert _match_reason(group, correction, {122: 194}) == (1.0, "correction")
+    assert _match_reason(group, original, {122: 194}) == (1.0, "correction")
+    # A document the correction does not touch is still scored on its own match.
+    assert _match_reason(group, other, {122: 194})[1] != "correction"
+    # Without the link, or with the target in another group, no correction reason.
+    assert _match_reason(group, correction)[1] != "correction"
+    assert _match_reason([correction, other], correction, {122: 194})[1] != "correction"
+    assert _match_reason([original], original, {122: 194}) == (1.0, "single")

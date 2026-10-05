@@ -27,6 +27,7 @@ export async function loadDocuments(): Promise<GazetteDocument[]> {
       verdict: r.verdict,
       matchScore: r.match_score,
       confidence: r.confidence,
+      correctsDocumentId: r.corrects_document_id,
     };
   });
 }

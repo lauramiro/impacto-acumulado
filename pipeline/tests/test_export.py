@@ -12,6 +12,7 @@ from impacto.aggregate.export import (
     export_open_consultations,
     export_sensitivity_geojson,
     project_details,
+    retired_projects,
 )
 from impacto.aggregate.run import run_aggregate
 from impacto.db.documents import RawDocument, save_extraction, upsert_raw_document
@@ -45,6 +46,7 @@ def test_export_writes_all_files(db, fixtures_dir, tmp_path):
         "province_monthly.csv",
         "province_stats.json",
         "provinces.geojson",
+        "retired_projects.json",
         "sensitivity_eol.geojson",
         "sensitivity_ftv.geojson",
         "splitting_candidates.json",
@@ -618,7 +620,8 @@ def test_documents_csv_carries_the_verdict_resolve_reads(db, fixtures_dir, tmp_p
     assert (docs["disposition.2023.183.76"]["doc_type"], docs["disposition.2023.183.76"]["verdict"]) == ("aau", "favorable_condicionada")
     # A document the rule does not touch keeps the model's reading.
     assert (docs["C"]["doc_type"], docs["C"]["verdict"]) == ("dia", "desfavorable")
-    assert list(docs["C"])[-2:] == ["verdict", "doc_type"]
+    assert list(docs["C"])[-3:] == ["verdict", "doc_type", "corrects_document_id"]
+    assert docs["C"]["corrects_document_id"] == ""
 
 
 def test_export_fails_when_a_project_consists_only_of_corrections(db, fixtures_dir, tmp_path):
@@ -634,3 +637,46 @@ def test_export_fails_when_a_project_consists_only_of_corrections(db, fixtures_d
     with pytest.raises(ValueError, match="only of correction notices"):
         export_all(db, tmp_path)
     assert not (tmp_path / "projects.csv").exists()
+
+
+def test_documents_csv_links_a_correction_to_the_document_it_corrects(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    title = (
+        "Resolución de 19 de julio de 2023, de la Delegación Territorial en Cádiz, por la que se da publicidad al informe "
+        "vinculante con el que se deniega autorización ambiental unificada en el término municipal de Tarifa (Cádiz)."
+    )
+    original = _add_document(
+        db, "disposition.2023.140.66", title,
+        {"doc_type": "aau", "verdict": "favorable_condicionada", "project_name": "Jarico 1", "municipalities": ["Tarifa"]}, "text",
+    )
+    _add_document(
+        db, "disposition.2023.144.67",
+        f"Corrección de errores de la {title} (BOJA núm. 140, de 24 de julio de 2023).",
+        {"doc_type": "aau", "verdict": "desfavorable"}, "text",
+    )
+    run_resolve(db)
+    run_aggregate(db)
+    export_all(db, tmp_path)
+    with open(tmp_path / "documents.csv", encoding="utf-8", newline="") as f:
+        docs = {r["source_id"]: r for r in csv.DictReader(f)}
+    assert docs["disposition.2023.144.67"]["corrects_document_id"] == str(original)
+    assert docs["disposition.2023.140.66"]["corrects_document_id"] == ""
+    assert docs["disposition.2023.144.67"]["project_id"] == docs["disposition.2023.140.66"]["project_id"]
+    assert {docs["disposition.2023.144.67"]["match_score"], docs["disposition.2023.140.66"]["match_score"]} == {"1.0"}
+
+
+def test_retired_projects_map_a_merged_id_to_the_project_holding_its_lowest_document():
+    previous_docs = {194: 194, 195: 194, 122: 122}
+    current = {194: 122, 195: 122, 122: 122, 300: 300}
+    assert retired_projects({194, 122}, previous_docs, current, {}) == {194: 122}
+
+
+def test_retired_projects_keep_old_entries_and_follow_a_later_merge():
+    # 38 went to 18 in an earlier week; 18 now merges into 5.
+    existing = {38: 18}
+    assert retired_projects({18, 5}, {18: 18, 5: 5}, {18: 5, 5: 5, 38: 5}, existing) == {18: 5, 38: 5}
+
+
+def test_retired_projects_drop_an_id_that_is_live_again_or_has_no_target():
+    assert retired_projects(set(), {}, {7: 7}, {7: 3}) == {}
+    assert retired_projects({9}, {9: 9}, {}, {}) == {}

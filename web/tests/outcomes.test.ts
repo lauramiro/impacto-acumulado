@@ -7,7 +7,7 @@ const project = (status: Status): Project => ({
   statusDocumentId: null, firstSeen: "2024-01-01", lastSeen: "2024-01-01", ineCodes: [], provinces: [],
 });
 const doc = (id: number, publishedAt: string, role: GazetteDocument["role"], verdict: GazetteDocument["verdict"] = "no_aplica"): GazetteDocument => ({
-  id, source: "boja", sourceId: `d${id}`, publishedAt, title: "t", url: "u", projectId: 1, role, verdict, matchScore: 1, confidence: 1,
+  id, source: "boja", sourceId: `d${id}`, publishedAt, title: "t", url: "u", projectId: 1, role, verdict, matchScore: 1, confidence: 1, correctsDocumentId: null,
 });
 
 describe("refusals", () => {

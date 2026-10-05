@@ -184,7 +184,15 @@ def _latest_with(group: list[Record], attr: str):
     return None
 
 
-def _match_reason(group: list[Record], r: Record) -> tuple[float, str]:
+def _match_reason(group: list[Record], r: Record, corrections: dict[int, int] | None = None) -> tuple[float, str]:
+    if len(group) == 1:
+        return (1.0, "single")
+    # A correction was joined to its target by the notice it names, not by a
+    # score_pair match: the link is as certain as the reference that made it.
+    links = corrections or {}
+    ids = {m.document_id for m in group}
+    if links.get(r.document_id) in ids or any(links.get(m.document_id) == r.document_id for m in group):
+        return (1.0, "correction")
     best = (0.0, "single")
     for other in group:
         if other is r:
@@ -192,7 +200,7 @@ def _match_reason(group: list[Record], r: Record) -> tuple[float, str]:
         score, reason = score_pair(r, other)
         if score > best[0]:
             best = (score, reason)
-    return best if len(group) > 1 else (1.0, "single")
+    return best
 
 
 def write_projects(
@@ -253,7 +261,7 @@ def write_projects(
                     ),
                 )
                 for r in group:
-                    score, reason = _match_reason(group, r)
+                    score, reason = _match_reason(group, r, corrections)
                     cur.execute(
                         "INSERT INTO project_documents (project_id, document_id, role, match_score, match_reason) VALUES (%s, %s, %s, %s, %s)",
                         (

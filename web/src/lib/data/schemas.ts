@@ -75,6 +75,8 @@ export const DocumentRowSchema = z.object({
   verdict: optionalString.pipe(z.enum(VERDICTS).nullable()),
   match_score: optionalNumber,
   confidence: optionalNumber,
+  // Absent from an export written before the column existed.
+  corrects_document_id: optionalNumber.optional().transform((v) => v ?? null),
 });
 
 export const ProtectedAreaStatsFileSchema = z.record(

@@ -14,7 +14,7 @@ from impacto.db.connect import connect
 from impacto.developers import GROUPS_FILE, build_developers, load_groups
 from impacto.privacy import has_identity_number
 from impacto.resolve.blocking import is_correction
-from impacto.resolve.run import with_operative
+from impacto.resolve.run import load_corrections, with_operative
 from impacto.settings import load_settings
 
 DEFAULT_OUT = Path(__file__).resolve().parents[3] / "web" / "public" / "data"
@@ -32,6 +32,7 @@ PREVIOUS_RUN = EVALUATION_DIR / "2026-09-22_run.json"
 PREVIOUS_LABELS_DIR = EVALUATION_DIR / "labels"
 PERIODS_FILE = EVALUATION_DIR / "periods.json"
 AAU_VERDICTS_FILE = EVALUATION_DIR / "aau_verdicts.json"
+RETIRED_FILE = "retired_projects.json"
 
 # A notice that states no objection period stays listed this long after
 # publication, marked as such; one with a period stays until its deadline.
@@ -65,6 +66,57 @@ def _query(conn: psycopg.Connection, sql: str, params: tuple = ()) -> list[dict]
         return [dict(r) for r in cur.fetchall()]
 
 
+def retired_projects(
+    previous_ids: set[int],
+    previous_docs: dict[int, int],
+    current_docs: dict[int, int],
+    existing: dict[int, int],
+) -> dict[int, int]:
+    """Project id that no longer exists -> the project now holding its lowest document.
+
+    `previous_ids` and `previous_docs` (document -> project) come from the last
+    export, `current_docs` from this one, `existing` from the last retired map.
+    An id live again is dropped; a target that was itself retired is followed,
+    so a redirect never chains.
+    """
+    live = set(current_docs.values())
+    out = dict(existing)
+    for pid in previous_ids - live:
+        held = sorted(d for d, p in previous_docs.items() if p == pid and d in current_docs)
+        if held:
+            out[pid] = current_docs[held[0]]
+    resolved = {}
+    for pid, target in out.items():
+        seen = {pid}
+        while target not in live and target in out and target not in seen:
+            seen.add(target)
+            target = out[target]
+        if pid not in live and target in live:
+            resolved[pid] = target
+    return dict(sorted(resolved.items()))
+
+
+def export_retired_projects(conn, out_dir: Path) -> Path:
+    """retired_projects.json: ids of projects merged into another, kept across weekly exports.
+
+    Reads the previous export's projects.csv and documents.csv and retired map
+    from `out_dir`, so it must run before they are rewritten.
+    """
+    def read_csv(name: str) -> list[dict]:
+        path = out_dir / name
+        if not path.is_file():
+            return []
+        with open(path, encoding="utf-8", newline="") as f:
+            return list(csv.DictReader(f))
+
+    previous_ids = {int(r["id"]) for r in read_csv("projects.csv")}
+    previous_docs = {int(r["id"]): int(r["project_id"]) for r in read_csv("documents.csv") if r["project_id"]}
+    path = out_dir / RETIRED_FILE
+    existing = {int(k): v for k, v in json.loads(path.read_text(encoding="utf-8")).items()} if path.is_file() else {}
+    current_docs = {r["document_id"]: r["project_id"] for r in _query(conn, "SELECT document_id, project_id FROM project_documents")}
+    return _write_json(path, {str(k): v for k, v in retired_projects(previous_ids, previous_docs, current_docs, existing).items()})
+
+
 def export_projects(conn, out_dir: Path) -> Path:
     rows = _query(
         conn,
@@ -91,7 +143,11 @@ def export_projects(conn, out_dir: Path) -> Path:
 
 
 def export_documents(conn, out_dir: Path) -> Path:
-    """documents.csv: verdict and doc_type as resolve reads them, the operative-sentence rule applied to text and title."""
+    """documents.csv: verdict and doc_type as resolve reads them, the operative-sentence rule applied to text and title.
+
+    corrects_document_id is the document a correction notice corrects, when
+    both sit in the same project (the link resolve joined them by).
+    """
     rows = _query(
         conn,
         """
@@ -107,6 +163,12 @@ def export_documents(conn, out_dir: Path) -> Path:
         payload, text = r.pop("payload"), r.pop("text")
         read = with_operative(payload, text or "", r["title"] or "") if payload is not None else {}
         r["verdict"], r["doc_type"] = read.get("verdict"), read.get("doc_type")
+    project_of = {r["id"]: r["project_id"] for r in rows}
+    links = load_corrections(conn)
+    for r in rows:
+        target = links.get(r["id"])
+        same = target is not None and r["project_id"] is not None and project_of.get(target) == r["project_id"]
+        r["corrects_document_id"] = target if same else None
     return _write_csv(out_dir / "documents.csv", rows)
 
 
@@ -613,6 +675,7 @@ def export_all(
     check_corrections(conn)
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = [
+        export_retired_projects(conn, out_dir),  # before projects.csv and documents.csv are rewritten
         export_projects(conn, out_dir),
         export_documents(conn, out_dir),
         export_developers(conn, out_dir),

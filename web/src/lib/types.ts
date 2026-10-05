@@ -103,6 +103,8 @@ export type GazetteDocument = {
   verdict: Verdict | null;
   matchScore: number | null;
   confidence: number | null;
+  /** The document this correction notice corrects, when both belong to the same project. */
+  correctsDocumentId: number | null;
 };
 
 export type Evaluation = {

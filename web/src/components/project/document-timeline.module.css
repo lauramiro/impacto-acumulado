@@ -8,3 +8,4 @@
 .titulo { margin: 0.25rem 0 0.5rem; padding-left: 0.75rem; border-left: 2px solid var(--regla); font-size: var(--texto-pie); }
 .acciones { margin: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: baseline; }
 .marca { color: var(--oficial); }
+.sustituido { text-decoration: line-through; opacity: 0.65; }

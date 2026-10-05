@@ -13,7 +13,7 @@ import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadProvinceStats } from "@/lib/data/province-stats";
 import { toCell } from "@/lib/data/stats";
 import { loadOpenConsultations } from "@/lib/data/consultations";
-import { MonthlyEventRowSchema, ProvinceStatsFileSchema, StatsFileSchema } from "@/lib/data/schemas";
+import { DocumentRowSchema, MonthlyEventRowSchema, ProvinceStatsFileSchema, StatsFileSchema } from "@/lib/data/schemas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
 
 describe("loaders", () => {
@@ -30,6 +30,13 @@ describe("loaders", () => {
       { status: "favorable_condicionada", technology: "solar_fv", projectCount: 1, mwBest: 93, mwCount: 1, mwPeakCount: 0, hectares: 140.1, haCount: 1 },
       { status: "favorable_condicionada", technology: "linea_evacuacion", projectCount: 1, mwBest: 0, mwCount: 0, mwPeakCount: 0, hectares: 0, haCount: 0 },
     ]);
+  });
+
+  it("reads corrects_document_id when present, and null when empty or absent", () => {
+    const row = { id: "122", source: "boja", source_id: "x", published_at: "2023-07-28", title: "t", url: "https://example.org", project_id: "122", role: "aau", match_score: "1", confidence: "0.9", verdict: "desfavorable" };
+    expect(DocumentRowSchema.parse({ ...row, corrects_document_id: "194" }).corrects_document_id).toBe(194);
+    expect(DocumentRowSchema.parse({ ...row, corrects_document_id: "" }).corrects_document_id).toBeNull();
+    expect(DocumentRowSchema.parse(row).corrects_document_id).toBeNull();
   });
 
   it("rejects a stats cell without ha_count", () => {

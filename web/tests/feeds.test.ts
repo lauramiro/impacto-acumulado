@@ -13,6 +13,7 @@ const doc = (id: number, publishedAt: string, extra: Partial<GazetteDocument> = 
   role: "aau",
   verdict: "favorable_condicionada",
   matchScore: 1,
+  correctsDocumentId: null,
   confidence: 0.9,
   ...extra,
 });

@@ -41,10 +41,11 @@ export const CATALOG: CatalogEntry[] = [
       { name: "url", type: "texto", meaning: "Enlace al boletín" },
       { name: "project_id", type: "entero", meaning: "id en projects.csv; vacío si no se agrupó" },
       { name: "role", type: "texto", meaning: ROLE_NOTE },
-      { name: "match_score", type: "decimal", meaning: "Confianza de la agrupación, de 0 a 1" },
+      { name: "match_score", type: "decimal", meaning: "Confianza de la agrupación, de 0 a 1; 1 para una corrección unida al documento que cita" },
       { name: "confidence", type: "decimal", meaning: "Confianza declarada por el modelo de extracción, de 0 a 1" },
       { name: "verdict", type: "texto", meaning: VERDICT_NOTE },
       { name: "doc_type", type: "texto", meaning: "Tipo de documento según la extracción" },
+      { name: "corrects_document_id", type: "entero", meaning: "Si es una corrección de errores: id del documento que corrige, en el mismo proyecto; vacío en los demás" },
     ],
   },
   {
