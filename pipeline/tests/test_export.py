@@ -647,7 +647,7 @@ def test_documents_csv_links_a_correction_to_the_document_it_corrects(db, fixtur
     )
     original = _add_document(
         db, "disposition.2023.140.66", title,
-        {"doc_type": "aau", "verdict": "favorable_condicionada", "project_name": "Jarico 1", "municipalities": ["Tarifa"]}, "text",
+        {"doc_type": "aau", "verdict": "favorable_condicionada", "project_name": "Jarico 1", "municipalities": [{"name": "Tarifa"}]}, "text",
     )
     _add_document(
         db, "disposition.2023.144.67",
