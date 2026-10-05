@@ -20,7 +20,8 @@
 
 .secciones {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
   padding-bottom: 0.5rem;
   font-size: var(--texto-dato);
 }

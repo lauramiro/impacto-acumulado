@@ -14,6 +14,8 @@ import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
+import { loadSplittingGroups } from "@/lib/data/splitting";
+import { SplittingNote } from "@/components/splitting-note";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
 import { formatCoverage, formatInt, formatMw } from "@/lib/format";
@@ -62,6 +64,8 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
     loadOpenConsultations(),
     loadDevelopers(),
   ]);
+  const splitting = (await loadSplittingGroups()).filter((g) => g.ineCodes.includes(ine));
+  const projectsById = new Map(projects.map((p) => [p.id, p]));
   if (!muni) notFound();
   const developerKeys = keysByPrintedName(developers);
 
@@ -93,6 +97,10 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
       <ProtectedAreas areas={areas.get(ine) ?? []} />
 
       {openHere.length > 0 ? <OpenConsultations items={openHere} today={today} /> : null}
+
+      {splitting.map((g) => (
+        <SplittingNote key={g.projectIds.join("-")} group={g} projects={projectsById} />
+      ))}
 
       <section aria-labelledby="proyectos" className={styles.proyectos}>
         <h2 id="proyectos">Proyectos ({formatInt(here.length)})</h2>

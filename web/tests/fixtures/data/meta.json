@@ -83,6 +83,10 @@
     "project_details.json": {
       "rows": 1,
       "bytes": 400
+    },
+    "splitting_candidates.json": {
+      "rows": 1,
+      "bytes": 200
     }
   }
 }

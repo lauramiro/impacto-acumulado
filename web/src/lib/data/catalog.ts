@@ -71,6 +71,11 @@ export const CATALOG: CatalogEntry[] = [
       "Por id de proyecto, lo que la extracción lee en cada documento además de la ficha: expediente, condiciones por categoría (resumidas por el modelo, no literales), especies y espacios protegidos citados, citas literales cortas que respaldan cada dato de la ficha y coordenadas UTM. Lectura automática: el texto que vale es el del boletín.",
   },
   {
+    file: "splitting_candidates.json",
+    description:
+      "Grupos de posible fraccionamiento: proyectos de promotores con el mismo nombre salvo el número final, en municipios iguales o vecinos y con primeros documentos dentro de 24 meses, que declaran cada uno menos de 50 MW y juntos los superan. Un patrón, no una conclusión; la regla está en Metodología.",
+  },
+  {
     file: "municipality_stats.csv",
     description: "Totales por municipio, estado y tecnología. Un proyecto en varios municipios cuenta íntegro en cada uno.",
     columns: [

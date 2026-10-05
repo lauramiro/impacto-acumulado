@@ -11,6 +11,8 @@ import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { distinctNames, loadProjectDetails } from "@/lib/data/project-details";
 import { loadProjectRecord } from "@/lib/data/project-record";
+import { loadSplittingGroups } from "@/lib/data/splitting";
+import { SplittingNote } from "@/components/splitting-note";
 import { loadProjects } from "@/lib/data/projects";
 import { formatMw } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/labels";
@@ -55,6 +57,8 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
     loadDevelopers(),
     loadProjectDetails(),
   ]);
+  const [allProjects, splitting] = await Promise.all([loadProjects(), loadSplittingGroups()]);
+  const projectsById = new Map(allProjects.map((p) => [p.id, p]));
   if (!record) notFound();
   const details = allDetails.get(record.project.id) ?? [];
   const docById = new Map(record.documents.map((d) => [d.id, d]));
@@ -71,6 +75,11 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
     <article className={styles.page}>
       <RecordHeader project={record.project} developerKeys={keysByPrintedName(developers)} />
       <FactSheet project={record.project} municipalities={here} evidence={evidence} expedientes={expedientes} />
+      {splitting
+        .filter((g) => g.projectIds.includes(record.project.id))
+        .map((g) => (
+          <SplittingNote key={g.projectIds.join("-")} group={g} projects={projectsById} current={record.project.id} />
+        ))}
       <Conditions details={details} documents={record.documents} />
       <Mentions species={distinctNames(details.map((d) => d.species))} areas={distinctNames(details.map((d) => d.protectedAreas))} />
       {/* record.statusDocument, not record.project.statusDocumentId: loadProjectRecord

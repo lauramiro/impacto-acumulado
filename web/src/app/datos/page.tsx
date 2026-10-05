@@ -112,6 +112,11 @@ export default async function DataPage() {
         </h3>
         <ul>
           <li>
+            Archivo nuevo, <span className="dato">splitting_candidates.json</span>: grupos de proyectos de promotores con el mismo
+            nombre que declaran cada uno menos de 50 MW y juntos los superan (posible fraccionamiento). Las páginas de proyecto y de
+            municipio los señalan.
+          </li>
+          <li>
             Archivo nuevo, <span className="dato">project_details.json</span>: por proyecto, las condiciones, especies y espacios
             protegidos que leen los documentos y las citas que respaldan cada dato de la ficha. Las páginas de proyecto los
             muestran.

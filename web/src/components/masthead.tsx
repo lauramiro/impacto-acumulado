@@ -10,6 +10,7 @@ export function Masthead() {
       <nav className={styles.secciones} aria-label="Secciones">
         <Link href="/">Mapa</Link>
         <Link href="/promotores">Promotores</Link>
+        <Link href="/resultados">Resultados</Link>
         <Link href="/metodologia">Metodología</Link>
         <Link href="/datos">Datos</Link>
       </nav>

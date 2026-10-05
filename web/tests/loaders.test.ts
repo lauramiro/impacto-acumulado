@@ -1,3 +1,4 @@
+import { loadSplittingGroups } from "@/lib/data/splitting";
 import { distinctNames, loadProjectDetails } from "@/lib/data/project-details";
 import { keysByPrintedName, loadDevelopers, relatedDevelopers } from "@/lib/data/developers";
 import { describe, expect, it } from "vitest";
@@ -250,5 +251,12 @@ describe("loadProjectDetails", () => {
 
   it("joins names across documents once each, ignoring case", () => {
     expect(distinctNames([["Sisón", "Avutarda"], ["sisón", "Cernícalo"]])).toEqual(["Avutarda", "Cernícalo", "Sisón"]);
+  });
+});
+
+describe("loadSplittingGroups", () => {
+  it("reads the groups", async () => {
+    const [g] = await loadSplittingGroups();
+    expect(g).toEqual({ family: "cartuja-solar", projectIds: [1, 2], mwTotal: 70, ineCodes: ["29067", "29084"], firstSeen: ["2022-01-01", "2023-05-05"] });
   });
 });

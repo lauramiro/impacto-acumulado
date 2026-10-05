@@ -118,3 +118,14 @@ test("documents lead with what they are and who issued them; a correction says s
   await page.goto("/proyecto/1");
   await expect(page.getByRole("region", { name: /Documentos/ }).getByText(/Dirección General|Subdelegación|Delegación/).first()).toBeVisible();
 });
+
+test("a project in a possible-splitting group says so, neutrally, and links its siblings", async ({ page }) => {
+  const groups: { family: string; project_ids: number[] }[] = JSON.parse(
+    readFileSync(path.join(__dirname, "..", "public", "data", "splitting_candidates.json"), "utf-8"),
+  );
+  const tayant = groups.find((g) => g.family === "tayant-investment")!;
+  await page.goto(`/proyecto/${tayant.project_ids[0]}`);
+  const note = page.getByTestId("fraccionamiento");
+  await expect(note).toContainText("Es un patrón en los datos, no una conclusión");
+  await expect(note.getByRole("link")).toHaveCount(tayant.project_ids.length);
+});

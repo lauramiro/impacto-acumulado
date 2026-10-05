@@ -233,6 +233,27 @@ export default async function MethodologyPage() {
         <li>El mapa clasifica los municipios con valor en cinco clases por cuantiles, recalculadas con cada filtro.</li>
       </ul>
 
+      <h2 id="fraccionamiento">Posible fraccionamiento</h2>
+      <p>
+        El artículo 3.13.a de la Ley 24/2013, del Sector Eléctrico, atribuye al Estado la autorización de las instalaciones
+        peninsulares de producción «de potencia eléctrica instalada superior a 50 MW»; por debajo autoriza la Junta. Dividir una planta
+        en varias por debajo de ese umbral es un patrón que se señala en alegaciones. El sitio marca un grupo de proyectos cuando:
+      </p>
+      <ul>
+        <li>
+          sus promotores tienen el mismo nombre salvo el número final (Tayant Investment 12 a 15), o son la misma sociedad;
+        </li>
+        <li>son al menos dos, cada uno declara menos de 50 MW y juntos superan los 50 MW;</li>
+        <li>cada uno comparte municipio, o linda, con otro del grupo;</li>
+        <li>sus primeros documentos caen dentro de 24 meses.</li>
+      </ul>
+      <p>
+        Es un patrón en los datos, no una conclusión: no dice que haya fraccionamiento ni que sea ilegal, y no comprueba si las
+        sociedades pertenecen al mismo grupo. Usa la potencia que lee el sitio (nominal o, si falta, pico), que puede no ser la
+        potencia instalada a efectos de la ley; los proyectos sin potencia declarada quedan fuera. Otros umbrales, como los de la
+        evaluación ambiental, no se comprueban.
+      </p>
+
       <h2>Plazos de información pública</h2>
       <ul>
         <li>

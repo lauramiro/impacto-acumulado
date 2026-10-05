@@ -154,3 +154,14 @@ export const ProjectDetailsFileSchema = z.record(
     }),
   ),
 );
+
+export const SplittingFileSchema = z.array(
+  z.object({
+    family: z.string(),
+    project_ids: z.array(z.number().int()).min(2),
+    mw: z.array(z.number()),
+    mw_total: z.number(),
+    ine_codes: z.array(z.string()),
+    first_seen: z.tuple([z.string(), z.string()]),
+  }),
+);
