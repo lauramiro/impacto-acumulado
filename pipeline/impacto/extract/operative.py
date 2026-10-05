@@ -141,6 +141,30 @@ def _resolving_part(n: str) -> tuple[int, str] | None:
     return last.start(), n[last.start() :]
 
 
+# The decisions a title states reliably: the AAU forms. A ministry DIA's
+# title never states its adjective, so its favourable form would read every
+# refusal as granted.
+TITLE_DOC_TYPES = {"aau", "modificacion", "caducidad"}
+# A title that is the decision itself: "Acuerdo de 26 de septiembre de 2024,
+# de la Delegación ..., por el que se otorga autorización ambiental unificada
+# para planta fotovoltaica ...". "se otorga la modificación de la ..." does
+# not match: "autorizacion" must follow the verb.
+_TITLE_DECISION = re.compile(
+    r"\bpor (?:el|la) que (?P<verb>se otorga|no se otorga|se deniega) (?:la )?autorizacion ambiental unificada"
+)
+
+
+def title_override(doc_type: str, title: str) -> OperativeHit | None:
+    """The decision a title states, for a document whose body states none: an AAU form only."""
+    hit = find_operative(title)
+    if hit is None or hit.doc_type not in TITLE_DOC_TYPES:
+        hit = None
+        if m := _TITLE_DECISION.search(normalize(title)):
+            verdict = "favorable_condicionada" if m.group("verb") == "se otorga" else "desfavorable"
+            hit = OperativeHit("aau", verdict, m.group(0))
+    return hit if hit is not None and doc_type in OVERRIDABLE_DOC_TYPES[hit.doc_type] else None
+
+
 def operative_override(doc_type: str, text: str) -> OperativeHit | None:
     """The rule's decision when it should replace a model's doc_type and verdict, else None."""
     hit = find_operative(text)

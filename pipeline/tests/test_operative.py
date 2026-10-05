@@ -1,4 +1,4 @@
-from impacto.extract.operative import find_operative
+from impacto.extract.operative import find_operative, title_override
 from impacto.fetch.boe import parse_document_xml
 
 
@@ -211,3 +211,24 @@ def test_publication_of_an_archived_aau_closes_the_procedure():
     )
     hit = find_operative(notice)
     assert (hit.doc_type, hit.verdict) == ("caducidad", "no_aplica")
+
+
+def test_a_title_that_is_the_decision_decides_the_verdict():
+    # disposition.2024.195.96 (Baza and Caniles): the grant is in the title alone.
+    granted = (
+        "Acuerdo de 26 de septiembre de 2024, de la Delegación Territorial de Sostenibilidad, Medio Ambiente y Economía "
+        "Azul en Granada, por el que se otorga autorización ambiental unificada para planta fotovoltaica y sus "
+        "infraestructuras de evacuación en los términos municipales de Baza y Caniles (Granada). (PP. 9626/2024)."
+    )
+    hit = title_override("aau", granted)
+    assert (hit.doc_type, hit.verdict) == ("aau", "favorable_condicionada")
+    refused = "Resolución de 1 de marzo de 2024, de la Delegación Territorial en Jaén, por la que no se otorga autorización ambiental unificada al proyecto que se cita."
+    assert title_override("otro", refused).verdict == "desfavorable"
+    # A consultation keeps the model's reading; a modification is not a grant of the AAU.
+    assert title_override("informacion_publica", granted) is None
+    assert title_override("aau", "Resolución por la que se otorga la modificación de la autorización ambiental unificada") is None
+
+
+def test_a_ministry_dia_title_decides_nothing():
+    title = "Resolución de 1 de marzo de 2023, de la Dirección General, por la que se formula declaración de impacto ambiental del proyecto X."
+    assert title_override("dia", title) is None
