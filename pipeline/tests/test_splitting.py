@@ -72,3 +72,17 @@ def test_different_families_do_not_group_and_shared_developers_are_not_repeated(
         p(2, "Alfa 2, S.L.; Beta 2, S.L.", 40, ["A"]),
     ]
     assert [g["project_ids"] for g in splitting_candidates(both, set())] == [[1, 2]]
+
+
+def test_a_chain_of_links_never_stretches_a_group_beyond_24_months():
+    chain = [
+        p(1, "Solar 1, S.L.", 30, ["A"], date(2021, 1, 1)),
+        p(2, "Solar 2, S.L.", 30, ["A"], date(2022, 6, 1)),
+        p(3, "Solar 3, S.L.", 30, ["A"], date(2023, 9, 1)),
+        p(4, "Solar 4, S.L.", 30, ["A"], date(2024, 1, 1)),
+    ]
+    groups = splitting_candidates(chain, set())
+    assert [g["project_ids"] for g in groups] == [[1, 2], [3, 4]]
+    for g in groups:
+        first, last = (date.fromisoformat(d) for d in g["first_seen"])
+        assert (last.year - first.year) * 12 + last.month - first.month <= 24

@@ -11,7 +11,8 @@ A group is flagged when all hold:
 - there are at least two;
 - each declares MW (mw_best) under 50, and together they exceed 50;
 - each is linked to another of the group by a shared or neighbouring
-  municipality, and their first documents are at most 24 months apart.
+  municipality, and all their first documents fall within 24 months of the
+  group's earliest (windows are taken from the family's earliest project on).
 """
 
 from __future__ import annotations
@@ -58,13 +59,23 @@ def splitting_candidates(projects: list[dict], adjacency: set[tuple[str, str]]) 
     seen: set[frozenset[int]] = set()
     out = []
     for family, members in sorted(by_family.items()):
+        # Time first: windows of 24 months from the earliest first document,
+        # so pairwise links cannot chain a group beyond the window.
+        windows: list[list[dict]] = []
+        for p in sorted(members, key=lambda p: (p["first_seen"], p["id"])):
+            if (
+                windows
+                and _months_apart(windows[-1][0]["first_seen"], p["first_seen"]) <= WINDOW_MONTHS
+            ):
+                windows[-1].append(p)
+            else:
+                windows.append([p])
         parent = {p["id"]: p["id"] for p in members}
-        for i, a in enumerate(members):
-            for b in members[i + 1 :]:
-                if _months_apart(a["first_seen"], b["first_seen"]) <= WINDOW_MONTHS and _near(
-                    a, b, adjacency
-                ):
-                    parent[_find(parent, a["id"])] = _find(parent, b["id"])
+        for window in windows:
+            for i, a in enumerate(window):
+                for b in window[i + 1 :]:
+                    if _near(a, b, adjacency):
+                        parent[_find(parent, a["id"])] = _find(parent, b["id"])
         groups: dict[int, list[dict]] = {}
         for p in members:
             groups.setdefault(_find(parent, p["id"]), []).append(p)
