@@ -4,8 +4,9 @@ import re
 
 from rapidfuzz import fuzz
 
-from impacto.resolve.blocking import name_key, procedure_key
+from impacto.resolve.blocking import name_key, procedure_key, same_family
 from impacto.resolve.model import Record
+from impacto.text import normalize
 
 THRESHOLD = 0.6
 W_NAME, W_MUNI, W_MW = 0.5, 0.3, 0.2
@@ -45,12 +46,33 @@ def conflict(a: Record, b: Record) -> str | None:
     two plants (a common substation) cannot chain them into one project.
     """
     pa, pb = procedure_key(a.expediente), procedure_key(b.expediente)
-    if pa and pb and pa[0] == pb[0] and pa[1:] != pb[1:]:
+    if pa and pb and same_family(pa[0], pb[0]) and pa != pb:
         return "expediente"
     ma, mb = phase_markers(a.name), phase_markers(b.name)
     if ma and mb and not ma & mb:
         return "phase"
+    if storage_module(a) != storage_module(b):
+        return "storage"
     return None
+
+
+_STORAGE_NAME = re.compile(r"^(?:proyecto (?:de|del) )?(?:modulo|sistema|instalacion|planta)? ?(?:de )?(?:almacenamiento|baterias|bess)\b")
+
+
+def storage_module(r: Record) -> bool:
+    """Whether a document is about a storage module rather than a plant.
+
+    A battery module added to a plant ("Módulo de almacenamiento ... para su
+    hibridación con la planta existente FREYA", PFot-ALM-172) is its own file
+    and its own project: joined to the plant, its 39.6 MW replaced the plant's.
+    A plant built with storage ("Cerro Gordo con almacenamiento BESS") is a plant.
+    """
+    if r.technology == "almacenamiento":
+        return True
+    key = procedure_key(r.expediente)
+    if key and key[0].endswith("-alm"):
+        return True
+    return bool(r.name and _STORAGE_NAME.match(normalize(r.name)))
 
 
 SAME_NAME = 0.9

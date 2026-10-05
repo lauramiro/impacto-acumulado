@@ -134,9 +134,15 @@ def select_consultation_items(items: list[SummaryItem]) -> list[SummaryItem]:
         for item in items
         if item.section == "V"
         and "informacion publica" in normalize(item.title)
-        and _has_any(item.title, RENEWABLE_WORDS)
+        and _has_any(_GRID_FOR_RENEWABLES.sub(" ", normalize(item.title)), RENEWABLE_WORDS)
         and mentions_andalusia(item.title)
     ]
+
+
+# Red Eléctrica's grid works name renewables only as what they evacuate: "Nueva
+# subestación Ronda ... para evacuación de renovables" (BOE-B-2022-18446, 3150
+# MVA), the Cártama and Jordana "Posición EVRE" bays. They are not plants.
+_GRID_FOR_RENEWABLES = re.compile(r"evacuacion de (?:las )?(?:energias )?renovables")
 
 
 _ENVIRONMENT_TITLE = ["impacto ambiental", "evaluacion ambiental", "estudio de impacto"]

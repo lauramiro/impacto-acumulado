@@ -96,9 +96,8 @@ def test_name_key_drops_capacity_figures():
 def test_phase_token_is_not_read_from_a_capacity_figure():
     assert phase_token("Parque eolico Ronda I") == "i"
     assert phase_token("Parque eolico Ronda II de 50 MW") == "ii"
-    # The evacuation tail still hides the phase here; impacto.extract.names
-    # removes such tails at extraction time.
-    assert phase_token("Parque eolico Ronda I de 50 MW y su infraestructura de evacuacion") is None
+    # The evacuation tail's words are generic, so the phase before it is read.
+    assert phase_token("Parque eolico Ronda I de 50 MW y su infraestructura de evacuacion") == "i"
 
 
 def test_a_capacity_figure_does_not_block_two_documents_of_one_project():
@@ -229,6 +228,33 @@ def test_procedure_key_reads_state_expedientes_and_other_separators():
     assert procedure_key("aau-gr-012-22") == procedure_key("aau_gr_012_22") == procedure_key("aau/gr/12/22")
     # A Junta expediente with no year is left unread rather than compared against one that has a year.
     assert procedure_key("aai/hu/123") is None
+
+
+def test_procedure_key_reads_storage_and_hybrid_state_files():
+    assert procedure_key("pfot-alm-194") == ("pfot-alm", "194", "")
+    assert procedure_key("pfot-123-alm") == ("pfot-alm", "123", "")
+    assert procedure_key("pfot-alm-195 ac") == ("pfot-alm", "195", "ac")
+    assert procedure_key("peol-fv-252") == procedure_key("peol-fv 252") == ("peol-fv", "252", "")
+    assert procedure_key("solter-fv-001") == ("solter-fv", "1", "")
+    # After a gazette reference, and not taking a conjunction for a suffix.
+    assert procedure_key("001/2019 pfot 032") == ("pfot", "32", "")
+    assert procedure_key("pfot-365 y pfot-366") == ("pfot", "365", "")
+
+
+def test_a_storage_module_is_not_the_plant_it_hybridises():
+    # BOE-B-2026-4035: a battery module for the existing FREYA plant (PFot-ALM-172).
+    module = rec(1, "Módulo de Almacenamiento de Energía por baterías para su hibridación con la planta solar fotovoltaica existente FREYA",
+                 munis=("carmona",), mw=39.6, exp="pfot-alm-172")
+    plant = rec(2, "Planta solar fotovoltaica Freya", munis=("carmona",), mw=50.0)
+    assert conflict(module, plant) == "storage"
+    assert conflict(module, rec(3, "Freya", munis=("carmona",), exp="pfot-172")) == "expediente"
+    # A plant built with storage is a plant.
+    with_storage = rec(4, "Parque solar fotovoltaico Cerro Gordo con almacenamiento bess", munis=("carmona",))
+    assert conflict(with_storage, rec(5, "Cerro Gordo", munis=("carmona",))) is None
+    # Two modules for different plants share only their wording.
+    other = rec(6, "Módulo de Almacenamiento de Energía por baterías Híbrida Don Rodrigo III", munis=("carmona",), mw=39.6)
+    assert name_key(module.name) == "freya"
+    assert score_pair(module, other)[0] < THRESHOLD
 
 
 def test_state_expedientes_with_different_numbers_conflict():

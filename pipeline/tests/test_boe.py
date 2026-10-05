@@ -134,6 +134,10 @@ def test_consultation_items_are_section_v_renewable_andalusian_notices():
         item("III", kept.title),
         item("V", "Anuncio ... información pública del parque eólico Cuenca (Castilla-La Mancha)"),
         item("V", "Anuncio de la Subdelegación en Sevilla sobre información pública de una carretera"),
+        # Red Eléctrica's grid works name renewables only as what they evacuate.
+        item("V", "Anuncio de la Dependencia de Industria y Energía en Málaga, por el que se somete a información pública "
+                  "la Ampliación de la subestación Jordana en el parque de 400 kV, con objeto de evacuación de renovables "
+                  "(Posición EVRE), en Casares (Málaga)."),
     ]) == [kept]
     assert assesses_environment("... información pública del estudio de impacto ambiental ...", "")
     assert assesses_environment("Anuncio de información pública del parque", "Se somete a información pública el estudio de impacto ambiental.")
