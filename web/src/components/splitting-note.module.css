@@ -1,4 +1,5 @@
-.nota { margin: 1.5rem 0; padding: 0.75rem 1rem; border-left: 3px solid var(--oficial); background: color-mix(in srgb, var(--oficial) 6%, transparent); max-width: 44rem; }
+/* Set apart like the tables (an ink rule above, a hairline below) on the citation blocks' tint; the link blue stays for links. */
+.nota { margin: 1.5rem 0; padding: 0.75rem 1rem; border-top: 1px solid var(--tinta); border-bottom: 1px solid var(--regla); background: color-mix(in srgb, var(--regla) 20%, transparent); max-width: 44rem; }
 .nota h2 { margin: 0 0 0.5rem; }
 .nota p { margin: 0 0 0.5rem; }
 .nota ul { margin: 0; padding-left: 1.25rem; }
