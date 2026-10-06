@@ -91,14 +91,17 @@ export default async function MethodologyPage() {
         <>
           <p id="cobertura-boja" data-testid="cobertura-boja">
             Cobertura del BOJA, comprobada el {formatDate(coverage.checked)}: la búsqueda del BOJA da{" "}
-            <Figure value={formatInt(coverage.total_hits)} /> resultados desde {coverage.from.slice(0, 4)} para las{" "}
+            <Figure value={formatInt(coverage.total_hits)} /> resultados desde {(coverage.scanned_from ?? coverage.from).slice(0, 4)} para las{" "}
             {formatInt(coverage.queries.length)} consultas que usa el sitio, y el sitio guarda <Figure value={formatInt(coverage.stored)} />{" "}
             ({formatPercent(coverage.total_hits ? coverage.stored / coverage.total_hits : 0)}). La mayoría de esos resultados son de
             otras consejerías o de otros asuntos: con la misma selección que aplica el sitio (consejería de medio ambiente, el
             procedimiento en el título y una palabra de renovables) quedan <Figure value={formatInt(coverage.selected)} /> anuncios, y el
             sitio tiene <Figure value={formatInt(coverage.stored)} />, el{" "}
             {formatPercent(coverage.selected ? coverage.stored / coverage.selected : 1)}.
-            {coverage.complete ? "" : " Alguna consulta falló durante la comprobación, así que las cifras de la búsqueda son un mínimo."}{" "}
+            {coverage.complete ? "" : " Alguna consulta falló durante la comprobación, así que las cifras de la búsqueda son un mínimo."}
+            {coverage.timed_out
+              ? ` La comprobación se cortó por su límite de tiempo: lee desde el año actual hacia atrás, así que estas cifras cubren desde ${(coverage.scanned_from ?? coverage.from).slice(0, 4)} y los años anteriores no se han comprobado esta vez.`
+              : ""}{" "}
             La comprobación se repite en cada actualización semanal.
           </p>
           <table className={styles.tabla} aria-label="Cobertura del BOJA por año">

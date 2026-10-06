@@ -751,11 +751,16 @@ def export_meta(conn, out_dir: Path, files: list[Path], boja_coverage: dict | No
     return path
 
 
-def check_boja_coverage(conn, client, today: date | None = None) -> dict | None:
+# The coverage check reads about 217 pages of 1 to 2 MB; from a CI runner with a cold cache that
+# took close to an hour, so the export gives it a fixed time and reports what it covered.
+COVERAGE_MAX_SECONDS = 900.0
+
+
+def check_boja_coverage(conn, client, today: date | None = None, max_seconds: float | None = COVERAGE_MAX_SECONDS) -> dict | None:
     """The BOJA coverage report against the stored documents, or None when the API fails."""
     stored = [r["source_id"] for r in _query(conn, "SELECT source_id FROM raw_documents WHERE source = 'boja'")]
     try:
-        return coverage.boja_coverage(client.get, stored, today or datetime.now(UTC).date())
+        return coverage.boja_coverage(client.get, stored, today or datetime.now(UTC).date(), max_seconds=max_seconds)
     except Exception as exc:  # noqa: BLE001 - the export must not fail because the BOJA API did
         log.warning("boja coverage check skipped: %s", exc)
         return None
@@ -804,11 +809,21 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--refresh-sensitivity", action="store_true", help="rebuild the sensitivity layers even if present")
     parser.add_argument("--skip-coverage", action="store_true", help="do not re-read the BOJA search for the coverage check")
+    parser.add_argument(
+        "--coverage-seconds",
+        type=float,
+        default=COVERAGE_MAX_SECONDS,
+        help="time the coverage check may take, newest year first (0 for no limit); the report says when it ran out",
+    )
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     settings = load_settings()
     with connect(settings.db_dsn) as conn:
-        report = None if args.skip_coverage else check_boja_coverage(conn, CachedClient(settings.http_cache))
+        report = (
+            None
+            if args.skip_coverage
+            else check_boja_coverage(conn, CachedClient(settings.http_cache), max_seconds=args.coverage_seconds or None)
+        )
         paths = export_all(conn, args.out, refresh_sensitivity=args.refresh_sensitivity, boja_coverage=report)
     print("\n".join(str(p) for p in paths))
     return 0

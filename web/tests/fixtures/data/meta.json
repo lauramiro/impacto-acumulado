@@ -6,6 +6,8 @@
     "from": "2019-01-01",
     "queries": ["autorizacion ambiental unificada"],
     "complete": true,
+    "scanned_from": "2026-01-01",
+    "timed_out": true,
     "total_hits": 100,
     "received": 100,
     "selected": 10,

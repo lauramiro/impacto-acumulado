@@ -16,6 +16,11 @@ on:
         description: "LLM model id for the selected provider; when set, exported as IMPACTO_LLM_MODEL and IMPACTO_MISTRAL_MODEL (defaults: openai/gpt-oss-120b, ministral-14b-latest)"
         required: false
         default: ""
+      skip_coverage:
+        description: "Skip the BOJA coverage check in the export (it reads about 217 large pages and is capped at 15 minutes)"
+        required: false
+        type: boolean
+        default: false
       provider:
         description: "LLM provider for the extract step (groq or mistral)"
         required: false
@@ -116,7 +121,15 @@ jobs:
           name: review-clusters
           path: ${{ runner.temp }}/clusters.csv
       - run: uv run python -m impacto aggregate
-      - run: uv run python -m impacto export
+      - name: export
+        env:
+          SKIP_COVERAGE: ${{ inputs.skip_coverage && 'true' || 'false' }}
+        run: |
+          if [ "$SKIP_COVERAGE" = "true" ]; then
+            uv run python -m impacto export --skip-coverage
+          else
+            uv run python -m impacto export
+          fi
       - name: commit exports
         working-directory: ${{ github.workspace }}
         run: |

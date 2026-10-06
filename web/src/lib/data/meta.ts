@@ -13,6 +13,9 @@ const BojaCoverageSchema = CoverageCounts.extend({
   from: DAY,
   queries: z.array(z.string()),
   complete: z.boolean(),
+  // Set when the check ran out of time: the counts cover the years from scanned_from on. Older exports have neither.
+  scanned_from: DAY.optional(),
+  timed_out: z.boolean().optional(),
   years: z.record(z.string(), CoverageCounts),
   missing: z.array(z.string()),
   missing_count: Count,
