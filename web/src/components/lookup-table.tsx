@@ -121,7 +121,8 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
                     <span className="visually-hidden">{c.header}</span>
                   ) : c.sortValue ? (
                     <button type="button" className={styles.ordenar} onClick={() => sortBy(c)}>
-                      {c.header}{" "}
+                      {/* A no-break space: a wrapped header kept its last word, not the arrow alone, on the next line. */}
+                      {c.header}{" "}
                       <span aria-hidden="true" className={styles.flecha}>
                         {sorted === "ascending" ? "▲" : sorted === "descending" ? "▼" : "↕"}
                       </span>
