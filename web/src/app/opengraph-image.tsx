@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { loadMeta } from "@/lib/data/meta";
 import { formatInt, formatLongDate } from "@/lib/format";
+import { SITE_HOST } from "@/lib/site";
 
 export const alt = "Impacto Acumulado: resoluciones ambientales de proyectos renovables en Andalucía";
 export const size = { width: 1200, height: 630 };
@@ -20,7 +21,7 @@ export default async function Image() {
             {`${formatInt(meta.counts.projects)} proyectos del BOE y el BOJA en Andalucía. Datos a ${formatLongDate(meta.generatedAt)}.`}
           </div>
         </div>
-        <div style={{ fontSize: 28 }}>impacto-acumulado.vercel.app</div>
+        <div style={{ fontSize: 28 }}>{SITE_HOST}</div>
       </div>
     ),
     size,

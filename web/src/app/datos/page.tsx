@@ -7,6 +7,7 @@ import { loadMeta, type Meta } from "@/lib/data/meta";
 import { dataFile } from "@/lib/data/paths";
 import { formatBytes, formatInt, formatLongDate } from "@/lib/format";
 import { EVENT_LABELS, ROLE_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
+import { citationText, datasetCreator } from "@/lib/publisher";
 import { SITE_URL } from "@/lib/site";
 import { DOCUMENT_ROLES, EVENTS, STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
 import styles from "./page.module.css";
@@ -46,7 +47,7 @@ function datasetJsonLd(meta: Meta) {
     license: "https://creativecommons.org/licenses/by/4.0/",
     inLanguage: "es",
     isAccessibleForFree: true,
-    creator: { "@type": "Organization", name: "Impacto Acumulado", url: SITE_URL },
+    creator: datasetCreator(SITE_URL),
     isBasedOn: ["https://www.boe.es", "https://www.juntadeandalucia.es/boja"],
     spatialCoverage: { "@type": "Place", name: "Andalucía, España" },
     temporalCoverage: `2019/${year}`,
@@ -90,8 +91,10 @@ export default async function DataPage() {
       </p>
       <h2>Cómo citar</h2>
       <p className={`dato ${styles.cita}`} data-testid="cita">
-        Impacto Acumulado ({year}). Resoluciones ambientales de proyectos renovables en Andalucía, 2019 a {year}. Datos a{" "}
-        {formatLongDate(meta.generatedAt)}. {SITE_URL}/datos
+        {citationText({ year, date: formatLongDate(meta.generatedAt), url: `${SITE_URL}/datos` })}
+      </p>
+      <p>
+        Quién publica el sitio, cómo corregir un error y cómo contactar: <Link href="/acerca">Acerca de</Link>.
       </p>
       <h2>Archivos</h2>
       <p>
@@ -143,7 +146,7 @@ export default async function DataPage() {
         correo, hay servicios gratuitos que convierten un feed en avisos por email: pega en ellos la dirección del feed. El sitio no
         recomienda ninguno ni guarda direcciones de correo.
       </p>
-      <h2>Cambios</h2>
+      <h2 id="cambios">Cambios</h2>
       <section aria-labelledby="cambio-2026-10-06" className={styles.columnas}>
         <h3 id="cambio-2026-10-06">
           <time dateTime="2026-10-06">6 de octubre de 2026</time>

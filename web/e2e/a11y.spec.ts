@@ -13,7 +13,7 @@ async function checkAxe(page: Page, label: string) {
   expect(severe, JSON.stringify(severe, null, 2)).toEqual([]);
 }
 
-for (const url of ["/", "/municipio/11020", "/municipio/29084", "/municipio/41024", "/proyecto/1", "/datos", "/metodologia", "/promotores", "/promotor/tayant-investment-12", "/resultados"]) {
+for (const url of ["/", "/municipio/11020", "/municipio/29084", "/municipio/41024", "/proyecto/1", "/datos", "/acerca", "/metodologia", "/promotores", "/promotor/tayant-investment-12", "/resultados"]) {
   test(`no serious or critical axe violations on ${url}`, async ({ page }) => {
     await page.goto(url);
     if (url === "/") await page.locator("path[data-ine]").first().waitFor();

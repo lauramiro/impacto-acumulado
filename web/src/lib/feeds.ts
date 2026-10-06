@@ -6,7 +6,10 @@ import type { GazetteDocument } from "@/lib/types";
 /** Entries per feed: the newest documents only. */
 export const FEED_SIZE = 50;
 
-/** Tag URIs (RFC 4151) keep entry ids stable if the site moves; the date is the authority's start. */
+/**
+ * Tag URIs (RFC 4151) keep entry ids stable if the site moves; the date is the authority's start.
+ * Deliberately NOT derived from SITE_URL: a domain change must not change entry ids.
+ */
 const TAG = "tag:impacto-acumulado.vercel.app,2026-09-20";
 const GAZETTE = { boe: "BOE", boja: "BOJA" } as const;
 

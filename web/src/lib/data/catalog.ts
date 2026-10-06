@@ -122,6 +122,10 @@ export const CATALOG: CatalogEntry[] = [
   },
   { file: "protected_area_stats.json", description: "Por espacio de la Red Natura 2000: nombre, tipo, municipios que lo intersectan y proyectos de esos municipios por estado y tecnología (a nivel de municipio, no de parcela)." },
   { file: "municipality_protected_areas.json", description: "Por código INE, los espacios de la Red Natura 2000 que intersectan el término municipal." },
+  { file: "municipality_stats.json", description: "Los mismos totales por municipio que municipality_stats.csv, agrupados por código INE; es el archivo que lee el sitio." },
+  { file: "province_stats.json", description: "Totales por provincia, estado y tecnología, agrupados por nombre de provincia." },
+  { file: "retired_projects.json", description: "Identificadores de proyecto retirados porque su proyecto se unió a otro, con el identificador que lo recoge ahora; sus direcciones redirigen al proyecto actual." },
+  { file: "municipalities_map.geojson", description: "Copia más ligera de municipalities.geojson para el mapa de la portada: límites más simplificados, sin cifras: solo código INE, nombre y provincia." },
   { file: "municipalities.geojson", description: "Límites municipales (DERA) simplificados a unos 50 m, con superficie y cuota de sensibilidad alta o máxima." },
   { file: "protected_areas.geojson", description: "Espacios de la Red Natura 2000 en Andalucía, simplificados a unos 50 m." },
   { file: "sensitivity_ftv.geojson", description: "Zonificación ambiental del Ministerio para fotovoltaica, clases alta, muy alta y máxima, disuelta y recortada a Andalucía." },
@@ -138,10 +142,3 @@ export const CATALOG: CatalogEntry[] = [
       "Anuncios de información pública con plazo de alegaciones abierto en la fecha de exportación: proyecto, municipios, plazo leído del anuncio con la frase que lo dice, fecha límite calculada y enlace al boletín; y la precisión de la lectura del plazo sobre anuncios etiquetados a mano.",
   },
 ];
-
-// municipality_stats.json y municipalities_map.geojson quedan fuera a propósito: son
-// versiones internas, en forma apta para la web, de datos que ya están en esta lista
-// (municipality_stats.csv y municipalities.geojson respectivamente) y no aportan
-// información nueva. province_stats.json también es interno: una copia en forma
-// apta para la web de lo que ya dan projects.csv y municipalities.geojson juntos.
-// Ver docs/superpowers/specs/2026-09-22-web-slice-2-design.md.

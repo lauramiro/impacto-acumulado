@@ -47,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <hr />
           <Dateline meta={meta} />
           <p>
-            <a href="/metodologia">Metodología</a> · <a href="/datos">Datos</a>
+            <a href="/metodologia">Metodología</a> · <a href="/datos">Datos</a> · <a href="/acerca">Acerca de</a>
           </p>
         </footer>
       </body>

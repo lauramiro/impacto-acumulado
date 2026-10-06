@@ -1,0 +1,2 @@
+.page { max-width: 44rem; }
+.cita { padding: 0.75rem 1rem; border-left: 2px solid var(--tinta); background: color-mix(in srgb, var(--regla) 20%, transparent); overflow-wrap: anywhere; }

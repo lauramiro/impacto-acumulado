@@ -2,6 +2,8 @@
 
 What personal data this project handles, what it drops, and where data goes. Written 2026-10-05 when BOE section V announcements were added. It records facts about the pipeline; it is not a legal assessment. A review by someone qualified in Spanish data protection is due before the site is promoted to NGOs, councils or the press.
 
+**Launch status:** open item. The review by someone qualified in Spanish data protection described above is not yet recorded; no reviewer, date or outcome is on file. Update this line when it is.
+
 ## Sources
 
 Official gazettes only: the BOE (sections III and V) and the BOJA. Their texts are public and are reused under Ley 37/2007 on the reuse of public-sector information and each gazette's reuse conditions (stated on `/datos`).

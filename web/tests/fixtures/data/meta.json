@@ -103,6 +103,10 @@
     "splitting_candidates.json": {
       "rows": 1,
       "bytes": 200
+    },
+    "retired_projects.json": {
+      "rows": 1,
+      "bytes": 50
     }
   }
 }

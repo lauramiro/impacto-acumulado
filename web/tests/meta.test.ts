@@ -10,7 +10,7 @@ it("loads meta.json and parses the timestamp", async () => {
 it("lists every export with rows and bytes", async () => {
   const meta = await loadMeta();
   expect(meta.files["projects.csv"]).toEqual({ rows: 2, bytes: 400 });
-  expect(Object.keys(meta.files)).toHaveLength(20);
+  expect(Object.keys(meta.files)).toHaveLength(21);
 });
 
 it("carries the newest document date and the BOJA coverage check", async () => {

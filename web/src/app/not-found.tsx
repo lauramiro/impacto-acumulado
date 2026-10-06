@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Página no encontrada · Impacto Acumulado",
+  robots: { index: false },
+};
 
 export default function NotFound() {
   return (

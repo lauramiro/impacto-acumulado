@@ -11,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${SITE_URL}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/metodologia`, lastModified, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/acerca`, lastModified, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/datos`, lastModified, changeFrequency: "weekly", priority: 0.5 },
     ...munis.map((m) => ({ url: `${SITE_URL}/municipio/${m.ine}`, lastModified, changeFrequency: "weekly" as const, priority: 0.7 })),
     { url: `${SITE_URL}/resultados`, lastModified, changeFrequency: "weekly", priority: 0.5 },
