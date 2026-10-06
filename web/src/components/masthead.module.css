@@ -18,11 +18,18 @@
   padding-bottom: 0.35rem;
 }
 
+.derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
 .secciones {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1.25rem;
-  padding-bottom: 0.5rem;
   font-size: var(--texto-dato);
 }
 
@@ -37,8 +44,31 @@
   text-decoration-thickness: 2px;
 }
 
-/* On a phone the title on one line keeps the place search in the first screen. */
+/* Between a phone and a wide screen the title fills the first line: the sections and the
+   search share the next one, sections on the left, the search on the right. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .derecha {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.25rem;
+  }
+
+  .derecha > :first-child {
+    order: 2;
+  }
+}
+
 @media (max-width: 767px) {
+  /* The search takes the full width under the title. */
+  .derecha {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  /* The title on one line keeps the place search in the first screen. */
   .titulo {
     font-size: 1.625rem;
     letter-spacing: 0.02em;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { LookupNote, LookupTable } from "@/components/lookup-table";
 import { formatCoverageCell, formatInt, isUndeclared, NO_DATA } from "@/lib/format";
 import { formatMetric, METRIC_LABELS } from "@/lib/labels";
@@ -56,6 +56,14 @@ export function NaturaTable({ sites, metric: chosen, filters }: Props) {
   );
   const shared = useMemo(() => sharedFigures(sites, (s) => s.siteCode, filters), [sites, filters]);
   const valueHeader = METRIC_LABELS[metric];
+  // The header search links a site here as /?natura=1&espacio=<code>: the table opens filtered to it.
+  // Read after mount: the page is static, so the server cannot see it.
+  const [query, setQuery] = useState("");
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("espacio");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (code) setQuery(code);
+  }, []);
   return (
     <LookupTable
       id="natura"
@@ -73,6 +81,8 @@ export function NaturaTable({ sites, metric: chosen, filters }: Props) {
       }
       notice={notice}
       searchLabel="Buscar espacio"
+      query={query}
+      onQueryChange={setQuery}
       rows={rows}
       rowKey={(s) => s.siteCode}
       searchText={(s) => `${s.name} ${s.siteCode}`}

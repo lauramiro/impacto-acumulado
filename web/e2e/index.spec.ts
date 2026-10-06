@@ -3,7 +3,7 @@ import { openFilters } from "./filters";
 
 test("index is searchable and reachable by keyboard", async ({ page }) => {
   await page.goto("/");
-  const search = page.getByLabel("Buscar municipio");
+  const search = page.getByLabel("Buscar municipio", { exact: true });
   await search.fill("jerez");
   const row = page.getByRole("row", { name: /Jerez de la Frontera/ });
   await expect(row).toBeVisible();
@@ -29,7 +29,7 @@ test("the index count reads matches of the total while searching", async ({ page
   await page.goto("/");
   const count = page.getByTestId("indice-recuento");
   const total = (await count.textContent())?.match(/^[\d.]+/)?.[0];
-  await page.getByLabel("Buscar municipio").fill("jerez");
+  await page.getByLabel("Buscar municipio", { exact: true }).fill("jerez");
   await expect(count).toHaveText(`1 de ${total} municipios con proyectos`);
 });
 
@@ -48,7 +48,7 @@ test("the index shows 20 rows until asked for all, and search covers every row",
   await expect(rows).toHaveCount(20);
   await expect(index.getByRole("rowheader", { name: last, exact: true })).toHaveCount(0);
   // Search still covers the rows past the first 20.
-  await index.getByLabel("Buscar municipio").fill(last);
+  await index.getByLabel("Buscar municipio", { exact: true }).fill(last);
   await expect(index.getByRole("rowheader", { name: last, exact: true })).toBeVisible();
 });
 

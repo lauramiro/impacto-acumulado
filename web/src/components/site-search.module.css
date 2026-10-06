@@ -1,0 +1,99 @@
+.buscador {
+  position: relative;
+  width: 20rem;
+  max-width: 100%;
+}
+
+.campo {
+  width: 100%;
+  min-height: 2.25rem;
+  font: inherit;
+  font-size: var(--texto-dato);
+  padding: 0.3rem 0.6rem;
+  color: var(--tinta);
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  border-radius: 2px;
+}
+
+/* Wide enough for a long project name; it opens under the field and right-aligned, as the field sits at the right. */
+.lista {
+  position: absolute;
+  z-index: 30;
+  right: 0;
+  width: max(100%, 28rem);
+  max-width: calc(100vw - 2 * var(--gutter));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  box-shadow: 0 4px 8px color-mix(in srgb, var(--tinta) 15%, transparent);
+}
+
+.lista[hidden] {
+  display: none;
+}
+
+.lista a {
+  display: block;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.75rem;
+  color: var(--tinta);
+  text-decoration: none;
+  border-bottom: 1px solid var(--regla);
+}
+
+.lista li:last-child a {
+  border-bottom: 0;
+}
+
+.lista a:hover,
+.activa a {
+  background: var(--escala-1);
+}
+
+.nombre {
+  display: block;
+  font-size: var(--texto-dato);
+}
+
+.tipo {
+  display: block;
+  font-size: var(--texto-pie);
+}
+
+.vacio {
+  position: absolute;
+  z-index: 30;
+  right: 0;
+  width: max(100%, 20rem);
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--texto-pie);
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+}
+
+@media (max-width: 767px) {
+  .buscador {
+    width: 100%;
+  }
+
+  .lista,
+  .vacio {
+    left: 0;
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Between a phone and a wide screen the field may sit at the left or the right of its line:
+   a panel as wide as the field stays on screen either way. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .lista,
+  .vacio {
+    left: 0;
+    width: 100%;
+  }
+}

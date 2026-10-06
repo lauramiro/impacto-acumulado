@@ -42,7 +42,7 @@ export function PlaceSearch({ places, onPick }: Props) {
   return (
     <div className={styles.buscador} role="search">
       <label htmlFor={inputId} className={styles.etiqueta}>
-        Buscar un municipio
+        Buscar un municipio en el mapa
       </label>
       <input
         id={inputId}
