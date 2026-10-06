@@ -83,6 +83,12 @@ h3 {
   text-wrap: balance;
 }
 
+/* A section heading sits nearer the text it introduces than the section before it:
+   the browser default puts 0.83em on both sides. */
+h2 {
+  margin-bottom: 0.4em;
+}
+
 .dato {
   font-family: var(--font-data), "Courier New", monospace;
   font-variant-numeric: tabular-nums;
