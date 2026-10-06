@@ -1,4 +1,10 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test } from "@playwright/test";
+
+// The number of projects follows each weekly export: read it, do not hard-code it.
+const PROJECTS = (JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "meta.json"), "utf-8")) as { files: Record<string, { rows: number }> }).files["projects.csv"]!.rows;
+const projectsText = (n: number) => n.toLocaleString("es-ES");
 
 test("the project list finds project 43 by its expediente and links to its page", async ({ page }) => {
   await page.goto("/proyectos?q=AAU/HU/057/21");
@@ -15,7 +21,7 @@ test("the project list searches name and developer, keeps the query in the URL, 
   await page.goto("/proyectos");
   const index = page.getByRole("region", { name: "Todos los proyectos" });
   const count = page.getByTestId("proyectos-recuento");
-  await expect(count).toHaveText(/^583 proyectos$/);
+  await expect(count).toHaveText(`${projectsText(PROJECTS)} proyectos`);
   const search = page.getByLabel("Buscar proyecto");
   await search.fill("guadacano");
   await expect(index.getByRole("link", { name: /Guadacano/ }).first()).toBeVisible();
@@ -24,7 +30,7 @@ test("the project list searches name and developer, keeps the query in the URL, 
   await expect(page).not.toHaveURL(/q=/);
 
   await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).uncheck();
-  await expect(count).toHaveText(/^\d+ proyectos de 583$/);
+  await expect(count).toHaveText(new RegExp(`^[0-9.]+ proyectos de ${projectsText(PROJECTS)}$`));
   await expect(index.locator("[data-status='desfavorable']")).toHaveCount(0);
 });
 

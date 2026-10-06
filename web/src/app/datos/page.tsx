@@ -152,11 +152,12 @@ export default async function DataPage() {
           <li>
             Proyectos duplicados: un anuncio que no nombra municipio, o que nombra una planta dentro de un título con varias, se une
             al proyecto del mismo promotor que lleva ese nombre, si es el único y nada los separa (otro expediente, otros municipios,
-            una línea frente a una planta, eólica frente a solar). Cuatro proyectos se unen a otro y{" "}
-            <span className="dato">projects.csv</span> pierde cuatro filas: la hibridación Saucito (699) pasa a El Saucito (75), Rey I
-            Solar PV (675) a las plantas Rey I a IV (35), FV Ronda I (698) a las plantas Ronda I a III (47) y la modificación de Lirios
-            Solar PV (61) a su declaración (10). Carmona deja de contar dos veces Rey I: su total baja 356,4 MW. Los enlaces a los
-            números retirados llevan al proyecto que los recoge. Los casos dudosos no se unen: la cola de revisión los lista.
+            una línea frente a una planta, eólica frente a solar). Dos proyectos se unen a otro y{" "}
+            <span className="dato">projects.csv</span> pasa de 583 a 581 filas: Rey I Solar PV (675) pasa a las plantas Rey I a IV (35)
+            y la modificación de Lirios Solar PV (61) a su declaración (10). Carmona deja de contar dos veces Rey I: su total baja de
+            1.945,3 a 1.588,9 MW. Los enlaces a los números retirados llevan al proyecto que los recoge. Los casos dudosos no se unen:
+            la hibridación Saucito (699, con El Saucito, 75) y FV Ronda I (698, con las plantas Ronda I a III, 47) siguen separados y
+            la cola de revisión los lista.
           </li>
           <li>
             Aerogeneradores y tecnología: los anuncios de hibridación describen el parque eólico existente y el modelo copiaba sus
@@ -186,7 +187,8 @@ export default async function DataPage() {
             <span className="dato">meta.json</span> gana <span className="dato">last_document</span> y{" "}
             <span className="dato">last_document_by_source</span> (fecha del documento más reciente) y{" "}
             <span className="dato">boja_coverage</span>: la búsqueda del BOJA contra los documentos guardados, con la misma selección,
-            por año.
+            por año. La comprobación tiene un límite de 15 minutos y lee del año actual hacia atrás: <span className="dato">timed_out</span>{" "}
+            y <span className="dato">scanned_from</span> dicen si se cortó y desde qué año cubre (la primera, desde 2024).
           </li>
           <li>
             <span className="dato">evaluation.json</span> gana <span className="dato">intervals</span>: aciertos, muestra e intervalo
@@ -206,7 +208,7 @@ export default async function DataPage() {
             texto completo o, si la regla no encuentra ninguna, las que leyó el modelo; con el datum y el huso, la frase que las
             anuncia, y longitud y latitud calculadas en el proceso. Se descartan las que caen a más de unos 3 km de los municipios del
             proyecto. Las páginas de proyecto las muestran en un mapa; las que no tienen coordenadas enlazan sus municipios en el
-            visor SIGPAC. Antes de la regla, 5 de 583 proyectos tenían coordenadas.
+            visor SIGPAC. Antes de la regla, 5 de 583 proyectos tenían coordenadas; tras la reconstrucción del 6 de octubre, 6 de 581: la regla lee pocas coordenadas del texto real.
           </li>
         </ul>
       </section>
