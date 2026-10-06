@@ -1,17 +1,17 @@
 /**
- * Who publishes the site. Not decided yet, so every field is null and nothing
- * here is invented: each page that uses a constant renders it only when it is
- * set, and reads correctly with all of them null. Fill them in here, nowhere else.
+ * Who publishes the site, as the publisher gave it. A page that uses a constant
+ * renders it only when it is set, so the null ones (no personal page, no funding
+ * statement yet) simply leave their line out. Change them here, nowhere else.
  */
 
 /** Full name of the person who maintains and publishes the site (an individual, independent personal project). */
-export const PUBLISHER_NAME: string | null = null;
+export const PUBLISHER_NAME: string | null = "Laura Miro Rodrigo";
 
 /** Public URL of the publisher (personal page or profile), if there is one. */
 export const PUBLISHER_URL: string | null = null;
 
 /** Contact email for corrections and questions. */
-export const CONTACT_EMAIL: string | null = null;
+export const CONTACT_EMAIL: string | null = "lmirorodrigo@gmail.com";
 
 /** One or two sentences on who funds the project, or that it has no funding. */
 export const FUNDING_STATEMENT: string | null = null;

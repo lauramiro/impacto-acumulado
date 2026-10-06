@@ -162,9 +162,10 @@ export default async function DataPage() {
             Enlaces al BOE: <span className="dato">url</span> en <span className="dato">documents.csv</span>,{" "}
             <span className="dato">document_urls</span> en <span className="dato">projects.csv</span>, Ver en el BOE y los feeds
             llevaban a la versión XML del documento (<span className="dato">diario_boe/xml.php?id=</span>), que el navegador muestra
-            como código. Ahora llevan a la página legible del mismo documento (
-            <span className="dato">diario_boe/txt.php?id=</span>), en los documentos nuevos y en los ya guardados, desde la próxima
-            actualización. El identificador no cambia; los enlaces al BOJA, tampoco.
+            como código. Desde la reconstrucción del 6 de octubre llevan a la página legible del mismo documento (
+            <span className="dato">diario_boe/txt.php?id=</span>): cambian 192 enlaces de{" "}
+            <span className="dato">documents.csv</span> y las listas de 105 proyectos. Ningún otro valor cambia; el identificador y los
+            enlaces al BOJA, tampoco.
           </li>
           <li>
             Proyectos duplicados: un anuncio que no nombra municipio, o que nombra una planta dentro de un título con varias, se une

@@ -1,8 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-// The publisher constants in lib/publisher.ts are null until a human fills them in,
-// so this spec checks what must hold either way: the page exists, says what it must
-// and invents nothing.
+// The page names the publisher from lib/publisher.ts, gives an email next to GitHub,
+// and invents nothing for the constants still unset (no funding line yet).
 test("/acerca states privacy, corrections and citation, and is linked from the footer", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("contentinfo").getByRole("link", { name: "Acerca de" }).click();
@@ -13,10 +12,12 @@ test("/acerca states privacy, corrections and citation, and is linked from the f
     await expect(page.getByRole("heading", { level: 2, name: h })).toBeVisible();
   }
   await expect(page.getByText("no usa cookies, no carga analítica, no tiene cuentas de usuario")).toBeVisible();
-  await expect(page.getByTestId("cita")).toContainText("Impacto Acumulado (");
+  await expect(page.getByTestId("cita")).toContainText("Laura Miro Rodrigo (");
   await expect(page.getByRole("link", { name: "Cambios" })).toHaveAttribute("href", "/datos#cambios");
   await expect(page.getByRole("link", { name: "CC BY 4.0" })).toHaveAttribute("href", /creativecommons\.org\/licenses\/by\/4\.0/);
   await expect(page.getByRole("link", { name: "MIT" })).toHaveAttribute("href", "https://spdx.org/licenses/MIT.html");
+  await expect(page.locator("main")).toContainText("El sitio lo mantiene y publica Laura Miro Rodrigo.");
+  await expect(page.getByRole("link", { name: "lmirorodrigo@gmail.com" })).toHaveAttribute("href", "mailto:lmirorodrigo@gmail.com");
   await expect(page.locator("main")).not.toContainText(/\bpendiente\b|por definir/i);
 });
 
