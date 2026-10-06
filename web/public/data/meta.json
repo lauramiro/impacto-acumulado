@@ -1,53 +1,53 @@
 {
-  "generated_at": "2026-10-05T15:56:37.537487+00:00",
-  "last_document": "2026-09-08",
+  "generated_at": "2026-10-06T12:41:57.957279+00:00",
+  "last_document": "2026-10-02",
   "last_document_by_source": {
     "boe": "2026-07-31",
-    "boja": "2026-09-08"
+    "boja": "2026-10-02"
   },
   "counts": {
-    "raw_documents": 758,
+    "raw_documents": 760,
     "extractions": 758,
-    "projects": 583,
+    "projects": 581,
     "municipalities": 785,
     "protected_areas": 197
   },
   "files": {
     "retired_projects.json": {
-      "rows": 4,
-      "bytes": 42
+      "rows": 6,
+      "bytes": 63
     },
     "projects.csv": {
-      "rows": 583,
-      "bytes": 162846
+      "rows": 581,
+      "bytes": 162573
     },
     "documents.csv": {
-      "rows": 758,
-      "bytes": 405796
+      "rows": 760,
+      "bytes": 406734
     },
     "developers.json": {
       "rows": 478,
-      "bytes": 161621
+      "bytes": 161476
     },
     "project_details.json": {
-      "rows": 583,
-      "bytes": 672442
+      "rows": 581,
+      "bytes": 689816
     },
     "splitting_candidates.json": {
       "rows": 25,
       "bytes": 5394
     },
     "municipality_stats.csv": {
-      "rows": 522,
-      "bytes": 41636
+      "rows": 523,
+      "bytes": 41706
     },
     "province_monthly.csv": {
-      "rows": 287,
-      "bytes": 14935
+      "rows": 286,
+      "bytes": 14884
     },
     "monthly_events.csv": {
-      "rows": 700,
-      "bytes": 33333
+      "rows": 702,
+      "bytes": 33423
     },
     "municipalities.geojson": {
       "rows": 785,
@@ -59,7 +59,7 @@
     },
     "municipality_stats.json": {
       "rows": 260,
-      "bytes": 114456
+      "bytes": 114658
     },
     "protected_areas.geojson": {
       "rows": 197,
@@ -67,11 +67,11 @@
     },
     "protected_area_stats.json": {
       "rows": 197,
-      "bytes": 137832
+      "bytes": 138412
     },
     "province_stats.json": {
       "rows": 9,
-      "bytes": 23487
+      "bytes": 23513
     },
     "municipality_protected_areas.json": {
       "rows": 785,
@@ -91,7 +91,7 @@
     },
     "evaluation.json": {
       "rows": 1,
-      "bytes": 1296
+      "bytes": 2040
     },
     "open_consultations.json": {
       "rows": 0,
@@ -101,6 +101,8 @@
   "boja_coverage": {
     "checked": "2026-10-06",
     "from": "2019-01-01",
+    "scanned_from": "2024-01-01",
+    "timed_out": true,
     "queries": [
       "autorizacion ambiental unificada",
       "informe de impacto ambiental",
@@ -108,41 +110,11 @@
       "informacion publica eolico"
     ],
     "complete": true,
-    "total_hits": 10822,
-    "received": 10822,
-    "selected": 579,
-    "stored": 566,
+    "total_hits": 3513,
+    "received": 3513,
+    "selected": 246,
+    "stored": 240,
     "years": {
-      "2019": {
-        "total_hits": 821,
-        "received": 821,
-        "selected": 3,
-        "stored": 3
-      },
-      "2020": {
-        "total_hits": 831,
-        "received": 831,
-        "selected": 0,
-        "stored": 0
-      },
-      "2021": {
-        "total_hits": 1638,
-        "received": 1638,
-        "selected": 0,
-        "stored": 0
-      },
-      "2022": {
-        "total_hits": 1803,
-        "received": 1803,
-        "selected": 57,
-        "stored": 53
-      },
-      "2023": {
-        "total_hits": 2216,
-        "received": 2216,
-        "selected": 273,
-        "stored": 272
-      },
       "2024": {
         "total_hits": 1502,
         "received": 1502,
@@ -159,24 +131,17 @@
         "total_hits": 825,
         "received": 825,
         "selected": 51,
-        "stored": 47
+        "stored": 49
       }
     },
     "missing": [
-      "disposition.2022.209.80",
-      "disposition.2022.209.81",
-      "disposition.2022.209.82",
-      "disposition.2022.209.83",
-      "disposition.2023.209.108",
-      "disposition.2024.251.67",
-      "disposition.2024.251.68",
-      "disposition.2025.251.64",
-      "disposition.2025.251.65",
       "disposition.2026.147.61",
       "disposition.2026.168.17",
-      "disposition.2026.192.57",
-      "disposition.2026.192.85"
+      "disposition.2025.251.64",
+      "disposition.2025.251.65",
+      "disposition.2024.251.67",
+      "disposition.2024.251.68"
     ],
-    "missing_count": 13
+    "missing_count": 6
   }
 }
