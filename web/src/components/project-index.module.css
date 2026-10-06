@@ -37,10 +37,11 @@
 }
 
 /* On a phone the three columns (name, status, MW) were 6 px wider than the page, and 8 px with the
-   wider fallback fonts CI renders: let long names break and let the MW figure wrap. */
+   wider fallback fonts CI renders: let long names break and let the MW figure wrap. Only the name
+   may break inside a word: on every cell it let the table squeeze the status column to a few
+   letters, so "condiciones" broke as "condicion / es". */
 @media (max-width: 767px) {
-  .lista :global(table) th,
-  .lista :global(table) td {
+  .lista :global(table) th[scope="row"] {
     overflow-wrap: anywhere;
   }
 
