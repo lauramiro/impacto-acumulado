@@ -110,7 +110,11 @@ export function useMapZoom(svgRef: RefObject<SVGSVGElement | null>, width: numbe
     // At the whole map there is nothing to pan; a touch there is the page's scroll.
     if (viewRef.current.k === 1) return;
     if (dragged.current) {
-      if (!svgRef.current?.hasPointerCapture(e.pointerId)) svgRef.current?.setPointerCapture(e.pointerId);
+      // Capture keeps the drag going past the map's edge; a pointer the browser no longer
+      // tracks throws, and that must not stop the pan.
+      try {
+        if (!svgRef.current?.hasPointerCapture(e.pointerId)) svgRef.current?.setPointerCapture(e.pointerId);
+      } catch {}
       const { scale } = toView(0, 0);
       setView(panBy(viewRef.current, (next.x - prev.x) * scale, (next.y - prev.y) * scale, width, height));
     }
