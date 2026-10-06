@@ -48,7 +48,7 @@ test("no horizontal scroll on a phone", async ({ page }) => {
 
 test("each project record links to its project page", async ({ page }) => {
   await page.goto("/municipio/11020");
-  const link = page.locator("a[href^='/proyecto/']").first();
+  const link = page.getByRole("region", { name: /^Proyectos/ }).locator("a[href^='/proyecto/']").first();
   await expect(link).toBeVisible();
   await link.click();
   await expect(page).toHaveURL(/\/proyecto\/\d+$/);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AccumulationChart } from "@/components/municipality/accumulation-chart";
 import { ProjectRecord } from "@/components/municipality/project-record";
 import { FeedLink } from "@/components/feed-link";
 import { ReportError } from "@/components/report-error";
@@ -12,12 +13,14 @@ import { stillOpen } from "@/lib/consultations";
 import { loadOpenConsultations } from "@/lib/data/consultations";
 import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
 import { groupDocumentsByProject, loadDocuments } from "@/lib/data/documents";
+import { loadMeta } from "@/lib/data/meta";
 import { loadMunicipalities } from "@/lib/data/municipalities";
 import { loadProjects } from "@/lib/data/projects";
 import { loadSplittingGroups } from "@/lib/data/splitting";
 import { SplittingNote } from "@/components/splitting-note";
 import { loadMunicipalityProtectedAreas } from "@/lib/data/protected-areas";
 import { loadMunicipalityStats } from "@/lib/data/stats";
+import { accumulation } from "@/lib/accumulation";
 import { formatCoverage, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
 import { SITE_URL } from "@/lib/site";
@@ -61,7 +64,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function MunicipalityPage({ params }: { params: Promise<Params> }) {
   const { ine } = await params;
-  const [muni, stats, areas, projects, documents, { consultations }, developers] = await Promise.all([
+  const [muni, stats, areas, projects, documents, { consultations }, developers, meta] = await Promise.all([
     findMunicipality(ine),
     loadMunicipalityStats(),
     loadMunicipalityProtectedAreas(),
@@ -69,6 +72,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
     loadDocuments(),
     loadOpenConsultations(),
     loadDevelopers(),
+    loadMeta(),
   ]);
   const splitting = (await loadSplittingGroups()).filter((g) => g.ineCodes.includes(ine));
   const projectsById = new Map(projects.map((p) => [p.id, p]));
@@ -98,6 +102,8 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
           <p>Ningún proyecto registrado en los boletines desde 2019 para este municipio.</p>
         </section>
       )}
+
+      <AccumulationChart steps={accumulation(projects, ine)} until={meta.lastDocument ?? meta.generatedAt.toISOString().slice(0, 10)} name={muni.name} />
 
       <Sensitivity share={muni.sensitivityHighShare} />
       <ProtectedAreas areas={areas.get(ine) ?? []} />

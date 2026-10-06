@@ -1,0 +1,102 @@
+.section {
+  margin: 2rem 0;
+  max-width: 44rem;
+}
+
+.resumen {
+  margin: 0 0 0.75rem;
+}
+
+.wrap {
+  position: relative;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.area {
+  fill: var(--escala-1);
+}
+
+.linea {
+  fill: none;
+  stroke: var(--tinta);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.base {
+  stroke: var(--tinta);
+  stroke-width: 1;
+}
+
+.rejilla {
+  stroke: var(--regla);
+  stroke-width: 1;
+}
+
+.eje {
+  font-family: var(--font-data), monospace;
+  font-size: 12px;
+  fill: var(--tinta);
+}
+
+/* A larger invisible target would be kinder to a finger, but the table below is the
+   keyboard and touch path to the same figures; the dots are for the pointer. */
+.punto {
+  fill: var(--tinta);
+  stroke: var(--papel);
+  stroke-width: 1.5;
+}
+
+.puntoSinDato {
+  fill: var(--papel);
+  stroke: var(--tinta);
+  stroke-width: 1.5;
+}
+
+.nota {
+  font-size: var(--texto-pie);
+  margin: 0.5rem 0 0;
+}
+
+.datos {
+  margin-top: 0.5rem;
+  font-size: var(--texto-pie);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.tabla th,
+.tabla td {
+  text-align: left;
+  padding: 0.3rem 0.5rem 0.3rem 0;
+  border-bottom: 1px solid var(--regla);
+  vertical-align: baseline;
+  font-weight: 400;
+}
+
+.tabla thead th {
+  font-weight: 600;
+  border-bottom-color: var(--tinta);
+}
+
+.tabla .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Gridline labels sit on the chart: a paper halo keeps them readable where the line crosses. */
+.svg .eje {
+  paint-order: stroke;
+  stroke: var(--papel);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
