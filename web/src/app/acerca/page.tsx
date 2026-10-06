@@ -32,7 +32,7 @@ export default async function AboutPage() {
 
       <h2>Quién lo mantiene</h2>
       <p>
-        Es un proyecto personal e independiente, mantenido por una persona a título individual, sin respaldo de ninguna institución.
+        Es un proyecto personal e independiente, mantenido por una persona a título individual.
       </p>
       {PUBLISHER_NAME ? (
         <p>
