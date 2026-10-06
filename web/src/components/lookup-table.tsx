@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useState, type ReactNode } from "react";
+import { useDeferredValue, useRef, useState, type ReactNode } from "react";
 import { formatInt } from "@/lib/format";
 import { matches } from "@/lib/search";
 import styles from "./lookup-table.module.css";
@@ -78,6 +78,7 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
   const setQuery = (q: string) => (p.onQueryChange ? p.onQueryChange(q) : setOwnQuery(q));
   const [sort, setSort] = useState<LookupSort | null>(null);
   const [all, setAll] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
   const deferredQuery = useDeferredValue(query);
   const searching = deferredQuery.trim() !== "";
   // A chosen column can disappear when the metric changes; the default order takes over.
@@ -110,7 +111,7 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
       {p.notice}
       <label className={styles.buscar}>
         {p.searchLabel}
-        <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" />
+        <input ref={input} type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" />
       </label>
       <table className={styles.table} id={tableId}>
         <thead>
@@ -162,7 +163,20 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
           </button>
         </p>
       ) : null}
-      {matched.length === 0 && (!p.notice || searching) ? <p className={styles.vacio}>{p.emptyText}</p> : null}
+      {matched.length === 0 && (!p.notice || searching) ? (
+        <p className={styles.vacio}>
+          {p.emptyText}
+          {/* A way back to the whole list, in the same small button as "Ver todos". */}
+          {searching ? (
+            <>
+              {" "}
+              <button type="button" className={`ver-en-mapa ${styles.borrar}`} onClick={() => { setQuery(""); input.current?.focus(); }}>
+                Borrar la búsqueda
+              </button>
+            </>
+          ) : null}
+        </p>
+      ) : null}
     </section>
   );
 }

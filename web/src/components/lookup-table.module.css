@@ -98,6 +98,11 @@
   font-size: var(--texto-dato);
 }
 
+.borrar {
+  margin-left: 0.5rem;
+  min-height: 1.5rem;
+}
+
 /* The map button reads "Ver en el mapa" on wide screens and "Mapa" on a phone,
    where the long label broke over two lines; its accessible name stays whole. */
 :global(.ver-en-mapa-corto) {

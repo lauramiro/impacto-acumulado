@@ -66,3 +66,14 @@ test("the project list has no horizontal scroll on a phone", async ({ page }) =>
   const [tableRight, columnRight] = await page.evaluate(() => [document.querySelector("table")!.getBoundingClientRect().right, document.querySelector("article")!.getBoundingClientRect().right]);
   expect(tableRight).toBeLessThanOrEqual(columnRight + 0.5);
 });
+
+test("a search that finds nothing offers to clear it, and clearing restores the list and the URL", async ({ page }) => {
+  await page.goto("/proyectos?q=zzqx");
+  const index = page.getByRole("region", { name: "Todos los proyectos" });
+  await expect(index.getByText("Ningún proyecto coincide con la búsqueda.")).toBeVisible();
+  await index.getByRole("button", { name: "Borrar la búsqueda" }).click();
+  await expect(page.getByLabel("Buscar proyecto")).toHaveValue("");
+  await expect(page.getByLabel("Buscar proyecto")).toBeFocused();
+  await expect(page.getByTestId("proyectos-recuento")).toHaveText(`${projectsText(PROJECTS)} proyectos`);
+  await expect(page).toHaveURL(/\/proyectos$/);
+});
