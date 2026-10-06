@@ -17,6 +17,14 @@ test("the project list finds project 43 by its expediente and links to its page"
   await expect(page).toHaveURL(/\/proyecto\/43$/);
 });
 
+test("the expediente search ignores separators and spacing", async ({ page }) => {
+  await page.goto("/proyectos?q=aau%20hu%20057");
+  const index = page.getByRole("region", { name: "Todos los proyectos" });
+  await expect(index.locator("a[href='/proyecto/43']")).toBeVisible();
+  await page.getByLabel("Buscar proyecto").fill("aau-hu-057-21");
+  await expect(index.locator("a[href='/proyecto/43']")).toBeVisible();
+});
+
 test("the project list searches name and developer, keeps the query in the URL, and filters by status", async ({ page }) => {
   await page.goto("/proyectos");
   const index = page.getByRole("region", { name: "Todos los proyectos" });

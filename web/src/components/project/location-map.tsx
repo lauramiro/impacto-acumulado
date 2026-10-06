@@ -4,7 +4,7 @@ import { formatInt, formatNumber } from "@/lib/format";
 import type { DocumentLocation, LocationGroup } from "@/lib/data/project-details";
 import type { GazetteDocument } from "@/lib/types";
 import { docLabel } from "./conditions";
-import { type Box, boxOf, boxOfGeometry, padBox, sigpacUrl, unionBox } from "./location-geometry";
+import { type Box, boxOf, groupCaption, boxOfGeometry, padBox, sigpacUrl, unionBox } from "./location-geometry";
 import styles from "./location-map.module.css";
 
 const W = 640;
@@ -86,12 +86,12 @@ function LocationSvg({ located, places, frame }: { located: Located[]; places: P
       <g className={styles.puntos}>
         {groups
           .filter((g) => g.kind === "puntos")
-          .flatMap((g) => g.points)
-          .map((p, i) => {
+          .flatMap((g) => g.points.map((p) => ({ p, g })))
+          .map(({ p, g }, i) => {
             const [cx, cy] = xy(p.lon, p.lat);
             return (
               <circle key={i} cx={cx.toFixed(1)} cy={cy.toFixed(1)} r={5}>
-                <title>{`${p.label ? `${p.label}: ` : ""}X ${coord(p.x)}, Y ${coord(p.y)}`}</title>
+                <title>{`${p.label ? `${p.label}: ` : ""}X ${coord(p.x)}, Y ${coord(p.y)}. ${groupCaption(g)}`}</title>
               </circle>
             );
           })}
@@ -148,7 +148,9 @@ export function ProjectLocation({ located, places }: { located: Located[]; place
       <figure className={styles.figura} data-testid="mapa-ubicacion">
         <LocationSvg located={located} places={places} frame={frame} />
         <figcaption className="pie">
-          Coordenadas UTM publicadas en los documentos, convertidas a longitud y latitud, sobre los términos municipales del proyecto.
+          Coordenadas UTM citadas en los documentos, convertidas a longitud y latitud, sobre los términos municipales del proyecto.
+          No son el contorno de la planta: cada punto o grupo de puntos sitúa lo que dice su frase (una torre, una subestación, una
+          medida de restauración, una alternativa descartada), que puede no ser la planta. La frase está debajo, junto a cada grupo.
           Lectura automática: las coordenadas que valen son las del boletín. Se descartan las que caen a más de unos 3 km de esos
           municipios (por ejemplo, el final de una línea de evacuación).
         </figcaption>
@@ -168,7 +170,7 @@ export function ProjectLocation({ located, places }: { located: Located[]; place
               {l.location.groups.map((g, i) => (
                 <li key={i}>
                   {describe(g)}.
-                  {g.evidence ? <span className="pie"> «{g.evidence}»</span> : null}
+                  <span className="pie" data-testid="frase-ubicacion"> {groupCaption(g)}</span>
                   <Coordinates group={g} />
                 </li>
               ))}

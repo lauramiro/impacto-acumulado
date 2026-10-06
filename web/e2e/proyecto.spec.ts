@@ -42,7 +42,7 @@ test("project page shows the record, the timeline and which document fixed the s
   await expect(page.getByRole("link", { name: "Jerez de la Frontera (Cádiz)" })).toHaveAttribute("href", "/municipio/11020");
   await expect(page.getByRole("region", { name: "Cómo se ha construido esta ficha" })).toBeVisible();
   const noAplicaRow = page.locator("li", { hasText: "BOE-A-2020-14181" });
-  await expect(noAplicaRow).toContainText("No aplica");
+  await expect(noAplicaRow).not.toContainText("No aplica");
   await expect(noAplicaRow.locator("[data-status]")).toHaveCount(0);
 });
 
@@ -161,6 +161,8 @@ test("a project whose documents publish coordinates shows them on a map with a v
     "href",
     /^https:\/\/sigpac\.mapa\.gob\.es\/fega\/visor\/\?x=-\d\.\d{5}&y=3\d\.\d{5}&srid=4258&r=\d+$/,
   );
+  await expect(map.locator("figcaption")).toContainText("No son el contorno de la planta");
+  expect(await section.getByTestId("frase-ubicacion").count()).toBeGreaterThan(0);
   await section.locator("summary", { hasText: "Coordenadas" }).first().click();
   await expect(section.getByRole("columnheader", { name: "Latitud" }).first()).toBeVisible();
 });

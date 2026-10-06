@@ -381,7 +381,7 @@ export default async function MethodologyPage() {
           conjunta con la autorización ambiental unificada. Un plazo de alegaciones abierto en uno de esos anuncios no aparece en «En
           información pública».
         </li>
-        <li>La geometría de las plantas: la localización es a nivel de municipio.</li>
+        <li>La geometría de las plantas: la localización es a nivel de municipio. Unos pocos proyectos muestran en su ficha coordenadas publicadas en los documentos; no son el contorno de la planta.</li>
         <li data-testid="registro-temprano">
           El registro antes de 2022 es escaso, sobre todo en el BOJA: el backfill reúne{" "}
           <Figure value={formatInt(early.boja)} /> documentos del BOJA y <Figure value={formatInt(early.boe)} /> del BOE de 2019 a

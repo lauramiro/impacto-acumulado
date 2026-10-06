@@ -25,6 +25,8 @@ export function Provenance({ statusDocument, latestDocument }: { statusDocument:
             <span className="dato">{formatScore(latestDocument.confidence)}</span>.
           </>
         ) : null}{" "}
+        «Agrupado con confianza» en un documento indica que se le asignó este proyecto por su parecido con los demás (nombre,
+        municipio y potencia), de 0 a 1: cuanto menor, menos seguro es el agrupamiento.{" "}
         La precisión medida de la extracción está en <Link href="/metodologia">Metodología</Link>.
       </p>
     </section>

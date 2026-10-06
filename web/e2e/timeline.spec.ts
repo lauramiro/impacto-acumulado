@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { parse } from "csv-parse/sync";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { openFilters } from "./filters";
@@ -8,7 +9,10 @@ test("timeline title follows province and technology, and the data table opens",
   await openFilters(page);
   const section = page.getByRole("region", { name: /Documentos por mes/ });
   await expect(section.getByRole("heading", { level: 2 })).toHaveText("Documentos por mes · Andalucía");
-  await expect(section.getByText("Entre 2019 y 2021 la colección solo contiene 5 documentos; la serie empieza en 2022.")).toBeVisible();
+  const rows: { published_at: string }[] = parse(readFileSync(path.join(__dirname, "..", "public", "data", "documents.csv"), "utf-8"), { columns: true, bom: true });
+  const early = rows.filter((r) => r.published_at < "2022").length;
+  await expect(section.getByText(`la colección solo contiene ${early.toLocaleString("es-ES")} documentos; la serie empieza en 2022.`)).toBeVisible();
+  await expect(section.getByText("solo contiene 5 documentos")).toHaveCount(0);
   await page.getByRole("region", { name: "Por provincia" }).getByRole("button", { name: "Sevilla" }).click();
   await expect(section.getByRole("heading", { level: 2 })).toHaveText("Documentos por mes · Provincia de Sevilla");
   await page.getByRole("checkbox", { name: "Eólica", exact: true }).uncheck();

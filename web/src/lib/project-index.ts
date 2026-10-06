@@ -1,4 +1,4 @@
-import { fold } from "./search";
+import { fold, matches } from "./search";
 import { STATUSES, type Project, type Status } from "./types";
 
 /** One line of the project list. */
@@ -10,6 +10,21 @@ export type ProjectRow = Pick<Project, "id" | "name" | "developer" | "technology
 /** Everything a search for a name, a developer, an expediente or a project number reads. */
 export function projectSearchText(r: Pick<ProjectRow, "id" | "name" | "developer" | "expedientes">): string {
   return [r.name, r.developer ?? "", ...r.expedientes, `proyecto ${r.id}`].join(" \n ");
+}
+
+/** An expediente number with its separators (spaces, "/", "-", ".") taken out and folded: "AAU/HU/057/21" and "aau hu 057 21" both give "aauhu05721". */
+export function expedienteKey(s: string): string {
+  return fold(s).replace(/[\s/.-]+/g, "");
+}
+
+/**
+ * Whether a project answers a search: the plain text match, or, for an expediente, the same
+ * number whatever separators either side uses ("aau hu 057" finds "AAU/HU/057/21").
+ */
+export function matchesProject(r: Pick<ProjectRow, "id" | "name" | "developer" | "expedientes">, query: string): boolean {
+  if (matches(projectSearchText(r), query)) return true;
+  const key = expedienteKey(query);
+  return key !== "" && r.expedientes.some((e) => expedienteKey(e).includes(key));
 }
 
 /** Statuses with at least one project, in the order the site lists them. */

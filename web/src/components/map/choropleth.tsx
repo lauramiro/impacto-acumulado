@@ -207,7 +207,7 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
       </svg>
       {/* The municipalities are mouse and touch targets only; the index is the keyboard path to the same selection. */}
       <p id="mapa-teclado" className="visually-hidden">
-        Para elegir un municipio con el teclado, usa el índice de municipios, más abajo: su botón Ver en el mapa lo selecciona aquí.
+        Para elegir un municipio con el teclado, usa el campo de búsqueda de municipios de encima del mapa o el índice de municipios, más abajo: su botón Ver en el mapa lo selecciona aquí.
       </p>
       <Tooltip state={tooltip} />
     </div>

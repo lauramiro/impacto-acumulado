@@ -59,6 +59,8 @@ export type LookupTableProps<R> = {
   rows: readonly R[];
   rowKey: (r: R) => string;
   searchText: (r: R) => string;
+  /** Optional: a looser match than `searchText` containing the query, for rows with more than one way to be found. */
+  matchRow?: (r: R, query: string) => boolean;
   columns: LookupColumn<R>[];
   defaultSort?: LookupSort;
   emptyText: string;
@@ -81,7 +83,7 @@ export function LookupTable<R>(p: LookupTableProps<R>) {
   const active = (sortable(sort) ? sort : p.defaultSort) ?? null;
   const sortColumn = sortable(active);
 
-  const found = p.rows.filter((r) => matches(p.searchText(r), deferredQuery));
+  const found = p.rows.filter((r) => matches(p.searchText(r), deferredQuery) || (p.matchRow?.(r, deferredQuery) ?? false));
   const sortValue = sortColumn?.sortValue;
   const matched = sortValue && active ? sortRows(found, sortValue, active.direction) : found;
 

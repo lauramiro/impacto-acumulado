@@ -1,7 +1,22 @@
 import { EVENTS, type EventKind, type MonthlyEvent, type Scope, type Technology } from "./types";
 
-/** 2019 to 2021 hold 5 documents in the collection; the series starts here. */
+/** The series starts here; documents published before it are counted by `documentsBefore`. */
 export const TIMELINE_START = "2022-01";
+
+/** How many documents precede the series, and the first year any was published (null when none). */
+export function documentsBefore(publishedAt: readonly string[], start: string = TIMELINE_START): { count: number; firstYear: string | null } {
+  const before = publishedAt.filter((d) => d < start).sort();
+  return { count: before.length, firstYear: before.length > 0 ? before[0].slice(0, 4) : null };
+}
+
+/** The note under the timeline about the years the series leaves out, or null when there are none. */
+export function earlyNote(early: { count: number; firstYear: string | null }, start: string = TIMELINE_START): string | null {
+  if (early.count === 0 || early.firstYear === null) return null;
+  const lastYear = String(Number(start.slice(0, 4)) - 1);
+  const span = early.firstYear === lastYear ? `En ${lastYear}` : `Entre ${early.firstYear} y ${lastYear}`;
+  const docs = early.count === 1 ? "solo contiene 1 documento" : `solo contiene ${early.count.toLocaleString("es-ES")} documentos`;
+  return `${span} la colección ${docs}; la serie empieza en ${start.slice(0, 4)}.`;
+}
 
 export type Series = Record<EventKind, number[]>;
 

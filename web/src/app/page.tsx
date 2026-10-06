@@ -6,9 +6,11 @@ import { ConsultationSources, OpenConsultations } from "@/components/open-consul
 import { compactMapData } from "@/lib/compact";
 import { stillOpen } from "@/lib/consultations";
 import { loadOpenConsultations } from "@/lib/data/consultations";
+import { loadDocuments } from "@/lib/data/documents";
 import { loadMapData } from "@/lib/data/map-data";
 import { formatCoverage, formatDate, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
+import { documentsBefore } from "@/lib/timeline";
 import { SITE_URL } from "@/lib/site";
 import { APPROVED_OR_PENDING, NO_VERDICT, PROVINCES, REFUSED_OR_LAPSED, REGION, type StatsCell, type Status } from "@/lib/types";
 import styles from "./page.module.css";
@@ -18,10 +20,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [{ municipalities, stats, provinceStats, events, sites, lastMonth }, { consultations }] = await Promise.all([
+  const [{ municipalities, stats, provinceStats, events, sites, lastMonth }, { consultations }, documents] = await Promise.all([
     loadMapData(),
     loadOpenConsultations(),
+    loadDocuments(),
   ]);
+  const early = documentsBefore(documents.map((d) => d.publishedAt));
   // The build date: the page is static, so open means open when it was built.
   const today = new Date();
   const open = stillOpen(consultations, today);
@@ -72,6 +76,7 @@ export default async function HomePage() {
           sites,
         })}
         lastMonth={lastMonth}
+        early={early}
       />
       <OpenConsultations items={open} today={today} names={names} />
       <FeedLink href="/feeds/andalucia.xml" label="Seguir todos los documentos de Andalucía" />

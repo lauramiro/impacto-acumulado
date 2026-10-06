@@ -57,3 +57,8 @@ export function padBox(box: Box, minSpan = 0.01): Box {
   const padLat = Math.max(0, (minSpan - (box[3] - box[1])) / 2);
   return [box[0] - padLon, box[1] - padLat, box[2] + padLon, box[3] + padLat];
 }
+
+/** What the sentence a group of coordinates comes from locates, quoted, or a plain statement that none was kept. */
+export function groupCaption(g: { evidence: string | null }): string {
+  return g.evidence ? `Frase del documento: «${g.evidence}»` : "El documento no deja una frase que diga qué sitúan estas coordenadas.";
+}

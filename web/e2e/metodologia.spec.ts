@@ -69,3 +69,8 @@ test("the page does not scroll sideways on a phone", async ({ page }) => {
   await expect(page.getByRole("columnheader", { name: "22 de septiembre de 2026" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
+
+test("the coverage limits say a few projects show published coordinates", async ({ page }) => {
+  await page.goto("/metodologia");
+  await expect(page.getByText(/Unos pocos proyectos muestran en su ficha coordenadas publicadas/)).toBeVisible();
+});

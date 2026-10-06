@@ -38,9 +38,11 @@ type Props = {
   /** Tuples rather than objects, to keep the RSC payload small; expanded once here. */
   data: CompactMapData;
   lastMonth: string;
+  /** Documents published before the timeline starts. */
+  early: { count: number; firstYear: string | null };
 };
 
-export function MapExplorer({ data, lastMonth }: Props) {
+export function MapExplorer({ data, lastMonth, early }: Props) {
   // Here, not in the page: a hint issued in the server component travels in the RSC payload that every link to "/" prefetches.
   preload("/data/municipalities_map.geojson", { as: "fetch", crossOrigin: "anonymous" });
   preload("/data/provinces.geojson", { as: "fetch", crossOrigin: "anonymous" });
@@ -288,6 +290,7 @@ export function MapExplorer({ data, lastMonth }: Props) {
         province={state.province}
         technologies={state.technologies}
         lastMonth={lastMonth}
+        early={early}
         onClearProvince={clearProvince}
       />
       <MunicipalityIndex

@@ -1,7 +1,7 @@
 import { StatusBadge } from "@/components/status-badge";
 import { authority, isCorrection } from "@/lib/document-label";
 import { formatDate, formatInt, formatScore } from "@/lib/format";
-import { ROLE_LABELS, VERDICT_LABELS } from "@/lib/labels";
+import { ROLE_LABELS, showsVerdict } from "@/lib/labels";
 import type { GazetteDocument } from "@/lib/types";
 import styles from "./document-timeline.module.css";
 
@@ -39,12 +39,10 @@ export function DocumentTimeline({ documents, statusDocumentId }: { documents: G
           <li key={d.id} id={`documento-${d.id}`} className={styles.item}>
             <p className={styles.tipo}>
               {isCorrection(d.title) ? "Corrección de errores" : d.role ? ROLE_LABELS[d.role] : "Documento"}
-              {d.verdict ? (
+              {showsVerdict(d.verdict) ? (
                 <>
                   {" · "}
-                  {d.verdict === "no_aplica" ? (
-                    VERDICT_LABELS[d.verdict]
-                  ) : superseded ? (
+                  {superseded ? (
                     <>
                       <span className={styles.sustituido} data-testid="veredicto-sustituido">
                         <StatusBadge status={d.verdict} />
@@ -87,7 +85,7 @@ export function DocumentTimeline({ documents, statusDocumentId }: { documents: G
               ) : null}
               {d.matchScore !== null && d.matchScore < 1 ? (
                 <span className={`pie ${styles.marca}`} data-testid="agrupado">
-                  Agrupado con confianza <span className="dato">{formatScore(d.matchScore)}</span>
+                  <a href="#procedencia">Agrupado con confianza <span className="dato">{formatScore(d.matchScore)}</span></a>
                 </span>
               ) : null}
             </p>

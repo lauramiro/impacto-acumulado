@@ -85,5 +85,5 @@ test("skip links hidden when a page lacks their section", async ({ page }) => {
 test("the map tells keyboard users to use the index", async ({ page }) => {
   await page.goto("/");
   const map = page.getByRole("img", { name: /^Mapa de Andalucía por municipios/ });
-  await expect(map).toHaveAccessibleDescription(/con el teclado, usa el índice de municipios/);
+  await expect(map).toHaveAccessibleDescription(/con el teclado, usa el campo de búsqueda de municipios/);
 });

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { formatInt, formatMonth } from "@/lib/format";
 import { EVENT_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { buildSeries, formatShortMonth, monthRange, rowPeaks, shortMonth, TIMELINE_START, yearTotals } from "@/lib/timeline";
+import { buildSeries, earlyNote, formatShortMonth, monthRange, rowPeaks, shortMonth, TIMELINE_START, yearTotals } from "@/lib/timeline";
 import { EVENTS, REGION, TECHNOLOGIES, type EventKind, type MonthlyEvent, type Province, type Technology } from "@/lib/types";
 import { Tooltip, type TooltipState } from "./tooltip";
 import styles from "./timeline.module.css";
@@ -27,10 +27,12 @@ type Props = {
   province: Province | null;
   technologies: ReadonlySet<Technology>;
   lastMonth: string;
+  /** Documents published before the series starts, read from documents.csv at build time. */
+  early: { count: number; firstYear: string | null };
   onClearProvince: () => void;
 };
 
-export function Timeline({ events, province, technologies, lastMonth, onClearProvince }: Props) {
+export function Timeline({ events, province, technologies, lastMonth, early, onClearProvince }: Props) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [W, setW] = useState(DEFAULT_W);
@@ -130,7 +132,7 @@ export function Timeline({ events, province, technologies, lastMonth, onClearPro
         Cuenta documentos publicados (anuncios de información pública y resoluciones, por su veredicto), no proyectos por su estado actual: el filtro de estado no se aplica. Cada fila tiene su propia escala: la barra más alta es su máximo.
         {empty.length > 0 && hasChart ? ` Sin documentos con esta selección: ${empty.map((e) => EVENT_LABELS[e]).join(", ")}.` : null}
       </p>
-      <p className={styles.nota}>Entre 2019 y 2021 la colección solo contiene 5 documentos; la serie empieza en 2022.</p>
+      {earlyNote(early) ? <p className={styles.nota}>{earlyNote(early)}</p> : null}
       {shown.length > 0 ? (
         <details className={styles.datos}>
           <summary>Ver los datos</summary>

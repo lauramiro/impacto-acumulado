@@ -42,6 +42,14 @@ export const VERDICT_LABELS: Record<Verdict, string> = {
   no_aplica: "No aplica",
 };
 
+/**
+ * Whether a document's verdict is worth printing. "no_aplica" is what every consultation
+ * notice and most correction notices carry: there is nothing to decide, so there is nothing to say.
+ */
+export function showsVerdict(verdict: Verdict | null): verdict is Exclude<Verdict, "no_aplica"> {
+  return verdict !== null && verdict !== "no_aplica";
+}
+
 export const METRIC_LABELS: Record<Metric, string> = {
   mw: "MW",
   densidad: "MW por km²",

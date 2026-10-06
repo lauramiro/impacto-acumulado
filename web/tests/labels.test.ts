@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classLabels, EVENT_LABELS, formatMetric, METRIC_LABELS, metricUnit, provinceFromSlug, provinceSlug, ROLE_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
+import { classLabels, EVENT_LABELS, formatMetric, METRIC_LABELS, metricUnit, provinceFromSlug, provinceSlug, ROLE_LABELS, showsVerdict, STATUS_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
 import { DOCUMENT_ROLES, EVENTS, METRICS, PROVINCES, STATUSES, TECHNOLOGIES, VERDICTS } from "@/lib/types";
 
 it("has a Spanish label for every enum value", () => {
@@ -72,5 +72,14 @@ describe("classLabels", () => {
     expect(classLabels("proyectos", [])).toEqual(["Con proyectos"]);
     expect(classLabels("mw", [])).toEqual(["Con MW declarado"]);
     expect(classLabels("ha", [])).toEqual(["Con superficie declarada"]);
+  });
+});
+
+describe("showsVerdict", () => {
+  it("hides no_aplica and a missing verdict, shows the rest", () => {
+    expect(showsVerdict("no_aplica")).toBe(false);
+    expect(showsVerdict(null)).toBe(false);
+    expect(showsVerdict("favorable")).toBe(true);
+    expect(showsVerdict("desfavorable")).toBe(true);
   });
 });

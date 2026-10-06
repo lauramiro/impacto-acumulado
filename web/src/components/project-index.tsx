@@ -6,7 +6,7 @@ import { LookupTable } from "@/components/lookup-table";
 import { StatusBadge } from "@/components/status-badge";
 import { formatInt, formatProjectMw, NO_DATA } from "@/lib/format";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
-import { projectSearchText, statusesPresent, type ProjectRow } from "@/lib/project-index";
+import { matchesProject, projectSearchText, statusesPresent, type ProjectRow } from "@/lib/project-index";
 import type { Status } from "@/lib/types";
 import styles from "./project-index.module.css";
 
@@ -83,6 +83,7 @@ export function ProjectIndex({ rows }: { rows: ProjectRow[] }) {
         rows={shown}
         rowKey={(r) => String(r.id)}
         searchText={projectSearchText}
+        matchRow={matchesProject}
         emptyText="Ningún proyecto coincide con la búsqueda."
         defaultSort={{ column: "Proyecto", direction: "ascending" }}
         columns={[

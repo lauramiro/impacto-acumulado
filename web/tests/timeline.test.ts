@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSeries, formatShortMonth, monthRange, rowPeaks, shortMonth, TIMELINE_START, yearTotals } from "@/lib/timeline";
+import { buildSeries, documentsBefore, earlyNote, formatShortMonth, monthRange, rowPeaks, shortMonth, TIMELINE_START, yearTotals } from "@/lib/timeline";
 import { TECHNOLOGIES, type MonthlyEvent } from "@/lib/types";
 
 const ALL = new Set(TECHNOLOGIES);
@@ -77,5 +77,17 @@ describe("formatShortMonth", () => {
   it("abbreviates the month without a trailing period", () => {
     expect(formatShortMonth("2023-03")).toBe("mar 2023");
     expect(formatShortMonth("2022-09")).toBe("sept 2022");
+  });
+});
+
+describe("documents before the series", () => {
+  it("counts the documents published before the series starts and finds the first year", () => {
+    const dates = ["2019-05-02", "2020-01-10", "2021-12-31", "2022-01-01", "2023-06-01", "2021-03-03"];
+    expect(documentsBefore(dates)).toEqual({ count: 4, firstYear: "2019" });
+  });
+  it("words the note from the count, not from a constant", () => {
+    expect(earlyNote({ count: 68, firstYear: "2019" })).toBe("Entre 2019 y 2021 la colección solo contiene 68 documentos; la serie empieza en 2022.");
+    expect(earlyNote({ count: 1, firstYear: "2021" })).toBe("En 2021 la colección solo contiene 1 documento; la serie empieza en 2022.");
+    expect(earlyNote(documentsBefore(["2022-02-01"]))).toBeNull();
   });
 });

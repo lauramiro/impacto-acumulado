@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { boxOf, boxOfGeometry, padBox, radiusMetres, sigpacUrl, unionBox } from "@/components/project/location-geometry";
+import { boxOf, boxOfGeometry, groupCaption, padBox, radiusMetres, sigpacUrl, unionBox } from "@/components/project/location-geometry";
 
 describe("project location helpers", () => {
   it("boxes a polygon and a multipolygon by their coordinates", () => {
@@ -22,5 +22,12 @@ describe("project location helpers", () => {
     expect(sigpacUrl([-5, 36, -5, 37])).toBe("https://sigpac.mapa.gob.es/fega/visor/?x=-5.00000&y=36.50000&srid=4258&r=66570");
     // A single point gets the floor radius.
     expect(sigpacUrl([-5.24045, 36.75469, -5.24045, 36.75469])).toBe("https://sigpac.mapa.gob.es/fega/visor/?x=-5.24045&y=36.75469&srid=4258&r=600");
+  });
+});
+
+describe("groupCaption", () => {
+  it("quotes the sentence a group comes from, or says none was kept", () => {
+    expect(groupCaption({ evidence: "vegetación riparia del arroyo de Lorilla" })).toBe("Frase del documento: «vegetación riparia del arroyo de Lorilla»");
+    expect(groupCaption({ evidence: null })).toMatch(/no deja una frase/);
   });
 });
