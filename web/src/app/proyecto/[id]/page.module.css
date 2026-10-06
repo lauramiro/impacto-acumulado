@@ -11,5 +11,13 @@
     grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
     gap: 0 3rem;
     align-items: start;
+    margin: 2rem 0;
+  }
+
+  /* Margins do not collapse through a grid: the grid carries the sections' 2rem instead,
+     so the space under the title and above Condiciones stays as it was. */
+  .page .resumen > * {
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }
