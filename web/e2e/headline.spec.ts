@@ -28,7 +28,8 @@ test("MW per km² colours the map and sorts the municipality index", async ({ pa
   await expect(header).toHaveAttribute("aria-sort", "descending");
   const first = index.getByRole("row").nth(1);
   await expect(first).toContainText(/\d,\d\d MW\/km²/);
-  await expect(page.getByText(/MW\/km²/).first()).toBeVisible();
+  // The map's <title> elements also say MW/km² and are never visible: look at the visible matches.
+  await expect(page.getByText(/MW\/km²/).locator("visible=true").first()).toBeVisible();
   // The Natura table has no area of its own and says it shows MW instead.
   await expect(page.getByText(/Con «MW por km²» la tabla muestra MW/)).toBeVisible();
 });
