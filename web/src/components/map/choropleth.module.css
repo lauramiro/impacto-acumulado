@@ -11,6 +11,8 @@
 .muni {
   stroke: var(--papel);
   stroke-width: 0.4;
+  /* Strokes keep their screen width when the map is zoomed. */
+  vector-effect: non-scaling-stroke;
   cursor: pointer;
   transition: stroke 120ms, stroke-width 120ms;
 }
@@ -60,6 +62,7 @@
 
 .provinciaMarcada {
   fill: none;
+  vector-effect: non-scaling-stroke;
   stroke: var(--oficial);
   stroke-width: 3;
   stroke-linejoin: round;
@@ -108,8 +111,80 @@
 
 .espacio {
   fill: none;
+  vector-effect: non-scaling-stroke;
   stroke: var(--oficial);
   stroke-width: 1;
   stroke-dasharray: 4 3;
   pointer-events: stroke;
+}
+
+/* A finger on the whole map scrolls the page; zoomed in, it pans and pinches the map. */
+.svg {
+  touch-action: pan-y;
+}
+
+.ampliado {
+  touch-action: none;
+  cursor: grab;
+}
+
+.ampliado:active {
+  cursor: grabbing;
+}
+
+/* Zoom controls: top right of the map, the site's small outlined buttons. */
+.zoom {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.zoom button {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0 0.5rem;
+  font: inherit;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--tinta);
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.zoom button.todo {
+  font-size: var(--texto-pie);
+}
+
+.zoom button:hover:not(:disabled) {
+  background: var(--escala-1);
+}
+
+.zoom button:disabled {
+  color: var(--neutro);
+  border-color: var(--regla);
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .zoom button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+}
+
+.pista {
+  position: absolute;
+  left: 50%;
+  bottom: 0.5rem;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.3rem 0.6rem;
+  font-size: var(--texto-pie);
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  pointer-events: none;
 }

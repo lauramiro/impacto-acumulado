@@ -4,6 +4,8 @@ import { geoConicConformal, geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
 import { memo, useCallback, useMemo, useRef, useState } from "react";
 import { NO_FIGURE_CLASS } from "@/lib/metrics";
+import { MAX_ZOOM, transformOf } from "@/lib/zoom";
+import { useMapZoom } from "./use-map-zoom";
 import { Tooltip, type TooltipState } from "./tooltip";
 import styles from "./choropleth.module.css";
 
@@ -91,6 +93,9 @@ const MuniLayer = memo(function MuniLayer({ items, selected, onSelect, onHover }
 export function Choropleth({ municipalities, provinces, classOf, labelOf, selected, onSelect, province, sites, sensitivity }: Props) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const zoom = useMapZoom(svgRef, VIEW_W, VIEW_H, province);
+  const { view } = zoom;
 
   // A picked province refits the projection to it, at every width: fitted to the whole
   // mainland, a phone draws most municipalities under 10px, too small to tap. Neighbours
@@ -147,18 +152,29 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
 
   return (
     <div className={styles.wrap} ref={wrapRef}>
-      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className={styles.svg} role="img" aria-describedby="mapa-teclado" aria-label={province ? `Mapa de Andalucía por municipios, ampliado a la provincia de ${province}` : "Mapa de Andalucía por municipios"}>
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+        className={`${styles.svg} ${zoom.zoomed ? styles.ampliado : ""}`}
+        role="img"
+        aria-describedby="mapa-teclado"
+        aria-label={province ? `Mapa de Andalucía por municipios, ampliado a la provincia de ${province}` : "Mapa de Andalucía por municipios"}
+        data-zoom={view.k.toFixed(2)}
+        {...zoom.handlers}
+      >
         <defs>
-          {/* Projects but no declared MW or ha; the legend swatch draws the same hatching. */}
-          <pattern id="rayado-sin-dato" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+          {/* Projects but no declared MW or ha; the legend swatch draws the same hatching.
+              The patterns undo the zoom's scale, so the hatching keeps its spacing on screen. */}
+          <pattern id="rayado-sin-dato" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform={`scale(${1 / view.k}) rotate(45)`}>
             <rect width="4" height="4" className={styles.sinDatoFondo} />
             <line x1="0" y1="0" x2="0" y2="4" className={styles.sinDatoRaya} />
           </pattern>
           {/* Opposite angle to #rayado-sin-dato, so a sensitive municipality with no declared figure reads as a cross-hatch rather than one hatch. */}
-          <pattern id="rayado-sensibilidad" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(-45)">
+          <pattern id="rayado-sensibilidad" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform={`scale(${1 / view.k}) rotate(-45)`}>
             <line x1="0" y1="0" x2="0" y2="6" className={styles.rayado} />
           </pattern>
         </defs>
+        <g transform={transformOf(view)} data-testid="capas-mapa">
         <g onMouseLeave={handleLeave}>
           <MuniLayer items={muniItems} selected={selected} onSelect={onSelect} onHover={handleHover} />
         </g>
@@ -167,16 +183,6 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
           {paths.provs.map((p) => (
             <path key={p.province} d={p.d} />
           ))}
-        </g>
-        {/* Names of the provinces, so the map can be read without the table: ink on a paper halo, under the pointer. */}
-        <g className={styles.rotulos} aria-hidden="true" data-testid="rotulos-provincias">
-          {paths.provs.map((p) =>
-            p.label ? (
-              <text key={p.province} x={p.label.x} y={p.label.y} textAnchor="middle" data-province-label={p.province}>
-                {p.province}
-              </text>
-            ) : null,
-          )}
         </g>
         {paths.provs
           .filter((p) => p.province === province)
@@ -204,7 +210,37 @@ export function Choropleth({ municipalities, provinces, classOf, labelOf, select
             />
           ))}
         </g>
+        </g>
+        {/* Names of the provinces, so the map can be read without the table: ink on a paper halo, under the pointer.
+            Outside the zoomed group and placed by hand, so the names keep their size at every zoom. */}
+        <g className={styles.rotulos} aria-hidden="true" data-testid="rotulos-provincias">
+          {paths.provs.map((p) =>
+            p.label ? (
+              <text key={p.province} x={p.label.x * view.k + view.x} y={p.label.y * view.k + view.y} textAnchor="middle" data-province-label={p.province}>
+                {p.province}
+              </text>
+            ) : null,
+          )}
+        </g>
       </svg>
+      <div className={styles.zoom}>
+        <button type="button" onClick={zoom.zoomIn} aria-label="Acercar el mapa" disabled={view.k >= MAX_ZOOM}>
+          +
+        </button>
+        <button type="button" onClick={zoom.zoomOut} aria-label="Alejar el mapa" disabled={!zoom.zoomed}>
+          −
+        </button>
+        {zoom.zoomed ? (
+          <button type="button" onClick={zoom.reset} className={styles.todo}>
+            Todo el mapa
+          </button>
+        ) : null}
+      </div>
+      {zoom.hint ? (
+        <p className={styles.pista} role="status">
+          Para ampliar, pulsa Ctrl (⌘ en Mac) y usa la rueda, o los botones + y −.
+        </p>
+      ) : null}
       {/* The municipalities are mouse and touch targets only; the index is the keyboard path to the same selection. */}
       <p id="mapa-teclado" className="visually-hidden">
         Para elegir un municipio con el teclado, usa el campo de búsqueda de municipios de encima del mapa o el índice de municipios, más abajo: su botón Ver en el mapa lo selecciona aquí.
