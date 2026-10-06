@@ -43,6 +43,12 @@
   margin-top: 0.75rem;
 }
 
+/* Figures inside a note follow the note's size, as in the home headline: at the data size
+   they stood out of the 13px line. */
+.tech :global(.dato) {
+  font-size: 0.95em;
+}
+
 .cobertura {
   font-size: var(--texto-pie);
   margin: 0.5rem 0 0;
