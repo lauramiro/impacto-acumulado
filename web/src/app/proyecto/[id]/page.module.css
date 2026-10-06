@@ -1,1 +1,15 @@
-.page { max-width: 44rem; }
+/* Text sections keep a reading measure. */
+.page > * { max-width: 44rem; }
+
+/* On a wide screen the fact sheet and the location map share the first screen instead of
+   stacking in the left half of the page. The map column stays about as wide as the 44rem
+   measure (640-unit viewBox), so its 13px labels do not shrink. */
+.page > .resumen { max-width: none; }
+@media (min-width: 1024px) {
+  .resumen {
+    display: grid;
+    grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
+    gap: 0 3rem;
+    align-items: start;
+  }
+}

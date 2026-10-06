@@ -77,8 +77,10 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
   return (
     <article className={styles.page}>
       <RecordHeader project={record.project} developerKeys={keysByPrintedName(developers)} />
-      <FactSheet project={record.project} municipalities={here} evidence={evidence} expedientes={expedientes} />
-      <ProjectLocation located={located} places={places} />
+      <div className={styles.resumen}>
+        <FactSheet project={record.project} municipalities={here} evidence={evidence} expedientes={expedientes} />
+        <ProjectLocation located={located} places={places} />
+      </div>
       <SplittingNote
         groups={splitting.filter((g) => g.projectIds.includes(record.project.id))}
         projects={projectsById}
