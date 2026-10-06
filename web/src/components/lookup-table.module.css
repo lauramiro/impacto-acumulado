@@ -111,6 +111,12 @@
     display: none;
   }
 
+  /* Figure columns sit closer together so three of them fit beside a name at 390px. */
+  .table th.num,
+  .table td.num {
+    padding-right: 0.25rem;
+  }
+
   /* Room for the button at 375px: tighter cells and figures, only in a table
      that has one. */
   .table:has(:global(.ver-en-mapa)) th,

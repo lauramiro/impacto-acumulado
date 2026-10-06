@@ -1,0 +1,12 @@
+/* The Matriz column is hidden on a phone; a group with a source shows its parent under the name. */
+.matrizMovil {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .matrizMovil {
+    display: block;
+    font-size: var(--texto-pie);
+    font-weight: normal;
+  }
+}

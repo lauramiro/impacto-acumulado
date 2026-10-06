@@ -86,7 +86,8 @@ test("on a phone, picking a province confirms it under the table with a link to 
   const status = table.getByRole("status");
   await expect(status).toBeEmpty();
   await table.getByRole("button", { name: "Cádiz", exact: true }).click();
-  await expect(status).toBeInViewport();
+  // The map is brought into view by the pick itself; the confirmation stays under the table.
+  await expect(page.locator("#mapa")).toBeInViewport();
   await expect(status).toHaveText(/^Cádiz marcada en el mapa · [\d.]+ municipios? en el índice · Ver el mapa$/);
   const count = (await page.getByTestId("indice-recuento").textContent())?.match(/^[\d.]+/)?.[0];
   await expect(status).toContainText(`${count} municipio`);

@@ -193,6 +193,20 @@ export function MapExplorer({ data, lastMonth, early }: Props) {
     }
     heading.focus({ preventScroll: true });
   }, [state.selected]);
+  // On a phone the metric buttons and the province table sit far from the map;
+  // a deliberate metric or province change brings the map back into view.
+  const mapRef = useRef<HTMLDivElement>(null);
+  const revealMapPending = useRef(false);
+  useEffect(() => {
+    if (!revealMapPending.current) return;
+    revealMapPending.current = false;
+    const el = mapRef.current;
+    if (!el || !window.matchMedia("(max-width: 767px)").matches) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top >= 0 && rect.top < window.innerHeight / 2) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }, [state.metric, state.province]);
   const clearProvince = useCallback(() => update({ ...state, province: null }), [state, update]);
 
   const sensitivityLayer = state.sensitivity !== "ninguna" ? layers[state.sensitivity] : null;
@@ -212,7 +226,10 @@ export function MapExplorer({ data, lastMonth, early }: Props) {
         regionCells={provinceStats["Andalucía"]}
         statuses={state.statuses}
         technologies={state.technologies}
-        onMetric={(metric: Metric) => update({ ...state, metric })}
+        onMetric={(metric: Metric) => {
+          revealMapPending.current = metric !== state.metric;
+          update({ ...state, metric });
+        }}
         onToggleStatus={(s: Status) => {
           const statuses = new Set(state.statuses);
           if (statuses.has(s)) statuses.delete(s);
@@ -242,7 +259,7 @@ export function MapExplorer({ data, lastMonth, early }: Props) {
           : "Con estos filtros, el mapa, la tabla por provincia y el índice no cuentan lo mismo que el titular (aprobados o en trámite)."}
       </p>
       <div className={styles.layout} id="mapa">
-        <div className={styles.mapa}>
+        <div className={styles.mapa} ref={mapRef}>
           {geo === "error" ? (
             <p role="alert" className={styles.error}>
               No se ha podido cargar el mapa. Recarga la página o usa el índice de municipios.
@@ -281,7 +298,10 @@ export function MapExplorer({ data, lastMonth, early }: Props) {
         metric={state.metric}
         filters={filters}
         selected={state.province}
-        onSelect={(province) => update({ ...state, province })}
+        onSelect={(province) => {
+          revealMapPending.current = province !== null && province !== state.province;
+          update({ ...state, province });
+        }}
         indexCount={rows.length}
         areas={areas}
       />

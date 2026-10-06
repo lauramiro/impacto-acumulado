@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { LookupTable } from "@/components/lookup-table";
 import type { RollupRow } from "@/lib/developers";
+import styles from "./developer-index.module.css";
 import { absenceMark, formatInt, formatMw, NO_PROJECTS } from "@/lib/format";
 
 export type DeveloperRow = {
@@ -68,9 +69,28 @@ export function DeveloperRollupIndex({ rows }: { rows: RollupRow[] }) {
       emptyText="Ningún grupo ni familia coincide con la búsqueda."
       defaultSort={{ column: "Proyectos", direction: "descending" }}
       columns={[
-        { header: "Grupo o familia", rowHeader: true, cell: (r) => <Link href={`/promotor/${r.key}`}>{r.name}</Link>, sortValue: (r) => r.name },
+        {
+          header: "Grupo o familia",
+          rowHeader: true,
+          // On a phone the Matriz column is hidden; a group with a source shows it under the name.
+          cell: (r) => (
+            <>
+              <Link href={`/promotor/${r.key}`}>{r.name}</Link>
+              {r.parentCompany && r.sourceUrl ? (
+                <span className={styles.matrizMovil}>
+                  Matriz:{" "}
+                  <a href={r.sourceUrl} rel="noopener">
+                    {r.parentCompany}
+                  </a>
+                </span>
+              ) : null}
+            </>
+          ),
+          sortValue: (r) => r.name,
+        },
         {
           header: "Matriz",
+          hideOnPhone: true,
           cell: (r) =>
             r.parentCompany && r.sourceUrl ? (
               <a href={r.sourceUrl} rel="noopener">
