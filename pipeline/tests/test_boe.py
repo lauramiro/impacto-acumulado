@@ -26,6 +26,14 @@ def test_walk_items_finds_ronda_resolution(fixtures_dir):
     assert ronda[0].section == "III"
     assert "transicion ecologica" in normalize(ronda[0].department)
     assert ronda[0].xml_url.endswith("id=BOE-A-2023-19635")
+    # The stored and shown url is the readable page, not the XML.
+    assert ronda[0].html_url == "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2023-19635"
+
+
+def test_walk_items_html_url_falls_back_to_the_identifier():
+    summary = {"item": [{"identificador": "BOE-B-2021-2374", "titulo": "t", "url_xml": "https://www.boe.es/diario_boe/xml.php?id=BOE-B-2021-2374"}]}
+    (item,) = walk_items(summary)
+    assert item.html_url == "https://www.boe.es/diario_boe/txt.php?id=BOE-B-2021-2374"
 
 
 def test_select_items_keeps_only_renewable_environmental_resolutions():

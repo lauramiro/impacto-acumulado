@@ -11,6 +11,9 @@ from impacto.text import normalize
 
 SUMMARY_BASE = "https://www.boe.es/datosabiertos/api/boe/sumario/"
 SUMMARY_HEADERS = {"Accept": "application/json"}
+# The readable page of a document. The summary's url_html points here; the
+# XML (url_xml, application/xml) is only for reading the text.
+HTML_BASE = "https://www.boe.es/diario_boe/txt.php?id="
 
 ANDALUSIAN_PROVINCES = ["almeria", "cadiz", "cordoba", "granada", "huelva", "jaen", "malaga", "sevilla"]
 RENEWABLE_WORDS = ["fotovoltaic", "solar", "eolic", "hibrid", "renovable"]
@@ -23,6 +26,9 @@ class SummaryItem:
     section: str
     department: str
     xml_url: str
+    # Stored as the document's url and shown as "Ver en el BOE": the HTML page
+    # for people. xml_url is only fetched for the text.
+    html_url: str = ""
 
 
 @dataclass(frozen=True)
@@ -36,6 +42,11 @@ class ParsedDocument:
 
 def summary_url(day: date) -> str:
     return SUMMARY_BASE + day.strftime("%Y%m%d")
+
+
+def html_url(identifier: str) -> str:
+    """The readable BOE page for an identifier (BOE-A-... or BOE-B-...)."""
+    return HTML_BASE + identifier
 
 
 def _section_label(nombre: str) -> str:
@@ -57,6 +68,7 @@ def _walk(node: Any, section: str, department: str, parent_key: str = "") -> Ite
                 section=section,
                 department=department,
                 xml_url=str(node.get("url_xml", "")),
+                html_url=str(node.get("url_html") or html_url(str(node["identificador"]))),
             )
             return
         if parent_key == "seccion" and "nombre" in node:

@@ -156,6 +156,14 @@ export default async function DataPage() {
             ya hacía el índice de proyectos. Los ficheros de datos no cambian.
           </li>
           <li>
+            Enlaces al BOE: <span className="dato">url</span> en <span className="dato">documents.csv</span>,{" "}
+            <span className="dato">document_urls</span> en <span className="dato">projects.csv</span>, Ver en el BOE y los feeds
+            llevaban a la versión XML del documento (<span className="dato">diario_boe/xml.php?id=</span>), que el navegador muestra
+            como código. Ahora llevan a la página legible del mismo documento (
+            <span className="dato">diario_boe/txt.php?id=</span>), en los documentos nuevos y en los ya guardados, desde la próxima
+            actualización. El identificador no cambia; los enlaces al BOJA, tampoco.
+          </li>
+          <li>
             Proyectos duplicados: un anuncio que no nombra municipio, o que nombra una planta dentro de un título con varias, se une
             al proyecto del mismo promotor que lleva ese nombre, si es el único y nada los separa (otro expediente, otros municipios,
             una línea frente a una planta, eólica frente a solar). Dos proyectos se unen a otro y{" "}

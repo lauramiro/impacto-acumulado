@@ -37,7 +37,7 @@ def test_fetch_boe_stores_selected_documents(db, fixtures_dir, tmp_path):
     assert any(r["source_id"] == "BOE-A-2023-19635" for r in rows)
     assert all(r["section"] == "III" for r in rows)
     ronda_row = next(r for r in rows if r["source_id"] == "BOE-A-2023-19635")
-    assert "id=BOE-A-2023-19635" in ronda_row["url"]
+    assert ronda_row["url"] == "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2023-19635"
 
 
 def test_fetch_boe_excludes_other_region_document_despite_body_substring_hit(db, tmp_path):
@@ -298,9 +298,10 @@ def test_fetch_boe_stores_section_v_consultations_stripped_and_uncached(db, tmp_
     assert fetch_boe(client, db, date(2025, 9, 22), date(2025, 9, 22)) == 0  # off by default
     assert fetch_boe(client, db, date(2025, 9, 22), date(2025, 9, 22), consultations=True) == 1
     with db.cursor() as cur:
-        cur.execute("SELECT source_id, section, text FROM raw_documents WHERE source_id LIKE 'BOE-B-2025-%'")
+        cur.execute("SELECT source_id, section, text, url FROM raw_documents WHERE source_id LIKE 'BOE-B-2025-%'")
         rows = cur.fetchall()
     assert [(r["source_id"], r["section"]) for r in rows] == [("BOE-B-2025-1", "V")]
+    assert rows[0]["url"] == "https://www.boe.es/diario_boe/txt.php?id=BOE-B-2025-1"
     assert "plazo de treinta" in rows[0]["text"] and "Titular" not in rows[0]["text"] and "12345678Z" not in rows[0]["text"]
     # Only the daily summary is cached; the announcements never touch the disk.
     assert len(list(tmp_path.iterdir())) == 1
