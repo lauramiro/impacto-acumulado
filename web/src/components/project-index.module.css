@@ -35,3 +35,17 @@
     white-space: normal;
   }
 }
+
+/* On a phone the three columns (name, status, MW) were 6 px wider than the page, and 8 px with the
+   wider fallback fonts CI renders: let long names break and let the MW figure wrap. */
+@media (max-width: 767px) {
+  .lista :global(table) th,
+  .lista :global(table) td {
+    overflow-wrap: anywhere;
+  }
+
+  .lista :global(table) td:global(.num),
+  .lista :global(table) th:global(.num) {
+    white-space: normal;
+  }
+}

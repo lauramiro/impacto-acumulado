@@ -48,4 +48,7 @@ test("the project list has no horizontal scroll on a phone", async ({ page }) =>
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/proyectos");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  // The table can be wider than its column without widening the page (there is a gutter); it must not be.
+  const [tableRight, columnRight] = await page.evaluate(() => [document.querySelector("table")!.getBoundingClientRect().right, document.querySelector("article")!.getBoundingClientRect().right]);
+  expect(tableRight).toBeLessThanOrEqual(columnRight + 0.5);
 });

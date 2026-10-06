@@ -55,53 +55,55 @@ export function ProjectIndex({ rows }: { rows: ProjectRow[] }) {
   }
 
   return (
-    <LookupTable
-      id="proyectos"
-      title="Todos los proyectos"
-      countText={`${formatInt(shown.length)} proyectos${allOn ? "" : ` de ${formatInt(rows.length)}`}`}
-      countTestId="proyectos-recuento"
-      query={query}
-      onQueryChange={changeQuery}
-      intro={
-        <>
-          <p>
-            Cada proyecto con su ficha: busca por nombre, promotor o número de expediente (por ejemplo, AAU/HU/057/21). Un proyecto puede llevar
-            varios números de expediente, uno por documento.
-          </p>
-          <fieldset className={styles.estados}>
-            <legend>Estado</legend>
-            {present.map((s) => (
-              <label key={s} className={styles.opcion}>
-                <input type="checkbox" name="estado" checked={on.has(s)} onChange={() => toggle(s)} />
-                {STATUS_LABELS[s]} <span className={styles.recuento}>({formatInt(counts.get(s) ?? 0)})</span>
-              </label>
-            ))}
-          </fieldset>
-        </>
-      }
-      searchLabel="Buscar proyecto"
-      rows={shown}
-      rowKey={(r) => String(r.id)}
-      searchText={projectSearchText}
-      emptyText="Ningún proyecto coincide con la búsqueda."
-      defaultSort={{ column: "Proyecto", direction: "ascending" }}
-      columns={[
-        { header: "Proyecto", rowHeader: true, cell: (r) => <Link href={`/proyecto/${r.id}`}>{r.name}</Link>, sortValue: (r) => r.name },
-        { header: "Promotor", hideOnPhone: true, cell: (r) => r.developer ?? NO_DATA, sortValue: (r) => r.developer },
-        {
-          header: "Expediente",
-          hideOnPhone: true,
-          cell: (r) => (r.expedientes.length > 0 ? r.expedientes.join(" · ") : NO_DATA),
-          sortValue: (r) => r.expedientes[0] ?? null,
-        },
-        { header: "Tecnología", hideOnPhone: true, cell: (r) => TECHNOLOGY_LABELS[r.technology], sortValue: (r) => TECHNOLOGY_LABELS[r.technology] },
-        { header: "Estado", cell: (r) => (
-            <span className={styles.estado}>
-              <StatusBadge status={r.status} />
-            </span>
-          ), sortValue: (r) => STATUS_LABELS[r.status] },
-        { header: "MW", numeric: true, cell: mwCell, sortValue: mwSort },
-      ]}
-    />
+    <div className={styles.lista}>
+      <LookupTable
+        id="proyectos"
+        title="Todos los proyectos"
+        countText={`${formatInt(shown.length)} proyectos${allOn ? "" : ` de ${formatInt(rows.length)}`}`}
+        countTestId="proyectos-recuento"
+        query={query}
+        onQueryChange={changeQuery}
+        intro={
+          <>
+            <p>
+              Cada proyecto con su ficha: busca por nombre, promotor o número de expediente (por ejemplo, AAU/HU/057/21). Un proyecto puede llevar
+              varios números de expediente, uno por documento.
+            </p>
+            <fieldset className={styles.estados}>
+              <legend>Estado</legend>
+              {present.map((s) => (
+                <label key={s} className={styles.opcion}>
+                  <input type="checkbox" name="estado" checked={on.has(s)} onChange={() => toggle(s)} />
+                  {STATUS_LABELS[s]} <span className={styles.recuento}>({formatInt(counts.get(s) ?? 0)})</span>
+                </label>
+              ))}
+            </fieldset>
+          </>
+        }
+        searchLabel="Buscar proyecto"
+        rows={shown}
+        rowKey={(r) => String(r.id)}
+        searchText={projectSearchText}
+        emptyText="Ningún proyecto coincide con la búsqueda."
+        defaultSort={{ column: "Proyecto", direction: "ascending" }}
+        columns={[
+          { header: "Proyecto", rowHeader: true, cell: (r) => <Link href={`/proyecto/${r.id}`}>{r.name}</Link>, sortValue: (r) => r.name },
+          { header: "Promotor", hideOnPhone: true, cell: (r) => r.developer ?? NO_DATA, sortValue: (r) => r.developer },
+          {
+            header: "Expediente",
+            hideOnPhone: true,
+            cell: (r) => (r.expedientes.length > 0 ? r.expedientes.join(" · ") : NO_DATA),
+            sortValue: (r) => r.expedientes[0] ?? null,
+          },
+          { header: "Tecnología", hideOnPhone: true, cell: (r) => TECHNOLOGY_LABELS[r.technology], sortValue: (r) => TECHNOLOGY_LABELS[r.technology] },
+          { header: "Estado", cell: (r) => (
+              <span className={styles.estado}>
+                <StatusBadge status={r.status} />
+              </span>
+            ), sortValue: (r) => STATUS_LABELS[r.status] },
+          { header: "MW", numeric: true, cell: mwCell, sortValue: mwSort },
+        ]}
+      />
+    </div>
   );
 }
