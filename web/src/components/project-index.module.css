@@ -27,6 +27,19 @@
   font-size: var(--texto-pie);
 }
 
+/* "Solar fotovoltaica" broke over two lines on every row at 1440 px and doubled the row height.
+   The column is hidden on a phone. */
+.unaLinea {
+  white-space: nowrap;
+}
+
+/* Every MW cell keeps room for "pico", so the figures line up whether or not it is there. */
+.sufijo {
+  display: inline-block;
+  min-width: 2.75em;
+  text-align: left;
+}
+
 /* "Favorable con condiciones" on one line pushed the table past a phone's width: let the badge wrap there. */
 @media (max-width: 767px) {
   .estado > span {

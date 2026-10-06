@@ -4,15 +4,24 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { LookupTable } from "@/components/lookup-table";
 import { StatusBadge } from "@/components/status-badge";
-import { formatInt, formatProjectMw, NO_DATA } from "@/lib/format";
+import { formatInt, formatMw, NO_DATA } from "@/lib/format";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { matchesProject, projectSearchText, statusesPresent, type ProjectRow } from "@/lib/project-index";
 import type { Status } from "@/lib/types";
 import styles from "./project-index.module.css";
 
-/** MW as the project page reads it: the nominal figure, else the peak (marked), else no figure. */
-function mwCell(r: ProjectRow): string {
-  return formatProjectMw(r.mwNominal, r.mwPeak) ?? NO_DATA;
+/**
+ * MW as the project page reads it: the nominal figure, else the peak (marked), else no figure.
+ * "pico" sits in a slot every cell keeps, so the figures stay aligned on the right.
+ */
+function mwCell(r: ProjectRow) {
+  const figure = r.mwNominal ?? r.mwPeak;
+  return (
+    <>
+      {figure === null ? NO_DATA : formatMw(figure)}{" "}
+      <span className={styles.sufijo}>{figure !== null && r.mwNominal === null ? "pico" : ""}</span>
+    </>
+  );
 }
 
 const mwSort = (r: ProjectRow) => r.mwNominal ?? r.mwPeak;
@@ -95,7 +104,7 @@ export function ProjectIndex({ rows }: { rows: ProjectRow[] }) {
             cell: (r) => (r.expedientes.length > 0 ? r.expedientes.join(" · ") : NO_DATA),
             sortValue: (r) => r.expedientes[0] ?? null,
           },
-          { header: "Tecnología", hideOnPhone: true, cell: (r) => TECHNOLOGY_LABELS[r.technology], sortValue: (r) => TECHNOLOGY_LABELS[r.technology] },
+          { header: "Tecnología", hideOnPhone: true, className: styles.unaLinea, cell: (r) => TECHNOLOGY_LABELS[r.technology], sortValue: (r) => TECHNOLOGY_LABELS[r.technology] },
           { header: "Estado", cell: (r) => (
               <span className={styles.estado}>
                 <StatusBadge status={r.status} />

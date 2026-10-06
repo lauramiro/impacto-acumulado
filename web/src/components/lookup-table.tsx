@@ -9,6 +9,7 @@ import styles from "./lookup-table.module.css";
  * `hideOnPhone`: drop the column below 768 px so the table fits without horizontal scroll.
  * `sortValue`: makes the header a sort button; numbers sort largest first, text A to Z.
  * A null value (no figure to rank) sorts last in either direction.
+ * `className`: added to the column's header and cells.
  */
 export type LookupColumn<R> = {
   header: string;
@@ -18,14 +19,15 @@ export type LookupColumn<R> = {
   hiddenHeader?: boolean;
   hideOnPhone?: boolean;
   sortValue?: (r: R) => SortValue;
+  className?: string;
 };
 
 type SortValue = number | string | null;
 type Direction = "ascending" | "descending";
 export type LookupSort = { column: string; direction: Direction };
 
-function cellClass(c: { numeric?: boolean; hideOnPhone?: boolean }, numericClass: string): string | undefined {
-  return [c.numeric ? numericClass : null, c.hideOnPhone ? styles.sinMovil : null].filter(Boolean).join(" ") || undefined;
+function cellClass(c: { numeric?: boolean; hideOnPhone?: boolean; className?: string }, numericClass: string): string | undefined {
+  return [c.numeric ? numericClass : null, c.hideOnPhone ? styles.sinMovil : null, c.className ?? null].filter(Boolean).join(" ") || undefined;
 }
 
 const collator = new Intl.Collator("es", { sensitivity: "base", numeric: true });
