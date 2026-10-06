@@ -756,14 +756,26 @@ def export_meta(conn, out_dir: Path, files: list[Path], boja_coverage: dict | No
 COVERAGE_MAX_SECONDS = 900.0
 
 
-def check_boja_coverage(conn, client, today: date | None = None, max_seconds: float | None = COVERAGE_MAX_SECONDS) -> dict | None:
-    """The BOJA coverage report against the stored documents, or None when the API fails."""
-    stored = [r["source_id"] for r in _query(conn, "SELECT source_id FROM raw_documents WHERE source = 'boja'")]
+def stored_boja_ids(conn) -> list[str]:
+    """The BOJA documents the database holds. Ends its transaction: the caller may then spend a long
+    time on HTTP, and an open transaction left idle that long is terminated by the database server."""
+    ids = [r["source_id"] for r in _query(conn, "SELECT source_id FROM raw_documents WHERE source = 'boja'")]
+    conn.commit()
+    return ids
+
+
+def boja_coverage_report(stored: list[str], client, today: date | None = None, max_seconds: float | None = COVERAGE_MAX_SECONDS) -> dict | None:
+    """The BOJA coverage report against the stored ids, or None when the API fails. Holds no connection."""
     try:
         return coverage.boja_coverage(client.get, stored, today or datetime.now(UTC).date(), max_seconds=max_seconds)
     except Exception as exc:  # noqa: BLE001 - the export must not fail because the BOJA API did
         log.warning("boja coverage check skipped: %s", exc)
         return None
+
+
+def check_boja_coverage(conn, client, today: date | None = None, max_seconds: float | None = COVERAGE_MAX_SECONDS) -> dict | None:
+    """The BOJA coverage report against the stored documents, or None when the API fails."""
+    return boja_coverage_report(stored_boja_ids(conn), client, today, max_seconds)
 
 
 def export_all(
@@ -818,12 +830,14 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     settings = load_settings()
+    report = None
+    if not args.skip_coverage:
+        # The scan takes minutes of HTTP: read the ids on a short connection and close it before, so no
+        # connection sits idle (the first CI run lost its export to an idle-in-transaction timeout).
+        with connect(settings.db_dsn) as conn:
+            stored = stored_boja_ids(conn)
+        report = boja_coverage_report(stored, CachedClient(settings.http_cache), max_seconds=args.coverage_seconds or None)
     with connect(settings.db_dsn) as conn:
-        report = (
-            None
-            if args.skip_coverage
-            else check_boja_coverage(conn, CachedClient(settings.http_cache), max_seconds=args.coverage_seconds or None)
-        )
         paths = export_all(conn, args.out, refresh_sensitivity=args.refresh_sensitivity, boja_coverage=report)
     print("\n".join(str(p) for p in paths))
     return 0

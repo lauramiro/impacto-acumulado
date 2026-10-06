@@ -2,6 +2,7 @@ import csv
 import json
 from datetime import date
 
+import psycopg
 import pytest
 
 from evaluation.run_eval import LABELS_DIR
@@ -16,6 +17,7 @@ from impacto.aggregate.export import (
     export_splitting_candidates,
     project_details,
     retired_projects,
+    stored_boja_ids,
     wilson,
 )
 from impacto.aggregate.run import run_aggregate
@@ -369,6 +371,13 @@ def test_check_boja_coverage_counts_stored_documents_and_survives_an_api_failure
 
     report = check_boja_coverage(db, Empty(), today=date(2026, 1, 31))
     assert report["stored"] == 0 and report["selected"] == 0 and report["complete"] is True
+
+
+def test_stored_boja_ids_leaves_no_transaction_open(db):
+    # A scan of minutes follows: an open transaction would be terminated by the server's idle timeout.
+    upsert_raw_document(db, RawDocument("boja", "disposition.2026.1.1", date(2026, 1, 2), "t", "u", None, "o", "x"))
+    assert stored_boja_ids(db) == ["disposition.2026.1.1"]
+    assert db.info.transaction_status == psycopg.pq.TransactionStatus.IDLE
 
 
 def test_wilson_matches_the_published_intervals():
