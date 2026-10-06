@@ -47,6 +47,16 @@ INSTRUMENT_PHRASES = [
 # DIA decisions this pipeline tracks.
 ENV_DEPARTMENT_WORDS = ["sostenibilidad", "medio ambiente"]
 
+# Pages are numbered from 0. Until 2026-10-06 the fetch started at 1 and so
+# skipped the first 50 records of every query and window. A 14-day weekly
+# window rarely has more than 50 per query, so the weekly run stored next to
+# no BOJA document; what the database holds came from longer backfill
+# windows, each short of its first page (checked live on 2026-10-06: page=0
+# and page=1 return different records, and page=0 is the only page of a
+# window with fewer than 50 hits).
+FIRST_PAGE = 0
+PAGE_SIZE = 50
+
 _HTML_TAG = re.compile(r"<[^>]+>")
 
 
@@ -60,7 +70,7 @@ class BojaRecord:
     text: str
 
 
-def search_url(date_from: date, date_to: date, query: str, page: int, size: int = 50) -> str:
+def search_url(date_from: date, date_to: date, query: str, page: int, size: int = PAGE_SIZE) -> str:
     params = [
         ("order_by", "date"),
         ("mode", "DESC"),

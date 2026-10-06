@@ -1,5 +1,10 @@
 {
   "generated_at": "2026-10-05T15:56:37.537487+00:00",
+  "last_document": "2026-09-08",
+  "last_document_by_source": {
+    "boe": "2026-07-31",
+    "boja": "2026-09-08"
+  },
   "counts": {
     "raw_documents": 758,
     "extractions": 758,
@@ -92,5 +97,86 @@
       "rows": 0,
       "bytes": 128
     }
+  },
+  "boja_coverage": {
+    "checked": "2026-10-06",
+    "from": "2019-01-01",
+    "queries": [
+      "autorizacion ambiental unificada",
+      "informe de impacto ambiental",
+      "informacion publica fotovoltaica",
+      "informacion publica eolico"
+    ],
+    "complete": true,
+    "total_hits": 10822,
+    "received": 10822,
+    "selected": 579,
+    "stored": 566,
+    "years": {
+      "2019": {
+        "total_hits": 821,
+        "received": 821,
+        "selected": 3,
+        "stored": 3
+      },
+      "2020": {
+        "total_hits": 831,
+        "received": 831,
+        "selected": 0,
+        "stored": 0
+      },
+      "2021": {
+        "total_hits": 1638,
+        "received": 1638,
+        "selected": 0,
+        "stored": 0
+      },
+      "2022": {
+        "total_hits": 1803,
+        "received": 1803,
+        "selected": 57,
+        "stored": 53
+      },
+      "2023": {
+        "total_hits": 2216,
+        "received": 2216,
+        "selected": 273,
+        "stored": 272
+      },
+      "2024": {
+        "total_hits": 1502,
+        "received": 1502,
+        "selected": 106,
+        "stored": 104
+      },
+      "2025": {
+        "total_hits": 1186,
+        "received": 1186,
+        "selected": 89,
+        "stored": 87
+      },
+      "2026": {
+        "total_hits": 825,
+        "received": 825,
+        "selected": 51,
+        "stored": 47
+      }
+    },
+    "missing": [
+      "disposition.2022.209.80",
+      "disposition.2022.209.81",
+      "disposition.2022.209.82",
+      "disposition.2022.209.83",
+      "disposition.2023.209.108",
+      "disposition.2024.251.67",
+      "disposition.2024.251.68",
+      "disposition.2025.251.64",
+      "disposition.2025.251.65",
+      "disposition.2026.147.61",
+      "disposition.2026.168.17",
+      "disposition.2026.192.57",
+      "disposition.2026.192.85"
+    ],
+    "missing_count": 13
   }
 }

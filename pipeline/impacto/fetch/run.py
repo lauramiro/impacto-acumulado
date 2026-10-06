@@ -145,8 +145,9 @@ def fetch_boja(client: CachedClient, conn: psycopg.Connection, day_from: date, d
     new = 0
     seen: set[str] = set()
     for query in boja.BOJA_QUERIES:
-        page = 1
+        page = boja.FIRST_PAGE
         query_new = 0
+        received = 0
         while True:
             try:
                 raw = client.get(boja.search_url(day_from, day_to, query, page))
@@ -155,19 +156,19 @@ def fetch_boja(client: CachedClient, conn: psycopg.Connection, day_from: date, d
                 # page number exceeds what it actually has for a narrow date
                 # window, even when total_hits suggested more were coming.
                 if exc.response is not None and exc.response.status_code == 400:
-                    if page == 1:
+                    if page == boja.FIRST_PAGE:
                         # A 400 here is indistinguishable from a real "zero
                         # matches" unless logged: a broken query or an API
                         # change would otherwise silently read as zero
                         # matches forever (observed live: 3 of 4
-                        # BOJA_QUERIES 400'd on page 1 for the September
-                        # 2023 window).
+                        # BOJA_QUERIES 400'd on the first page for the
+                        # September 2023 window).
                         log.warning(
                             "boja query %r returned 400 on the first page: zero matches or bad query",
                             query,
                         )
                     else:
-                        log.info("boja query %r: %d page(s)", query, page - 1)
+                        log.info("boja query %r: %d page(s)", query, page - boja.FIRST_PAGE)
                     break
                 # Any other HTTP failure (5xx after retries, transport error)
                 # abandons this query for the run instead of aborting fetch;
@@ -200,6 +201,10 @@ def fetch_boja(client: CachedClient, conn: psycopg.Connection, day_from: date, d
                 )
                 new += int(stored)
                 query_new += int(stored)
+            received += len(records)
+            total = boja.total_results(payload)
+            if total is not None and received >= total:
+                break
             page += 1
         log.info("boja query %r: %d new document(s)", query, query_new)
     log.info("boja: %d new document(s)", new)

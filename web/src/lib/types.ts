@@ -120,6 +120,8 @@ export type Evaluation = {
   labelsCount: number;
   /** Per field, how many labels carry it under `expected` - each field's own denominator, not a single shared sample size. */
   fieldSamples: Record<string, number>;
+  /** Per field, the hits behind the share and its Wilson 95 percent interval; empty for an export that predates it. */
+  intervals: Record<string, { correct: number; n: number; low: number; high: number }>;
   /** How the operative rule reads AAU publication notices (T4), when the export carries it. */
   aauPublication: {
     heldOut: { measured: string; labelled: number; correct: number };

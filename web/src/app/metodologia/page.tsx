@@ -4,6 +4,7 @@ import { Figure } from "@/components/figure";
 import { loadOpenConsultations } from "@/lib/data/consultations";
 import { loadDocuments } from "@/lib/data/documents";
 import { loadEvaluation } from "@/lib/data/evaluation";
+import { loadMeta } from "@/lib/data/meta";
 import { formatDate, formatInt, formatPercent } from "@/lib/format";
 import { REPO_URL } from "@/lib/site";
 import type { GazetteDocument } from "@/lib/types";
@@ -33,6 +34,11 @@ const FIELD_LABELS: Record<string, string> = {
 
 const ALERT_BELOW = 0.9;
 
+/** A Wilson interval as "53 a 89 %". */
+function formatInterval(low: number, high: number): string {
+  return `${formatInt(Math.round(low * 100))} a ${formatPercent(high)}`;
+}
+
 /** Documents from 2019 to 2021 by gazette, against the busiest year, read from the published data. */
 function earlyRecord(docs: readonly GazetteDocument[]) {
   const early = docs.filter((d) => d.publishedAt < "2022");
@@ -49,8 +55,15 @@ function earlyRecord(docs: readonly GazetteDocument[]) {
 }
 
 export default async function MethodologyPage() {
-  const [ev, { evaluation: periods }, docs] = await Promise.all([loadEvaluation(), loadOpenConsultations(), loadDocuments()]);
+  const [ev, { evaluation: periods }, docs, meta] = await Promise.all([
+    loadEvaluation(),
+    loadOpenConsultations(),
+    loadDocuments(),
+    loadMeta(),
+  ]);
   const early = earlyRecord(docs);
+  const coverage = meta.bojaCoverage;
+  const nominal = ev.intervals["mw_nominal"];
   const fields = Object.keys(ev.accuracy).sort((a, b) => (FIELD_LABELS[a] ?? a).localeCompare(FIELD_LABELS[b] ?? b, "es"));
   return (
     <article className={styles.page}>
@@ -71,8 +84,55 @@ export default async function MethodologyPage() {
       </p>
       <p>
         Boletín Oficial de la Junta de Andalucía, consejería con competencias en medio ambiente: autorizaciones ambientales
-        unificadas, informes e información pública de proyectos de cualquier tamaño.
+        unificadas, informes e información pública de proyectos de cualquier tamaño. Los anuncios de la consejería con competencias
+        en energía no se recogen (ver <a href="#lo-que-no-cubre">lo que no cubre</a>).
       </p>
+      {coverage ? (
+        <>
+          <p id="cobertura-boja" data-testid="cobertura-boja">
+            Cobertura del BOJA, comprobada el {formatDate(coverage.checked)}: la búsqueda del BOJA da{" "}
+            <Figure value={formatInt(coverage.total_hits)} /> resultados desde {coverage.from.slice(0, 4)} para las{" "}
+            {formatInt(coverage.queries.length)} consultas que usa el sitio, y el sitio guarda <Figure value={formatInt(coverage.stored)} />{" "}
+            ({formatPercent(coverage.total_hits ? coverage.stored / coverage.total_hits : 0)}). La mayoría de esos resultados son de
+            otras consejerías o de otros asuntos: con la misma selección que aplica el sitio (consejería de medio ambiente, el
+            procedimiento en el título y una palabra de renovables) quedan <Figure value={formatInt(coverage.selected)} /> anuncios, y el
+            sitio tiene <Figure value={formatInt(coverage.stored)} />, el{" "}
+            {formatPercent(coverage.selected ? coverage.stored / coverage.selected : 1)}.
+            {coverage.complete ? "" : " Alguna consulta falló durante la comprobación, así que las cifras de la búsqueda son un mínimo."}{" "}
+            La comprobación se repite en cada actualización semanal.
+          </p>
+          <table className={styles.tabla} aria-label="Cobertura del BOJA por año">
+            <thead>
+              <tr>
+                <th scope="col">Año</th>
+                <th scope="col" className={styles.num}>
+                  Con la selección
+                </th>
+                <th scope="col" className={styles.num}>
+                  En el sitio
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(coverage.years)
+                .filter(([, y]) => y.selected > 0 || y.stored > 0)
+                .map(([year, y]) => (
+                  <tr key={year}>
+                    <th scope="row">{year}</th>
+                    <td className={styles.num}>
+                      <Figure value={formatInt(y.selected)} />
+                    </td>
+                    <td className={styles.num}>
+                      <Figure value={formatInt(y.stored)} />
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </>
+      ) : (
+        <p data-testid="cobertura-boja">La comprobación de cobertura del BOJA no pudo hacerse en la última actualización.</p>
+      )}
       <p>
         Ambos desde el 1 de enero de 2019. Capas de referencia: límites municipales del DERA (Instituto de Estadística y
         Cartografía de Andalucía), Red Natura 2000 y zonificación ambiental para renovables del MITECO (ráster, cinco clases,
@@ -124,6 +184,7 @@ export default async function MethodologyPage() {
           <tr>
             <th scope="col">Campo</th>
             <th scope="col" className={styles.num}>Aciertos</th>
+            <th scope="col" className={styles.num}>Intervalo del 95 %</th>
             <th scope="col" className={styles.num}>Muestra</th>
             {ev.previous ? (
               <th scope="col" className={styles.num}>
@@ -136,12 +197,14 @@ export default async function MethodologyPage() {
           {fields.map((f) => {
             const acc = ev.accuracy[f]!;
             const sample = ev.fieldSamples[f];
+            const interval = ev.intervals[f];
             return (
               <tr key={f}>
                 <th scope="row">{FIELD_LABELS[f] ?? f}</th>
                 <td className={`${styles.num} ${acc < ALERT_BELOW ? styles.alerta : ""}`}>
                   <Figure value={formatPercent(acc)} />
                 </td>
+                <td className={styles.num}>{interval ? <Figure value={formatInterval(interval.low, interval.high)} /> : "—"}</td>
                 <td className={styles.num}>{sample !== undefined ? <Figure value={formatInt(sample)} /> : "—"}</td>
                 {ev.previous ? (
                   <td className={styles.num}>
@@ -160,6 +223,12 @@ export default async function MethodologyPage() {
         hidrógeno, cuenta como nominal la suma de potencias pico de cuatro plantas y deja sin leer los 5 MW de una autorización
         del BOJA. Un acierto en potencia, superficie o aerogeneradores admite un 2 por ciento de diferencia con el valor impreso.
       </p>
+      <p className="pie" data-testid="intervalo">
+        El intervalo es el de Wilson al 95 %: el margen en el que cae el acierto real dada la muestra de ese campo.
+        {nominal && nominal.n < 100
+          ? ` Con ${formatInt(nominal.n)} documentos es ancho: en la potencia nominal, ${formatInt(nominal.correct)} aciertos de ${formatInt(nominal.n)}, va del ${formatInt(Math.round(nominal.low * 100))} al ${formatPercent(nominal.high)}. Para estrecharlo, el conjunto de etiquetas se está ampliando a 100 documentos elegidos al azar por fuente y tecnología.`
+          : null}
+      </p>
       {ev.previous ? (
         <p className="pie" data-testid="medida-anterior">
           La última columna es la medida anterior, del {formatDate(ev.previous.measured)}, sobre{" "}
@@ -170,13 +239,16 @@ export default async function MethodologyPage() {
 
       {ev.aauPublication ? (
         <>
-          <h3>Proyectos sin veredicto en el boletín</h3>
+          <h3 id="sin-veredicto">Proyectos sin veredicto en el boletín</h3>
           <p>
             Muchas autorizaciones ambientales unificadas se publican en el BOJA con un anuncio que solo dice que se da publicidad al
             informe vinculante y remite al texto completo en la web de la Consejería: el boletín no dice si se concedió. Esos proyectos
             figuran como «Sin veredicto en el boletín», no como un fallo de lectura. Cuando el anuncio sí lo dice («autorización
             ambiental unificada otorgada», «se otorga», «se modifica», «se deniega») una regla lo lee y prevalece sobre el modelo; en una
-            corrección de errores solo cuenta el texto que «debe decir».
+            corrección de errores solo cuenta el texto que «debe decir». El texto completo al que remiten esos anuncios está en una
+            aplicación de consulta de la Consejería, sin un documento por expediente que pueda leerse con una regla, y el texto que da
+            la API del BOJA para cada anuncio es el mismo que el sitio ya lee. Por eso el titular de la portada da estos proyectos
+            aparte, sin sumarlos a los aprobados o en trámite.
           </p>
           <p>
             Hoy quedan {formatInt(ev.aauPublication.unknownProjects)} de {formatInt(ev.aauPublication.projects)} proyectos sin
@@ -204,14 +276,14 @@ export default async function MethodologyPage() {
         <li>
           Un proyecto cuya última consulta pública tiene más de 24 meses y del que no se ha publicado ninguna resolución figura como
           «Consulta sin resolución», no como «Información pública»: ya no está en consulta, y el boletín no dice si siguió adelante.
-          Cuenta con los aprobados o en trámite en el titular, como los proyectos sin veredicto en el boletín.
+          Cuenta con los aprobados o en trámite en el titular.
         </li>
         <li>
           «MW por km²» divide los MW del municipio, o de la provincia, entre su superficie. Como un proyecto en varios municipios cuenta
           entero en cada uno, la densidad de los municipios que comparte puede exagerar; la de la provincia cuenta cada proyecto una vez
           por provincia. La tabla de la Red Natura 2000 muestra MW con esta métrica: un espacio no tiene superficie propia en estos
-          datos. En el titular, los aprobados o en trámite incluyen los proyectos sin veredicto en el boletín, y los denegados o
-          caducados se dan aparte.
+          datos. En el titular, los proyectos sin veredicto en el boletín y los denegados o caducados se dan aparte de los aprobados o
+          en trámite.
         </li>
         <li>
           Los totales de MW suman la potencia nominal (MWn) de cada proyecto y, cuando un proyecto solo declara la potencia pico (MWp),
@@ -296,9 +368,15 @@ export default async function MethodologyPage() {
         </li>
       </ul>
 
-      <h2>Lo que no cubre</h2>
+      <h2 id="lo-que-no-cubre">Lo que no cubre</h2>
       <ul>
         <li>Los boletines provinciales (BOP) y los proyectos de menos de 50 MW que no pasan por el BOJA.</li>
+        <li data-testid="no-cubre-energia">
+          Los anuncios de la consejería con competencias en energía en el BOJA: información pública y resoluciones de autorización
+          administrativa previa y de construcción de plantas y líneas. Solo se recogen cuando la de medio ambiente los publica de forma
+          conjunta con la autorización ambiental unificada. Un plazo de alegaciones abierto en uno de esos anuncios no aparece en «En
+          información pública».
+        </li>
         <li>La geometría de las plantas: la localización es a nivel de municipio.</li>
         <li data-testid="registro-temprano">
           El registro antes de 2022 es escaso, sobre todo en el BOJA: el backfill reúne{" "}

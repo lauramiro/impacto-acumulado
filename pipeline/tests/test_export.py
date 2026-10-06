@@ -6,6 +6,7 @@ import pytest
 
 from evaluation.run_eval import LABELS_DIR
 from impacto.aggregate.export import (
+    check_boja_coverage,
     export_all,
     export_developers,
     export_evaluation,
@@ -14,6 +15,7 @@ from impacto.aggregate.export import (
     export_splitting_candidates,
     project_details,
     retired_projects,
+    wilson,
 )
 from impacto.aggregate.run import run_aggregate
 from impacto.db.documents import RawDocument, save_extraction, upsert_raw_document
@@ -332,6 +334,65 @@ def test_meta_lists_every_export_with_rows_and_bytes(db, fixtures_dir, tmp_path)
     assert meta["files"]["evaluation.json"]["rows"] == 1  # a single object
     for entry in meta["files"].values():
         assert entry["bytes"] > 0
+
+
+def test_meta_carries_the_newest_document_and_the_boja_coverage(db, fixtures_dir, tmp_path):
+    seed(db, fixtures_dir)
+    run_resolve(db)
+    run_aggregate(db)
+    report = {"checked": "2026-10-06", "selected": 10, "stored": 9}
+    export_all(db, tmp_path, boja_coverage=report)
+    meta = json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))
+    with db.cursor() as cur:
+        cur.execute("SELECT source, max(published_at) AS last FROM raw_documents GROUP BY source")
+        newest = {r["source"]: r["last"].isoformat() for r in cur.fetchall()}
+    assert meta["last_document_by_source"] == newest
+    assert meta["last_document"] == max(newest.values())
+    assert meta["boja_coverage"] == report
+    export_all(db, tmp_path)
+    assert json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))["boja_coverage"] is None
+
+
+def test_check_boja_coverage_counts_stored_documents_and_survives_an_api_failure(db):
+    upsert_raw_document(db, RawDocument("boja", "disposition.2026.1.1", date(2026, 1, 2), "t", "u", None, "o", "x"))
+
+    class Down:
+        def get(self, url):
+            raise RuntimeError("connection refused")
+
+    assert check_boja_coverage(db, Down(), today=date(2026, 1, 31)) is None
+
+    class Empty:
+        def get(self, url):
+            return json.dumps({"hits": 0, "total_hits": 0, "results": []}).encode()
+
+    report = check_boja_coverage(db, Empty(), today=date(2026, 1, 31))
+    assert report["stored"] == 0 and report["selected"] == 0 and report["complete"] is True
+
+
+def test_wilson_matches_the_published_intervals():
+    # The audit's figures: 15 of 20 is about 53 to 89 percent, 13 of 17 about 53 to 91.
+    assert tuple(round(x, 2) for x in wilson(15, 20)) == (0.53, 0.89)
+    assert tuple(round(x, 2) for x in wilson(13, 17)) == (0.53, 0.90)
+    assert wilson(20, 20)[1] == 1.0 and wilson(0, 20)[0] == 0.0
+
+
+def test_export_evaluation_gives_each_share_its_interval(tmp_path):
+    last_run = tmp_path / "last_run.json"
+    last_run.write_text(
+        json.dumps({"provider": "stub", "accuracy": {"verdict": 0.75, "turbines": 1.0}, "correct": {"turbines": 1}, "n_labels": 4, "n_scored": 4, "skipped": []}),
+        encoding="utf-8",
+    )
+    labels = tmp_path / "labels"
+    labels.mkdir()
+    for i, expected in enumerate([{"verdict": "a", "turbines": 2}, {"verdict": "a"}, {"verdict": "a"}, {"verdict": "a"}]):
+        (labels / f"{i}.json").write_text(json.dumps({"expected": expected}), encoding="utf-8")
+    written = json.loads(export_evaluation(tmp_path / "out", last_run=last_run, labels_dir=labels).read_text(encoding="utf-8"))
+    # An older run has only the share: 0.75 of 4 gives 3 back.
+    assert written["intervals"]["verdict"]["correct"] == 3 and written["intervals"]["verdict"]["n"] == 4
+    low, high = wilson(3, 4)
+    assert written["intervals"]["verdict"]["low"] == round(low, 3) and written["intervals"]["verdict"]["high"] == round(high, 3)
+    assert written["intervals"]["turbines"]["correct"] == 1 and written["intervals"]["turbines"]["n"] == 1
 
 
 def _export_slice3(db, fixtures_dir, tmp_path):

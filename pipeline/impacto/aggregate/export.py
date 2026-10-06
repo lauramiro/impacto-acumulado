@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import logging
+import math
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
@@ -12,10 +14,14 @@ from impacto.aggregate.splitting import splitting_candidates
 from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
 from impacto.developers import GROUPS_FILE, build_developers, load_groups
+from impacto.fetch import coverage
+from impacto.http import CachedClient
 from impacto.privacy import has_identity_number
 from impacto.resolve.blocking import is_correction
 from impacto.resolve.run import load_corrections, with_operative
 from impacto.settings import load_settings
+
+log = logging.getLogger(__name__)
 
 DEFAULT_OUT = Path(__file__).resolve().parents[3] / "web" / "public" / "data"
 SIMPLIFY_TOLERANCE = 0.0005  # degrees, roughly 50 m
@@ -512,6 +518,34 @@ def _field_samples(labels_dir: Path, skipped: set[str]) -> dict[str, int]:
     return counts
 
 
+WILSON_Z = 1.959964  # two-sided 95 percent
+
+
+def wilson(correct: int, n: int, z: float = WILSON_Z) -> tuple[float, float]:
+    """The Wilson score interval for `correct` hits out of `n`, as shares."""
+    if n <= 0:
+        return 0.0, 1.0
+    p = correct / n
+    centre = (p + z * z / (2 * n)) / (1 + z * z / n)
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    return max(0.0, centre - half), min(1.0, centre + half)
+
+
+def _intervals(accuracy: dict[str, float], samples: dict[str, int], correct: dict[str, int] | None) -> dict[str, dict]:
+    # A run written by today's run_eval carries the hits per field; an older
+    # one only the share rounded to three places, which still gives the
+    # count back exactly for any sample under 500.
+    out = {}
+    for field, share in accuracy.items():
+        n = samples.get(field)
+        if not n:
+            continue
+        hits = (correct or {}).get(field, round(share * n))
+        low, high = wilson(hits, n)
+        out[field] = {"correct": hits, "n": n, "low": round(low, 3), "high": round(high, 3)}
+    return out
+
+
 def _aau_publication(conn, aau_file: Path) -> dict:
     # T4: the verdict of AAU publication notices, read by the operative rule.
     # held_out is frozen as measured; live re-scores every label (tuning and
@@ -550,6 +584,7 @@ def export_evaluation(
     result = json.loads(last_run.read_text(encoding="utf-8"))
     result["labels_count"] = len(list(labels_dir.glob("*.json")))
     result["field_samples"] = _field_samples(labels_dir, set(result.get("skipped", [])))
+    result["intervals"] = _intervals(result["accuracy"], result["field_samples"], result.get("correct"))
     if previous_run is not None and previous_run.is_file():
         previous = json.loads(previous_run.read_text(encoding="utf-8"))
         result["previous"] = {
@@ -650,18 +685,43 @@ def _row_count(path: Path) -> int:
     return 1
 
 
-def export_meta(conn, out_dir: Path, files: list[Path]) -> Path:
+def export_meta(conn, out_dir: Path, files: list[Path], boja_coverage: dict | None = None) -> Path:
+    """Counts, files, the newest document and the BOJA coverage check.
+
+    generated_at is when the export ran; last_document is the newest
+    publication date the database holds, so the site can say how fresh the
+    documents are, not only the export. boja_coverage is
+    impacto.fetch.coverage.boja_coverage's report, or null when the check
+    could not run.
+    """
     counts = {}
     for table in ("raw_documents", "extractions", "projects", "municipalities", "protected_areas"):
         counts[table] = _query(conn, f"SELECT count(*) AS n FROM {table}")[0]["n"]
+    newest = _query(conn, "SELECT source, max(published_at) AS last FROM raw_documents GROUP BY source ORDER BY source")
+    last_by_source = {r["source"]: r["last"].isoformat() for r in newest}
     file_info = {p.name: {"rows": _row_count(p), "bytes": p.stat().st_size} for p in files}
     path = out_dir / "meta.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({"generated_at": datetime.now(UTC).isoformat(), "counts": counts, "files": file_info}, indent=2),
-        encoding="utf-8",
-    )
+    payload = {
+        "generated_at": datetime.now(UTC).isoformat(),
+        "last_document": max(last_by_source.values(), default=None),
+        "last_document_by_source": last_by_source,
+        "counts": counts,
+        "files": file_info,
+        "boja_coverage": boja_coverage,
+    }
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return path
+
+
+def check_boja_coverage(conn, client, today: date | None = None) -> dict | None:
+    """The BOJA coverage report against the stored documents, or None when the API fails."""
+    stored = [r["source_id"] for r in _query(conn, "SELECT source_id FROM raw_documents WHERE source = 'boja'")]
+    try:
+        return coverage.boja_coverage(client.get, stored, today or datetime.now(UTC).date())
+    except Exception as exc:  # noqa: BLE001 - the export must not fail because the BOJA API did
+        log.warning("boja coverage check skipped: %s", exc)
+        return None
 
 
 def export_all(
@@ -671,6 +731,7 @@ def export_all(
     labels_dir: Path = LABELS_DIR,
     refresh_sensitivity: bool = False,
     periods_file: Path = PERIODS_FILE,
+    boja_coverage: dict | None = None,
 ) -> list[Path]:
     check_corrections(conn)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -697,7 +758,7 @@ def export_all(
         export_evaluation(out_dir, last_run, labels_dir, conn),
         export_open_consultations(conn, out_dir, periods_file=periods_file),
     ]
-    paths.append(export_meta(conn, out_dir, paths))
+    paths.append(export_meta(conn, out_dir, paths, boja_coverage))
     return paths
 
 
@@ -705,9 +766,12 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="impacto export")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--refresh-sensitivity", action="store_true", help="rebuild the sensitivity layers even if present")
+    parser.add_argument("--skip-coverage", action="store_true", help="do not re-read the BOJA search for the coverage check")
     args = parser.parse_args(argv)
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     settings = load_settings()
     with connect(settings.db_dsn) as conn:
-        paths = export_all(conn, args.out, refresh_sensitivity=args.refresh_sensitivity)
+        report = None if args.skip_coverage else check_boja_coverage(conn, CachedClient(settings.http_cache))
+        paths = export_all(conn, args.out, refresh_sensitivity=args.refresh_sensitivity, boja_coverage=report)
     print("\n".join(str(p) for p in paths))
     return 0

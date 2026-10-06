@@ -15,6 +15,13 @@ export const EvaluationSchema = z
     skipped: z.array(z.string()),
     labels_count: z.number().int().nonnegative(),
     field_samples: z.record(z.string(), z.number().int().nonnegative()),
+    // Wilson 95 percent interval per field (pipeline/impacto/aggregate/export.py).
+    intervals: z
+      .record(
+        z.string(),
+        z.object({ correct: z.number().int().nonnegative(), n: z.number().int().positive(), low: z.number().min(0).max(1), high: z.number().min(0).max(1) }),
+      )
+      .optional(),
     aau_publication: z
       .object({
         held_out: z.object({ measured: z.string(), labelled: z.number().int().nonnegative(), correct: z.number().int().nonnegative() }),
@@ -53,6 +60,7 @@ export async function loadEvaluation(): Promise<Evaluation> {
     skipped: raw.skipped,
     labelsCount: raw.labels_count,
     fieldSamples: raw.field_samples,
+    intervals: raw.intervals ?? {},
     aauPublication: raw.aau_publication
       ? {
           heldOut: raw.aau_publication.held_out,

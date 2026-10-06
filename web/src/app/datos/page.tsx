@@ -144,6 +144,24 @@ export default async function DataPage() {
             entradas cambian; el resto, igual. En Promotores, una tabla nueva suma las sociedades de cada grupo con fuente y de cada
             familia de nombres.
           </li>
+          <li>
+            <span className="dato">meta.json</span> gana <span className="dato">last_document</span> y{" "}
+            <span className="dato">last_document_by_source</span> (fecha del documento más reciente) y{" "}
+            <span className="dato">boja_coverage</span>: la búsqueda del BOJA contra los documentos guardados, con la misma selección,
+            por año.
+          </li>
+          <li>
+            <span className="dato">evaluation.json</span> gana <span className="dato">intervals</span>: aciertos, muestra e intervalo
+            de Wilson al 95 % de cada campo.
+          </li>
+          <li>
+            La descarga del BOJA pedía la segunda página de resultados como primera y se saltaba los 50 primeros de cada consulta. Se
+            corrige; a partir de la próxima actualización entran los anuncios recientes que faltaban.
+          </li>
+          <li>
+            En la portada, los proyectos sin veredicto en el boletín se dan aparte y ya no suman en «Aprobados o en trámite».{" "}
+            <span className="dato">projects.csv</span> no cambia.
+          </li>
         </ul>
       </section>
       <section aria-labelledby="cambio-2026-10-05" className={styles.columnas}>

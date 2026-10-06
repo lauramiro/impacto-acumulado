@@ -57,3 +57,22 @@ workflow on 2026-10-05, misses in `last_run_misses.json`. To refresh it, run
 that workflow and commit its `eval_run.json` as `last_run.json`. Once
 anything is tuned against `labels_2026-10/`, a new published figure needs new
 labels again.
+
+Growing the held-out set to 100 (2026-10-06):
+
+- `sample_2026-10.csv` is the frozen sampling list, drawn by `uv run python -m
+  evaluation.sample` from the 2026-10-05 `documents.csv`: the 20 labels in
+  `labels_2026-10/` plus 80 documents to label, stratified by source (BOE
+  section III, BOE section V, BOJA) and technology (from the title by keyword,
+  else from the project; column `technology_from`), at least 3 per stratum,
+  seed 20261006. Documents in `labels/` are excluded.
+- `uv run python -m evaluation.sample --stubs` writes one stub per document to
+  label into `to_label/` (`expected` holds null `doc_type` and `verdict`, which
+  fail `tests/test_eval.py` until filled). Read the document at its `url`,
+  fill `expected` and `note` by the rules above, and move the file into
+  `labels_2026-10/`. `--status` counts what is left.
+- Once all 100 are in, run the `extraction-eval` workflow on `labels_2026-10`
+  and commit its `eval_run.json` as `last_run.json`. The run now records
+  `correct` per field; the export adds a Wilson 95 percent interval per field
+  (`intervals` in `evaluation.json`), which `/metodologia` shows beside each
+  percentage.

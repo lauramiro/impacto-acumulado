@@ -69,6 +69,7 @@ def test_run_eval_skips_failed_extractions_with_warning(db, tmp_path, caplog):
     assert "BAD" in caplog.text and "rate_limit_exceeded" in caplog.text
     written = json.loads(out.read_text(encoding="utf-8"))
     assert written["accuracy"] == accuracy
+    assert written["correct"] == {"verdict": 1, "mw_nominal": 1}
     assert written["n_labels"] == 3
     assert written["n_scored"] == 1
     assert written["skipped"] == ["a-BAD.json", "c-MISSING.json"]

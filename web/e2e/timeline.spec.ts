@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { openFilters } from "./filters";
 
@@ -43,6 +45,13 @@ test("the dateline counts documents, not resolutions", async ({ page }) => {
   const dateline = page.getByTestId("dateline").first();
   await expect(dateline).toContainText(/\d documentos/);
   await expect(dateline).not.toContainText("resoluciones");
+});
+
+test("the dateline gives the newest document beside the export date", async ({ page }) => {
+  const meta = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "meta.json"), "utf-8"));
+  const day = new Intl.DateTimeFormat("es-ES", { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${meta.last_document}T00:00:00Z`));
+  await page.goto("/");
+  await expect(page.getByTestId("dateline").first()).toContainText(`(último documento: ${day})`);
 });
 
 test("monthly counts are in the data table and fit a phone", async ({ page }) => {

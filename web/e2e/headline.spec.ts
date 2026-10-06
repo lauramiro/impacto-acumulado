@@ -12,9 +12,12 @@ const mw = (statuses: string[]) => {
 
 test("the headline never sums refused projects with the rest, and states both against province_stats.json", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("mw-acumulando")).toHaveText(mw(["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion", "desconocido"]));
+  // Projects whose notice states no verdict are given apart, not summed with the approved or pending.
+  await expect(page.getByTestId("mw-acumulando")).toHaveText(mw(["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion"]));
+  await expect(page.getByTestId("mw-sin-veredicto")).toHaveText(mw(["desconocido"]));
   await expect(page.getByTestId("mw-denegados")).toHaveText(mw(["desfavorable", "caducado"]));
-  await expect(page.getByText(/[\d.]+ de ellos sin veredicto en el boletín, con \S+ y \S+ a la cabeza/)).toBeVisible();
+  await expect(page.getByText(/con \S+ y \S+ a la cabeza\. Sin veredicto en el boletín:/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sin veredicto en el boletín" })).toHaveAttribute("href", "/metodologia#sin-veredicto");
 });
 
 test("MW per km² colours the map and sorts the municipality index", async ({ page }) => {

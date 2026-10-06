@@ -97,6 +97,7 @@ describe("loaders", () => {
     // scored over 18 labels, not the 20 every other field in this fixture
     // uses), distinct from the single n_scored figure.
     expect(ev.fieldSamples).toEqual({ doc_type: 20, verdict: 20, developer: 18, technology: 20, mw_nominal: 20, municipalities: 20 });
+    expect(ev.intervals).toEqual({ mw_nominal: { correct: 16, n: 20, low: 0.584, high: 0.919 } });
   });
 
   it("rejects an evaluation with more scored than labelled", () => {

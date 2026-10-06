@@ -20,6 +20,26 @@ test("methodology page publishes per-field accuracy with its sample size", async
   await expect(page.getByTestId("muestra")).toContainText("ninguno de esos documentos se usó para ajustar el extractor");
   await expect(page.getByTestId("medida-anterior")).toContainText("ya no mide la versión publicada");
   await expect(page.getByRole("link", { name: /etiquetas/ })).toHaveAttribute("href", /github\.com\/.*labels_2026-10/);
+  // Each share carries its Wilson interval, from evaluation.json.
+  const ev = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "evaluation.json"), "utf-8"));
+  const nominal = ev.intervals.mw_nominal;
+  await expect(table.getByRole("columnheader", { name: "Intervalo del 95 %" })).toBeVisible();
+  await expect(table.getByRole("row", { name: /Potencia nominal/ })).toContainText(
+    `${Math.round(nominal.low * 100)} a ${Math.round(nominal.high * 100)} %`,
+  );
+  await expect(page.getByTestId("intervalo")).toContainText("Wilson al 95 %");
+});
+
+test("methodology reports the BOJA coverage against the search's total_hits", async ({ page }) => {
+  const meta = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "meta.json"), "utf-8"));
+  const c = meta.boja_coverage;
+  const n = (x: number) => new Intl.NumberFormat("es-ES", { useGrouping: true }).format(x);
+  await page.goto("/metodologia");
+  const line = page.getByTestId("cobertura-boja");
+  await expect(line).toContainText(`da ${n(c.total_hits)} resultados`);
+  await expect(line).toContainText(`quedan ${n(c.selected)} anuncios, y el sitio tiene ${n(c.stored)}, el ${Math.round((100 * c.stored) / c.selected)} %`);
+  await expect(page.getByRole("table", { name: "Cobertura del BOJA por año" })).toBeVisible();
+  await expect(page.getByTestId("no-cubre-energia")).toContainText("consejería con competencias en energía");
 });
 
 test("methodology explains the slice 3 aggregation rules", async ({ page }) => {

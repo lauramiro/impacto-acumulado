@@ -116,7 +116,7 @@ def test_fetch_boja_stores_selected_records(db, fixtures_dir, tmp_path):
     empty = json.dumps({"hits": 0, "total_hits": 0, "results": []}).encode()
 
     def handler(request):
-        if "page=1" in str(request.url):
+        if "page=0&" in str(request.url):
             return httpx.Response(200, content=sample)
         return httpx.Response(200, content=empty)
 
@@ -126,6 +126,26 @@ def test_fetch_boja_stores_selected_records(db, fixtures_dir, tmp_path):
     with db.cursor() as cur:
         cur.execute("SELECT count(*) AS n FROM raw_documents WHERE source = 'boja'")
         assert cur.fetchone()["n"] == n
+
+
+def test_fetch_boja_starts_at_page_zero_and_stops_at_total_hits(db, fixtures_dir, tmp_path):
+    # The API numbers pages from 0. Starting at 1 skipped the first 50 records
+    # of every window, which for a 14-day weekly window is all of them.
+    payload = json.loads((fixtures_dir / "boja_search_sample.json").read_text(encoding="utf-8"))
+    payload["total_hits"] = len(payload["results"])
+    asked: list[str] = []
+
+    def handler(request):
+        url = str(request.url)
+        asked.append(url)
+        if "page=0&" in url:
+            return httpx.Response(200, content=json.dumps(payload).encode())
+        return httpx.Response(400)
+
+    client = CachedClient(tmp_path, rate_per_second=1000, transport=httpx.MockTransport(handler))
+    assert fetch_boja(client, db, date(2026, 9, 21), date(2026, 10, 5)) == 11
+    # One page per query: all records came on page 0, so no page past the end is asked for.
+    assert len(asked) == 4 and all("page=0&" in u for u in asked)
 
 
 def test_fetch_boja_warns_when_first_page_returns_400(db, tmp_path, caplog):
@@ -152,7 +172,7 @@ def test_fetch_boja_stops_paging_on_400_out_of_range(db, fixtures_dir, tmp_path)
     sample = (fixtures_dir / "boja_search_sample.json").read_bytes()
 
     def handler(request):
-        if "page=1" in str(request.url):
+        if "page=0&" in str(request.url):
             return httpx.Response(200, content=sample)
         return httpx.Response(400)
 
@@ -219,7 +239,7 @@ def test_fetch_boja_skips_query_on_server_error_and_continues(db, fixtures_dir, 
         url = str(request.url)
         if "general=autorizacion%20ambiental%20unificada" in url:
             return httpx.Response(500)
-        if "page=1" in url:
+        if "page=0&" in url:
             return httpx.Response(200, content=sample)
         return httpx.Response(200, content=empty)
 

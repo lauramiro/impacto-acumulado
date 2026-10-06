@@ -116,6 +116,9 @@ def run_eval(
         "measured": (today or datetime.now(UTC).date()).isoformat(),
         "labels": labels_dir.name,
         "accuracy": accuracy,
+        # Hits per field, so the export gives each share its interval from
+        # exact counts (impacto.aggregate.export.wilson).
+        "correct": {field: sum(v) for field, v in hits.items()},
         "n_labels": len(label_paths),
         "n_scored": len(label_paths) - len(skipped),
         "skipped": skipped,
