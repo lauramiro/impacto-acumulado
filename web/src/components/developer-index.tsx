@@ -101,7 +101,9 @@ export function DeveloperRollupIndex({ rows }: { rows: RollupRow[] }) {
             ),
           sortValue: (r) => r.parentCompany,
         },
-        { header: "Sociedades", numeric: true, cell: (r) => formatInt(r.companies), sortValue: (r) => r.companies },
+        // Hidden on a phone: with it the table cleared 390 px by a few pixels on one
+        // platform's fonts and overflowed on another's.
+        { header: "Sociedades", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.companies), sortValue: (r) => r.companies },
         { header: "Proyectos", numeric: true, cell: (r) => formatInt(r.projects), sortValue: (r) => r.projects },
         { header: "MW aprobados o en trámite", numeric: true, cell: (r) => <MwCell r={r} />, sortValue: developerMwSort },
         { header: "Sin veredicto", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.noVerdict), sortValue: (r) => r.noVerdict },

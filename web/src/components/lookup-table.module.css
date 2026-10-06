@@ -111,6 +111,11 @@
     display: none;
   }
 
+  /* A long company name wraps inside its cell instead of widening the table. */
+  .table th[scope="row"] {
+    overflow-wrap: anywhere;
+  }
+
   /* Figure columns sit closer together so three of them fit beside a name at 390px. */
   .table th.num,
   .table td.num {

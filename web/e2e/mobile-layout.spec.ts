@@ -24,6 +24,15 @@ test("the group table on /promotores fits a phone and shows Proyectos and MW", a
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   }
+  // Headroom, not just a fit: fonts differ by platform, and a table that cleared
+  // 390 px by 4 px on Windows overflowed on the Linux CI runner.
+  const minWidth = await section.locator("table").evaluate((t) => {
+    t.style.width = "min-content";
+    const w = t.getBoundingClientRect().width;
+    t.style.width = "";
+    return w;
+  });
+  expect(minWidth).toBeLessThanOrEqual(390 - 16 - 40);
   await expect(section.getByRole("columnheader", { name: /Matriz/ })).toBeHidden();
   await expect(section.getByText("familia de nombres, sin fuente").first()).toBeHidden();
 });
