@@ -36,6 +36,7 @@ export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: nu
   const rows = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s) && (figuresByStatus.get(s)?.projectCount ?? 0) > 0);
   const techs = TECHNOLOGIES.filter((t) => t !== "linea_evacuacion" && (byTech.get(t)?.projectCount ?? 0) > 0);
   const lines = byTech.get("linea_evacuacion");
+  const showsShare = total.haCount > 0 && areaHa > 0;
   return (
     <section aria-labelledby="totales" className={styles.section}>
       <h2 id="totales">Totales</h2>
@@ -134,13 +135,15 @@ export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: nu
           );
         })}
       </p>
+      {/* Coverage notes are sentences, set like the notes around them. The surface one is left out
+          when the share of the municipal area below already gives it. */}
       {total.projectCount > 0 ? (
         <>
-          <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.mwCount, total.projectCount, "mw", total.mwPeakCount)}</p>
-          <p className={`dato ${styles.cobertura}`}>{formatCoverage(total.haCount, total.projectCount, "ha")}</p>
+          <p className={styles.cobertura}>{formatCoverage(total.mwCount, total.projectCount, "mw", total.mwPeakCount)}</p>
+          {showsShare ? null : <p className={styles.cobertura}>{formatCoverage(total.haCount, total.projectCount, "ha")}</p>}
         </>
       ) : null}
-      {total.haCount > 0 && areaHa > 0 ? (
+      {showsShare ? (
         <p className={styles.tech} data-testid="cuota-termino">
           Superficie declarada: <Figure value={formatHa(total.hectares)} />, el{" "}
           <Figure value={`${formatNumber((total.hectares / areaHa) * 100, 1)} %`} /> del término municipal (

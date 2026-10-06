@@ -44,7 +44,8 @@
 }
 
 .cobertura {
-  font-size: 0.8125rem;
+  font-size: var(--texto-pie);
+  margin: 0.5rem 0 0;
 }
 
 .base {
