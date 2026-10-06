@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-06T12:41:57.957279+00:00",
+  "generated_at": "2026-10-06T15:24:40.986837+00:00",
   "last_document": "2026-10-02",
   "last_document_by_source": {
     "boe": "2026-07-31",
@@ -101,8 +101,8 @@
   "boja_coverage": {
     "checked": "2026-10-06",
     "from": "2019-01-01",
-    "scanned_from": "2024-01-01",
-    "timed_out": true,
+    "scanned_from": "2019-01-01",
+    "timed_out": false,
     "queries": [
       "autorizacion ambiental unificada",
       "informe de impacto ambiental",
@@ -110,11 +110,41 @@
       "informacion publica eolico"
     ],
     "complete": true,
-    "total_hits": 3513,
-    "received": 3513,
-    "selected": 246,
-    "stored": 240,
+    "total_hits": 10822,
+    "received": 10822,
+    "selected": 579,
+    "stored": 568,
     "years": {
+      "2019": {
+        "total_hits": 821,
+        "received": 821,
+        "selected": 3,
+        "stored": 3
+      },
+      "2020": {
+        "total_hits": 831,
+        "received": 831,
+        "selected": 0,
+        "stored": 0
+      },
+      "2021": {
+        "total_hits": 1638,
+        "received": 1638,
+        "selected": 0,
+        "stored": 0
+      },
+      "2022": {
+        "total_hits": 1803,
+        "received": 1803,
+        "selected": 57,
+        "stored": 53
+      },
+      "2023": {
+        "total_hits": 2216,
+        "received": 2216,
+        "selected": 273,
+        "stored": 272
+      },
       "2024": {
         "total_hits": 1502,
         "received": 1502,
@@ -140,8 +170,13 @@
       "disposition.2025.251.64",
       "disposition.2025.251.65",
       "disposition.2024.251.67",
-      "disposition.2024.251.68"
+      "disposition.2024.251.68",
+      "disposition.2023.209.108",
+      "disposition.2022.209.80",
+      "disposition.2022.209.81",
+      "disposition.2022.209.82",
+      "disposition.2022.209.83"
     ],
-    "missing_count": 6
+    "missing_count": 11
   }
 }
