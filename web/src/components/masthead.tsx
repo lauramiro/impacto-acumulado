@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MastheadNav } from "./masthead-nav";
 import styles from "./masthead.module.css";
 
 export function Masthead() {
@@ -7,14 +8,7 @@ export function Masthead() {
       <Link href="/" className={`display ${styles.titulo}`}>
         Impacto Acumulado
       </Link>
-      <nav className={styles.secciones} aria-label="Secciones">
-        <Link href="/">Mapa</Link>
-        <Link href="/proyectos">Proyectos</Link>
-        <Link href="/promotores">Promotores</Link>
-        <Link href="/resultados">Resultados</Link>
-        <Link href="/metodologia">Metodología</Link>
-        <Link href="/datos">Datos</Link>
-      </nav>
+      <MastheadNav />
     </div>
   );
 }

@@ -31,6 +31,12 @@
   min-height: 24px;
 }
 
+/* The section the reader is in: ink instead of link blue and a heavier rule, so it does not rest on colour alone. */
+.secciones a[aria-current] {
+  color: var(--tinta);
+  text-decoration-thickness: 2px;
+}
+
 /* On a phone the title on one line keeps the place search in the first screen. */
 @media (max-width: 767px) {
   .titulo {
