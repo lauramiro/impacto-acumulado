@@ -68,8 +68,6 @@ export default async function DataPage() {
   const metaJsonBytes = (await stat(dataFile("meta.json"))).size;
   const year = meta.generatedAt.getUTCFullYear();
   // The changelog's row counts that describe the current export come from meta.json.
-  const projectRows = meta.files["projects.csv"]?.rows;
-  if (projectRows === undefined) throw new Error("datos: projects.csv is not in meta.files");
   return (
     <article className={styles.page}>
       <script
@@ -224,7 +222,7 @@ export default async function DataPage() {
             109,5 a 90,75 MW nominales, Los Lirios de 96 a 48 y la planta solar de Jerez Este H2 de 484,3 a 138,3.
           </li>
           <li>
-            Revisión de agrupaciones: <span className="dato">projects.csv</span> pasa de 585 a {formatInt(projectRows)} filas. El parque
+            Revisión de agrupaciones: <span className="dato">projects.csv</span> pasa de 585 a 583 filas. El parque
             eólico Hinojosa (63,08 MW, favorable con condiciones) y su ampliación (25,12 MW, desfavorable) son dos proyectos con dos
             declaraciones; antes figuraban juntos y como denegados. Don Rodrigo I (250 MW, en consulta desde 2019) se separa de Don
             Rodrigo (150 MW). Siete proyectos con nombre genérico toman el que da el boletín (por ejemplo, «Plantas fotovoltaicas del

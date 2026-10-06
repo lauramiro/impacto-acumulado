@@ -57,13 +57,11 @@ test("page routes send the security headers; data files stay open to other origi
   expect(data.headers()["x-frame-options"]).toBeUndefined();
 });
 
-test("/datos changelog row count for projects.csv is the one in meta.json", async ({ page }) => {
-  const meta = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "meta.json"), "utf-8"));
-  const rows = meta.files["projects.csv"].rows as number;
+test("/datos 2026-10-05 changelog entry states the fixed row count and the four retired ids", async ({ page }) => {
+  // A dated entry: its figures must not follow later exports (meta.json, retired_projects.json).
   await page.goto("/datos");
   const entry = page.locator("section[aria-labelledby='cambio-2026-10-05']");
-  await expect(entry).toContainText(`pasa de 585 a ${rows.toLocaleString("es-ES")} filas`);
+  await expect(entry).toContainText("pasa de 585 a 583 filas");
   await expect(entry).not.toContainText("587 filas");
-  const retired = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "retired_projects.json"), "utf-8")) as Record<string, number>;
-  for (const [from, to] of Object.entries(retired)) await expect(entry).toContainText(new RegExp(`el ${from} (pasa )?al ${to}`));
+  for (const [from, to] of [[38, 18], [49, 47], [55, 53], [194, 122]]) await expect(entry).toContainText(new RegExp(`el ${from} (pasa )?al ${to}`));
 });
