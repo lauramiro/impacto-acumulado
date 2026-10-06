@@ -28,3 +28,10 @@ export function authority(title: string): string | null {
 export function isCorrection(title: string): boolean {
   return /correcci[oó]n de errores/i.test(title);
 }
+
+const GAZETTE = { boe: "BOE", boja: "BOJA" } as const;
+
+/** The gazette reference for citing: "BOE-A-2023-2922" as BOE prints it, "BOJA disposition.2022.246.81" otherwise. */
+export function gazetteRef(d: { source: "boe" | "boja"; sourceId: string }): string {
+  return d.sourceId.startsWith(`${GAZETTE[d.source]}-`) ? d.sourceId : `${GAZETTE[d.source]} ${d.sourceId}`;
+}

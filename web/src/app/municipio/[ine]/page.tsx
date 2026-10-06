@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AccumulationChart } from "@/components/municipality/accumulation-chart";
-import { ProjectRecord } from "@/components/municipality/project-record";
+import { MunicipalityProjectTable } from "@/components/municipality/project-table";
+import { municipalityProjectRows } from "@/components/municipality/project-rows";
 import { FeedLink } from "@/components/feed-link";
 import { ReportError } from "@/components/report-error";
 import { OpenConsultations } from "@/components/open-consultations";
@@ -112,12 +113,7 @@ export default async function MunicipalityPage({ params }: { params: Promise<Par
 
       <SplittingNote groups={splitting} projects={projectsById} developers={developers} />
 
-      <section aria-labelledby="proyectos" className={styles.proyectos}>
-        <h2 id="proyectos">Proyectos ({formatInt(here.length)})</h2>
-        {here.map((p) => (
-          <ProjectRecord key={p.id} project={p} documents={docsByProject.get(p.id) ?? []} developerKeys={developerKeys} />
-        ))}
-      </section>
+      {here.length > 0 ? <MunicipalityProjectTable rows={municipalityProjectRows(here, docsByProject, developerKeys)} /> : null}
 
       <p>
         <Link href="/">Volver al mapa</Link>

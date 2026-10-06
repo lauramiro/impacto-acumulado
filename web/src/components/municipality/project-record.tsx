@@ -3,11 +3,10 @@ import { DeveloperLinks } from "@/components/developer-links";
 import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatHa, formatInt, formatProjectMw } from "@/lib/format";
+import { gazetteRef } from "@/lib/document-label";
 import { ROLE_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
 import type { GazetteDocument, Project } from "@/lib/types";
 import styles from "./project-record.module.css";
-
-const GAZETTE = { boe: "BOE", boja: "BOJA" } as const;
 
 export function ProjectRecord({
   project,
@@ -52,7 +51,7 @@ export function ProjectRecord({
             </a>
             {d.verdict && d.verdict !== "no_aplica" ? ` · ${VERDICT_LABELS[d.verdict]}` : ""} · <span className="dato">{formatDate(d.publishedAt)}</span>{" "}
             <span className={`dato ${styles.ref}`}>
-              {d.sourceId.startsWith(`${GAZETTE[d.source]}-`) ? d.sourceId : `${GAZETTE[d.source]} ${d.sourceId}`}
+              {gazetteRef(d)}
             </span>
           </li>
         ))}

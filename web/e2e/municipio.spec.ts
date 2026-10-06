@@ -63,7 +63,7 @@ test("totals state MW coverage and that line capacity is not summed", async ({ p
 
 test("gazette links name the document, with its reference after the link", async ({ page }) => {
   await page.goto("/municipio/11021");
-  const docs = page.locator('li:has(a[href*="boe.es"]), li:has(a[href*="juntadeandalucia.es"])');
+  const docs = page.getByRole("region", { name: /^Proyectos/ }).locator('td:has(a[href*="boe.es"]), td:has(a[href*="juntadeandalucia.es"])');
   await expect(docs.first()).toBeVisible();
   for (const name of await docs.getByRole("link").allTextContents()) {
     expect(name.trim()).not.toMatch(/^(disposition\.|BOE-)/);
@@ -168,9 +168,21 @@ test("a municipality with no-verdict projects: the total, the map panel and the 
   await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", new RegExp(`^${mw.replaceAll(".", "\\.")} MW en ${projects} proyectos`));
 });
 
-test("a project with only a peak figure shows it, marked pico, in the municipality list", async ({ page }) => {
+test("a project with only a peak figure shows it, marked pico, in the municipality table", async ({ page }) => {
   // PSFV Kurtuba (13,57 MWp) declares no nominal MW.
   await page.goto("/municipio/41024");
-  const kurtuba = page.getByRole("article").filter({ hasText: "PSFV Kurtuba" }).first();
+  const kurtuba = page.getByRole("row", { name: /PSFV Kurtuba/ });
   await expect(kurtuba).toContainText("13,6 MW pico");
+});
+
+test("the project table sorts by MW and finds a project by its developer", async ({ page }) => {
+  await page.goto("/municipio/41024");
+  const table = page.getByRole("region", { name: /^Proyectos/ });
+  await table.getByRole("button", { name: /^MW/ }).click();
+  const first = table.locator("tbody tr").first();
+  await expect(first).toContainText("480,0 MW");
+  await table.getByLabel("Buscar proyecto o promotor").fill("kurtuba solar");
+  await expect(table.locator("tbody tr")).toHaveCount(1);
+  await expect(table.locator("tbody tr")).toContainText("PSFV Kurtuba");
+  await expect(table.getByTestId("proyectos-municipio-recuento")).toHaveText(/^1 de 38 proyectos$/);
 });

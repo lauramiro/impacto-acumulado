@@ -1,0 +1,52 @@
+.intro {
+  font-size: var(--texto-pie);
+  margin: 0 0 0.25rem;
+}
+
+/* Technology and the several-municipalities note sit under the name, in the note size. */
+.detalle {
+  display: block;
+  font-size: var(--texto-pie);
+  font-weight: 400;
+}
+
+.documento {
+  font-size: var(--texto-pie);
+  font-family: var(--font-body), serif;
+}
+
+/* Every MW cell keeps room for "pico", so the figures line up whether or not it is there. */
+.sufijo {
+  display: inline-block;
+  min-width: 2.75em;
+  text-align: left;
+}
+
+.linea {
+  font-family: var(--font-body), serif;
+  font-size: var(--texto-pie);
+}
+
+.estadoMovil {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .estadoMovil {
+    display: block;
+    font-weight: 400;
+  }
+}
+
+/* The date and the reference for citing go under the document's name, on a line of their own. */
+.cita {
+  display: block;
+  font-size: 0.75rem;
+}
+
+/* On a phone the MW header carries the unit, as in the totals table; the cells give bare figures. */
+@media (max-width: 767px) {
+  .unidad {
+    display: none;
+  }
+}
