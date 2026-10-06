@@ -29,14 +29,15 @@ describe("projectMwBest", () => {
 });
 
 describe("developerTotals", () => {
-  it("never sums refused projects with the rest", () => {
+  it("never sums refused or no-verdict projects with the approved or pending ones", () => {
     const t = developerTotals([
       { ...base, mwNominal: 40 },
       { ...base, status: "desconocido", mwPeak: 10 },
       { ...base, status: "desfavorable", mwNominal: 49.8 },
       { ...base, status: "caducado" },
     ]);
-    expect(t.accumulating).toEqual({ projects: 2, mw: 50, withMw: 2, peak: 1 });
+    expect(t.accumulating).toEqual({ projects: 1, mw: 40, withMw: 1, peak: 0 });
+    expect(t.noVerdict).toEqual({ projects: 1, mw: 10, withMw: 1, peak: 1 });
     expect(t.refused).toEqual({ projects: 2, mw: 49.8, withMw: 1, peak: 0 });
   });
 });

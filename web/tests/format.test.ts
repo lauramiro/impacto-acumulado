@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { absenceMark, formatBytes, formatCoverage, formatCoverageCell, formatDate, formatHa, formatHaDeclared, formatInt, formatLongDate, formatMonth, formatMw, formatMwDeclared, formatPercent, formatScore, NO_DATA, NO_PROJECTS } from "@/lib/format";
+import { absenceMark, formatBytes, formatCoverage, formatCoverageCell, formatDate, formatHa, formatHaDeclared, formatInt, formatLongDate, formatMonth, formatMw, formatMwDeclared, formatPercent, formatProjectMw, formatScore, NO_DATA, NO_PROJECTS } from "@/lib/format";
 
 describe("format (es-ES)", () => {
   it("formats MW and hectares with one decimal and thousands separators", () => {
@@ -84,5 +84,13 @@ describe("formatCoverageCell", () => {
     expect(formatCoverageCell(3, 5)).toBe("3 de 5");
     expect(formatCoverageCell(1200, 1500)).toBe("1.200 de 1.500");
     expect(formatCoverageCell(0, 0)).toBe("");
+  });
+});
+
+describe("formatProjectMw", () => {
+  it("reads nominal, else the peak marked pico, else nothing", () => {
+    expect(formatProjectMw(40, 50)).toBe("40,0 MW");
+    expect(formatProjectMw(null, 13.57)).toBe("13,6 MW pico");
+    expect(formatProjectMw(null, null)).toBeNull();
   });
 });

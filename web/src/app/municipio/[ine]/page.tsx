@@ -43,11 +43,14 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!muni) return { title: "Municipio no encontrado · Impacto Acumulado" };
   const s = stats.get(ine);
   // The headline's definition: approved or pending; refused projects are not in the figure.
-  const t = s ? sumFigures(splitByHeadline(s.cells).accumulating) : null;
+  const split = s ? splitByHeadline(s.cells) : null;
+  const t = split ? sumFigures(split.accumulating) : null;
+  const left = split ? sumFigures(split.noVerdict) : null;
+  const apart = left && left.projectCount > 0 ? ` Aparte, ${formatInt(left.projectCount)} ${left.projectCount === 1 ? "proyecto" : "proyectos"} sin veredicto en el boletín.` : "";
   const description = t && t.projectCount > 0
-    ? `${formatMw(t.mwBest)} en ${formatInt(t.projectCount)} proyectos renovables aprobados o en trámite en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount, "mw", t.mwPeakCount)}).`
+    ? `${formatMw(t.mwBest)} en ${formatInt(t.projectCount)} proyectos renovables aprobados o en trámite en ${muni.name} (${muni.province}) según el BOE y el BOJA (${formatCoverage(t.mwCount, t.projectCount, "mw", t.mwPeakCount)}).${apart}`
     : s
-      ? `Ningún proyecto renovable aprobado o en trámite en ${muni.name} (${muni.province}); solo denegados o caducados según el BOE y el BOJA.`
+      ? `Ningún proyecto renovable aprobado o en trámite en ${muni.name} (${muni.province}); solo denegados, caducados o sin veredicto según el BOE y el BOJA.`
       : `Ningún proyecto renovable registrado en los boletines para ${muni.name} (${muni.province}).`;
   return {
     title: `${muni.name} · Impacto Acumulado`,

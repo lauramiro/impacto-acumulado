@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { parse } from "csv-parse/sync";
 import { expect, test } from "@playwright/test";
 
 type Dev = { key: string; name: string; names: string[]; family: string; project_ids: number[] };
@@ -106,4 +107,20 @@ test("the index adds up sourced groups and naming families, with the parent only
   // A naming family has no parent.
   await search.fill("Tayant Investment 12");
   await expect(section.getByRole("row", { name: /Tayant Investment/ })).toContainText("familia de nombres, sin fuente");
+});
+
+test("a developer with no-verdict projects lists them on a line of their own, outside the approved total", async ({ page }) => {
+  const csv = readFileSync(path.join(__dirname, "..", "public", "data", "projects.csv"), "utf-8");
+  const rows = parse(csv, { columns: true, skip_empty_lines: true }) as { id: string; status: string }[];
+  const status = new Map(rows.map((r) => [Number(r.id), r.status]));
+  const dev = developers.find((d) => d.project_ids.some((id) => status.get(id) === "desconocido"))!;
+  const none = dev.project_ids.filter((id) => status.get(id) === "desconocido").length;
+  await page.goto(`/promotor/${dev.key}`);
+  const totals = page.getByRole("region", { name: "Totales" });
+  await expect(totals.getByText(/^Sin veredicto en el boletín \(no suman al total\):/)).toContainText(`${none} proyecto`);
+  const approved = dev.project_ids.filter((id) => ["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion"].includes(status.get(id) ?? "")).length;
+  if (approved > 0) await expect(totals.getByText(/^Aprobados o en trámite:/)).toContainText(`${approved} proyecto`);
+  await page.goto("/promotores");
+  const section = page.getByRole("region", { name: "Todos los promotores" });
+  await expect(section.getByRole("columnheader", { name: "Sin veredicto" })).toBeVisible();
 });

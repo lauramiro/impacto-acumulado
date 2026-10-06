@@ -10,7 +10,7 @@ import { loadMapData } from "@/lib/data/map-data";
 import { formatCoverage, formatDate, formatInt, formatMw } from "@/lib/format";
 import { sumFigures } from "@/lib/metrics";
 import { SITE_URL } from "@/lib/site";
-import { APPROVED_OR_PENDING, PROVINCES, REFUSED_OR_LAPSED, REGION, type StatsCell, type Status } from "@/lib/types";
+import { APPROVED_OR_PENDING, NO_VERDICT, PROVINCES, REFUSED_OR_LAPSED, REGION, type StatsCell, type Status } from "@/lib/types";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -31,12 +31,11 @@ export default async function HomePage() {
   const inGroup = (cells: StatsCell[], group: readonly Status[]) => sumFigures(cells.filter((c) => group.includes(c.status)));
   // A project whose gazette notice states no verdict is given apart: the
   // gazette does not say it was approved, so it does not swell that figure.
-  const approvedOrPending = APPROVED_OR_PENDING.filter((s) => s !== "desconocido");
-  const accumulating = inGroup(provinceStats[REGION], approvedOrPending);
-  const noVerdict = inGroup(provinceStats[REGION], ["desconocido"]);
+  const accumulating = inGroup(provinceStats[REGION], APPROVED_OR_PENDING);
+  const noVerdict = inGroup(provinceStats[REGION], NO_VERDICT);
   const refused = inGroup(provinceStats[REGION], REFUSED_OR_LAPSED);
   // Ranked on what is accumulating: a province is not "ahead" on refused projects.
-  const leaders = PROVINCES.map((p) => ({ province: p, mw: inGroup(provinceStats[p], approvedOrPending).mwBest }))
+  const leaders = PROVINCES.map((p) => ({ province: p, mw: inGroup(provinceStats[p], APPROVED_OR_PENDING).mwBest }))
     .sort((a, b) => b.mw - a.mw)
     .slice(0, 2)
     .map((r) => r.province)

@@ -116,7 +116,9 @@ test("a status row with no declared figure reads sin dato, and hectares carry a 
 
 type Cell = { status: string; project_count: number; mw_best: number };
 const stats: Record<string, { cells: Cell[] }> = JSON.parse(readFileSync(path.join(__dirname, "..", "public", "data", "municipality_stats.json"), "utf-8"));
-const ACCUMULATING = ["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion", "desconocido"];
+// The headline's set: projects with no verdict in the bulletin are given apart, never inside the total.
+const ACCUMULATING = ["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion"];
+const NO_VERDICT = ["desconocido"];
 const REFUSED = ["desfavorable", "caducado"];
 const sum = (ine: string, statuses: string[], key: "project_count" | "mw_best") =>
   stats[ine]!.cells.filter((c) => statuses.includes(c.status)).reduce((a, c) => a + c[key], 0);
@@ -138,4 +140,37 @@ test("the Total row counts approved or pending projects only; refused ones have 
   await expect(totals.getByRole("row", { name: /^Desfavorable/ })).toHaveCount(0);
   await expect(totals.getByTestId("nota-base-municipio")).toContainText(`${sum(ine, ACCUMULATING, "project_count")} proyectos aprobados o en trámite`);
   await expect(totals.getByText(/^MW declarados en \d+ de \d+ proyectos/)).toContainText(`de ${sum(ine, ACCUMULATING, "project_count")} proyectos`);
+});
+
+test("a municipality with no-verdict projects: the total, the map panel and the metadata agree, and the no-verdict row sits apart", async ({ page }) => {
+  // Tabernas: most of its projects state no verdict in the bulletin (data of 2026-10-06).
+  const ine = "04088";
+  expect(sum(ine, NO_VERDICT, "project_count")).toBeGreaterThan(0);
+  const projects = sum(ine, ACCUMULATING, "project_count");
+  const mw = mwText(sum(ine, ACCUMULATING, "mw_best"));
+
+  await page.goto(`/?m=${ine}`);
+  const panelTotal = page.getByRole("complementary", { name: "Municipio seleccionado" }).locator("dd").last();
+  await expect(panelTotal).toContainText(`${projects} proyecto`);
+  await expect(panelTotal).toContainText(`${mw} MW`);
+
+  await page.goto(`/municipio/${ine}`);
+  const totals = page.getByRole("region", { name: "Totales" });
+  const total = totals.getByRole("row", { name: /^Total aprobados o en trámite/ });
+  await expect(total.getByRole("cell").nth(0)).toHaveText(String(projects));
+  await expect(total.getByRole("cell").nth(1)).toHaveText(mw);
+  // Own row, outside the total and not among the status rows that add up to it.
+  const apart = totals.getByTestId("fila-sin-veredicto").getByRole("row", { name: /^Sin veredicto en el boletín/ });
+  await expect(apart.getByRole("cell").nth(0)).toHaveText(String(sum(ine, NO_VERDICT, "project_count")));
+  await expect(apart.getByRole("cell").nth(1)).toHaveText(mwText(sum(ine, NO_VERDICT, "mw_best")));
+  await expect(totals.getByRole("row", { name: /^Sin veredicto en el boletín/ })).toHaveCount(1);
+  await expect(totals.getByTestId("nota-base-municipio")).toContainText(`${projects} proyectos aprobados o en trámite`);
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", new RegExp(`^${mw.replaceAll(".", "\\.")} MW en ${projects} proyectos`));
+});
+
+test("a project with only a peak figure shows it, marked pico, in the municipality list", async ({ page }) => {
+  // PSFV Kurtuba (13,57 MWp) declares no nominal MW.
+  await page.goto("/municipio/41024");
+  const kurtuba = page.getByRole("article").filter({ hasText: "PSFV Kurtuba" }).first();
+  await expect(kurtuba).toContainText("13,6 MW pico");
 });

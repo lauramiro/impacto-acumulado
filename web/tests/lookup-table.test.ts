@@ -31,6 +31,7 @@ describe("developer MW column", () => {
     projects: 1,
     accumulatingMw: 0,
     accumulatingWithMw: 0,
+    noVerdict: 0,
     refused: 0,
     municipalities: 1,
     ...o,
@@ -39,6 +40,7 @@ describe("developer MW column", () => {
   it("marks no approved or pending projects apart from projects without MW", () => {
     expect(developerMwMark(row({ projects: 1, refused: 1 }))).toBe(NO_PROJECTS);
     expect(developerMwMark(row({ projects: 2, refused: 1 }))).toBe(NO_DATA);
+    expect(developerMwMark(row({ projects: 2, noVerdict: 2 }))).toBe(NO_PROJECTS);
     expect(developerMwMark(row({ projects: 2, accumulatingMw: 50, accumulatingWithMw: 1 }))).toBeNull();
   });
 

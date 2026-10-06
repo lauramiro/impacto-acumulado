@@ -2,7 +2,7 @@ import Link from "next/link";
 import { DeveloperLinks } from "@/components/developer-links";
 import { Figure } from "@/components/figure";
 import { StatusBadge } from "@/components/status-badge";
-import { formatDate, formatHa, formatInt, formatMw } from "@/lib/format";
+import { formatDate, formatHa, formatInt, formatProjectMw } from "@/lib/format";
 import { ROLE_LABELS, TECHNOLOGY_LABELS, VERDICT_LABELS } from "@/lib/labels";
 import type { GazetteDocument, Project } from "@/lib/types";
 import styles from "./project-record.module.css";
@@ -19,7 +19,7 @@ export function ProjectRecord({
   developerKeys: ReadonlyMap<string, string>;
 }) {
   const figures = [
-    project.mwNominal !== null ? formatMw(project.mwNominal) : null,
+    formatProjectMw(project.mwNominal, project.mwPeak),
     project.hectares !== null ? formatHa(project.hectares) : null,
     project.turbines !== null ? `${formatInt(project.turbines)} aerogeneradores` : null,
   ].filter((f): f is string => f !== null);

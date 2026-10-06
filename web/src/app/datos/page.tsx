@@ -150,6 +150,12 @@ export default async function DataPage() {
         </h3>
         <ul>
           <li>
+            Municipios y promotores: «aprobados o en trámite» ya no incluye los proyectos sin veredicto en el boletín, como el titular y el
+            mapa. Las páginas de municipio los dan en una fila aparte y las de promotor y el índice de promotores en una línea o columna
+            propia. Las listas de proyectos muestran la potencia pico («13,6 MW pico») cuando el proyecto no declara potencia nominal, como
+            ya hacía el índice de proyectos. Los ficheros de datos no cambian.
+          </li>
+          <li>
             Proyectos duplicados: un anuncio que no nombra municipio, o que nombra una planta dentro de un título con varias, se une
             al proyecto del mismo promotor que lleva ese nombre, si es el único y nada los separa (otro expediente, otros municipios,
             una línea frente a una planta, eólica frente a solar). Dos proyectos se unen a otro y{" "}

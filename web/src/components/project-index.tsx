@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { LookupTable } from "@/components/lookup-table";
 import { StatusBadge } from "@/components/status-badge";
-import { formatInt, formatMw, NO_DATA } from "@/lib/format";
+import { formatInt, formatProjectMw, NO_DATA } from "@/lib/format";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { projectSearchText, statusesPresent, type ProjectRow } from "@/lib/project-index";
 import type { Status } from "@/lib/types";
@@ -12,8 +12,7 @@ import styles from "./project-index.module.css";
 
 /** MW as the project page reads it: the nominal figure, else the peak (marked), else no figure. */
 function mwCell(r: ProjectRow): string {
-  if (r.mwNominal !== null) return formatMw(r.mwNominal);
-  return r.mwPeak !== null ? `${formatMw(r.mwPeak)} pico` : NO_DATA;
+  return formatProjectMw(r.mwNominal, r.mwPeak) ?? NO_DATA;
 }
 
 const mwSort = (r: ProjectRow) => r.mwNominal ?? r.mwPeak;

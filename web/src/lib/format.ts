@@ -80,6 +80,15 @@ export function formatMwDeclared(n: number, declared: number, total: number): st
   return isUndeclared(declared, total) ? `${NO_DATA} de MW` : formatMw(n);
 }
 
+/**
+ * A project's MW as every list reads it: the nominal figure, else the declared
+ * peak marked "pico" (the totals use it too), else null (nothing declared).
+ */
+export function formatProjectMw(nominal: number | null, peak: number | null): string | null {
+  if (nominal !== null) return formatMw(nominal);
+  return peak !== null ? `${formatMw(peak)} pico` : null;
+}
+
 /** A hectare sum, or "sin dato de ha" when none of the `total` projects declares a surface. */
 export function formatHaDeclared(n: number, declared: number, total: number): string {
   return isUndeclared(declared, total) ? `${NO_DATA} de ha` : formatHa(n);

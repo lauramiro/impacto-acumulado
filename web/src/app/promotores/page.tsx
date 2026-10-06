@@ -22,6 +22,7 @@ export default async function DevelopersPage() {
       projects: mine.length,
       accumulatingMw: t.accumulating.mw,
       accumulatingWithMw: t.accumulating.withMw,
+      noVerdict: t.noVerdict.projects,
       refused: t.refused.projects,
       municipalities: new Set(mine.flatMap((p) => p.ineCodes)).size,
     };

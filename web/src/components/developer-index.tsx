@@ -13,12 +13,14 @@ export type DeveloperRow = {
   projects: number;
   accumulatingMw: number;
   accumulatingWithMw: number;
+  /** Projects with no verdict in the bulletin: in neither the MW column nor the refused one. */
+  noVerdict: number;
   refused: number;
   municipalities: number;
 };
 
-/** Approved or pending projects: every project not counted as refused or lapsed (developerTotals splits them that way). */
-const accumulatingProjects = (r: DeveloperRow) => r.projects - r.refused;
+/** Approved or pending projects: every project not counted as refused, lapsed or with no verdict (developerTotals splits them that way). */
+const accumulatingProjects = (r: DeveloperRow) => r.projects - r.refused - r.noVerdict;
 
 /** NO_PROJECTS with no approved or pending projects, NO_DATA when none of them declares MW, else null. */
 export function developerMwMark(r: DeveloperRow) {
@@ -82,6 +84,7 @@ export function DeveloperRollupIndex({ rows }: { rows: RollupRow[] }) {
         { header: "Sociedades", numeric: true, cell: (r) => formatInt(r.companies), sortValue: (r) => r.companies },
         { header: "Proyectos", numeric: true, cell: (r) => formatInt(r.projects), sortValue: (r) => r.projects },
         { header: "MW aprobados o en trámite", numeric: true, cell: (r) => <MwCell r={r} />, sortValue: developerMwSort },
+        { header: "Sin veredicto", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.noVerdict), sortValue: (r) => r.noVerdict },
         { header: "Municipios", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.municipalities), sortValue: (r) => r.municipalities },
       ]}
     />
@@ -116,6 +119,7 @@ export function DeveloperIndex({ rows }: { rows: DeveloperRow[] }) {
           cell: (r) => <MwCell r={r} />,
           sortValue: developerMwSort,
         },
+        { header: "Sin veredicto", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.noVerdict), sortValue: (r) => r.noVerdict },
         { header: "Denegados o caducados", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.refused), sortValue: (r) => r.refused },
         { header: "Municipios", numeric: true, hideOnPhone: true, cell: (r) => formatInt(r.municipalities), sortValue: (r) => r.municipalities },
       ]}

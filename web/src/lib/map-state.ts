@@ -17,7 +17,7 @@ export type MapState = {
  * table and the index count the same projects the headline does. Those and refused or lapsed
  * projects are one tick away in the filters, and `estado=` in the URL carries any choice.
  */
-export const DEFAULT_STATUSES: readonly Status[] = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s) && s !== "desconocido");
+export const DEFAULT_STATUSES: readonly Status[] = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s));
 
 function sameSet<T>(a: ReadonlySet<T>, b: readonly T[]): boolean {
   return a.size === b.length && b.every((v) => a.has(v));

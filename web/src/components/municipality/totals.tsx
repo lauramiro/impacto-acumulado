@@ -2,7 +2,7 @@ import { Figure } from "@/components/figure";
 import { STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { absenceMark, formatCoverage, formatHa, formatInt, formatMwDeclared, formatNumber } from "@/lib/format";
 import { splitBy, sumFigures } from "@/lib/metrics";
-import { APPROVED_OR_PENDING, REFUSED_OR_LAPSED, STATUSES, TECHNOLOGIES, type Figures, type MunicipalityStats, type StatsCell } from "@/lib/types";
+import { APPROVED_OR_PENDING, NO_VERDICT, REFUSED_OR_LAPSED, STATUSES, TECHNOLOGIES, type Figures, type MunicipalityStats, type StatsCell } from "@/lib/types";
 import styles from "./totals.module.css";
 
 /** A coverage note read inside a sentence: "superficie declarada en 2 de 11 proyectos". */
@@ -14,22 +14,25 @@ const haCell = (f: Figures) => absenceMark(f.haCount, f.projectCount) ?? formatN
 
 /**
  * The cells split the way the headline splits them: approved or pending (which every total on the
- * page counts) and refused or lapsed (which have a row of their own, never added to the total).
+ * page counts), and refused or lapsed and with no verdict in the bulletin (each with a row of its
+ * own, never added to the total).
  */
-export function splitByHeadline(cells: readonly StatsCell[]): { accumulating: StatsCell[]; refused: StatsCell[] } {
+export function splitByHeadline(cells: readonly StatsCell[]): { accumulating: StatsCell[]; noVerdict: StatsCell[]; refused: StatsCell[] } {
   return {
     accumulating: cells.filter((c) => APPROVED_OR_PENDING.includes(c.status)),
+    noVerdict: cells.filter((c) => NO_VERDICT.includes(c.status)),
     refused: cells.filter((c) => REFUSED_OR_LAPSED.includes(c.status)),
   };
 }
 
 /** `areaHa`: the municipality's area, for the share of it the declared hectares cover. */
 export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: number }) {
-  const { accumulating, refused: refusedCells } = splitByHeadline(stats.cells);
+  const { accumulating, noVerdict: noVerdictCells, refused: refusedCells } = splitByHeadline(stats.cells);
   const figuresByStatus = splitBy(accumulating, "status");
   const byTech = splitBy(accumulating, "technology");
   const total = sumFigures(accumulating);
   const refused = sumFigures(refusedCells);
+  const noVerdict = sumFigures(noVerdictCells);
   const rows = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s) && (figuresByStatus.get(s)?.projectCount ?? 0) > 0);
   const techs = TECHNOLOGIES.filter((t) => t !== "linea_evacuacion" && (byTech.get(t)?.projectCount ?? 0) > 0);
   const lines = byTech.get("linea_evacuacion");
@@ -80,6 +83,22 @@ export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: nu
             </td>
           </tr>
         </tbody>
+        {noVerdict.projectCount > 0 ? (
+          <tbody className={styles.denegados} data-testid="fila-sin-veredicto">
+            <tr>
+              <th scope="row">{STATUS_LABELS.desconocido}</th>
+              <td className={styles.num}>
+                <Figure value={formatInt(noVerdict.projectCount)} />
+              </td>
+              <td className={styles.num}>
+                <Figure value={mwCell(noVerdict)} />
+              </td>
+              <td className={styles.num}>
+                <Figure value={haCell(noVerdict)} />
+              </td>
+            </tr>
+          </tbody>
+        ) : null}
         {refused.projectCount > 0 ? (
           <tbody className={styles.denegados} data-testid="fila-denegados">
             <tr>
@@ -98,8 +117,9 @@ export function Totals({ stats, areaHa }: { stats: MunicipalityStats; areaHa: nu
         ) : null}
       </table>
       <p className={styles.base} data-testid="nota-base-municipio">
-        Las cifras de esta página, salvo la fila de denegados o caducados, cuentan {formatInt(total.projectCount)}{" "}
+        Las cifras de esta página, salvo las filas de sin veredicto y de denegados o caducados, cuentan {formatInt(total.projectCount)}{" "}
         {total.projectCount === 1 ? "proyecto aprobado o en trámite" : "proyectos aprobados o en trámite"}, la misma base que el titular del mapa.
+        {noVerdict.projectCount > 0 ? " Los proyectos sin veredicto en el boletín no se suman al total: el boletín no dice que estén aprobados." : null}
         {refused.projectCount > 0 ? " Los denegados o caducados no se suman al total." : null}
       </p>
       <p className={styles.tech}>

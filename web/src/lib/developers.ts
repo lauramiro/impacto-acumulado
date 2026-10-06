@@ -1,5 +1,5 @@
 import type { DeveloperRow } from "@/components/developer-index";
-import { APPROVED_OR_PENDING, type Developer, type Project } from "./types";
+import { APPROVED_OR_PENDING, NO_VERDICT, type Developer, type Project } from "./types";
 
 /** The MW a project adds to a total: nominal, else the declared peak; none for an evacuation line (as in every aggregate). */
 export function projectMwBest(p: Project): number | null {
@@ -9,12 +9,12 @@ export function projectMwBest(p: Project): number | null {
 
 export type DeveloperTotal = { projects: number; mw: number; withMw: number; peak: number };
 
-/** Totals for a set of projects, split as on the home page: approved or pending, and refused or lapsed. */
-export function developerTotals(projects: readonly Project[]): { accumulating: DeveloperTotal; refused: DeveloperTotal } {
+/** Totals for a set of projects, split as on the home page: approved or pending, with no verdict in the bulletin, and refused or lapsed. */
+export function developerTotals(projects: readonly Project[]): { accumulating: DeveloperTotal; noVerdict: DeveloperTotal; refused: DeveloperTotal } {
   const zero = (): DeveloperTotal => ({ projects: 0, mw: 0, withMw: 0, peak: 0 });
-  const out = { accumulating: zero(), refused: zero() };
+  const out = { accumulating: zero(), noVerdict: zero(), refused: zero() };
   for (const p of projects) {
-    const t = APPROVED_OR_PENDING.includes(p.status) ? out.accumulating : out.refused;
+    const t = APPROVED_OR_PENDING.includes(p.status) ? out.accumulating : NO_VERDICT.includes(p.status) ? out.noVerdict : out.refused;
     t.projects += 1;
     const mw = projectMwBest(p);
     if (mw !== null) {
@@ -89,6 +89,7 @@ export function developerRollups(developers: readonly Developer[], projects: Rea
       projects: mine.length,
       accumulatingMw: t.accumulating.mw,
       accumulatingWithMw: t.accumulating.withMw,
+      noVerdict: t.noVerdict.projects,
       refused: t.refused.projects,
       municipalities: new Set(mine.flatMap((p) => p.ineCodes)).size,
       parentCompany: grupo ? lead.parentCompany : null,

@@ -3,12 +3,14 @@ export const STATUSES = ["en_consulta", "sin_resolucion", "favorable", "favorabl
 export type Status = (typeof STATUSES)[number];
 
 /**
- * The headline's two sums: what is accumulating (approved, or still in
- * process) and what was refused or lapsed. Projects with no verdict in the
- * gazette count with the first, and the headline says how many there are.
+ * The headline's three groups: what is accumulating (approved, or still in
+ * process), what was refused or lapsed, and what the gazette gives no verdict
+ * for. A project with no verdict is in neither sum (the gazette does not say it
+ * was approved); every page gives it on a line of its own.
  */
-export const APPROVED_OR_PENDING: readonly Status[] = ["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion", "desconocido"];
+export const APPROVED_OR_PENDING: readonly Status[] = ["favorable", "favorable_condicionada", "en_consulta", "sin_resolucion"];
 export const REFUSED_OR_LAPSED: readonly Status[] = ["desfavorable", "caducado"];
+export const NO_VERDICT: readonly Status[] = ["desconocido"];
 
 export const TECHNOLOGIES = ["solar_fv", "eolica", "hibrida", "almacenamiento", "linea_evacuacion", "otra"] as const;
 export type Technology = (typeof TECHNOLOGIES)[number];

@@ -15,7 +15,7 @@ import { loadProjectRecord } from "@/lib/data/project-record";
 import { loadSplittingGroups } from "@/lib/data/splitting";
 import { SplittingNote } from "@/components/splitting-note";
 import { loadProjects } from "@/lib/data/projects";
-import { formatMw } from "@/lib/format";
+import { formatProjectMw } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/labels";
 import styles from "./page.module.css";
 
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const names = project.ineCodes
     .map((ine) => munis.find((m) => m.ine === ine)?.name)
     .filter((name): name is string => name !== undefined);
-  const mw = project.mwNominal === null ? "potencia no indicada" : formatMw(project.mwNominal);
+  const mw = formatProjectMw(project.mwNominal, project.mwPeak) ?? "potencia no indicada";
   return {
     title: `${project.name} · Impacto Acumulado`,
     description: `${STATUS_LABELS[project.status]}, ${mw}, en ${names.join(", ")}. Resoluciones del BOE y el BOJA.`,

@@ -94,6 +94,7 @@ export default async function DeveloperPage({ params }: { params: Promise<Params
       <section aria-labelledby="totales" className={styles.seccion}>
         <h2 id="totales">Totales</h2>
         {totals.accumulating.projects > 0 ? <TotalLine label="Aprobados o en trámite" t={totals.accumulating} /> : null}
+        {totals.noVerdict.projects > 0 ? <TotalLine label="Sin veredicto en el boletín (no suman al total)" t={totals.noVerdict} /> : null}
         {totals.refused.projects > 0 ? <TotalLine label="Denegados o caducados" t={totals.refused} /> : null}
         {totals.accumulating.projects === 0 ? <p>Ningún proyecto aprobado o en trámite.</p> : null}
         {mine.some((p) => (p.developer ?? "").includes(";")) ? (
