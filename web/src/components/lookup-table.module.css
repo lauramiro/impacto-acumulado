@@ -10,6 +10,12 @@
   gap: 0.5rem 1rem;
 }
 
+/* The section's margin is the space above; the heading's own added 20px, which left a
+   60px gap under the page title on /proyectos and /promotores. */
+.cabecera h2 {
+  margin-top: 0;
+}
+
 .recuento {
   margin: 0;
   font-size: var(--texto-pie);
