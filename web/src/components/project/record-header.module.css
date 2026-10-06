@@ -1,4 +1,6 @@
 .header { margin: 1.5rem 0; }
-.eyebrow { margin: 0; font-size: var(--texto-pie); }
+/* Technology and status side by side, or one above the other on a phone: the status square
+   separates them, so no "·" is left dangling at the end of a line. */
+.eyebrow { margin: 0; font-size: var(--texto-pie); display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 1rem; }
 .nombre { font-size: var(--texto-nombre); margin: 0.25rem 0 0.5rem; }
 .promotor { margin: 0; }

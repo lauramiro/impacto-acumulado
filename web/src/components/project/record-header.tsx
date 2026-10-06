@@ -8,7 +8,7 @@ export function RecordHeader({ project, developerKeys }: { project: Project; dev
   return (
     <header className={styles.header}>
       <p className={`dato ${styles.eyebrow}`}>
-        {TECHNOLOGY_LABELS[project.technology]} · <StatusBadge status={project.status} />
+        <span>{TECHNOLOGY_LABELS[project.technology]}</span> <StatusBadge status={project.status} />
       </p>
       <h1 className={`display ${styles.nombre}`}>{project.name}</h1>
       <p className={styles.promotor}>
