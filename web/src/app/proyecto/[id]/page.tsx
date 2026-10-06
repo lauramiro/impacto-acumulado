@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { Conditions, Mentions } from "@/components/project/conditions";
 import { DocumentTimeline } from "@/components/project/document-timeline";
 import { FactSheet, type FieldEvidence } from "@/components/project/fact-sheet";
+import { ProjectLocation } from "@/components/project/location-map";
 import { Provenance } from "@/components/project/provenance";
 import { ReportError } from "@/components/report-error";
 import { RecordHeader } from "@/components/project/record-header";
 import { keysByPrintedName, loadDevelopers } from "@/lib/data/developers";
-import { loadMunicipalities } from "@/lib/data/municipalities";
+import { loadMunicipalities, loadMunicipalityOutlines } from "@/lib/data/municipalities";
 import { distinctNames, loadProjectDetails, protectedAreaKey } from "@/lib/data/project-details";
 import { loadProjectRecord } from "@/lib/data/project-record";
 import { loadSplittingGroups } from "@/lib/data/splitting";
@@ -57,7 +58,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
     loadDevelopers(),
     loadProjectDetails(),
   ]);
-  const [allProjects, splitting] = await Promise.all([loadProjects(), loadSplittingGroups()]);
+  const [allProjects, splitting, outlines] = await Promise.all([loadProjects(), loadSplittingGroups(), loadMunicipalityOutlines()]);
   const projectsById = new Map(allProjects.map((p) => [p.id, p]));
   if (!record) notFound();
   const details = allDetails.get(record.project.id) ?? [];
@@ -71,10 +72,13 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
   }
   const expedientes = distinctNames(details.map((d) => (d.expediente ? [d.expediente] : [])));
   const here = record.project.ineCodes.map((ine) => munis.find((m) => m.ine === ine)).filter((m) => m !== undefined);
+  const located = details.flatMap((d) => (d.location ? [{ documentId: d.documentId, doc: docById.get(d.documentId), location: d.location }] : []));
+  const places = here.map((m) => ({ ine: m.ine, name: m.name, outline: outlines.get(m.ine) }));
   return (
     <article className={styles.page}>
       <RecordHeader project={record.project} developerKeys={keysByPrintedName(developers)} />
       <FactSheet project={record.project} municipalities={here} evidence={evidence} expedientes={expedientes} />
+      <ProjectLocation located={located} places={places} />
       <SplittingNote
         groups={splitting.filter((g) => g.projectIds.includes(record.project.id))}
         projects={projectsById}

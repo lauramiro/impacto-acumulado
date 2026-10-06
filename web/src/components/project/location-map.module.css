@@ -1,0 +1,45 @@
+.section { margin: 2rem 0; }
+.figura { margin: 0 0 0.75rem; }
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-top: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+}
+.municipios path {
+  fill: var(--escala-1);
+  stroke: var(--neutro);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.poligonos path {
+  fill: var(--alerta);
+  fill-opacity: 0.3;
+  stroke: var(--alerta);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.puntos circle {
+  fill: var(--alerta);
+  stroke: var(--papel);
+  stroke-width: 1.5;
+}
+.nombre {
+  font-size: 13px;
+  fill: var(--tinta);
+  paint-order: stroke;
+  stroke: var(--papel);
+  stroke-width: 3px;
+  pointer-events: none;
+}
+.visor, .documentos { margin: 0 0 1rem; padding-left: 1.25rem; }
+.documentos > li { margin: 0.4rem 0; }
+.documentos ul { margin: 0.2rem 0; padding-left: 1rem; }
+.coordenadas { font-size: var(--texto-pie); margin: 0.2rem 0 0.4rem; }
+.coordenadas summary { cursor: pointer; width: fit-content; }
+.tablaWrap { overflow-x: auto; max-width: 100%; }
+.tablaWrap table { border-collapse: collapse; margin-top: 0.3rem; }
+.tablaWrap th, .tablaWrap td { padding: 0.15rem 0.6rem 0.15rem 0; text-align: right; white-space: nowrap; }
+.tablaWrap th:first-child, .tablaWrap td:first-child { text-align: left; }
+.figura figcaption { margin-top: 0.4rem; }

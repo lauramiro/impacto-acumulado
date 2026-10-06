@@ -39,7 +39,7 @@ test("project page shows the record, the timeline and which document fixed the s
   expect(await agrupado.count()).toBeGreaterThan(0);
   await expect(agrupado.first()).toContainText("Agrupado con confianza");
   expect(await page.locator("a[href^='https://www.boe.es/']").count()).toBeGreaterThan(0);
-  await expect(page.getByRole("link", { name: /Jerez de la Frontera/ })).toHaveAttribute("href", "/municipio/11020");
+  await expect(page.getByRole("link", { name: "Jerez de la Frontera (Cádiz)" })).toHaveAttribute("href", "/municipio/11020");
   await expect(page.getByRole("region", { name: "Cómo se ha construido esta ficha" })).toBeVisible();
   const noAplicaRow = page.locator("li", { hasText: "BOE-A-2020-14181" });
   await expect(noAplicaRow).toContainText("No aplica");
@@ -139,4 +139,50 @@ test("a protected site named in several spellings is listed once", async ({ page
   await expect(region.getByRole("heading", { name: /^Espacios y planes citados \(\d+\)$/ })).toBeVisible();
   await expect(region.getByText(/Andévalo Occidental/).filter({ hasText: /ZEC|Zona Especial/ })).toHaveCount(1);
   await expect(region.getByText("Plan de Conservación de aves necrófagas")).toHaveCount(1);
+});
+
+// Reads the real export: the first project whose documents place it by coordinates.
+function locatedProjectId(): number | null {
+  const file = path.join(__dirname, "..", "public", "data", "project_details.json");
+  const details = JSON.parse(readFileSync(file, "utf-8")) as Record<string, { location?: unknown }[]>;
+  const found = Object.entries(details).find(([, docs]) => docs.some((d) => d.location));
+  return found ? Number(found[0]) : null;
+}
+
+test("a project whose documents publish coordinates shows them on a map with a viewer link", async ({ page }) => {
+  const id = locatedProjectId();
+  expect(id, "project_details.json places no project by coordinates").not.toBeNull();
+  await page.goto(`/proyecto/${id}`);
+  const section = page.getByRole("region", { name: "Ubicación" });
+  const map = section.getByTestId("mapa-ubicacion");
+  await expect(map.locator("svg[role='img']")).toBeVisible();
+  expect(await map.locator("circle, .poligonos path").count()).toBeGreaterThan(0);
+  await expect(section.getByRole("link", { name: "Ver la zona en el visor SIGPAC" })).toHaveAttribute(
+    "href",
+    /^https:\/\/sigpac\.mapa\.gob\.es\/fega\/visor\/\?x=-\d\.\d{5}&y=3\d\.\d{5}&srid=4258&r=\d+$/,
+  );
+  await section.locator("summary", { hasText: "Coordenadas" }).first().click();
+  await expect(section.getByRole("columnheader", { name: "Latitud" }).first()).toBeVisible();
+});
+
+// Reads the real export: a project with one municipality that no document places by coordinates.
+function unlocatedProject(): { id: string; municipality: string } {
+  const data = path.join(__dirname, "..", "public", "data");
+  const details = JSON.parse(readFileSync(path.join(data, "project_details.json"), "utf-8")) as Record<string, { location?: unknown }[]>;
+  const rows = parse(readFileSync(path.join(data, "projects.csv"), "utf-8"), { columns: true, skip_empty_lines: true, bom: true }) as Record<string, string>[];
+  const row = rows.find((r) => r["ine_codes"]!.length === 5 && !(details[r["id"]!] ?? []).some((d) => d.location));
+  if (!row) throw new Error("every one-municipality project is placed by coordinates");
+  return { id: row["id"]!, municipality: row["municipalities"]! };
+}
+
+test("a project without coordinates says so and links its municipality in the official viewer", async ({ page }) => {
+  const { id, municipality } = unlocatedProject();
+  await page.goto(`/proyecto/${id}`);
+  const section = page.getByRole("region", { name: "Ubicación" });
+  await expect(section).toContainText("su posición dentro del municipio no se conoce");
+  await expect(section.getByTestId("mapa-ubicacion")).toHaveCount(0);
+  await expect(section.getByRole("link", { name: `${municipality} en el visor SIGPAC` })).toHaveAttribute(
+    "href",
+    /^https:\/\/sigpac\.mapa\.gob\.es\/fega\/visor\/\?x=-\d\.\d{5}&y=3\d\.\d{5}&srid=4258&r=\d+$/,
+  );
 });

@@ -298,7 +298,8 @@ export default async function MethodologyPage() {
         </li>
         <li>
           La capa de sensibilidad del mapa es la zonificación ambiental del Ministerio para energías renovables, clases alta, muy alta y
-          máxima, sobre una malla de 250 m y simplificada para la web. La ubicación de cada proyecto dentro de su municipio no se conoce.
+          máxima, sobre una malla de 250 m y simplificada para la web. La ubicación de un proyecto dentro de su municipio solo se conoce
+          cuando sus documentos publican coordenadas, y entonces se muestra en su página, no en este mapa.
         </li>
         <li>
           La serie mensual cuenta documentos: anuncios de información pública y resoluciones (declaraciones de impacto, autorizaciones

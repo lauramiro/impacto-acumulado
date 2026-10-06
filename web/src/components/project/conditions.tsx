@@ -6,7 +6,7 @@ import styles from "./conditions.module.css";
 
 type Props = { details: DocumentDetails[]; documents: GazetteDocument[] };
 
-function docLabel(d: GazetteDocument | undefined): string {
+export function docLabel(d: GazetteDocument | undefined): string {
   if (!d) return "documento";
   return `${d.role ? ROLE_LABELS[d.role] : "Documento"}, ${formatDate(d.publishedAt)}`;
 }

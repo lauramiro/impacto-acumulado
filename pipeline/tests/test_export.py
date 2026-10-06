@@ -11,6 +11,7 @@ from impacto.aggregate.export import (
     export_developers,
     export_evaluation,
     export_open_consultations,
+    export_project_details,
     export_sensitivity_geojson,
     export_splitting_candidates,
     project_details,
@@ -659,6 +660,7 @@ def test_project_details_keep_substance_and_drop_identity_numbers():
         "protected_areas_mentioned": [],
         "evidence": {},
         "utm_coordinates": [],
+        "location": None,
     }
     assert second["conditions"] == [
         {"category": "fauna", "text": "Parada biológica de marzo a julio."},
@@ -667,6 +669,75 @@ def test_project_details_keep_substance_and_drop_identity_numbers():
     assert second["species_mentioned"] == ["Aguilucho cenizo", "Sisón"]
     assert second["evidence"] == {"mw_nominal": "49,9 MW"}
     assert second["utm_coordinates"] == [{"x": 1.0, "y": 2.0, "zone": 30}]
+    assert second["location"] is None  # (1, 2) is nowhere near Andalusia
+
+
+RONDA_BOX = (-5.2, 36.7, -5.1, 36.8)  # tests/fixtures/municipalities_sample.geojson
+RONDA_TEXT = """Las coordenadas UTM (ETRS89 huso 30) de los vértices del vallado son:
+V1
+308.064
+4.069.295
+V2
+308.982
+4.070.384
+V3
+309.825
+4.068.145
+La línea de evacuación termina en la subestación de Málaga, coordenadas UTM X: 370.560 Y: 4.068.120."""
+
+
+def test_project_details_place_the_coordinates_the_text_prints_near_the_project():
+    rows = [
+        {
+            "project_id": 7,
+            "document_id": 2,
+            "published_at": date(2023, 1, 1),
+            "text": RONDA_TEXT,
+            "payload": {"utm_coordinates": [{"x": 999.0, "y": 1.0, "zone": 30}]},
+        }
+    ]
+    [doc] = project_details(rows, {7: RONDA_BOX})["7"]
+    location = doc["location"]
+    assert location["source"] == "texto"
+    # The substation in Málaga, 60 km away, is not where the project is.
+    [ring] = location["groups"]
+    assert ring["kind"] == "poligono"
+    assert (ring["zone"], ring["zone_stated"], ring["datum"]) == (30, True, "ETRS89")
+    assert ring["evidence"] == "Las coordenadas UTM (ETRS89 huso 30) de los vértices del vallado son:"
+    assert [p["label"] for p in ring["points"]] == ["V1", "V2", "V3"]
+    assert ring["points"][0] == {"label": "V1", "x": 308064.0, "y": 4069295.0, "lon": -5.15, "lat": 36.75}
+
+
+def test_export_project_details_places_a_document_by_its_project_municipalities(db, fixtures_dir, tmp_path, capsys):
+    seed(db, fixtures_dir)
+    with db.cursor() as cur:
+        cur.execute("UPDATE raw_documents SET text = %s WHERE source_id = 'B'", (RONDA_TEXT,))
+    db.commit()
+    run_resolve(db)
+    export_project_details(db, tmp_path)
+    details = json.loads((tmp_path / "project_details.json").read_text(encoding="utf-8"))
+    located = {pid: [d["location"] for d in docs if d["location"]] for pid, docs in details.items()}
+    [[location]] = [v for v in located.values() if v]
+    assert [len(g["points"]) for g in location["groups"]] == [3]
+    assert "1 of 2 projects located by coordinates" in capsys.readouterr().out
+
+
+def test_project_details_fall_back_to_the_model_and_try_both_zones():
+    # Zone 29 written without a zone: zone 30 would put it in the sea off Portugal.
+    rows = [
+        {
+            "project_id": 8,
+            "document_id": 5,
+            "published_at": date(2023, 1, 1),
+            "text": "Sin coordenadas en el texto.",
+            "payload": {"utm_coordinates": [{"x": 721582, "y": 4131084, "zone": None}]},
+        }
+    ]
+    [doc] = project_details(rows, {8: (-6.6, 37.2, -6.4, 37.4)})["8"]
+    assert doc["location"]["source"] == "modelo"
+    [group] = doc["location"]["groups"]
+    assert (group["zone"], group["zone_stated"], group["kind"]) == (29, False, "puntos")
+    assert (group["points"][0]["lon"], group["points"][0]["lat"]) == (-6.5, 37.3)
 
 
 def _add_document(db, source_id, title, payload, text):

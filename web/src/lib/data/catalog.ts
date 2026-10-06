@@ -69,7 +69,7 @@ export const CATALOG: CatalogEntry[] = [
   {
     file: "project_details.json",
     description:
-      "Por id de proyecto, lo que la extracción lee en cada documento además de la ficha: expediente, condiciones por categoría (resumidas por el modelo, no literales), especies y espacios protegidos citados, citas literales cortas que respaldan cada dato de la ficha y coordenadas UTM. Lectura automática: el texto que vale es el del boletín.",
+      "Por id de proyecto, lo que la extracción lee en cada documento además de la ficha: expediente, condiciones por categoría (resumidas por el modelo, no literales), especies y espacios protegidos citados, citas literales cortas que respaldan cada dato de la ficha, coordenadas UTM leídas por el modelo (utm_coordinates) y la ubicación (location): las coordenadas que publica el documento, leídas por regla, con datum, huso, la frase que las anuncia y longitud y latitud, solo las que caen junto a los municipios del proyecto. Lectura automática: el texto que vale es el del boletín.",
   },
   {
     file: "splitting_candidates.json",

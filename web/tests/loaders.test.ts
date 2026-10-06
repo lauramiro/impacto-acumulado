@@ -254,6 +254,19 @@ describe("loadProjectDetails", () => {
     const [doc] = details.get(1)!;
     expect(doc!.conditions).toEqual([{ category: "fauna", text: "Parada biológica de marzo a julio." }]);
     expect(doc!.evidence["mw_nominal"]).toBe("93 MW");
+    expect(doc!.location).toEqual({
+      source: "texto",
+      groups: [
+        {
+          kind: "puntos",
+          zone: 30,
+          zoneStated: true,
+          datum: "ETRS89",
+          evidence: "Coordenadas UTM (ETRS89, huso 30) de la subestación:",
+          points: [{ label: "SET", x: 300000, y: 4070000, lon: -5.24045, lat: 36.75469 }],
+        },
+      ],
+    });
     expect(details.has(2)).toBe(false);
   });
 

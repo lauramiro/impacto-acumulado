@@ -1,9 +1,44 @@
 import "server-only";
 import { readFile } from "node:fs/promises";
 import { dataFile } from "./paths";
-import { CONDITION_CATEGORIES, ProjectDetailsFileSchema } from "./schemas";
+import { CONDITION_CATEGORIES, type DocumentLocationSchema, ProjectDetailsFileSchema } from "./schemas";
+import type { z } from "zod";
 
 export type ConditionCategory = (typeof CONDITION_CATEGORIES)[number];
+
+type RawLocation = z.infer<typeof DocumentLocationSchema>;
+
+export type LocationPoint = { label: string | null; x: number; y: number; lon: number; lat: number };
+
+/** One table or list of coordinates a document prints, converted to longitude and latitude. */
+export type LocationGroup = {
+  kind: "puntos" | "poligono";
+  zone: 29 | 30;
+  /** False when the document gives no zone and the export chose the one that places the points in the project's municipalities. */
+  zoneStated: boolean;
+  datum: "ETRS89" | "ED50";
+  /** The heading that announces the coordinates, quoted from the document. */
+  evidence: string | null;
+  points: LocationPoint[];
+};
+
+/** Where one document places the project: read by rule from its text, or the model's reading when the rule finds nothing. */
+export type DocumentLocation = { source: "texto" | "modelo"; groups: LocationGroup[] };
+
+function toLocation(raw: RawLocation | null | undefined): DocumentLocation | null {
+  if (!raw) return null;
+  return {
+    source: raw.source,
+    groups: raw.groups.map((g) => ({
+      kind: g.kind,
+      zone: g.zone,
+      zoneStated: g.zone_stated,
+      datum: g.datum,
+      evidence: g.evidence,
+      points: g.points,
+    })),
+  };
+}
 
 /** What one document's extraction holds beyond the fact sheet. */
 export type DocumentDetails = {
@@ -14,6 +49,7 @@ export type DocumentDetails = {
   protectedAreas: string[];
   /** Field name (mw_nominal, hectares...) to a short quote from the document. */
   evidence: Record<string, string>;
+  location: DocumentLocation | null;
 };
 
 let cache: Promise<Map<number, DocumentDetails[]>> | null = null;
@@ -32,6 +68,7 @@ export function loadProjectDetails(): Promise<Map<number, DocumentDetails[]>> {
           species: d.species_mentioned,
           protectedAreas: d.protected_areas_mentioned,
           evidence: Object.fromEntries(Object.entries(d.evidence).map(([k, v]) => [k, unquote(v)])),
+          location: toLocation(d.location),
         })),
       ]),
     );

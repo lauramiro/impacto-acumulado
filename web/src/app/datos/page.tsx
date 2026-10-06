@@ -162,6 +162,14 @@ export default async function DataPage() {
             En la portada, los proyectos sin veredicto en el boletín se dan aparte y ya no suman en «Aprobados o en trámite».{" "}
             <span className="dato">projects.csv</span> no cambia.
           </li>
+          <li>
+            <span className="dato">project_details.json</span> gana <span className="dato">location</span> en cada documento: las
+            coordenadas UTM que publica (tablas de aerogeneradores, vértices de la poligonal, centro de la planta), leídas por regla del
+            texto completo o, si la regla no encuentra ninguna, las que leyó el modelo; con el datum y el huso, la frase que las
+            anuncia, y longitud y latitud calculadas en el proceso. Se descartan las que caen a más de unos 3 km de los municipios del
+            proyecto. Las páginas de proyecto las muestran en un mapa; las que no tienen coordenadas enlazan sus municipios en el
+            visor SIGPAC. Antes de la regla, 5 de 583 proyectos tenían coordenadas.
+          </li>
         </ul>
       </section>
       <section aria-labelledby="cambio-2026-10-05" className={styles.columnas}>

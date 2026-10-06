@@ -142,6 +142,31 @@ export const DevelopersFileSchema = z.array(
 
 export const CONDITION_CATEGORIES = ["fauna", "flora", "agua", "suelo", "paisaje", "patrimonio", "vigilancia", "compensacion", "general"] as const;
 
+// Andalusia with a margin: a converted point outside it is a pipeline bug, not data.
+const LocationPointSchema = z.object({
+  label: z.string().nullable(),
+  x: z.number(),
+  y: z.number(),
+  lon: z.number().min(-7.8).max(-1.3),
+  lat: z.number().min(35.8).max(38.9),
+});
+
+export const DocumentLocationSchema = z.object({
+  source: z.enum(["texto", "modelo"]),
+  groups: z
+    .array(
+      z.object({
+        kind: z.enum(["puntos", "poligono"]),
+        zone: z.union([z.literal(29), z.literal(30)]),
+        zone_stated: z.boolean(),
+        datum: z.enum(["ETRS89", "ED50"]),
+        evidence: z.string().nullable(),
+        points: z.array(LocationPointSchema).min(1),
+      }),
+    )
+    .min(1),
+});
+
 export const ProjectDetailsFileSchema = z.record(
   z.string().regex(/^\d+$/),
   z.array(
@@ -153,6 +178,8 @@ export const ProjectDetailsFileSchema = z.record(
       protected_areas_mentioned: z.array(z.string()),
       evidence: z.record(z.string(), z.string()),
       utm_coordinates: z.array(z.object({ x: z.number(), y: z.number(), zone: z.number().nullable().optional() })),
+      // Absent from an export written before the field existed.
+      location: DocumentLocationSchema.nullable().optional(),
     }),
   ),
 );
@@ -170,3 +197,16 @@ export const SplittingFileSchema = z.array(
     first_seen: z.tuple([z.string(), z.string()]),
   }),
 );
+
+/** municipalities_map.geojson: the coarse outlines, for the small map on a project page. */
+export const MunicipalityOutlinesFileSchema = z.object({
+  features: z.array(
+    z.object({
+      properties: z.object({ ine_code: z.string().length(5) }),
+      geometry: z.object({
+        type: z.enum(["Polygon", "MultiPolygon"]),
+        coordinates: z.array(z.unknown()),
+      }),
+    }),
+  ),
+});

@@ -14,6 +14,7 @@ from impacto.aggregate.splitting import splitting_candidates
 from impacto.consultations import deadline, parse_period
 from impacto.db.connect import connect
 from impacto.developers import GROUPS_FILE, build_developers, load_groups
+from impacto.extract.coordinates import find_coordinate_groups, model_groups, place, widen
 from impacto.fetch import coverage
 from impacto.http import CachedClient
 from impacto.privacy import has_identity_number
@@ -225,15 +226,34 @@ def _distinct(names) -> list[str]:
     return sorted(seen.values(), key=str.casefold)
 
 
-def project_details(rows: list[dict]) -> dict[str, list[dict]]:
+def document_location(text: str | None, utm_coordinates, bounds) -> dict | None:
+    """Where one document places its project: the coordinates its text prints, read by rule
+    (impacto.extract.coordinates), else the model's `utm_coordinates`; converted to WGS84 and
+    kept only where they fall within `bounds`. None when the document places nothing."""
+    groups = place(find_coordinate_groups(text or ""), bounds)
+    source = "texto"
+    if not groups:
+        groups = place(model_groups(utm_coordinates or []), bounds)
+        source = "modelo"
+    for g in groups:
+        if g["evidence"] and has_identity_number(g["evidence"]):
+            g["evidence"] = None
+    return {"source": source, "groups": groups} if groups else None
+
+
+def project_details(rows: list[dict], bounds: dict[int, tuple[float, float, float, float]] | None = None) -> dict[str, list[dict]]:
     """Per project, the substance each document's extraction holds, oldest document first.
 
     A document with nothing to show is left out. A quote or condition that
     holds an identity number is dropped: the site publishes no personal data.
+    `bounds` gives each project's municipalities' bounding box (lon/lat), the
+    area its coordinates must fall near.
     """
+    bounds = bounds or {}
     out: dict[str, list[dict]] = {}
     for r in sorted(rows, key=lambda r: (r["published_at"], r["document_id"])):
         p = r["payload"] or {}
+        box = bounds.get(r["project_id"])
         conditions = [
             {"category": c.get("category") or "general", "text": c["text"].strip()}
             for c in p.get("conditions") or []
@@ -252,8 +272,9 @@ def project_details(rows: list[dict]) -> dict[str, list[dict]]:
             "protected_areas_mentioned": _distinct(p.get("protected_areas_mentioned")),
             "evidence": evidence,
             "utm_coordinates": [c for c in p.get("utm_coordinates") or [] if isinstance(c, dict)],
+            "location": document_location(r.get("text"), p.get("utm_coordinates"), widen(box) if box else None),
         }
-        if any(doc[k] for k in ("expediente", "conditions", "species_mentioned", "protected_areas_mentioned", "evidence")):
+        if any(doc[k] for k in ("expediente", "conditions", "species_mentioned", "protected_areas_mentioned", "evidence", "location")):
             out.setdefault(str(r["project_id"]), []).append(doc)
     return out
 
@@ -263,13 +284,29 @@ def export_project_details(conn, out_dir: Path) -> Path:
     rows = _query(
         conn,
         """
-        SELECT pd.project_id, d.id AS document_id, d.published_at, e.payload
+        SELECT pd.project_id, d.id AS document_id, d.published_at, d.text, e.payload
         FROM project_documents pd
         JOIN raw_documents d ON d.id = pd.document_id
         JOIN extractions e ON e.document_id = d.id
         """,
     )
-    return _write_json(out_dir / "project_details.json", project_details(rows))
+    boxes = _query(
+        conn,
+        """
+        SELECT project_id, ST_XMin(box) AS lon_min, ST_YMin(box) AS lat_min, ST_XMax(box) AS lon_max, ST_YMax(box) AS lat_max
+        FROM (
+            SELECT pm.project_id, ST_Extent(m.geom) AS box
+            FROM project_municipalities pm JOIN municipalities m USING (ine_code)
+            GROUP BY pm.project_id
+        ) b
+        """,
+    )
+    bounds = {b["project_id"]: (b["lon_min"], b["lat_min"], b["lon_max"], b["lat_max"]) for b in boxes}
+    details = project_details(rows, bounds)
+    located = sum(1 for docs in details.values() if any(d["location"] for d in docs))
+    # Each rebuild reports how many projects the coordinates place.
+    print(f"project_details.json: {located} of {len({r['project_id'] for r in rows})} projects located by coordinates")
+    return _write_json(out_dir / "project_details.json", details)
 
 
 def export_splitting_candidates(conn, out_dir: Path) -> Path:
