@@ -4,7 +4,8 @@ import { useId, useMemo, useState } from "react";
 import { formatInt } from "@/lib/format";
 import { METRIC_LABELS, SENSITIVITY_LABELS, STATUS_LABELS, TECHNOLOGY_LABELS } from "@/lib/labels";
 import { splitBy } from "@/lib/metrics";
-import { APPROVED_OR_PENDING, METRICS, SENSITIVITY_LAYERS, STATUSES, TECHNOLOGIES, type Metric, type SensitivityLayer, type StatsCell, type Status, type Technology } from "@/lib/types";
+import { DEFAULT_STATUSES } from "@/lib/map-state";
+import { METRICS, SENSITIVITY_LAYERS, STATUSES, TECHNOLOGIES, type Metric, type SensitivityLayer, type StatsCell, type Status, type Technology } from "@/lib/types";
 import styles from "./controls.module.css";
 
 type Props = {
@@ -56,7 +57,7 @@ export function filterSummary(
       statuses,
       STATUS_LABELS,
       { all: "Todos los estados", none: "Ningún estado", some: "estados" },
-      { members: listed.filter((s) => APPROVED_OR_PENDING.includes(s)), label: "Aprobados o en trámite" },
+      { members: listed.filter((s) => DEFAULT_STATUSES.includes(s)), label: "Aprobados o en trámite" },
     ),
     groupSummary(TECHNOLOGIES, technologies, TECHNOLOGY_LABELS, { all: "Todas las tecnologías", none: "Ninguna tecnología", some: "tecnologías" }),
     ...layers,
@@ -142,7 +143,7 @@ export function Controls({
             </label>
           ))}
           <Shortcuts all={STATUSES} on={statuses} onSet={onStatuses} label="estados" />
-          <button type="button" className={`${styles.atajo} ${styles.atajoSolo}`} onClick={() => onStatuses(new Set(APPROVED_OR_PENDING))}>
+          <button type="button" className={`${styles.atajo} ${styles.atajoSolo}`} onClick={() => onStatuses(new Set(DEFAULT_STATUSES))}>
             solo aprobados o en trámite
           </button>
           {emptyStatuses.length > 0 ? (

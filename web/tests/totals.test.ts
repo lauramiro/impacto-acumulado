@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { splitByHeadline } from "@/components/municipality/totals";
 import { filterSummary } from "@/components/map/controls";
 import { sumFigures } from "@/lib/metrics";
-import { APPROVED_OR_PENDING, STATUSES, TECHNOLOGIES, type StatsCell, type Status } from "@/lib/types";
+import { DEFAULT_STATUSES } from "@/lib/map-state";
+import { STATUSES, TECHNOLOGIES, type StatsCell, type Status } from "@/lib/types";
 
 const cell = (status: Status, mwBest: number): StatsCell => ({ status, technology: "solar_fv", projectCount: 1, mwBest, mwCount: 1, mwPeakCount: 0, hectares: 0, haCount: 0 });
 
@@ -25,7 +26,7 @@ describe("splitByHeadline", () => {
 describe("filterSummary", () => {
   const techs = new Set(TECHNOLOGIES);
   it("names the default statuses as one state", () => {
-    expect(filterSummary(new Set(APPROVED_OR_PENDING), techs, false, "ninguna")).toBe("Aprobados o en trámite · Todas las tecnologías");
+    expect(filterSummary(new Set(DEFAULT_STATUSES), techs, false, "ninguna")).toBe("Aprobados o en trámite · Todas las tecnologías");
   });
   it("still says all statuses when all are on", () => {
     expect(filterSummary(new Set(STATUSES), techs, false, "ninguna")).toBe("Todos los estados · Todas las tecnologías");

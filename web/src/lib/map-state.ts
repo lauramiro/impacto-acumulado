@@ -12,11 +12,12 @@ export type MapState = {
 };
 
 /**
- * Statuses on when the URL names none: the headline's definition (approved or pending), so the
- * map, the province table and the index count the same projects the headline does. Refused or
- * lapsed projects are one tick away in the filters, and `estado=` in the URL carries any choice.
+ * Statuses on when the URL names none: the headline's basis (approved or pending; the headline
+ * shows projects with no verdict in the bulletin on their own line), so the map, the province
+ * table and the index count the same projects the headline does. Those and refused or lapsed
+ * projects are one tick away in the filters, and `estado=` in the URL carries any choice.
  */
-export const DEFAULT_STATUSES: readonly Status[] = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s));
+export const DEFAULT_STATUSES: readonly Status[] = STATUSES.filter((s) => APPROVED_OR_PENDING.includes(s) && s !== "desconocido");
 
 function sameSet<T>(a: ReadonlySet<T>, b: readonly T[]): boolean {
   return a.size === b.length && b.every((v) => a.has(v));

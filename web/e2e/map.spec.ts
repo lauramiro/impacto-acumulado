@@ -155,10 +155,10 @@ test("on a phone the filters fold behind a toggle that summarises them", async (
   await expect(page.getByTestId("resumen-filtros")).toHaveText("Aprobados o en trámite · Todas las tecnologías");
   await expect(page.getByRole("checkbox", { name: /^Desfavorable \(/ })).toBeHidden();
   await toggle.click();
-  // Refused projects are off by default; ticking one of the two refused statuses leaves one status short of all.
+  // Refused and no-verdict projects are off by default; ticking one refused status adds one to the default.
   await expect(page.getByRole("checkbox", { name: /^Desfavorable \(/ })).not.toBeChecked();
   await page.getByRole("checkbox", { name: /^Desfavorable \(/ }).check();
-  await expect(page.getByTestId("resumen-filtros")).toHaveText(`${listed.length - 1} de ${listed.length} estados · Todas las tecnologías`);
+  await expect(page.getByTestId("resumen-filtros")).toHaveText(`${listed.filter(([s]) => !["desfavorable", "caducado", "desconocido"].includes(s)).length + 1} de ${listed.length} estados · Todas las tecnologías`);
 });
 
 test("status and technology shortcuts select all or none in one click", async ({ page }) => {

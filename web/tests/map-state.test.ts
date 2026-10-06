@@ -6,10 +6,11 @@ describe("map state in the URL", () => {
   it("defaults to MW, the headline's statuses (approved or pending), nothing selected", () => {
     const s = parseMapState(new URLSearchParams(""));
     expect(s.metric).toBe("mw");
-    expect([...s.statuses].sort()).toEqual([...APPROVED_OR_PENDING].sort());
+    expect([...s.statuses].sort()).toEqual(APPROVED_OR_PENDING.filter((x) => x !== "desconocido").sort());
+    expect(s.statuses.has("desconocido")).toBe(false);
     expect(s.statuses.has("desfavorable")).toBe(false);
     expect(s.statuses.has("caducado")).toBe(false);
-    expect(DEFAULT_STATUSES).toEqual(STATUSES.filter((x) => APPROVED_OR_PENDING.includes(x)));
+    expect(DEFAULT_STATUSES).toEqual(STATUSES.filter((x) => APPROVED_OR_PENDING.includes(x) && x !== "desconocido"));
     expect(s.selected).toBeNull();
   });
   it("carries every status in the URL, since leaving estado out now means approved or pending", () => {
