@@ -20,8 +20,6 @@
   float: left;
   margin-right: 0.5rem;
   font-size: var(--texto-pie);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 .option {
@@ -110,8 +108,6 @@
 
 .plegarTitulo {
   font-size: var(--texto-pie);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 .resumen {

@@ -7,8 +7,6 @@
 .titulo {
   margin: 0 0 0.5rem;
   font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 .texto {
@@ -83,8 +81,6 @@
   margin: 0;
   font-size: var(--texto-pie);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 /* On a phone the municipalities are too small to tap reliably, so the instruction
